@@ -1,4 +1,5 @@
-import { getDashboardData, getMonthlyBalanceHistory, getExpensesByCategory, getMonthlySummary, getSetting } from "@/lib/queries";
+import { getDashboardData, getMonthlyBalanceHistory, getExpensesByCategory, getMonthlySummary } from "@/lib/queries";
+import { getExchangeRate } from "@/lib/currency";
 import { formatCurrency } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,15 +10,13 @@ import { MonthlySummary } from "@/components/monthly-summary";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const [data, balanceHistory, expensesByCategory, monthlySummary, exchangeRateStr] = await Promise.all([
+  const [data, balanceHistory, expensesByCategory, monthlySummary, exchangeRate] = await Promise.all([
     getDashboardData(),
     getMonthlyBalanceHistory(),
     getExpensesByCategory(),
     getMonthlySummary(),
-    getSetting("exchange_rate_eur_mga"),
+    getExchangeRate(),
   ]);
-
-  const exchangeRate = exchangeRateStr ? parseFloat(exchangeRateStr) : 5000;
   const totalInEUR = data.accounts.reduce((sum, account) => {
     const balance = account.calculated_balance ?? account.initial_balance;
     return sum + (account.currency === "MGA" ? balance / exchangeRate : balance);
@@ -77,7 +76,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">{formatCurrency(totalInEUR)}</p>
-            <p className="text-xs text-muted-foreground mt-1">Taux : 1 EUR = {exchangeRate} MGA</p>
+            <p className="text-xs text-muted-foreground mt-1">Taux auto : 1 EUR = {exchangeRate.toLocaleString("fr-FR")} MGA</p>
           </CardContent>
         </Card>
       )}

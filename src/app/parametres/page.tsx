@@ -5,17 +5,21 @@ import { CategorizationRules } from "@/components/categorization-rules";
 import { TagManager } from "@/components/tag-manager";
 import { CurrencySettings } from "@/components/currency-settings";
 import { getCategorizationRules, getSetting } from "@/lib/queries";
+import { getExchangeRate } from "@/lib/currency";
 import { getTagsAction } from "@/app/actions/tag-actions";
 import { saveExchangeRateAction } from "@/app/actions/settings-actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function ParametresPage() {
-  const [rules, tags, exchangeRate] = await Promise.all([
+  const [rules, tags, liveRate, fallbackRateStr] = await Promise.all([
     getCategorizationRules(),
     getTagsAction(),
+    getExchangeRate(),
     getSetting("exchange_rate_eur_mga"),
   ]);
+
+  const fallbackRate = fallbackRateStr ? parseFloat(fallbackRateStr) : 5000;
 
   return (
     <div className="space-y-6">
@@ -35,12 +39,13 @@ export default async function ParametresPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Taux de change</CardTitle>
+          <CardTitle>Taux de change EUR / MGA</CardTitle>
         </CardHeader>
         <CardContent>
           <CurrencySettings
-            currentRate={exchangeRate ? parseFloat(exchangeRate) : 5000}
-            onSave={saveExchangeRateAction}
+            liveRate={liveRate}
+            fallbackRate={fallbackRate}
+            onSaveFallback={saveExchangeRateAction}
           />
         </CardContent>
       </Card>
