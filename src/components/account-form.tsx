@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 
 export function AccountForm() {
   const [state, formAction, isPending] = useActionState(
-    async (_prev: unknown, formData: FormData) => {
-      return await createAccountAction(formData);
+    async (prev: unknown, formData: FormData) => {
+      return await createAccountAction(prev, formData);
     },
     null
   );

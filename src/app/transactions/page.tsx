@@ -16,23 +16,15 @@ import { TransactionFilters } from "@/components/transaction-filters";
 
 export const dynamic = "force-dynamic";
 
-export default function TransactionsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ accountId?: string }>;
-}) {
-  return <TransactionsContent searchParams={searchParams} />;
-}
-
-async function TransactionsContent({
+export default async function TransactionsPage({
   searchParams,
 }: {
   searchParams: Promise<{ accountId?: string }>;
 }) {
   const params = await searchParams;
   const accountId = params.accountId ? parseInt(params.accountId) : undefined;
-  const transactions = getTransactions(accountId);
-  const accounts = getAllAccounts();
+  const transactions = await getTransactions(accountId);
+  const accounts = await getAllAccounts();
 
   return (
     <div className="space-y-6">

@@ -10,8 +10,8 @@ import type { Account } from "@/lib/queries";
 
 export function TransactionForm({ accounts }: { accounts: Account[] }) {
   const [state, formAction, isPending] = useActionState(
-    async (_prev: unknown, formData: FormData) => {
-      return await createTransactionAction(formData);
+    async (prev: unknown, formData: FormData) => {
+      return await createTransactionAction(prev, formData);
     },
     null
   );

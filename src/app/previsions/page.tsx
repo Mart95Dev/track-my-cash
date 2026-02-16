@@ -13,23 +13,15 @@ import { ForecastControls } from "@/components/forecast-controls";
 
 export const dynamic = "force-dynamic";
 
-export default function PrevisionsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ months?: string }>;
-}) {
-  return <PrevisionsContent searchParams={searchParams} />;
-}
-
-async function PrevisionsContent({
+export default async function PrevisionsPage({
   searchParams,
 }: {
   searchParams: Promise<{ months?: string }>;
 }) {
   const params = await searchParams;
   const months = parseInt(params.months ?? "6");
-  const forecast = getForecast(months);
-  const accounts = getAllAccounts();
+  const forecast = await getForecast(months);
+  const accounts = await getAllAccounts();
 
   if (accounts.length === 0) {
     return (

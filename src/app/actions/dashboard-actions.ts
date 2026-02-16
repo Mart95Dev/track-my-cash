@@ -20,7 +20,7 @@ export async function importDataAction(jsonString: string) {
   if (!data.accounts || !data.transactions) {
     return { error: "Format de données invalide" };
   }
-  importAllData({
+  await importAllData({
     accounts: data.accounts,
     transactions: data.transactions,
     recurring: data.recurring || [],

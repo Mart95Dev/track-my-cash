@@ -1,22 +1,20 @@
-import Database from "better-sqlite3";
-import path from "path";
+import { createClient, type Client } from "@libsql/client";
 
-const DB_PATH = path.join(process.cwd(), "data", "finance.db");
+let client: Client | null = null;
 
-let db: Database.Database | null = null;
-
-export function getDb(): Database.Database {
-  if (!db) {
-    db = new Database(DB_PATH);
-    db.pragma("journal_mode = WAL");
-    db.pragma("foreign_keys = ON");
-    initSchema(db);
+export function getDb(): Client {
+  if (!client) {
+    client = createClient({
+      url: process.env.DATABASE_URL_TURSO!,
+      authToken: process.env.API_KEY_TURSO!,
+    });
   }
-  return db;
+  return client;
 }
 
-function initSchema(db: Database.Database) {
-  db.exec(`
+export async function initSchema() {
+  const db = getDb();
+  await db.executeMultiple(`
     CREATE TABLE IF NOT EXISTS accounts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -55,4 +53,13 @@ function initSchema(db: Database.Database) {
     CREATE INDEX IF NOT EXISTS idx_transactions_hash ON transactions(import_hash);
     CREATE INDEX IF NOT EXISTS idx_recurring_account ON recurring_payments(account_id);
   `);
+}
+
+let schemaInitialized = false;
+
+export async function ensureSchema() {
+  if (!schemaInitialized) {
+    await initSchema();
+    schemaInitialized = true;
+  }
 }

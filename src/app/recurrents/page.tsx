@@ -7,9 +7,9 @@ import { DeleteRecurringButton } from "@/components/delete-recurring-button";
 
 export const dynamic = "force-dynamic";
 
-export default function RecurrentsPage() {
-  const payments = getRecurringPayments();
-  const accounts = getAllAccounts();
+export default async function RecurrentsPage() {
+  const payments = await getRecurringPayments();
+  const accounts = await getAllAccounts();
 
   return (
     <div className="space-y-6">

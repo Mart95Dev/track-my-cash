@@ -10,8 +10,8 @@ import type { Account } from "@/lib/queries";
 
 export function RecurringForm({ accounts }: { accounts: Account[] }) {
   const [state, formAction, isPending] = useActionState(
-    async (_prev: unknown, formData: FormData) => {
-      return await createRecurringAction(formData);
+    async (prev: unknown, formData: FormData) => {
+      return await createRecurringAction(prev, formData);
     },
     null
   );

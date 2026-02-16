@@ -11,7 +11,7 @@ export async function getRecurringAction(accountId?: number) {
   return getRecurringPayments(accountId);
 }
 
-export async function createRecurringAction(formData: FormData) {
+export async function createRecurringAction(_prev: unknown, formData: FormData) {
   const accountId = parseInt(formData.get("accountId") as string);
   const name = formData.get("name") as string;
   const type = formData.get("type") as "income" | "expense";
@@ -24,14 +24,14 @@ export async function createRecurringAction(formData: FormData) {
     return { error: "Champs obligatoires manquants" };
   }
 
-  const payment = createRecurringPayment(accountId, name, type, amount, frequency, nextDate, category);
+  const payment = await createRecurringPayment(accountId, name, type, amount, frequency, nextDate, category);
   revalidatePath("/");
   revalidatePath("/recurrents");
   return { success: true, payment };
 }
 
 export async function deleteRecurringAction(id: number) {
-  deleteRecurringPayment(id);
+  await deleteRecurringPayment(id);
   revalidatePath("/");
   revalidatePath("/recurrents");
   return { success: true };

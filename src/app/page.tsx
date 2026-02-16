@@ -4,8 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 
-export default function DashboardPage() {
-  const data = getDashboardData();
+export default async function DashboardPage() {
+  const data = await getDashboardData();
 
   return (
     <div className="space-y-6">

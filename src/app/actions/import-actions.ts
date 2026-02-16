@@ -23,9 +23,7 @@ export async function importFileAction(formData: FormData) {
     const buffer = Buffer.from(await file.arrayBuffer());
     parseResult = parseRevolut(buffer);
   } else {
-    // CSV - detect encoding
     const arrayBuffer = await file.arrayBuffer();
-    // Try UTF-8 first, then ISO-8859-1
     let content = new TextDecoder("utf-8").decode(arrayBuffer);
     if (content.includes("�") || content.includes("Num")) {
       content = new TextDecoder("iso-8859-1").decode(arrayBuffer);
@@ -42,17 +40,15 @@ export async function importFileAction(formData: FormData) {
     return { error: "Aucune transaction trouvée dans le fichier" };
   }
 
-  // Generate hashes and check duplicates
   const transactionsWithHash = parseResult.transactions.map((t) => ({
     ...t,
     import_hash: generateImportHash(t.date, t.description, t.amount * (t.type === "expense" ? -1 : 1)),
   }));
 
-  const existingHashes = checkDuplicates(transactionsWithHash.map((t) => t.import_hash));
+  const existingHashes = await checkDuplicates(transactionsWithHash.map((t) => t.import_hash));
   const newTransactions = transactionsWithHash.filter((t) => !existingHashes.has(t.import_hash));
   const duplicateCount = transactionsWithHash.length - newTransactions.length;
 
-  // Return preview data for user confirmation
   return {
     success: true,
     preview: {
@@ -94,7 +90,7 @@ export async function confirmImportAction(
     import_hash: t.import_hash,
   }));
 
-  const count = bulkInsertTransactions(toInsert);
+  const count = await bulkInsertTransactions(toInsert);
   revalidatePath("/");
   revalidatePath("/transactions");
   return { success: true, imported: count };

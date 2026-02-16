@@ -11,7 +11,7 @@ export async function getTransactionsAction(accountId?: number) {
   return getTransactions(accountId);
 }
 
-export async function createTransactionAction(formData: FormData) {
+export async function createTransactionAction(_prev: unknown, formData: FormData) {
   const accountId = parseInt(formData.get("accountId") as string);
   const type = formData.get("type") as "income" | "expense";
   const amount = parseFloat(formData.get("amount") as string);
@@ -23,14 +23,14 @@ export async function createTransactionAction(formData: FormData) {
     return { error: "Champs obligatoires manquants" };
   }
 
-  const transaction = createTransaction(accountId, type, amount, date, category, description);
+  const transaction = await createTransaction(accountId, type, amount, date, category, description);
   revalidatePath("/");
   revalidatePath("/transactions");
   return { success: true, transaction };
 }
 
 export async function deleteTransactionAction(id: number) {
-  deleteTransaction(id);
+  await deleteTransaction(id);
   revalidatePath("/");
   revalidatePath("/transactions");
   return { success: true };

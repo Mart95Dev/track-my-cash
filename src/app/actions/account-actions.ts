@@ -16,7 +16,7 @@ export async function getAccountAction(id: number) {
   return getAccountById(id);
 }
 
-export async function createAccountAction(formData: FormData) {
+export async function createAccountAction(_prev: unknown, formData: FormData) {
   const name = formData.get("name") as string;
   const initialBalance = parseFloat(formData.get("initialBalance") as string) || 0;
   const balanceDate = formData.get("balanceDate") as string;
@@ -26,14 +26,14 @@ export async function createAccountAction(formData: FormData) {
     return { error: "Nom et date du solde requis" };
   }
 
-  const account = createAccount(name, initialBalance, balanceDate, currency);
+  const account = await createAccount(name, initialBalance, balanceDate, currency);
   revalidatePath("/");
   revalidatePath("/comptes");
   return { success: true, account };
 }
 
 export async function deleteAccountAction(id: number) {
-  deleteAccount(id);
+  await deleteAccount(id);
   revalidatePath("/");
   revalidatePath("/comptes");
   return { success: true };

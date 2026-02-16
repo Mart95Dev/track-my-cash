@@ -6,8 +6,8 @@ import { DeleteAccountButton } from "@/components/delete-account-button";
 
 export const dynamic = "force-dynamic";
 
-export default function ComptesPage() {
-  const accounts = getAllAccounts();
+export default async function ComptesPage() {
+  const accounts = await getAllAccounts();
 
   return (
     <div className="space-y-6">
