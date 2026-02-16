@@ -4,19 +4,21 @@ import { ResetButton } from "@/components/reset-button";
 import { CategorizationRules } from "@/components/categorization-rules";
 import { TagManager } from "@/components/tag-manager";
 import { CurrencySettings } from "@/components/currency-settings";
+import { OpenRouterKeySettings } from "@/components/openrouter-key-settings";
 import { getCategorizationRules, getSetting } from "@/lib/queries";
 import { getExchangeRate } from "@/lib/currency";
 import { getTagsAction } from "@/app/actions/tag-actions";
-import { saveExchangeRateAction } from "@/app/actions/settings-actions";
+import { saveExchangeRateAction, saveOpenRouterKeyAction } from "@/app/actions/settings-actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function ParametresPage() {
-  const [rules, tags, liveRate, fallbackRateStr] = await Promise.all([
+  const [rules, tags, liveRate, fallbackRateStr, openrouterKey] = await Promise.all([
     getCategorizationRules(),
     getTagsAction(),
     getExchangeRate(),
     getSetting("exchange_rate_eur_mga"),
+    getSetting("openrouter_api_key"),
   ]);
 
   const fallbackRate = fallbackRateStr ? parseFloat(fallbackRateStr) : 5000;
@@ -46,6 +48,18 @@ export default async function ParametresPage() {
             liveRate={liveRate}
             fallbackRate={fallbackRate}
             onSaveFallback={saveExchangeRateAction}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Conseiller IA (OpenRouter)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <OpenRouterKeySettings
+            hasKey={!!openrouterKey}
+            onSave={saveOpenRouterKeyAction}
           />
         </CardContent>
       </Card>

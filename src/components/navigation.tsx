@@ -20,6 +20,7 @@ const links = [
   { href: "/transactions", label: "Transactions" },
   { href: "/recurrents", label: "Récurrents" },
   { href: "/previsions", label: "Prévisions" },
+  { href: "/conseiller", label: "Conseiller IA" },
   { href: "/parametres", label: "Paramètres" },
 ];
 
