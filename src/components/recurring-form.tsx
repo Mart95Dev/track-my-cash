@@ -1,14 +1,16 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef, useEffect } from "react";
 import { createRecurringAction } from "@/app/actions/recurring-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CATEGORIES } from "@/lib/format";
+import { toast } from "sonner";
 import type { Account } from "@/lib/queries";
 
 export function RecurringForm({ accounts }: { accounts: Account[] }) {
+  const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction, isPending] = useActionState(
     async (prev: unknown, formData: FormData) => {
       return await createRecurringAction(prev, formData);
@@ -16,8 +18,17 @@ export function RecurringForm({ accounts }: { accounts: Account[] }) {
     null
   );
 
+  useEffect(() => {
+    if (state && "success" in state) {
+      toast.success("Paiement récurrent ajouté");
+      formRef.current?.reset();
+    } else if (state && "error" in state) {
+      toast.error(String(state.error));
+    }
+  }, [state]);
+
   return (
-    <form action={formAction} className="space-y-4">
+    <form ref={formRef} action={formAction} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label htmlFor="name">Nom</Label>
@@ -64,10 +75,6 @@ export function RecurringForm({ accounts }: { accounts: Account[] }) {
           </select>
         </div>
       </div>
-
-      {state && "error" in state && (
-        <p className="text-sm text-red-600">{state.error}</p>
-      )}
 
       <Button type="submit" disabled={isPending}>
         {isPending ? "Ajout..." : "Ajouter"}

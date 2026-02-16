@@ -12,6 +12,7 @@ export interface Account {
   currency: string;
   created_at: string;
   calculated_balance?: number;
+  alert_threshold?: number | null;
 }
 
 export interface Transaction {
@@ -48,6 +49,7 @@ function rowToAccount(row: Row): Account {
     balance_date: String(row.balance_date),
     currency: String(row.currency),
     created_at: String(row.created_at),
+    alert_threshold: row.alert_threshold != null ? Number(row.alert_threshold) : null,
   };
 }
 
@@ -179,6 +181,125 @@ export async function getTransactions(
 
   const result = await db.execute({ sql: query, args });
   return result.rows.map(rowToTransaction);
+}
+
+export async function searchTransactions(opts: {
+  accountId?: number;
+  search?: string;
+  sort?: string;
+  page?: number;
+  perPage?: number;
+}): Promise<{ transactions: Transaction[]; total: number }> {
+  await ensureSchema();
+  const db = getDb();
+  const perPage = opts.perPage ?? 20;
+  const page = opts.page ?? 1;
+  const conditions: string[] = [];
+  const args: (number | string)[] = [];
+
+  if (opts.accountId) {
+    conditions.push("t.account_id = ?");
+    args.push(opts.accountId);
+  }
+
+  if (opts.search) {
+    conditions.push("(t.description LIKE ? OR t.category LIKE ?)");
+    const q = `%${opts.search}%`;
+    args.push(q, q);
+  }
+
+  const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
+
+  let orderBy = "t.date DESC, t.id DESC";
+  if (opts.sort === "date_asc") orderBy = "t.date ASC, t.id ASC";
+  else if (opts.sort === "amount_desc") orderBy = "t.amount DESC";
+  else if (opts.sort === "amount_asc") orderBy = "t.amount ASC";
+
+  const countResult = await db.execute({
+    sql: `SELECT COUNT(*) as cnt FROM transactions t${where}`,
+    args,
+  });
+  const total = Number(countResult.rows[0].cnt);
+
+  const offset = (page - 1) * perPage;
+  const result = await db.execute({
+    sql: `SELECT t.*, a.name as account_name FROM transactions t LEFT JOIN accounts a ON t.account_id = a.id${where} ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
+    args: [...args, perPage, offset],
+  });
+
+  return { transactions: result.rows.map(rowToTransaction), total };
+}
+
+// ============ CHART DATA ============
+
+export async function getMonthlyBalanceHistory(months: number = 12) {
+  await ensureSchema();
+  const db = getDb();
+  const accounts = await getAllAccounts();
+  const now = new Date();
+  const data: { month: string; total: number }[] = [];
+
+  for (let i = months - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const endOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+    const dateStr = endOfMonth.toISOString().split("T")[0];
+    const label = d.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" });
+
+    let total = 0;
+    for (const account of accounts) {
+      const result = await db.execute({
+        sql: `SELECT COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END), 0) as net
+          FROM transactions WHERE account_id = ? AND date >= ? AND date <= ?`,
+        args: [account.id, account.balance_date, dateStr],
+      });
+      total += account.initial_balance + Number(result.rows[0].net);
+    }
+    data.push({ month: label, total: Math.round(total * 100) / 100 });
+  }
+  return data;
+}
+
+export async function getMonthlySummary() {
+  await ensureSchema();
+  const db = getDb();
+  const result = await db.execute(
+    `SELECT
+      strftime('%Y-%m', date) as month,
+      SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as income,
+      SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as expenses
+    FROM transactions
+    GROUP BY strftime('%Y-%m', date)
+    ORDER BY month DESC
+    LIMIT 12`
+  );
+
+  return result.rows.map((row) => ({
+    month: String(row.month),
+    income: Number(row.income),
+    expenses: Number(row.expenses),
+    net: Number(row.income) - Number(row.expenses),
+  }));
+}
+
+export async function getExpensesByCategory() {
+  await ensureSchema();
+  const db = getDb();
+  const now = new Date();
+  const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const monthEnd = nextMonth.toISOString().split("T")[0];
+
+  const result = await db.execute({
+    sql: `SELECT category, SUM(amount) as total FROM transactions
+      WHERE type = 'expense' AND date >= ? AND date < ?
+      GROUP BY category ORDER BY total DESC`,
+    args: [monthStart, monthEnd],
+  });
+
+  return result.rows.map((row) => ({
+    category: String(row.category),
+    total: Number(row.total),
+  }));
 }
 
 export async function createTransaction(
@@ -487,4 +608,132 @@ export async function importAllData(data: {
   if (recStmts.length > 0) {
     await db.batch(recStmts, "write");
   }
+}
+
+// ============ UPDATE (EDIT) ============
+
+export async function updateAccount(
+  id: number,
+  name: string,
+  initialBalance: number,
+  balanceDate: string,
+  currency: string,
+  alertThreshold: number | null
+): Promise<void> {
+  await ensureSchema();
+  const db = getDb();
+  await db.execute({
+    sql: "UPDATE accounts SET name = ?, initial_balance = ?, balance_date = ?, currency = ?, alert_threshold = ? WHERE id = ?",
+    args: [name, initialBalance, balanceDate, currency, alertThreshold, id],
+  });
+}
+
+export async function updateTransaction(
+  id: number,
+  accountId: number,
+  type: "income" | "expense",
+  amount: number,
+  date: string,
+  category: string,
+  description: string
+): Promise<void> {
+  await ensureSchema();
+  const db = getDb();
+  await db.execute({
+    sql: "UPDATE transactions SET account_id = ?, type = ?, amount = ?, date = ?, category = ?, description = ? WHERE id = ?",
+    args: [accountId, type, amount, date, category, description, id],
+  });
+}
+
+export async function updateRecurringPayment(
+  id: number,
+  accountId: number,
+  name: string,
+  type: "income" | "expense",
+  amount: number,
+  frequency: string,
+  nextDate: string,
+  category: string
+): Promise<void> {
+  await ensureSchema();
+  const db = getDb();
+  await db.execute({
+    sql: "UPDATE recurring_payments SET account_id = ?, name = ?, type = ?, amount = ?, frequency = ?, next_date = ?, category = ? WHERE id = ?",
+    args: [accountId, name, type, amount, frequency, nextDate, category, id],
+  });
+}
+
+// ============ CATEGORIZATION RULES ============
+
+export interface CategorizationRule {
+  id: number;
+  pattern: string;
+  category: string;
+  priority: number;
+}
+
+export async function getCategorizationRules(): Promise<CategorizationRule[]> {
+  await ensureSchema();
+  const db = getDb();
+  const result = await db.execute("SELECT * FROM categorization_rules ORDER BY priority DESC");
+  return result.rows.map((row) => ({
+    id: Number(row.id),
+    pattern: String(row.pattern),
+    category: String(row.category),
+    priority: Number(row.priority),
+  }));
+}
+
+export async function createCategorizationRule(
+  pattern: string,
+  category: string,
+  priority: number
+): Promise<void> {
+  await ensureSchema();
+  const db = getDb();
+  await db.execute({
+    sql: "INSERT INTO categorization_rules (pattern, category, priority) VALUES (?, ?, ?)",
+    args: [pattern, category, priority],
+  });
+}
+
+export async function deleteCategorizationRule(id: number): Promise<void> {
+  await ensureSchema();
+  const db = getDb();
+  await db.execute({ sql: "DELETE FROM categorization_rules WHERE id = ?", args: [id] });
+}
+
+export async function autoCategorize(description: string): Promise<string> {
+  const rules = await getCategorizationRules();
+  for (const rule of rules) {
+    try {
+      const regex = new RegExp(rule.pattern, "i");
+      if (regex.test(description)) {
+        return rule.category;
+      }
+    } catch {
+      if (description.toLowerCase().includes(rule.pattern.toLowerCase())) {
+        return rule.category;
+      }
+    }
+  }
+  return "Autre";
+}
+
+// ============ SETTINGS ============
+
+export async function getSetting(key: string): Promise<string | null> {
+  await ensureSchema();
+  const db = getDb();
+  const result = await db.execute({ sql: "SELECT value FROM settings WHERE key = ?", args: [key] });
+  return result.rows.length > 0 ? String(result.rows[0].value) : null;
+}
+
+export async function setSetting(key: string, value: string): Promise<void> {
+  await ensureSchema();
+  const db = getDb();
+  await db.execute({
+    sql: "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+    args: [key, value],
+  });
 }

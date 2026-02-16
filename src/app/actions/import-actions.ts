@@ -5,6 +5,7 @@ import {
   generateImportHash,
   checkDuplicates,
   bulkInsertTransactions,
+  autoCategorize,
 } from "@/lib/queries";
 import { revalidatePath } from "next/cache";
 
@@ -80,15 +81,17 @@ export async function confirmImportAction(
     import_hash: string;
   }[]
 ) {
-  const toInsert = transactions.map((t) => ({
-    account_id: accountId,
-    type: t.type,
-    amount: t.amount,
-    date: t.date,
-    category: t.type === "income" ? "Autre revenu" : "Autre dépense",
-    description: t.description,
-    import_hash: t.import_hash,
-  }));
+  const toInsert = await Promise.all(
+    transactions.map(async (t) => ({
+      account_id: accountId,
+      type: t.type,
+      amount: t.amount,
+      date: t.date,
+      category: await autoCategorize(t.description),
+      description: t.description,
+      import_hash: t.import_hash,
+    }))
+  );
 
   const count = await bulkInsertTransactions(toInsert);
   revalidatePath("/");

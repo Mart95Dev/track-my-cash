@@ -3,31 +3,34 @@
 import { useTransition } from "react";
 import { importDataAction } from "@/app/actions/dashboard-actions";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { toast } from "sonner";
 
 export function ResetButton() {
   const [isPending, startTransition] = useTransition();
 
-  function handleReset() {
-    if (!confirm("ATTENTION : Toutes les données seront supprimées. Continuer ?")) return;
-    if (!confirm("DERNIÈRE CONFIRMATION : Cette action est irréversible.")) return;
-
-    startTransition(async () => {
-      const result = await importDataAction(
-        JSON.stringify({ accounts: [], transactions: [], recurring: [] })
-      );
-      if (result.error) {
-        toast.error("Erreur lors de la réinitialisation");
-      } else {
-        toast.success("Toutes les données ont été réinitialisées");
-        window.location.reload();
-      }
-    });
-  }
-
   return (
-    <Button variant="destructive" onClick={handleReset} disabled={isPending}>
-      {isPending ? "Suppression..." : "Réinitialiser toutes les données"}
-    </Button>
+    <ConfirmDialog
+      trigger={
+        <Button variant="destructive" disabled={isPending}>
+          {isPending ? "Suppression..." : "Réinitialiser toutes les données"}
+        </Button>
+      }
+      title="Réinitialiser toutes les données"
+      description="ATTENTION : Tous les comptes, transactions et paiements récurrents seront supprimés. Cette action est irréversible."
+      onConfirm={() => {
+        startTransition(async () => {
+          const result = await importDataAction(
+            JSON.stringify({ accounts: [], transactions: [], recurring: [] })
+          );
+          if (result.error) {
+            toast.error("Erreur lors de la réinitialisation");
+          } else {
+            toast.success("Toutes les données ont été réinitialisées");
+            window.location.reload();
+          }
+        });
+      }}
+    />
   );
 }

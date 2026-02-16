@@ -52,7 +52,47 @@ export async function initSchema() {
     CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);
     CREATE INDEX IF NOT EXISTS idx_transactions_hash ON transactions(import_hash);
     CREATE INDEX IF NOT EXISTS idx_recurring_account ON recurring_payments(account_id);
+
+    CREATE TABLE IF NOT EXISTS categorization_rules (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      pattern TEXT NOT NULL,
+      category TEXT NOT NULL,
+      priority INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS tags (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL UNIQUE,
+      color TEXT NOT NULL DEFAULT '#6b7280'
+    );
+
+    CREATE TABLE IF NOT EXISTS transaction_tags (
+      transaction_id INTEGER NOT NULL REFERENCES transactions(id) ON DELETE CASCADE,
+      tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+      PRIMARY KEY (transaction_id, tag_id)
+    );
   `);
+
+  // Add columns if they don't exist (safe ALTER TABLE)
+  const migrations = [
+    "ALTER TABLE accounts ADD COLUMN alert_threshold REAL",
+    "ALTER TABLE accounts ADD COLUMN statement_balance REAL",
+    "ALTER TABLE accounts ADD COLUMN statement_date TEXT",
+    "ALTER TABLE transactions ADD COLUMN reconciled INTEGER DEFAULT 0",
+  ];
+  for (const sql of migrations) {
+    try {
+      await db.execute(sql);
+    } catch {
+      // Column already exists, ignore
+    }
+  }
 }
 
 let schemaInitialized = false;

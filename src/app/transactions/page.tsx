@@ -1,4 +1,4 @@
-import { getTransactions, getAllAccounts } from "@/lib/queries";
+import { searchTransactions, getAllAccounts } from "@/lib/queries";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -11,24 +11,36 @@ import {
 } from "@/components/ui/table";
 import { TransactionForm } from "@/components/transaction-form";
 import { DeleteTransactionButton } from "@/components/delete-transaction-button";
+import { EditTransactionDialog } from "@/components/edit-transaction-dialog";
 import { ImportButton } from "@/components/import-button";
-import { TransactionFilters } from "@/components/transaction-filters";
+import { TransactionSearch } from "@/components/transaction-search";
+import { Pagination } from "@/components/pagination";
+import { ExportTransactions } from "@/components/export-transactions";
 
 export const dynamic = "force-dynamic";
 
 export default async function TransactionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ accountId?: string }>;
+  searchParams: Promise<{ accountId?: string; q?: string; sort?: string; page?: string }>;
 }) {
   const params = await searchParams;
   const accountId = params.accountId ? parseInt(params.accountId) : undefined;
-  const transactions = await getTransactions(accountId);
-  const accounts = await getAllAccounts();
+  const search = params.q || undefined;
+  const sort = params.sort || "date_desc";
+  const page = params.page ? parseInt(params.page) : 1;
+  const perPage = 20;
+
+  const [{ transactions, total }, accounts] = await Promise.all([
+    searchTransactions({ accountId, search, sort, page, perPage }),
+    getAllAccounts(),
+  ]);
+
+  const totalPages = Math.ceil(total / perPage);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h2 className="text-2xl font-bold">Transactions</h2>
         <ImportButton accounts={accounts} />
       </div>
@@ -42,7 +54,15 @@ export default async function TransactionsPage({
         </CardContent>
       </Card>
 
-      <TransactionFilters accounts={accounts} currentAccountId={accountId} />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <TransactionSearch
+          accounts={accounts}
+          currentAccountId={accountId}
+          currentSearch={search}
+          currentSort={sort}
+        />
+        <ExportTransactions transactions={transactions} />
+      </div>
 
       <Card>
         <CardContent className="p-0">
@@ -51,44 +71,82 @@ export default async function TransactionsPage({
               Aucune transaction
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Compte</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Catégorie</TableHead>
-                  <TableHead className="text-right">Montant</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Desktop table */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Compte</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Catégorie</TableHead>
+                      <TableHead className="text-right">Montant</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {transactions.map((tx) => (
+                      <TableRow key={tx.id}>
+                        <TableCell className="whitespace-nowrap">
+                          {formatDate(tx.date)}
+                        </TableCell>
+                        <TableCell>{tx.account_name ?? "—"}</TableCell>
+                        <TableCell>{tx.description || "—"}</TableCell>
+                        <TableCell>{tx.category}</TableCell>
+                        <TableCell
+                          className={`text-right font-medium whitespace-nowrap ${
+                            tx.type === "income"
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-red-600 dark:text-red-400"
+                          }`}
+                        >
+                          {tx.type === "income" ? "+" : "-"}
+                          {formatCurrency(tx.amount)}
+                        </TableCell>
+                        <TableCell className="flex gap-1">
+                          <EditTransactionDialog transaction={tx} accounts={accounts} />
+                          <DeleteTransactionButton id={tx.id} />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile cards */}
+              <div className="md:hidden divide-y">
                 {transactions.map((tx) => (
-                  <TableRow key={tx.id}>
-                    <TableCell className="whitespace-nowrap">
-                      {formatDate(tx.date)}
-                    </TableCell>
-                    <TableCell>{tx.account_name ?? "—"}</TableCell>
-                    <TableCell>{tx.description || "—"}</TableCell>
-                    <TableCell>{tx.category}</TableCell>
-                    <TableCell
-                      className={`text-right font-medium whitespace-nowrap ${
-                        tx.type === "income" ? "text-green-600" : "text-red-600"
-                      }`}
-                    >
-                      {tx.type === "income" ? "+" : "-"}
-                      {formatCurrency(tx.amount)}
-                    </TableCell>
-                    <TableCell>
+                  <div key={tx.id} className="p-4 flex items-center justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium truncate">{tx.description || tx.category}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDate(tx.date)} — {tx.account_name ?? "—"}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span
+                        className={`font-medium ${
+                          tx.type === "income"
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-red-600 dark:text-red-400"
+                        }`}
+                      >
+                        {tx.type === "income" ? "+" : "-"}
+                        {formatCurrency(tx.amount)}
+                      </span>
+                      <EditTransactionDialog transaction={tx} accounts={accounts} />
                       <DeleteTransactionButton id={tx.id} />
-                    </TableCell>
-                  </TableRow>
+                    </div>
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
+
+      <Pagination currentPage={page} totalPages={totalPages} />
     </div>
   );
 }

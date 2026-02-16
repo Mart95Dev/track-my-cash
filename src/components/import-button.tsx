@@ -18,6 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { toast } from "sonner";
 import type { Account } from "@/lib/queries";
 
 interface PreviewData {
@@ -55,7 +56,7 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
     startTransition(async () => {
       const result = await importFileAction(formData);
       if ("error" in result) {
-        alert(result.error);
+        toast.error(result.error);
       } else if (result.preview) {
         setPreview(result.preview);
         setIsOpen(true);
@@ -69,11 +70,11 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
     if (!preview) return;
 
     startTransition(async () => {
-      const result = await confirmImportAction(selectedAccountId, preview.transactions);
-      if ("error" in result) {
-        alert(result.error);
+      const result = await confirmImportAction(selectedAccountId, preview.transactions) as { error?: string; imported?: number };
+      if (result.error) {
+        toast.error(result.error);
       } else {
-        alert(`${result.imported} transaction(s) importée(s)`);
+        toast.success(`${result.imported} transaction(s) importée(s)`);
         setIsOpen(false);
         setPreview(null);
       }
@@ -131,9 +132,9 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
 
               <div className="flex gap-4 text-sm">
                 <span>{preview.totalCount} transactions trouvées</span>
-                <span className="text-green-600">{preview.newCount} nouvelles</span>
+                <span className="text-green-600 dark:text-green-400">{preview.newCount} nouvelles</span>
                 {preview.duplicateCount > 0 && (
-                  <span className="text-orange-600">
+                  <span className="text-orange-600 dark:text-orange-400">
                     {preview.duplicateCount} doublons ignorés
                   </span>
                 )}
@@ -155,7 +156,9 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
                         <TableCell>{tx.description}</TableCell>
                         <TableCell
                           className={`text-right font-medium ${
-                            tx.type === "income" ? "text-green-600" : "text-red-600"
+                            tx.type === "income"
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-red-600 dark:text-red-400"
                           }`}
                         >
                           {tx.type === "income" ? "+" : "-"}

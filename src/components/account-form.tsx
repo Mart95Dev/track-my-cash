@@ -1,12 +1,14 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef, useEffect } from "react";
 import { createAccountAction } from "@/app/actions/account-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 export function AccountForm() {
+  const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction, isPending] = useActionState(
     async (prev: unknown, formData: FormData) => {
       return await createAccountAction(prev, formData);
@@ -14,8 +16,17 @@ export function AccountForm() {
     null
   );
 
+  useEffect(() => {
+    if (state && "success" in state) {
+      toast.success("Compte créé avec succès");
+      formRef.current?.reset();
+    } else if (state && "error" in state) {
+      toast.error(String(state.error));
+    }
+  }, [state]);
+
   return (
-    <form action={formAction} className="space-y-4">
+    <form ref={formRef} action={formAction} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="name">Nom du compte</Label>
@@ -55,10 +66,6 @@ export function AccountForm() {
           </select>
         </div>
       </div>
-
-      {state && "error" in state && (
-        <p className="text-sm text-red-600">{state.error}</p>
-      )}
 
       <Button type="submit" disabled={isPending}>
         {isPending ? "Création..." : "Ajouter le compte"}

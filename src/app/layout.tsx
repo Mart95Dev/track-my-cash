@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { Navigation } from "@/components/navigation";
+import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
@@ -10,7 +11,7 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Gestionnaire de Comptes",
+  title: "BankSolo — Gestionnaire de Comptes",
   description: "Gérez vos finances simplement et efficacement",
 };
 
@@ -20,15 +21,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <body className={`${geistSans.variable} font-sans antialiased bg-background text-foreground`}>
-        <div className="min-h-screen">
-          <Navigation />
-          <main className="max-w-7xl mx-auto px-4 py-6">
-            {children}
-          </main>
-        </div>
-        <Toaster richColors />
+        <ThemeProvider>
+          <div className="min-h-screen">
+            <Navigation />
+            <main className="max-w-7xl mx-auto px-4 py-6">
+              {children}
+            </main>
+          </div>
+          <Toaster richColors />
+        </ThemeProvider>
       </body>
     </html>
   );

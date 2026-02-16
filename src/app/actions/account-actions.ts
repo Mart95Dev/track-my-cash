@@ -5,6 +5,7 @@ import {
   createAccount,
   deleteAccount,
   getAccountById,
+  updateAccount,
 } from "@/lib/queries";
 import { revalidatePath } from "next/cache";
 
@@ -30,6 +31,25 @@ export async function createAccountAction(_prev: unknown, formData: FormData) {
   revalidatePath("/");
   revalidatePath("/comptes");
   return { success: true, account };
+}
+
+export async function updateAccountAction(_prev: unknown, formData: FormData) {
+  const id = parseInt(formData.get("id") as string);
+  const name = formData.get("name") as string;
+  const initialBalance = parseFloat(formData.get("initialBalance") as string) || 0;
+  const balanceDate = formData.get("balanceDate") as string;
+  const currency = (formData.get("currency") as string) || "EUR";
+  const alertThresholdStr = formData.get("alertThreshold") as string;
+  const alertThreshold = alertThresholdStr ? parseFloat(alertThresholdStr) : null;
+
+  if (!id || !name || !balanceDate) {
+    return { error: "Champs obligatoires manquants" };
+  }
+
+  await updateAccount(id, name, initialBalance, balanceDate, currency, alertThreshold);
+  revalidatePath("/");
+  revalidatePath("/comptes");
+  return { success: true };
 }
 
 export async function deleteAccountAction(id: number) {
