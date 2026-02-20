@@ -112,7 +112,7 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-4xl flex flex-col max-h-[85vh]">
           <DialogHeader>
             <DialogTitle>
               Aperçu import — {preview?.bankName}
@@ -120,9 +120,9 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
           </DialogHeader>
 
           {preview && (
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4 flex-1 overflow-hidden">
               {preview.detectedBalance !== null && (
-                <div className="rounded-lg border bg-blue-50 p-4 dark:bg-blue-950">
+                <div className="rounded-lg border bg-blue-50 p-4 dark:bg-blue-950 shrink-0">
                   <p className="font-medium">
                     Solde détecté : {formatCurrency(preview.detectedBalance, preview.currency)}
                     {preview.detectedBalanceDate && ` au ${formatDate(preview.detectedBalanceDate)}`}
@@ -130,7 +130,7 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
                 </div>
               )}
 
-              <div className="flex gap-4 text-sm">
+              <div className="flex gap-4 text-sm shrink-0">
                 <span>{preview.totalCount} transactions trouvées</span>
                 <span className="text-green-600 dark:text-green-400">{preview.newCount} nouvelles</span>
                 {preview.duplicateCount > 0 && (
@@ -140,13 +140,13 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
                 )}
               </div>
 
-              <div className="max-h-96 overflow-y-auto">
+              <div className="overflow-y-auto flex-1 border rounded-md">
                 <Table>
-                  <TableHeader>
+                  <TableHeader className="sticky top-0 bg-background">
                     <TableRow>
-                      <TableHead>Date</TableHead>
+                      <TableHead className="w-28">Date</TableHead>
                       <TableHead>Description</TableHead>
-                      <TableHead className="text-right">Montant</TableHead>
+                      <TableHead className="text-right w-32">Montant</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -170,7 +170,7 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
                 </Table>
               </div>
 
-              <div className="flex gap-2 justify-end">
+              <div className="flex gap-2 justify-end shrink-0">
                 <Button variant="outline" onClick={() => setIsOpen(false)}>
                   Annuler
                 </Button>
