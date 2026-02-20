@@ -63,8 +63,15 @@ export function AccountForm() {
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             defaultValue="EUR"
           >
-            <option value="EUR">EUR</option>
-            <option value="MGA">MGA</option>
+            <option value="EUR">EUR — Euro</option>
+            <option value="MGA">MGA — Ariary malgache</option>
+            <option value="USD">USD — Dollar américain</option>
+            <option value="GBP">GBP — Livre sterling</option>
+            <option value="CHF">CHF — Franc suisse</option>
+            <option value="CAD">CAD — Dollar canadien</option>
+            <option value="AUD">AUD — Dollar australien</option>
+            <option value="JPY">JPY — Yen japonais</option>
+            <option value="CNY">CNY — Yuan chinois</option>
           </select>
         </div>
       </div>

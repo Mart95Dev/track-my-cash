@@ -60,9 +60,21 @@ export function EditAccountDialog({ account }: { account: Account }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="edit-currency">{t("currency")}</Label>
-            <select id="edit-currency" name="currency" defaultValue={account.currency} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm">
-              <option value="EUR">EUR</option>
-              <option value="MGA">MGA</option>
+            <select
+              id="edit-currency"
+              name="currency"
+              defaultValue={account.currency}
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            >
+              <option value="EUR">EUR — Euro</option>
+              <option value="MGA">MGA — Ariary malgache</option>
+              <option value="USD">USD — Dollar américain</option>
+              <option value="GBP">GBP — Livre sterling</option>
+              <option value="CHF">CHF — Franc suisse</option>
+              <option value="CAD">CAD — Dollar canadien</option>
+              <option value="AUD">AUD — Dollar australien</option>
+              <option value="JPY">JPY — Yen japonais</option>
+              <option value="CNY">CNY — Yuan chinois</option>
             </select>
           </div>
           <div className="space-y-2">
