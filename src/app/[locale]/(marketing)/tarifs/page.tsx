@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SubscribeButton } from "@/components/subscribe-button";
 
 export default async function TarifsPage() {
   const t = await getTranslations("auth");
@@ -11,28 +12,31 @@ export default async function TarifsPage() {
       name: "Gratuit",
       price: "0€",
       period: "/mois",
-      features: ["1 compte bancaire", "3 mois d'historique", "Import CSV basique", "Sans IA"],
+      features: ["2 comptes bancaires", "Import CSV", "Transactions illimitées"],
       cta: "Commencer gratuitement",
-      href: "/inscription",
+      planId: "free",
       variant: "outline" as const,
+      isPaid: false,
     },
     {
       name: "Pro",
       price: "4,90€",
       period: "/mois",
-      features: ["Comptes illimités", "Historique illimité", "10 conv. IA/mois", "Multi-devises", "Export CSV/JSON"],
-      cta: "Essayer Pro",
-      href: "/inscription",
+      features: ["5 comptes bancaires", "Toutes les banques (PDF, Excel)", "Conseiller IA", "Multi-devises"],
+      cta: "S'abonner Pro",
+      planId: "pro",
       variant: "default" as const,
+      isPaid: true,
     },
     {
       name: "Premium",
       price: "7,90€",
       period: "/mois",
-      features: ["Tout Pro inclus", "IA illimitée (3 modèles)", "Export PDF/Excel", "Support prioritaire"],
-      cta: "Essayer Premium",
-      href: "/inscription",
+      features: ["Comptes illimités", "Toutes les banques", "Conseiller IA prioritaire", "Export avancé", "Support prioritaire"],
+      cta: "S'abonner Premium",
+      planId: "premium",
       variant: "outline" as const,
+      isPaid: true,
     },
   ];
 
@@ -59,9 +63,13 @@ export default async function TarifsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Link href={plan.href}>
-                <Button variant={plan.variant} className="w-full">{plan.cta}</Button>
-              </Link>
+              {plan.isPaid ? (
+                <SubscribeButton planId={plan.planId} label={plan.cta} />
+              ) : (
+                <Link href="/inscription">
+                  <Button variant={plan.variant} className="w-full">{plan.cta}</Button>
+                </Link>
+              )}
             </CardContent>
           </Card>
         ))}

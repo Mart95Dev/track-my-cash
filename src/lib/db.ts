@@ -88,6 +88,18 @@ export async function initSchema() {
       tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
       PRIMARY KEY (transaction_id, tag_id)
     );
+
+    CREATE TABLE IF NOT EXISTS subscriptions (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL UNIQUE,
+      stripe_customer_id TEXT,
+      stripe_subscription_id TEXT,
+      plan_id TEXT NOT NULL DEFAULT 'free',
+      status TEXT NOT NULL DEFAULT 'active',
+      current_period_end INTEGER,
+      cancel_at_period_end INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch())
+    );
   `);
 
   // Add columns if they don't exist (safe ALTER TABLE)
@@ -120,4 +132,20 @@ export async function ensureSchema() {
     await initSchema();
     schemaInitialized = true;
   }
+}
+
+export async function getUserPlan(userId: string): Promise<string> {
+  const db = getDb();
+  const result = await db.execute({
+    sql: "SELECT plan_id, status FROM subscriptions WHERE user_id = ?",
+    args: [userId],
+  });
+
+  if (result.rows.length === 0) return "free";
+
+  const row = result.rows[0];
+  const status = String(row.status ?? "active");
+  if (status !== "active") return "free";
+
+  return String(row.plan_id ?? "free");
 }
