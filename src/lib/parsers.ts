@@ -160,27 +160,32 @@ export function parseRevolut(buffer: Buffer): ParseResult {
 
   if (data.length < 2) return { transactions: [], detectedBalance: null, detectedBalanceDate: null, bankName: "Revolut", currency: "EUR" };
 
-  const headers = data[0] as string[];
+  // XLSX peut lire les caractères accentués en mojibake (UTF-8 interprété Latin-1)
+  // On corrige les en-têtes avant de chercher les colonnes
+  const headers = (data[0] as string[]).map((h) => (h ? fixMojibake(String(h)) : h));
+
   const dateIdx = headers.findIndex((h) => h && String(h).toLowerCase().includes("début"));
   const descIdx = headers.findIndex((h) => h === "Description");
   const montantIdx = headers.findIndex((h) => h === "Montant");
   const soldeIdx = headers.findIndex((h) => h === "Solde");
+  const deviseIdx = headers.findIndex((h) => h === "Devise");
 
-  if (dateIdx === -1 || montantIdx === -1) {
-    // Try English headers
-    const dateIdxEN = headers.findIndex((h) => h && String(h).toLowerCase().includes("started"));
-    const descIdxEN = headers.findIndex((h) => h === "Description");
-    const montantIdxEN = headers.findIndex((h) => h === "Amount");
-    const soldeIdxEN = headers.findIndex((h) => h === "Balance");
-
-    if (dateIdxEN === -1 || montantIdxEN === -1) {
-      return { transactions: [], detectedBalance: null, detectedBalanceDate: null, bankName: "Revolut", currency: "EUR" };
-    }
-
-    return parseRevolutRows(data.slice(1), dateIdxEN, descIdxEN, montantIdxEN, soldeIdxEN);
+  if (dateIdx !== -1 && montantIdx !== -1) {
+    return parseRevolutRows(data.slice(1), dateIdx, descIdx, montantIdx, soldeIdx, deviseIdx);
   }
 
-  return parseRevolutRows(data.slice(1), dateIdx, descIdx, montantIdx, soldeIdx);
+  // Fallback : en-têtes anglaises
+  const dateIdxEN = headers.findIndex((h) => h && String(h).toLowerCase().includes("started"));
+  const descIdxEN = headers.findIndex((h) => h === "Description");
+  const montantIdxEN = headers.findIndex((h) => h === "Amount");
+  const soldeIdxEN = headers.findIndex((h) => h === "Balance");
+  const deviseIdxEN = headers.findIndex((h) => h === "Currency");
+
+  if (dateIdxEN === -1 || montantIdxEN === -1) {
+    return { transactions: [], detectedBalance: null, detectedBalanceDate: null, bankName: "Revolut", currency: "EUR" };
+  }
+
+  return parseRevolutRows(data.slice(1), dateIdxEN, descIdxEN, montantIdxEN, soldeIdxEN, deviseIdxEN);
 }
 
 function parseRevolutRows(
@@ -188,18 +193,24 @@ function parseRevolutRows(
   dateIdx: number,
   descIdx: number,
   montantIdx: number,
-  soldeIdx: number
+  soldeIdx: number,
+  deviseIdx: number = -1
 ): ParseResult {
   const transactions: ParsedTransaction[] = [];
   let lastBalance: number | null = null;
   let lastBalanceDate: string | null = null;
+  let currency = "EUR";
 
   for (const row of rows) {
     if (!row || row.length <= Math.max(dateIdx, montantIdx)) continue;
 
     let date = row[dateIdx];
-    const description = String(row[descIdx] ?? "").trim();
+    const description = fixMojibake(String(row[descIdx] ?? "").trim());
     const montant = parseFloat(String(row[montantIdx]));
+
+    if (deviseIdx >= 0 && row[deviseIdx]) {
+      currency = String(row[deviseIdx]).trim();
+    }
 
     if (typeof date === "number") {
       // Excel serial date
@@ -239,7 +250,7 @@ function parseRevolutRows(
     detectedBalance: lastBalance,
     detectedBalanceDate: lastBalanceDate,
     bankName: "Revolut",
-    currency: "EUR",
+    currency,
   };
 }
 
@@ -272,6 +283,16 @@ export function detectAndParse(content: string, filename: string): ParseResult {
 }
 
 // ============ HELPERS ============
+
+// Corrige le mojibake : octets UTF-8 interprétés en Latin-1 par certains lecteurs XLSX
+function fixMojibake(str: string): string {
+  try {
+    const bytes = Uint8Array.from(str, (c) => c.charCodeAt(0));
+    return new TextDecoder("utf-8").decode(bytes);
+  } catch {
+    return str;
+  }
+}
 
 function parseAmount(str: string): number {
   return parseFloat(
