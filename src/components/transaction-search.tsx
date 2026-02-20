@@ -45,7 +45,7 @@ export function TransactionSearch({
         value={currentAccountId ?? ""}
         onChange={(e) => updateParams("accountId", e.target.value)}
       >
-        <option value="">Tous les comptes</option>
+        <option value="">— Choisir un compte —</option>
         {accounts.map((a) => (
           <option key={a.id} value={a.id}>
             {a.name}

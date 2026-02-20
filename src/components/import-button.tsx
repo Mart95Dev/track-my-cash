@@ -21,6 +21,15 @@ import { formatCurrency, formatDate } from "@/lib/format";
 import { toast } from "sonner";
 import type { Account } from "@/lib/queries";
 
+interface PreviewTransaction {
+  date: string;
+  description: string;
+  amount: number;
+  type: "income" | "expense";
+  import_hash: string;
+  category: string;
+}
+
 interface PreviewData {
   bankName: string;
   currency: string;
@@ -29,17 +38,13 @@ interface PreviewData {
   totalCount: number;
   newCount: number;
   duplicateCount: number;
-  transactions: {
-    date: string;
-    description: string;
-    amount: number;
-    type: "income" | "expense";
-    import_hash: string;
-  }[];
+  availableCategories: string[];
+  transactions: PreviewTransaction[];
 }
 
 export function ImportButton({ accounts }: { accounts: Account[] }) {
   const [preview, setPreview] = useState<PreviewData | null>(null);
+  const [categoryOverrides, setCategoryOverrides] = useState<Record<number, string>>({});
   const [selectedAccountId, setSelectedAccountId] = useState<number>(accounts[0]?.id ?? 0);
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -59,6 +64,7 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
         toast.error(result.error);
       } else if (result.preview) {
         setPreview(result.preview);
+        setCategoryOverrides({});
         setIsOpen(true);
       }
     });
@@ -69,10 +75,15 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
   async function handleConfirm() {
     if (!preview) return;
 
+    const transactionsWithCategories = preview.transactions.map((t, i) => ({
+      ...t,
+      category: categoryOverrides[i] ?? t.category,
+    }));
+
     startTransition(async () => {
       const result = await confirmImportAction(
         selectedAccountId,
-        preview.transactions,
+        transactionsWithCategories,
         preview.detectedBalance,
         preview.detectedBalanceDate
       ) as { error?: string; imported?: number; balanceUpdated?: boolean; newBalance?: number; newBalanceDate?: string };
@@ -85,9 +96,14 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
         toast.success(msg);
         setIsOpen(false);
         setPreview(null);
+        setCategoryOverrides({});
       }
     });
   }
+
+  const canConfirm = preview !== null && (
+    preview.newCount > 0 || preview.detectedBalance !== null
+  );
 
   return (
     <>
@@ -120,7 +136,7 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-4xl flex flex-col max-h-[85vh]">
+        <DialogContent className="sm:max-w-5xl flex flex-col max-h-[85vh]">
           <DialogHeader>
             <DialogTitle>
               Aperçu import — {preview?.bankName}
@@ -151,42 +167,72 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
                 )}
               </div>
 
-              <div className="overflow-y-auto flex-1 border rounded-md">
-                <Table>
-                  <TableHeader className="sticky top-0 bg-background">
-                    <TableRow>
-                      <TableHead className="w-28">Date</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead className="text-right w-32">Montant</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {preview.transactions.map((tx, i) => (
-                      <TableRow key={i}>
-                        <TableCell>{formatDate(tx.date)}</TableCell>
-                        <TableCell>{tx.description}</TableCell>
-                        <TableCell
-                          className={`text-right font-medium ${
-                            tx.type === "income"
-                              ? "text-green-600 dark:text-green-400"
-                              : "text-red-600 dark:text-red-400"
-                          }`}
-                        >
-                          {tx.type === "income" ? "+" : "-"}
-                          {formatCurrency(tx.amount, preview.currency)}
-                        </TableCell>
+              {preview.newCount === 0 && preview.detectedBalance !== null ? (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Toutes les transactions sont déjà importées. Seul le solde de référence sera mis à jour.
+                </p>
+              ) : preview.newCount === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Toutes les transactions sont déjà importées.
+                </p>
+              ) : (
+                <div className="overflow-y-auto flex-1 border rounded-md">
+                  <Table>
+                    <TableHeader className="sticky top-0 bg-background">
+                      <TableRow>
+                        <TableHead className="w-28">Date</TableHead>
+                        <TableHead>Description</TableHead>
+                        <TableHead className="w-44">Catégorie</TableHead>
+                        <TableHead className="text-right w-32">Montant</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                    </TableHeader>
+                    <TableBody>
+                      {preview.transactions.map((tx, i) => (
+                        <TableRow key={i}>
+                          <TableCell>{formatDate(tx.date)}</TableCell>
+                          <TableCell>{tx.description}</TableCell>
+                          <TableCell>
+                            <select
+                              className="flex h-8 w-full rounded-md border border-input bg-transparent px-2 py-1 text-xs shadow-sm"
+                              value={categoryOverrides[i] ?? tx.category}
+                              onChange={(e) =>
+                                setCategoryOverrides((prev) => ({ ...prev, [i]: e.target.value }))
+                              }
+                            >
+                              {preview.availableCategories.map((cat) => (
+                                <option key={cat} value={cat}>
+                                  {cat}
+                                </option>
+                              ))}
+                            </select>
+                          </TableCell>
+                          <TableCell
+                            className={`text-right font-medium ${
+                              tx.type === "income"
+                                ? "text-green-600 dark:text-green-400"
+                                : "text-red-600 dark:text-red-400"
+                            }`}
+                          >
+                            {tx.type === "income" ? "+" : "-"}
+                            {formatCurrency(tx.amount, preview.currency)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
 
               <div className="flex gap-2 justify-end shrink-0">
                 <Button variant="outline" onClick={() => setIsOpen(false)}>
                   Annuler
                 </Button>
-                <Button onClick={handleConfirm} disabled={isPending || preview.newCount === 0}>
-                  {isPending ? "Import..." : `Importer ${preview.newCount} transaction(s)`}
+                <Button onClick={handleConfirm} disabled={isPending || !canConfirm}>
+                  {isPending
+                    ? "Import..."
+                    : preview.newCount > 0
+                    ? `Importer ${preview.newCount} transaction(s)`
+                    : "Mettre à jour le solde"}
                 </Button>
               </div>
             </div>

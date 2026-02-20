@@ -66,7 +66,11 @@ export default async function TransactionsPage({
 
       <Card>
         <CardContent className="p-0">
-          {transactions.length === 0 ? (
+          {!accountId ? (
+            <p className="py-8 text-center text-muted-foreground">
+              Sélectionnez un compte pour voir ses transactions
+            </p>
+          ) : transactions.length === 0 ? (
             <p className="py-8 text-center text-muted-foreground">
               Aucune transaction
             </p>
@@ -78,7 +82,6 @@ export default async function TransactionsPage({
                   <TableHeader>
                     <TableRow>
                       <TableHead>Date</TableHead>
-                      <TableHead>Compte</TableHead>
                       <TableHead>Description</TableHead>
                       <TableHead>Catégorie</TableHead>
                       <TableHead className="text-right">Montant</TableHead>
@@ -91,7 +94,6 @@ export default async function TransactionsPage({
                         <TableCell className="whitespace-nowrap">
                           {formatDate(tx.date)}
                         </TableCell>
-                        <TableCell>{tx.account_name ?? "—"}</TableCell>
                         <TableCell>{tx.description || "—"}</TableCell>
                         <TableCell>{tx.category}</TableCell>
                         <TableCell
@@ -121,7 +123,7 @@ export default async function TransactionsPage({
                     <div className="min-w-0 flex-1">
                       <p className="font-medium truncate">{tx.description || tx.category}</p>
                       <p className="text-xs text-muted-foreground">
-                        {formatDate(tx.date)} — {tx.account_name ?? "—"}
+                        {formatDate(tx.date)}
                       </p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
