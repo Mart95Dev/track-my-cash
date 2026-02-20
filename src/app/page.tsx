@@ -76,7 +76,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">{formatCurrency(totalInEUR)}</p>
-            <p className="text-xs text-muted-foreground mt-1">Taux auto : 1 EUR = {exchangeRate.toLocaleString("fr-FR")} MGA</p>
+            <p className="text-xs text-muted-foreground mt-1">Taux en temps réel : 1 EUR = {exchangeRate.toLocaleString("fr-FR", { maximumFractionDigits: 0 })} MGA</p>
           </CardContent>
         </Card>
       )}
