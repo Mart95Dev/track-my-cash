@@ -539,9 +539,11 @@ function getMonthlyContribution(r: RecurringPayment, forecastDate: Date): number
   }
 }
 
-export async function getDetailedForecast(months: number): Promise<DetailedForecastResult> {
-  const accounts = await getAllAccounts();
-  const recurringPayments = await getRecurringPayments();
+export async function getDetailedForecast(months: number, accountId?: number): Promise<DetailedForecastResult> {
+  const allAccounts = await getAllAccounts();
+  const accounts = accountId ? allAccounts.filter((a) => a.id === accountId) : allAccounts;
+  const allRecurring = await getRecurringPayments();
+  const recurringPayments = accountId ? allRecurring.filter((r) => r.account_id === accountId) : allRecurring;
   const now = new Date();
 
   const currentBalance = accounts.reduce(

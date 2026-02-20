@@ -23,10 +23,11 @@ const FREQ_LABEL: Record<string, string> = {
 export default async function PrevisionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ months?: string }>;
+  searchParams: Promise<{ months?: string; accountId?: string }>;
 }) {
   const params = await searchParams;
   const months = parseInt(params.months ?? "6");
+  const accountId = params.accountId ? parseInt(params.accountId) : null;
   const accounts = await getAllAccounts();
 
   if (accounts.length === 0) {
@@ -42,7 +43,8 @@ export default async function PrevisionsPage({
     );
   }
 
-  const forecast = await getDetailedForecast(months);
+  const selectedAccount = accountId ? accounts.find((a) => a.id === accountId) ?? null : null;
+  const forecast = await getDetailedForecast(months, accountId ?? undefined);
   const { monthDetails, currentBalance, projectedBalance, totalIncome, totalExpenses } = forecast;
   const totalNet = totalIncome - totalExpenses;
 
@@ -61,9 +63,14 @@ export default async function PrevisionsPage({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Prévisions de trésorerie</h2>
+      <h2 className="text-2xl font-bold">
+        Prévisions de trésorerie
+        {selectedAccount && (
+          <span className="ml-2 text-lg font-normal text-muted-foreground">— {selectedAccount.name}</span>
+        )}
+      </h2>
 
-      <ForecastControls currentMonths={months} />
+      <ForecastControls currentMonths={months} currentAccountId={accountId} accounts={accounts} />
 
       {/* Cartes résumé */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -236,8 +243,8 @@ export default async function PrevisionsPage({
         </Card>
       </div>
 
-      {/* Détail par compte */}
-      {accounts.length > 1 && (
+      {/* Détail par compte — masqué si un seul compte sélectionné */}
+      {accounts.length > 1 && !accountId && (
         <Card>
           <CardHeader>
             <CardTitle>Détail par compte — fin de période</CardTitle>
