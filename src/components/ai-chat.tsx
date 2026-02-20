@@ -19,6 +19,31 @@ interface Account {
   initial_balance: number;
 }
 
+const MODELS = [
+  {
+    id: "openai/gpt-4o-mini",
+    label: "GPT-4o mini",
+    description: "Rapide et efficace",
+  },
+  {
+    id: "anthropic/claude-haiku-20240307",
+    label: "Claude Haiku",
+    description: "Concis et précis",
+  },
+  {
+    id: "google/gemini-flash-1.5",
+    label: "Gemini Flash 1.5",
+    description: "Multimodal Google",
+  },
+  {
+    id: "meta-llama/llama-3.1-8b-instruct:free",
+    label: "Llama 3.1 8B",
+    description: "Open source gratuit",
+  },
+] as const;
+
+type ModelId = (typeof MODELS)[number]["id"];
+
 export function AiChat({
   accounts,
   hasApiKey,
@@ -30,15 +55,18 @@ export function AiChat({
   const [selectedIds, setSelectedIds] = useState<number[]>(
     accounts.map((a) => a.id)
   );
+  const [selectedModel, setSelectedModel] = useState<ModelId>(
+    "openai/gpt-4o-mini"
+  );
   const [input, setInput] = useState("");
 
   const transport = useMemo(
     () =>
       new DefaultChatTransport({
         api: "/api/chat",
-        body: { accountIds: selectedIds },
+        body: { accountIds: selectedIds, modelId: selectedModel },
       }),
-    [selectedIds]
+    [selectedIds, selectedModel]
   );
 
   const { messages, sendMessage, status } = useChat({ transport });
@@ -103,23 +131,47 @@ export function AiChat({
       </Card>
 
       <Card className="flex flex-col" style={{ minHeight: "500px" }}>
+        <div className="border-b px-4 py-3 flex items-center gap-3">
+          <label
+            htmlFor="model-select"
+            className="text-sm font-medium text-muted-foreground whitespace-nowrap"
+          >
+            Modèle IA
+          </label>
+          <select
+            id="model-select"
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value as ModelId)}
+            disabled={isLoading}
+            className="flex-1 text-sm rounded-md border border-input bg-background px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+          >
+            {MODELS.map((model) => (
+              <option key={model.id} value={model.id}>
+                {model.label} — {model.description}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.length === 0 && (
             <div className="text-center text-muted-foreground py-12 space-y-2">
               <p className="text-lg font-medium">{t("heading")}</p>
               <p className="text-sm">{t("description")}</p>
               <div className="flex flex-wrap gap-2 justify-center mt-4">
-                {[t("suggestion1"), t("suggestion2"), t("suggestion3")].map((suggestion) => (
-                  <Button
-                    key={suggestion}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs"
-                    onClick={() => setInput(suggestion)}
-                  >
-                    {suggestion}
-                  </Button>
-                ))}
+                {[t("suggestion1"), t("suggestion2"), t("suggestion3")].map(
+                  (suggestion) => (
+                    <Button
+                      key={suggestion}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs"
+                      onClick={() => setInput(suggestion)}
+                    >
+                      {suggestion}
+                    </Button>
+                  )
+                )}
               </div>
             </div>
           )}
