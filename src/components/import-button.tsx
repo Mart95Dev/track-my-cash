@@ -100,12 +100,12 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
           onClick={() => fileRef.current?.click()}
           disabled={isPending || accounts.length === 0}
         >
-          {isPending ? "Analyse..." : "Importer CSV/Excel"}
+          {isPending ? "Analyse..." : "Importer CSV/Excel/PDF"}
         </Button>
         <input
           ref={fileRef}
           type="file"
-          accept=".csv,.xlsx"
+          accept=".csv,.xlsx,.pdf"
           className="hidden"
           onChange={handleFile}
         />

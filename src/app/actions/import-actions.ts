@@ -1,6 +1,6 @@
 "use server";
 
-import { parseBanquePopulaire, parseMCB, parseRevolut } from "@/lib/parsers";
+import { parseBanquePopulaire, parseMCB, parseRevolut, parseMCBPdf } from "@/lib/parsers";
 import {
   generateImportHash,
   checkDuplicates,
@@ -20,7 +20,14 @@ export async function importFileAction(formData: FormData) {
   const filename = file.name.toLowerCase();
   let parseResult;
 
-  if (filename.endsWith(".xlsx")) {
+  if (filename.endsWith(".pdf")) {
+    try {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      parseResult = parseMCBPdf(buffer);
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : "Erreur lors de la lecture du PDF" };
+    }
+  } else if (filename.endsWith(".xlsx")) {
     const buffer = Buffer.from(await file.arrayBuffer());
     parseResult = parseRevolut(buffer);
   } else {
