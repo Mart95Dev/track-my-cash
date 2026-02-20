@@ -6,6 +6,7 @@ import {
   checkDuplicates,
   bulkInsertTransactions,
   autoCategorize,
+  updateAccountBalance,
 } from "@/lib/queries";
 import { revalidatePath } from "next/cache";
 
@@ -86,7 +87,9 @@ export async function confirmImportAction(
     amount: number;
     type: "income" | "expense";
     import_hash: string;
-  }[]
+  }[],
+  detectedBalance: number | null = null,
+  detectedBalanceDate: string | null = null
 ) {
   const toInsert = await Promise.all(
     transactions.map(async (t) => ({
@@ -101,7 +104,33 @@ export async function confirmImportAction(
   );
 
   const count = await bulkInsertTransactions(toInsert);
+
+  // Si le relevé fournit un solde détecté, mettre à jour le solde de référence du compte.
+  // On avance la balance_date au lendemain de la dernière transaction importée pour que
+  // les transactions importées ne soient pas recomptées dans la formule de solde.
+  let balanceUpdated = false;
+  let newBalance: number | null = null;
+  let newBalanceDate: string | null = null;
+
+  if (detectedBalance !== null && detectedBalanceDate !== null) {
+    // Trouver la date la plus récente parmi toutes les transactions importées
+    const allDates = transactions.map((t) => t.date);
+    const latestTxDate = allDates.length > 0
+      ? allDates.reduce((max, d) => (d > max ? d : max), detectedBalanceDate)
+      : detectedBalanceDate;
+
+    // balance_date = lendemain de la dernière tx (les tx importées sont exclues de la formule)
+    const nextDay = new Date(latestTxDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+    newBalanceDate = nextDay.toISOString().split("T")[0];
+    newBalance = detectedBalance;
+
+    await updateAccountBalance(accountId, newBalance, newBalanceDate);
+    balanceUpdated = true;
+  }
+
   revalidatePath("/");
   revalidatePath("/transactions");
-  return { success: true, imported: count };
+  revalidatePath("/comptes");
+  return { success: true, imported: count, balanceUpdated, newBalance, newBalanceDate };
 }

@@ -743,6 +743,19 @@ export async function importAllData(data: {
 
 // ============ UPDATE (EDIT) ============
 
+export async function updateAccountBalance(
+  accountId: number,
+  newBalance: number,
+  newBalanceDate: string
+): Promise<void> {
+  await ensureSchema();
+  const db = getDb();
+  await db.execute({
+    sql: "UPDATE accounts SET initial_balance = ?, balance_date = ? WHERE id = ?",
+    args: [newBalance, newBalanceDate, accountId],
+  });
+}
+
 export async function updateAccount(
   id: number,
   name: string,

@@ -70,11 +70,19 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
     if (!preview) return;
 
     startTransition(async () => {
-      const result = await confirmImportAction(selectedAccountId, preview.transactions) as { error?: string; imported?: number };
+      const result = await confirmImportAction(
+        selectedAccountId,
+        preview.transactions,
+        preview.detectedBalance,
+        preview.detectedBalanceDate
+      ) as { error?: string; imported?: number; balanceUpdated?: boolean; newBalance?: number; newBalanceDate?: string };
       if (result.error) {
         toast.error(result.error);
       } else {
-        toast.success(`${result.imported} transaction(s) importée(s)`);
+        const msg = result.balanceUpdated && result.newBalance != null
+          ? `${result.imported} transaction(s) importée(s) — solde de référence mis à jour : ${result.newBalance.toLocaleString("fr-FR", { style: "currency", currency: preview.currency })}`
+          : `${result.imported} transaction(s) importée(s)`;
+        toast.success(msg);
         setIsOpen(false);
         setPreview(null);
       }
@@ -122,10 +130,13 @@ export function ImportButton({ accounts }: { accounts: Account[] }) {
           {preview && (
             <div className="flex flex-col gap-4 flex-1 overflow-hidden">
               {preview.detectedBalance !== null && (
-                <div className="rounded-lg border bg-blue-50 p-4 dark:bg-blue-950 shrink-0">
+                <div className="rounded-lg border bg-blue-50 p-4 dark:bg-blue-950 shrink-0 space-y-1">
                   <p className="font-medium">
                     Solde détecté : {formatCurrency(preview.detectedBalance, preview.currency)}
                     {preview.detectedBalanceDate && ` au ${formatDate(preview.detectedBalanceDate)}`}
+                  </p>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    Le solde de référence du compte sera automatiquement mis à jour à cette valeur. Les transactions importées seront dans l&apos;historique mais non recomptées dans le calcul du solde.
                   </p>
                 </div>
               )}
