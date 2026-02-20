@@ -178,9 +178,10 @@ export function parseRevolut(buffer: Buffer): ParseResult {
   const montantIdx = headers.findIndex((h) => h === "Montant");
   const soldeIdx = headers.findIndex((h) => h === "Solde");
   const deviseIdx = headers.findIndex((h) => h === "Devise");
+  const etatIdx = headers.findIndex((h) => h && String(h).toLowerCase().replace(/[eé]/g, "e").includes("etat"));
 
   if (dateIdx !== -1 && montantIdx !== -1) {
-    return parseRevolutRows(data.slice(1), dateIdx, descIdx, montantIdx, soldeIdx, deviseIdx);
+    return parseRevolutRows(data.slice(1), dateIdx, descIdx, montantIdx, soldeIdx, deviseIdx, etatIdx);
   }
 
   // Fallback : en-têtes anglaises
@@ -189,12 +190,13 @@ export function parseRevolut(buffer: Buffer): ParseResult {
   const montantIdxEN = headers.findIndex((h) => h === "Amount");
   const soldeIdxEN = headers.findIndex((h) => h === "Balance");
   const deviseIdxEN = headers.findIndex((h) => h === "Currency");
+  const etatIdxEN = headers.findIndex((h) => h === "State");
 
   if (dateIdxEN === -1 || montantIdxEN === -1) {
     return { transactions: [], detectedBalance: null, detectedBalanceDate: null, bankName: "Revolut", currency: "EUR" };
   }
 
-  return parseRevolutRows(data.slice(1), dateIdxEN, descIdxEN, montantIdxEN, soldeIdxEN, deviseIdxEN);
+  return parseRevolutRows(data.slice(1), dateIdxEN, descIdxEN, montantIdxEN, soldeIdxEN, deviseIdxEN, etatIdxEN);
 }
 
 function parseRevolutRows(
@@ -203,7 +205,8 @@ function parseRevolutRows(
   descIdx: number,
   montantIdx: number,
   soldeIdx: number,
-  deviseIdx: number = -1
+  deviseIdx: number = -1,
+  etatIdx: number = -1
 ): ParseResult {
   const transactions: ParsedTransaction[] = [];
   let lastBalance: number | null = null;
@@ -212,6 +215,14 @@ function parseRevolutRows(
 
   for (const row of rows) {
     if (!row || row.length <= Math.max(dateIdx, montantIdx)) continue;
+
+    // Lire le statut de l'opération
+    const etat = etatIdx >= 0 ? fixMojibake(String(row[etatIdx] ?? "")).trim().toUpperCase() : "";
+
+    // Ignorer les opérations annulées/refusées (RENVOYÉ, ANNULÉ, FAILED, REVERTED…)
+    if (etat && (etat.includes("RENVOY") || etat.includes("ANNUL") || etat === "FAILED" || etat === "REVERTED")) {
+      continue;
+    }
 
     let date = row[dateIdx];
     const description = fixMojibake(String(row[descIdx] ?? "").trim());
@@ -236,7 +247,10 @@ function parseRevolutRows(
       }
     }
 
-    if (soldeIdx >= 0 && row[soldeIdx] != null) {
+    // N'utiliser le Solde que pour les transactions confirmées (pas EN ATTENTE)
+    // Le solde des lignes EN ATTENTE n'inclut pas toutes les opérations en cours
+    const isCompleted = !etat || etat === "TERMINÉ" || etat === "COMPLETED" || etat === "COMPLETE";
+    if (isCompleted && soldeIdx >= 0 && row[soldeIdx] != null) {
       const solde = parseFloat(String(row[soldeIdx]));
       if (!isNaN(solde)) {
         lastBalance = solde;
