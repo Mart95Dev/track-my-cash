@@ -8,7 +8,29 @@
     "advisor": "Asesor IA",
     "settings": "Configuración",
     "appName": "TrackMyCash",
-    "menu": "Menú"
+    "menu": "Menú",
+    "logout": "Cerrar sesión"
+  },
+  "auth": {
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "signOut": "Cerrar sesión",
+    "email": "Correo electrónico",
+    "emailPlaceholder": "email@ejemplo.com",
+    "password": "Contraseña",
+    "passwordPlaceholder": "Tu contraseña",
+    "signingIn": "Iniciando sesión...",
+    "signingUp": "Registrando...",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "errorInvalid": "Correo o contraseña incorrectos",
+    "errorGeneric": "Ha ocurrido un error",
+    "welcomeBack": "¡Bienvenido de nuevo!",
+    "createAccount": "Crear una cuenta",
+    "signInLink": "Iniciar sesión",
+    "signUpLink": "Crear una cuenta",
+    "joinTrackMyCash": "Únete a TrackMyCash",
+    "tagline": "Gestiona tus finanzas fácilmente"
   },
   "dashboard": {
     "title": "Panel",

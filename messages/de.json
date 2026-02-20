@@ -8,7 +8,29 @@
     "advisor": "KI-Berater",
     "settings": "Einstellungen",
     "appName": "TrackMyCash",
-    "menu": "Menü"
+    "menu": "Menü",
+    "logout": "Abmelden"
+  },
+  "auth": {
+    "signIn": "Anmelden",
+    "signUp": "Registrieren",
+    "signOut": "Abmelden",
+    "email": "E-Mail-Adresse",
+    "emailPlaceholder": "email@beispiel.de",
+    "password": "Passwort",
+    "passwordPlaceholder": "Ihr Passwort",
+    "signingIn": "Anmelden...",
+    "signingUp": "Registrieren...",
+    "noAccount": "Noch kein Konto?",
+    "hasAccount": "Bereits ein Konto?",
+    "errorInvalid": "Ungültige E-Mail oder Passwort",
+    "errorGeneric": "Ein Fehler ist aufgetreten",
+    "welcomeBack": "Willkommen zurück!",
+    "createAccount": "Konto erstellen",
+    "signInLink": "Anmelden",
+    "signUpLink": "Konto erstellen",
+    "joinTrackMyCash": "TrackMyCash beitreten",
+    "tagline": "Verwalten Sie Ihre Finanzen einfach"
   },
   "dashboard": {
     "title": "Dashboard",

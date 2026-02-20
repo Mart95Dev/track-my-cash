@@ -50,3 +50,4 @@ firebase-debug.log
 *.md
 !README.md
 !CLAUDE.md
+dev-auth.db

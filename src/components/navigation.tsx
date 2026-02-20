@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Link, usePathname } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -17,6 +18,7 @@ import {
 
 export function Navigation() {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const t = useTranslations("nav");
 
@@ -30,6 +32,12 @@ export function Navigation() {
     { href: "/parametres" as const, label: t("settings") },
   ];
 
+  async function handleLogout() {
+    await authClient.signOut();
+    router.push("/connexion");
+    router.refresh();
+  }
+
   return (
     <header className="border-b bg-card">
       <div className="max-w-7xl mx-auto px-4">
@@ -40,6 +48,14 @@ export function Navigation() {
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
             <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="hidden md:flex text-muted-foreground hover:text-foreground"
+            >
+              {t("logout")}
+            </Button>
             {/* Mobile hamburger */}
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
@@ -81,6 +97,14 @@ export function Navigation() {
                       {link.label}
                     </Link>
                   ))}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => { setOpen(false); handleLogout(); }}
+                    className="justify-start px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+                  >
+                    {t("logout")}
+                  </Button>
                 </nav>
               </SheetContent>
             </Sheet>

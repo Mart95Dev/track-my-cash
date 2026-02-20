@@ -8,7 +8,29 @@
     "advisor": "AI Advisor",
     "settings": "Settings",
     "appName": "TrackMyCash",
-    "menu": "Menu"
+    "menu": "Menu",
+    "logout": "Log out"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "signOut": "Sign out",
+    "email": "Email address",
+    "emailPlaceholder": "email@example.com",
+    "password": "Password",
+    "passwordPlaceholder": "Your password",
+    "signingIn": "Signing in...",
+    "signingUp": "Signing up...",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "errorInvalid": "Invalid email or password",
+    "errorGeneric": "An error occurred",
+    "welcomeBack": "Welcome back!",
+    "createAccount": "Create an account",
+    "signInLink": "Sign in",
+    "signUpLink": "Create an account",
+    "joinTrackMyCash": "Join TrackMyCash",
+    "tagline": "Manage your finances simply"
   },
   "dashboard": {
     "title": "Dashboard",
