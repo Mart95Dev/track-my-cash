@@ -36,9 +36,51 @@ export interface RecurringPayment {
   amount: number;
   frequency: string;
   next_date: string;
+  end_date: string | null;
   category: string;
   created_at: string;
   account_name?: string;
+}
+
+export interface ForecastItem {
+  name: string;
+  amount: number;
+  category: string;
+  frequency: string;
+  accountName: string;
+  startsFrom: string;
+  endsAt: string | null;
+}
+
+export interface AccountForecastBreakdown {
+  accountId: number;
+  accountName: string;
+  currency: string;
+  startBalance: number;
+  income: number;
+  expenses: number;
+  endBalance: number;
+}
+
+export interface MonthDetail {
+  month: string;
+  monthKey: string;
+  startBalance: number;
+  income: number;
+  expenses: number;
+  netCashflow: number;
+  endBalance: number;
+  incomeItems: ForecastItem[];
+  expenseItems: ForecastItem[];
+  accountBreakdown: AccountForecastBreakdown[];
+}
+
+export interface DetailedForecastResult {
+  monthDetails: MonthDetail[];
+  currentBalance: number;
+  projectedBalance: number;
+  totalIncome: number;
+  totalExpenses: number;
 }
 
 function rowToAccount(row: Row): Account {
@@ -77,6 +119,7 @@ function rowToRecurring(row: Row): RecurringPayment {
     amount: Number(row.amount),
     frequency: String(row.frequency),
     next_date: String(row.next_date),
+    end_date: row.end_date ? String(row.end_date) : null,
     category: String(row.category),
     created_at: String(row.created_at),
     account_name: row.account_name ? String(row.account_name) : undefined,
@@ -402,13 +445,14 @@ export async function createRecurringPayment(
   amount: number,
   frequency: string,
   nextDate: string,
-  category: string
+  category: string,
+  endDate: string | null = null
 ): Promise<RecurringPayment> {
   await ensureSchema();
   const db = getDb();
   const result = await db.execute({
-    sql: "INSERT INTO recurring_payments (account_id, name, type, amount, frequency, next_date, category) VALUES (?, ?, ?, ?, ?, ?, ?)",
-    args: [accountId, name, type, amount, frequency, nextDate, category],
+    sql: "INSERT INTO recurring_payments (account_id, name, type, amount, frequency, next_date, category, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    args: [accountId, name, type, amount, frequency, nextDate, category, endDate],
   });
 
   const recResult = await db.execute({
@@ -467,54 +511,139 @@ export async function getDashboardData() {
 
 // ============ FORECAST ============
 
-export async function getForecast(months: number) {
+function getMonthlyContribution(r: RecurringPayment, forecastDate: Date): number {
+  const nextDate = new Date(r.next_date);
+  const monthsDiff =
+    (forecastDate.getFullYear() - nextDate.getFullYear()) * 12 +
+    (forecastDate.getMonth() - nextDate.getMonth());
+
+  if (monthsDiff < 0) return 0; // pas encore démarré
+
+  if (r.end_date) {
+    const endDate = new Date(r.end_date);
+    const afterEnd =
+      (forecastDate.getFullYear() - endDate.getFullYear()) * 12 +
+      (forecastDate.getMonth() - endDate.getMonth());
+    if (afterEnd > 0) return 0; // terminé
+  }
+
+  switch (r.frequency) {
+    case "monthly":
+      return r.amount;
+    case "weekly":
+      return r.amount * 4;
+    case "yearly":
+      return forecastDate.getMonth() === nextDate.getMonth() ? r.amount : 0;
+    default:
+      return r.amount;
+  }
+}
+
+export async function getDetailedForecast(months: number): Promise<DetailedForecastResult> {
   const accounts = await getAllAccounts();
   const recurringPayments = await getRecurringPayments();
   const now = new Date();
-  const forecasts = [];
+
+  const currentBalance = accounts.reduce(
+    (sum, a) => sum + (a.calculated_balance ?? a.initial_balance),
+    0
+  );
+
+  let runningBalance = currentBalance;
+  const accountRunning: Record<number, number> = {};
+  for (const a of accounts) {
+    accountRunning[a.id] = a.calculated_balance ?? a.initial_balance;
+  }
+
+  const monthDetails: MonthDetail[] = [];
+  let totalIncome = 0;
+  let totalExpenses = 0;
 
   for (let i = 0; i < months; i++) {
     const forecastDate = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const monthKey = `${forecastDate.getFullYear()}-${String(forecastDate.getMonth() + 1).padStart(2, "0")}`;
     const monthName = forecastDate.toLocaleDateString("fr-FR", {
       month: "long",
       year: "numeric",
     });
 
-    const accountForecasts = accounts.map((account) => {
-      let balance = account.calculated_balance ?? account.initial_balance;
+    const startBalance = runningBalance;
+    const incomeItems: ForecastItem[] = [];
+    const expenseItems: ForecastItem[] = [];
 
-      recurringPayments
-        .filter((r) => r.account_id === account.id)
-        .forEach((r) => {
-          const nextDate = new Date(r.next_date);
-          const monthsBetween =
-            (forecastDate.getFullYear() - nextDate.getFullYear()) * 12 +
-            (forecastDate.getMonth() - nextDate.getMonth());
+    for (const r of recurringPayments) {
+      const amount = getMonthlyContribution(r, forecastDate);
+      if (amount === 0) continue;
+      const account = accounts.find((a) => a.id === r.account_id);
+      const item: ForecastItem = {
+        name: r.name,
+        amount,
+        category: r.category,
+        frequency: r.frequency,
+        accountName: account?.name ?? "",
+        startsFrom: r.next_date,
+        endsAt: r.end_date,
+      };
+      if (r.type === "income") {
+        incomeItems.push(item);
+      } else {
+        expenseItems.push(item);
+      }
+    }
 
-          if (monthsBetween >= 0) {
-            let timesToApply = 0;
-            if (r.frequency === "monthly") timesToApply = monthsBetween + 1;
-            else if (r.frequency === "weekly")
-              timesToApply = (monthsBetween + 1) * 4;
-            else if (r.frequency === "yearly")
-              timesToApply = Math.floor((monthsBetween + 1) / 12);
+    const income = incomeItems.reduce((s, item) => s + item.amount, 0);
+    const expenses = expenseItems.reduce((s, item) => s + item.amount, 0);
+    const netCashflow = income - expenses;
+    const endBalance = startBalance + netCashflow;
 
-            const sign = r.type === "income" ? 1 : -1;
-            balance += sign * r.amount * timesToApply;
-          }
-        });
-
+    // Détail par compte
+    const accountBreakdown: AccountForecastBreakdown[] = accounts.map((a) => {
+      const accStart = accountRunning[a.id];
+      const accRecurring = recurringPayments.filter((r) => r.account_id === a.id);
+      const accIncome = accRecurring
+        .filter((r) => r.type === "income")
+        .reduce((s, r) => s + getMonthlyContribution(r, forecastDate), 0);
+      const accExpenses = accRecurring
+        .filter((r) => r.type === "expense")
+        .reduce((s, r) => s + getMonthlyContribution(r, forecastDate), 0);
+      const accEnd = accStart + accIncome - accExpenses;
+      accountRunning[a.id] = accEnd;
       return {
-        accountName: account.name,
-        currency: account.currency,
-        balance,
+        accountId: a.id,
+        accountName: a.name,
+        currency: a.currency,
+        startBalance: accStart,
+        income: accIncome,
+        expenses: accExpenses,
+        endBalance: accEnd,
       };
     });
 
-    forecasts.push({ month: monthName, accounts: accountForecasts });
+    totalIncome += income;
+    totalExpenses += expenses;
+    runningBalance = endBalance;
+
+    monthDetails.push({
+      month: monthName,
+      monthKey,
+      startBalance,
+      income,
+      expenses,
+      netCashflow,
+      endBalance,
+      incomeItems,
+      expenseItems,
+      accountBreakdown,
+    });
   }
 
-  return forecasts;
+  return {
+    monthDetails,
+    currentBalance,
+    projectedBalance: runningBalance,
+    totalIncome,
+    totalExpenses,
+  };
 }
 
 // ============ EXPORT / IMPORT ============
@@ -653,13 +782,14 @@ export async function updateRecurringPayment(
   amount: number,
   frequency: string,
   nextDate: string,
-  category: string
+  category: string,
+  endDate: string | null = null
 ): Promise<void> {
   await ensureSchema();
   const db = getDb();
   await db.execute({
-    sql: "UPDATE recurring_payments SET account_id = ?, name = ?, type = ?, amount = ?, frequency = ?, next_date = ?, category = ? WHERE id = ?",
-    args: [accountId, name, type, amount, frequency, nextDate, category, id],
+    sql: "UPDATE recurring_payments SET account_id = ?, name = ?, type = ?, amount = ?, frequency = ?, next_date = ?, category = ?, end_date = ? WHERE id = ?",
+    args: [accountId, name, type, amount, frequency, nextDate, category, endDate, id],
   });
 }
 

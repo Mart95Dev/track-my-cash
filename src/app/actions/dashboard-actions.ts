@@ -1,6 +1,6 @@
 "use server";
 
-import { getDashboardData, getForecast, exportAllData, importAllData } from "@/lib/queries";
+import { getDashboardData, getDetailedForecast, exportAllData, importAllData } from "@/lib/queries";
 import { revalidatePath } from "next/cache";
 
 export async function getDashboardAction() {
@@ -8,7 +8,7 @@ export async function getDashboardAction() {
 }
 
 export async function getForecastAction(months: number) {
-  return getForecast(months);
+  return getDetailedForecast(months);
 }
 
 export async function exportDataAction() {

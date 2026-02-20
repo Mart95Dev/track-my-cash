@@ -85,6 +85,7 @@ export async function initSchema() {
     "ALTER TABLE accounts ADD COLUMN statement_balance REAL",
     "ALTER TABLE accounts ADD COLUMN statement_date TEXT",
     "ALTER TABLE transactions ADD COLUMN reconciled INTEGER DEFAULT 0",
+    "ALTER TABLE recurring_payments ADD COLUMN end_date TEXT",
   ];
   for (const sql of migrations) {
     try {

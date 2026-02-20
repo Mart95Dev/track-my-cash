@@ -95,6 +95,11 @@ export function EditRecurringDialog({
                 ))}
               </select>
             </div>
+            <div className="space-y-2 col-span-2">
+              <Label>Date de fin <span className="text-muted-foreground font-normal">(optionnel)</span></Label>
+              <Input name="endDate" type="date" defaultValue={payment.end_date ?? ""} />
+              <p className="text-xs text-muted-foreground">Laisser vide si le paiement est permanent</p>
+            </div>
           </div>
           <Button type="submit" disabled={isPending}>
             {isPending ? "Enregistrement..." : "Enregistrer"}

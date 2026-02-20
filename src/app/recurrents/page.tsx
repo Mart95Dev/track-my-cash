@@ -47,6 +47,11 @@ export default async function RecurrentsPage() {
                       <span className="text-sm text-muted-foreground">
                         {p.account_name} — Prochain : {formatDate(p.next_date)}
                       </span>
+                      {p.end_date && (
+                        <Badge variant="outline" className="text-orange-600 border-orange-300">
+                          Jusqu&apos;au {formatDate(p.end_date)}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-4 shrink-0">

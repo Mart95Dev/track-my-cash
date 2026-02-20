@@ -20,14 +20,17 @@ export async function createRecurringAction(_prev: unknown, formData: FormData) 
   const frequency = formData.get("frequency") as string;
   const nextDate = formData.get("nextDate") as string;
   const category = (formData.get("category") as string) || "Autre";
+  const endDateRaw = formData.get("endDate") as string;
+  const endDate = endDateRaw && endDateRaw.trim() ? endDateRaw.trim() : null;
 
   if (!accountId || !name || !amount || !nextDate) {
     return { error: "Champs obligatoires manquants" };
   }
 
-  const payment = await createRecurringPayment(accountId, name, type, amount, frequency, nextDate, category);
+  const payment = await createRecurringPayment(accountId, name, type, amount, frequency, nextDate, category, endDate);
   revalidatePath("/");
   revalidatePath("/recurrents");
+  revalidatePath("/previsions");
   return { success: true, payment };
 }
 
@@ -40,14 +43,17 @@ export async function updateRecurringAction(_prev: unknown, formData: FormData) 
   const frequency = formData.get("frequency") as string;
   const nextDate = formData.get("nextDate") as string;
   const category = (formData.get("category") as string) || "Autre";
+  const endDateRaw = formData.get("endDate") as string;
+  const endDate = endDateRaw && endDateRaw.trim() ? endDateRaw.trim() : null;
 
   if (!id || !accountId || !name || !amount || !nextDate) {
     return { error: "Champs obligatoires manquants" };
   }
 
-  await updateRecurringPayment(id, accountId, name, type, amount, frequency, nextDate, category);
+  await updateRecurringPayment(id, accountId, name, type, amount, frequency, nextDate, category, endDate);
   revalidatePath("/");
   revalidatePath("/recurrents");
+  revalidatePath("/previsions");
   return { success: true };
 }
 

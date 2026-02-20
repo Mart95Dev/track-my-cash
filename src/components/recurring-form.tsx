@@ -74,6 +74,11 @@ export function RecurringForm({ accounts }: { accounts: Account[] }) {
             ))}
           </select>
         </div>
+        <div className="space-y-2">
+          <Label htmlFor="endDate">Date de fin <span className="text-muted-foreground font-normal">(optionnel)</span></Label>
+          <Input id="endDate" name="endDate" type="date" />
+          <p className="text-xs text-muted-foreground">Laisser vide si le paiement est permanent</p>
+        </div>
       </div>
 
       <Button type="submit" disabled={isPending}>
