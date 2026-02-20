@@ -10,19 +10,19 @@ import {
 } from "@/lib/queries";
 import { revalidatePath } from "next/cache";
 
-// Applique les règles de catégorisation — retourne le pattern (sous-catégorie précise)
+// Applique les règles de catégorisation — retourne { category: catégorie large, subcategory: pattern }
 function applyRules(
   description: string,
   rules: { pattern: string; category: string }[]
-): string {
+): { category: string; subcategory: string } {
   for (const rule of rules) {
     try {
-      if (new RegExp(rule.pattern, "i").test(description)) return rule.pattern;
+      if (new RegExp(rule.pattern, "i").test(description)) return { category: rule.category, subcategory: rule.pattern };
     } catch {
-      if (description.toLowerCase().includes(rule.pattern.toLowerCase())) return rule.pattern;
+      if (description.toLowerCase().includes(rule.pattern.toLowerCase())) return { category: rule.category, subcategory: rule.pattern };
     }
   }
-  return "Autre";
+  return { category: "Autre", subcategory: "" };
 }
 
 export async function importFileAction(formData: FormData) {
@@ -66,15 +66,16 @@ export async function importFileAction(formData: FormData) {
 
   // Récupération des règles une seule fois pour toutes les transactions
   const rules = await getCategorizationRules();
-  // Patterns groupés par catégorie large pour le select de l'import
-  const availableCategories = [...rules.map((r) => r.pattern)].sort();
-  if (!availableCategories.includes("Autre")) availableCategories.push("Autre");
 
-  const transactionsWithHash = parseResult.transactions.map((t) => ({
-    ...t,
-    import_hash: generateImportHash(t.date, t.description, t.amount * (t.type === "expense" ? -1 : 1)),
-    category: applyRules(t.description, rules),
-  }));
+  const transactionsWithHash = parseResult.transactions.map((t) => {
+    const { category, subcategory } = applyRules(t.description, rules);
+    return {
+      ...t,
+      import_hash: generateImportHash(t.date, t.description, t.amount * (t.type === "expense" ? -1 : 1)),
+      category,
+      subcategory,
+    };
+  });
 
   const existingHashes = await checkDuplicates(transactionsWithHash.map((t) => t.import_hash));
   const newTransactions = transactionsWithHash.filter((t) => !existingHashes.has(t.import_hash));
@@ -90,7 +91,7 @@ export async function importFileAction(formData: FormData) {
       totalCount: parseResult.transactions.length,
       newCount: newTransactions.length,
       duplicateCount,
-      availableCategories,
+      rules: rules.map((r) => ({ pattern: r.pattern, category: r.category })),
       transactions: newTransactions.map((t) => ({
         date: t.date,
         description: t.description,
@@ -98,6 +99,7 @@ export async function importFileAction(formData: FormData) {
         type: t.type,
         import_hash: t.import_hash,
         category: t.category,
+        subcategory: t.subcategory,
       })),
     },
   };
@@ -112,6 +114,7 @@ export async function confirmImportAction(
     type: "income" | "expense";
     import_hash: string;
     category: string;
+    subcategory: string;
   }[],
   detectedBalance: number | null = null,
   detectedBalanceDate: string | null = null
@@ -123,6 +126,7 @@ export async function confirmImportAction(
     amount: t.amount,
     date: t.date,
     category: t.category,
+    subcategory: t.subcategory,
     description: t.description,
     import_hash: t.import_hash,
   }));

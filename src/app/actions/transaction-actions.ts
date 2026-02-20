@@ -18,13 +18,14 @@ export async function createTransactionAction(_prev: unknown, formData: FormData
   const amount = parseFloat(formData.get("amount") as string);
   const date = formData.get("date") as string;
   const category = (formData.get("category") as string) || "Autre";
+  const subcategory = (formData.get("subcategory") as string) || "";
   const description = (formData.get("description") as string) || "";
 
   if (!accountId || !amount || !date || !type) {
     return { error: "Champs obligatoires manquants" };
   }
 
-  const transaction = await createTransaction(accountId, type, amount, date, category, description);
+  const transaction = await createTransaction(accountId, type, amount, date, category, subcategory, description);
   revalidatePath("/");
   revalidatePath("/transactions");
   return { success: true, transaction };
@@ -37,13 +38,14 @@ export async function updateTransactionAction(_prev: unknown, formData: FormData
   const amount = parseFloat(formData.get("amount") as string);
   const date = formData.get("date") as string;
   const category = (formData.get("category") as string) || "Autre";
+  const subcategory = (formData.get("subcategory") as string) || "";
   const description = (formData.get("description") as string) || "";
 
   if (!id || !accountId || !amount || !date || !type) {
     return { error: "Champs obligatoires manquants" };
   }
 
-  await updateTransaction(id, accountId, type, amount, date, category, description);
+  await updateTransaction(id, accountId, type, amount, date, category, subcategory, description);
   revalidatePath("/");
   revalidatePath("/transactions");
   return { success: true };

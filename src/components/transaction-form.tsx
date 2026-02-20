@@ -5,6 +5,7 @@ import { createTransactionAction } from "@/app/actions/transaction-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CategorySubcategoryPicker } from "@/components/category-subcategory-picker";
 import { toast } from "sonner";
 import type { Account } from "@/lib/queries";
 
@@ -38,13 +39,6 @@ export function TransactionForm({
       toast.error(String(state.error));
     }
   }, [state]);
-
-  // Grouper les patterns par catégorie large
-  const grouped = rules.reduce<Record<string, string[]>>((acc, r) => {
-    if (!acc[r.category]) acc[r.category] = [];
-    acc[r.category].push(r.pattern);
-    return acc;
-  }, {});
 
   return (
     <form ref={formRef} action={formAction} className="space-y-4">
@@ -92,27 +86,11 @@ export function TransactionForm({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="category">Catégorie</Label>
-          <select
-            id="category"
-            name="category"
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm"
-          >
-            {Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b)).map(([cat, patterns]) => (
-              <optgroup key={cat} label={cat}>
-                {patterns.map((p) => (
-                  <option key={p} value={p}>{p}</option>
-                ))}
-              </optgroup>
-            ))}
-            <option value="Autre">Autre</option>
-          </select>
-        </div>
-        <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
           <Input id="description" name="description" placeholder="Ex: Courses" />
         </div>
       </div>
+      <CategorySubcategoryPicker rules={rules} idPrefix="tx-new" />
 
       <Button type="submit" disabled={isPending}>
         {isPending ? "Enregistrement..." : "Ajouter"}

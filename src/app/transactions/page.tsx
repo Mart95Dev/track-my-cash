@@ -96,7 +96,12 @@ export default async function TransactionsPage({
                           {formatDate(tx.date)}
                         </TableCell>
                         <TableCell>{tx.description || "—"}</TableCell>
-                        <TableCell>{tx.category}</TableCell>
+                        <TableCell>
+                          <span className="text-sm">{tx.category}</span>
+                          {tx.subcategory && (
+                            <span className="block text-xs text-muted-foreground">{tx.subcategory}</span>
+                          )}
+                        </TableCell>
                         <TableCell
                           className={`text-right font-medium whitespace-nowrap ${
                             tx.type === "income"

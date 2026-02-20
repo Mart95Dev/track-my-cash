@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { CategorySubcategoryPicker } from "@/components/category-subcategory-picker";
 import type { Account, Transaction } from "@/lib/queries";
 
 interface Rule {
@@ -45,12 +46,6 @@ export function EditTransactionDialog({
       toast.error(String(state.error));
     }
   }, [state]);
-
-  const grouped = rules.reduce<Record<string, string[]>>((acc, r) => {
-    if (!acc[r.category]) acc[r.category] = [];
-    acc[r.category].push(r.pattern);
-    return acc;
-  }, {});
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -87,24 +82,17 @@ export function EditTransactionDialog({
               <Label>Date</Label>
               <Input name="date" type="date" defaultValue={transaction.date} required />
             </div>
-            <div className="space-y-2">
-              <Label>Catégorie</Label>
-              <select name="category" defaultValue={transaction.category} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm">
-                {Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b)).map(([cat, patterns]) => (
-                  <optgroup key={cat} label={cat}>
-                    {patterns.map((p) => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </optgroup>
-                ))}
-                <option value="Autre">Autre</option>
-              </select>
-            </div>
-            <div className="space-y-2">
+            <div className="col-span-2 space-y-2">
               <Label>Description</Label>
               <Input name="description" defaultValue={transaction.description} />
             </div>
           </div>
+          <CategorySubcategoryPicker
+            rules={rules}
+            defaultCategory={transaction.category}
+            defaultSubcategory={transaction.subcategory ?? undefined}
+            idPrefix={`tx-edit-${transaction.id}`}
+          />
           <Button type="submit" disabled={isPending}>
             {isPending ? "Enregistrement..." : "Enregistrer"}
           </Button>

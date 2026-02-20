@@ -21,7 +21,8 @@ export interface Transaction {
   type: "income" | "expense";
   amount: number;
   date: string;
-  category: string;
+  category: string;       // catégorie large (ex: "Abonnement", "Transport")
+  subcategory: string | null; // pattern/sous-catégorie (ex: "netflix", "sncf")
   description: string;
   import_hash: string | null;
   created_at: string;
@@ -103,6 +104,7 @@ function rowToTransaction(row: Row): Transaction {
     amount: Number(row.amount),
     date: String(row.date),
     category: String(row.category),
+    subcategory: row.subcategory ? String(row.subcategory) : null,
     description: String(row.description),
     import_hash: row.import_hash ? String(row.import_hash) : null,
     created_at: String(row.created_at),
@@ -345,15 +347,17 @@ export async function getExpensesByCategory(accountId?: number) {
     ? [monthStart, monthEnd, accountId]
     : [monthStart, monthEnd];
 
+  // Grouper par sous-catégorie (pattern), avec fallback sur category si subcategory vide
   const result = await db.execute({
-    sql: `SELECT category, SUM(amount) as total FROM transactions
+    sql: `SELECT COALESCE(NULLIF(t.subcategory, ''), t.category) as pattern_cat, SUM(amount) as total
+      FROM transactions t
       WHERE ${where}
-      GROUP BY category ORDER BY total DESC`,
+      GROUP BY pattern_cat ORDER BY total DESC`,
     args,
   });
 
   return result.rows.map((row) => ({
-    category: String(row.category),
+    category: String(row.pattern_cat),
     total: Number(row.total),
   }));
 }
@@ -373,13 +377,9 @@ export async function getExpensesByBroadCategory(accountId?: number) {
     ? [monthStart, monthEnd, accountId]
     : [monthStart, monthEnd];
 
+  // Après migration, category contient directement la catégorie large
   const result = await db.execute({
-    sql: `SELECT
-        COALESCE(
-          (SELECT cr.category FROM categorization_rules cr WHERE cr.pattern = t.category ORDER BY cr.priority DESC LIMIT 1),
-          t.category
-        ) as broad_category,
-        SUM(t.amount) as total
+    sql: `SELECT t.category as broad_category, SUM(t.amount) as total
       FROM transactions t
       WHERE ${where}
       GROUP BY broad_category
@@ -399,14 +399,15 @@ export async function createTransaction(
   amount: number,
   date: string,
   category: string,
+  subcategory: string,
   description: string
 ): Promise<Transaction> {
   await ensureSchema();
   const db = getDb();
   const hash = generateImportHash(date, description, amount);
   const result = await db.execute({
-    sql: "INSERT INTO transactions (account_id, type, amount, date, category, description, import_hash) VALUES (?, ?, ?, ?, ?, ?, ?)",
-    args: [accountId, type, amount, date, category, description, hash],
+    sql: "INSERT INTO transactions (account_id, type, amount, date, category, subcategory, description, import_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    args: [accountId, type, amount, date, category, subcategory, description, hash],
   });
 
   const txResult = await db.execute({
@@ -452,6 +453,7 @@ export async function bulkInsertTransactions(
     amount: number;
     date: string;
     category: string;
+    subcategory: string;
     description: string;
     import_hash: string;
   }[]
@@ -459,8 +461,8 @@ export async function bulkInsertTransactions(
   await ensureSchema();
   const db = getDb();
   const stmts = transactions.map((tx) => ({
-    sql: "INSERT INTO transactions (account_id, type, amount, date, category, description, import_hash) VALUES (?, ?, ?, ?, ?, ?, ?)",
-    args: [tx.account_id, tx.type, tx.amount, tx.date, tx.category, tx.description, tx.import_hash] as (string | number)[],
+    sql: "INSERT INTO transactions (account_id, type, amount, date, category, subcategory, description, import_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    args: [tx.account_id, tx.type, tx.amount, tx.date, tx.category, tx.subcategory, tx.description, tx.import_hash] as (string | number)[],
   }));
 
   await db.batch(stmts, "write");
@@ -838,13 +840,14 @@ export async function updateTransaction(
   amount: number,
   date: string,
   category: string,
+  subcategory: string,
   description: string
 ): Promise<void> {
   await ensureSchema();
   const db = getDb();
   await db.execute({
-    sql: "UPDATE transactions SET account_id = ?, type = ?, amount = ?, date = ?, category = ?, description = ? WHERE id = ?",
-    args: [accountId, type, amount, date, category, description, id],
+    sql: "UPDATE transactions SET account_id = ?, type = ?, amount = ?, date = ?, category = ?, subcategory = ?, description = ? WHERE id = ?",
+    args: [accountId, type, amount, date, category, subcategory, description, id],
   });
 }
 

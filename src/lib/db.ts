@@ -86,6 +86,11 @@ export async function initSchema() {
     "ALTER TABLE accounts ADD COLUMN statement_date TEXT",
     "ALTER TABLE transactions ADD COLUMN reconciled INTEGER DEFAULT 0",
     "ALTER TABLE recurring_payments ADD COLUMN end_date TEXT",
+    "ALTER TABLE transactions ADD COLUMN subcategory TEXT",
+    // Migre les anciennes lignes : l'ancien category (pattern) → subcategory,
+    // et dérive la catégorie large depuis les règles → category.
+    // WHERE subcategory IS NULL cible uniquement les lignes pré-migration.
+    `UPDATE transactions SET subcategory = category, category = COALESCE((SELECT cr.category FROM categorization_rules cr WHERE cr.pattern = transactions.category ORDER BY cr.priority DESC LIMIT 1), category) WHERE subcategory IS NULL`,
   ];
   for (const sql of migrations) {
     try {
