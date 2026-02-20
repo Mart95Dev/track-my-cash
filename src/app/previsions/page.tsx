@@ -44,6 +44,7 @@ export default async function PrevisionsPage({
   }
 
   const selectedAccount = accountId ? accounts.find((a) => a.id === accountId) ?? null : null;
+  const currency = selectedAccount?.currency ?? "EUR";
   const forecast = await getDetailedForecast(months, accountId ?? undefined);
   const { monthDetails, currentBalance, projectedBalance, totalIncome, totalExpenses } = forecast;
   const totalNet = totalIncome - totalExpenses;
@@ -78,7 +79,7 @@ export default async function PrevisionsPage({
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">Solde actuel</p>
             <p className={`text-2xl font-bold mt-1 ${currentBalance >= 0 ? "text-green-600" : "text-red-600"}`}>
-              {formatCurrency(currentBalance)}
+              {formatCurrency(currentBalance, currency)}
             </p>
           </CardContent>
         </Card>
@@ -86,7 +87,7 @@ export default async function PrevisionsPage({
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">Revenus sur {months} mois</p>
             <p className="text-2xl font-bold mt-1 text-green-600">
-              +{formatCurrency(totalIncome)}
+              +{formatCurrency(totalIncome, currency)}
             </p>
           </CardContent>
         </Card>
@@ -94,7 +95,7 @@ export default async function PrevisionsPage({
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">Dépenses sur {months} mois</p>
             <p className="text-2xl font-bold mt-1 text-red-600">
-              -{formatCurrency(totalExpenses)}
+              -{formatCurrency(totalExpenses, currency)}
             </p>
           </CardContent>
         </Card>
@@ -102,10 +103,10 @@ export default async function PrevisionsPage({
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">Solde dans {months} mois</p>
             <p className={`text-2xl font-bold mt-1 ${projectedBalance >= 0 ? "text-green-600" : "text-red-600"}`}>
-              {formatCurrency(projectedBalance)}
+              {formatCurrency(projectedBalance, currency)}
             </p>
             <p className={`text-xs mt-1 ${totalNet >= 0 ? "text-green-600" : "text-red-600"}`}>
-              {totalNet >= 0 ? "+" : ""}{formatCurrency(totalNet)} net
+              {totalNet >= 0 ? "+" : ""}{formatCurrency(totalNet, currency)} net
             </p>
           </CardContent>
         </Card>
@@ -132,16 +133,16 @@ export default async function PrevisionsPage({
                 <TableRow key={i}>
                   <TableCell className="font-medium capitalize">{m.month}</TableCell>
                   <TableCell className="text-right text-green-600">
-                    {m.income > 0 ? `+${formatCurrency(m.income)}` : "—"}
+                    {m.income > 0 ? `+${formatCurrency(m.income, currency)}` : "—"}
                   </TableCell>
                   <TableCell className="text-right text-red-600">
-                    {m.expenses > 0 ? `-${formatCurrency(m.expenses)}` : "—"}
+                    {m.expenses > 0 ? `-${formatCurrency(m.expenses, currency)}` : "—"}
                   </TableCell>
                   <TableCell className={`text-right font-semibold ${m.netCashflow >= 0 ? "text-green-600" : "text-red-600"}`}>
-                    {m.netCashflow >= 0 ? "▲" : "▼"} {formatCurrency(Math.abs(m.netCashflow))}
+                    {m.netCashflow >= 0 ? "▲" : "▼"} {formatCurrency(Math.abs(m.netCashflow), currency)}
                   </TableCell>
                   <TableCell className={`text-right font-bold ${m.endBalance >= 0 ? "" : "text-red-600"}`}>
-                    {formatCurrency(m.endBalance)}
+                    {formatCurrency(m.endBalance, currency)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -181,7 +182,7 @@ export default async function PrevisionsPage({
                         <Badge variant="secondary">{FREQ_LABEL[item.frequency] ?? item.frequency}</Badge>
                       </TableCell>
                       <TableCell className="text-right text-green-600 font-medium">
-                        +{formatCurrency(item.amount)}
+                        +{formatCurrency(item.amount, currency)}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
                         <span>Dès {formatDate(item.startsFrom)}</span>
@@ -226,7 +227,7 @@ export default async function PrevisionsPage({
                         <Badge variant="secondary">{FREQ_LABEL[item.frequency] ?? item.frequency}</Badge>
                       </TableCell>
                       <TableCell className="text-right text-red-600 font-medium">
-                        -{formatCurrency(item.amount)}
+                        -{formatCurrency(item.amount, currency)}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
                         <span>Dès {formatDate(item.startsFrom)}</span>
