@@ -71,7 +71,7 @@ export default async function DashboardPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total global (converti en EUR)
+              Solde de tous les comptes (en EUR)
             </CardTitle>
           </CardHeader>
           <CardContent>
