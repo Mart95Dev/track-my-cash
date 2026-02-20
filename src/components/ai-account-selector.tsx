@@ -40,17 +40,9 @@ export function AiAccountSelector({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Comptes à analyser
-        </p>
-        <button
-          onClick={toggleAll}
-          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
-          {allSelected ? "Tout désélectionner" : "Tout sélectionner"}
-        </button>
-      </div>
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        Comptes à analyser
+      </p>
 
       <div className="space-y-1.5">
         {accounts.map((account) => {
@@ -83,6 +75,13 @@ export function AiAccountSelector({
           );
         })}
       </div>
+
+      <button
+        onClick={toggleAll}
+        className="w-full text-xs text-muted-foreground hover:text-foreground border border-dashed border-border rounded-lg py-2 transition-colors"
+      >
+        {allSelected ? "Tout désélectionner" : "Tout sélectionner"}
+      </button>
     </div>
   );
 }
