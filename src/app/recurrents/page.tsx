@@ -69,6 +69,9 @@ export default async function RecurrentsPage({
                     <div className="flex flex-wrap gap-2 mt-1">
                       <Badge variant="secondary">{p.frequency}</Badge>
                       <Badge variant="outline">{p.category}</Badge>
+                      {p.subcategory && (
+                        <span className="text-xs text-muted-foreground self-center">{p.subcategory}</span>
+                      )}
                       <span className="text-sm text-muted-foreground">
                         Prochain : {formatDate(p.next_date)}
                       </span>

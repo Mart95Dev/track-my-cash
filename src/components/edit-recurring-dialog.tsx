@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { CategorySubcategoryPicker } from "@/components/category-subcategory-picker";
 import type { Account, RecurringPayment } from "@/lib/queries";
 
 interface Rule {
@@ -46,16 +47,10 @@ export function EditRecurringDialog({
     }
   }, [state]);
 
-  const grouped = rules.reduce<Record<string, string[]>>((acc, r) => {
-    if (!acc[r.category]) acc[r.category] = [];
-    acc[r.category].push(r.pattern);
-    return acc;
-  }, {});
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">Éditer</Button>
+        <Button variant="outline" size="sm">Éditer</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -100,24 +95,17 @@ export function EditRecurringDialog({
               <Input name="nextDate" type="date" defaultValue={payment.next_date} required />
             </div>
             <div className="space-y-2 col-span-2">
-              <Label>Catégorie</Label>
-              <select name="category" defaultValue={payment.category} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm">
-                {Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b)).map(([cat, patterns]) => (
-                  <optgroup key={cat} label={cat}>
-                    {patterns.map((p) => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </optgroup>
-                ))}
-                <option value="Autre">Autre</option>
-              </select>
-            </div>
-            <div className="space-y-2 col-span-2">
               <Label>Date de fin <span className="text-muted-foreground font-normal">(optionnel)</span></Label>
               <Input name="endDate" type="date" defaultValue={payment.end_date ?? ""} />
               <p className="text-xs text-muted-foreground">Laisser vide si le paiement est permanent</p>
             </div>
           </div>
+          <CategorySubcategoryPicker
+            rules={rules}
+            defaultCategory={payment.category}
+            defaultSubcategory={payment.subcategory ?? undefined}
+            idPrefix={`rec-edit-${payment.id}`}
+          />
           <Button type="submit" disabled={isPending}>
             {isPending ? "Enregistrement..." : "Enregistrer"}
           </Button>

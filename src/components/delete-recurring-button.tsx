@@ -12,7 +12,7 @@ export function DeleteRecurringButton({ id }: { id: number }) {
   return (
     <ConfirmDialog
       trigger={
-        <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" disabled={isPending}>
+        <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300" disabled={isPending}>
           {isPending ? "..." : "Suppr."}
         </Button>
       }

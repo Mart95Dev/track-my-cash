@@ -20,6 +20,8 @@ export async function createRecurringAction(_prev: unknown, formData: FormData) 
   const frequency = formData.get("frequency") as string;
   const nextDate = formData.get("nextDate") as string;
   const category = (formData.get("category") as string) || "Autre";
+  const subcategoryRaw = formData.get("subcategory") as string;
+  const subcategory = subcategoryRaw && subcategoryRaw.trim() ? subcategoryRaw.trim() : null;
   const endDateRaw = formData.get("endDate") as string;
   const endDate = endDateRaw && endDateRaw.trim() ? endDateRaw.trim() : null;
 
@@ -27,7 +29,7 @@ export async function createRecurringAction(_prev: unknown, formData: FormData) 
     return { error: "Champs obligatoires manquants" };
   }
 
-  const payment = await createRecurringPayment(accountId, name, type, amount, frequency, nextDate, category, endDate);
+  const payment = await createRecurringPayment(accountId, name, type, amount, frequency, nextDate, category, endDate, subcategory);
   revalidatePath("/");
   revalidatePath("/recurrents");
   revalidatePath("/previsions");
@@ -43,6 +45,8 @@ export async function updateRecurringAction(_prev: unknown, formData: FormData) 
   const frequency = formData.get("frequency") as string;
   const nextDate = formData.get("nextDate") as string;
   const category = (formData.get("category") as string) || "Autre";
+  const subcategoryRaw = formData.get("subcategory") as string;
+  const subcategory = subcategoryRaw && subcategoryRaw.trim() ? subcategoryRaw.trim() : null;
   const endDateRaw = formData.get("endDate") as string;
   const endDate = endDateRaw && endDateRaw.trim() ? endDateRaw.trim() : null;
 
@@ -50,7 +54,7 @@ export async function updateRecurringAction(_prev: unknown, formData: FormData) 
     return { error: "Champs obligatoires manquants" };
   }
 
-  await updateRecurringPayment(id, accountId, name, type, amount, frequency, nextDate, category, endDate);
+  await updateRecurringPayment(id, accountId, name, type, amount, frequency, nextDate, category, endDate, subcategory);
   revalidatePath("/");
   revalidatePath("/recurrents");
   revalidatePath("/previsions");

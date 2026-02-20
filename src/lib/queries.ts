@@ -39,6 +39,7 @@ export interface RecurringPayment {
   next_date: string;
   end_date: string | null;
   category: string;
+  subcategory: string | null;
   created_at: string;
   account_name?: string;
 }
@@ -123,6 +124,7 @@ function rowToRecurring(row: Row): RecurringPayment {
     next_date: String(row.next_date),
     end_date: row.end_date ? String(row.end_date) : null,
     category: String(row.category),
+    subcategory: row.subcategory ? String(row.subcategory) : null,
     created_at: String(row.created_at),
     account_name: row.account_name ? String(row.account_name) : undefined,
   };
@@ -496,13 +498,14 @@ export async function createRecurringPayment(
   frequency: string,
   nextDate: string,
   category: string,
-  endDate: string | null = null
+  endDate: string | null = null,
+  subcategory: string | null = null
 ): Promise<RecurringPayment> {
   await ensureSchema();
   const db = getDb();
   const result = await db.execute({
-    sql: "INSERT INTO recurring_payments (account_id, name, type, amount, frequency, next_date, category, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-    args: [accountId, name, type, amount, frequency, nextDate, category, endDate],
+    sql: "INSERT INTO recurring_payments (account_id, name, type, amount, frequency, next_date, category, end_date, subcategory) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    args: [accountId, name, type, amount, frequency, nextDate, category, endDate, subcategory],
   });
 
   const recResult = await db.execute({
@@ -860,13 +863,14 @@ export async function updateRecurringPayment(
   frequency: string,
   nextDate: string,
   category: string,
-  endDate: string | null = null
+  endDate: string | null = null,
+  subcategory: string | null = null
 ): Promise<void> {
   await ensureSchema();
   const db = getDb();
   await db.execute({
-    sql: "UPDATE recurring_payments SET account_id = ?, name = ?, type = ?, amount = ?, frequency = ?, next_date = ?, category = ?, end_date = ? WHERE id = ?",
-    args: [accountId, name, type, amount, frequency, nextDate, category, endDate, id],
+    sql: "UPDATE recurring_payments SET account_id = ?, name = ?, type = ?, amount = ?, frequency = ?, next_date = ?, category = ?, end_date = ?, subcategory = ? WHERE id = ?",
+    args: [accountId, name, type, amount, frequency, nextDate, category, endDate, subcategory, id],
   });
 }
 

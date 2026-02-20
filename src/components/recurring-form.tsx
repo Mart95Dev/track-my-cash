@@ -5,6 +5,7 @@ import { createRecurringAction } from "@/app/actions/recurring-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CategorySubcategoryPicker } from "@/components/category-subcategory-picker";
 import { toast } from "sonner";
 import type { Account } from "@/lib/queries";
 
@@ -36,12 +37,6 @@ export function RecurringForm({
       toast.error(String(state.error));
     }
   }, [state]);
-
-  const grouped = rules.reduce<Record<string, string[]>>((acc, r) => {
-    if (!acc[r.category]) acc[r.category] = [];
-    acc[r.category].push(r.pattern);
-    return acc;
-  }, {});
 
   return (
     <form ref={formRef} action={formAction} className="space-y-4">
@@ -83,24 +78,13 @@ export function RecurringForm({
           <Input id="nextDate" name="nextDate" type="date" defaultValue={new Date().toISOString().split("T")[0]} required />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="category">Catégorie</Label>
-          <select id="category" name="category" className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm">
-            {Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b)).map(([cat, patterns]) => (
-              <optgroup key={cat} label={cat}>
-                {patterns.map((p) => (
-                  <option key={p} value={p}>{p}</option>
-                ))}
-              </optgroup>
-            ))}
-            <option value="Autre">Autre</option>
-          </select>
-        </div>
-        <div className="space-y-2">
           <Label htmlFor="endDate">Date de fin <span className="text-muted-foreground font-normal">(optionnel)</span></Label>
           <Input id="endDate" name="endDate" type="date" />
           <p className="text-xs text-muted-foreground">Laisser vide si le paiement est permanent</p>
         </div>
       </div>
+
+      <CategorySubcategoryPicker rules={rules} idPrefix="rec-new" />
 
       <Button type="submit" disabled={isPending}>
         {isPending ? "Ajout..." : "Ajouter"}

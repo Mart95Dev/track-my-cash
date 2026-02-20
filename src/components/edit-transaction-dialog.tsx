@@ -50,7 +50,7 @@ export function EditTransactionDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">Éditer</Button>
+        <Button variant="outline" size="sm">Éditer</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
