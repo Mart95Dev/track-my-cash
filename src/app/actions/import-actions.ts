@@ -1,6 +1,6 @@
 "use server";
 
-import { parseBanquePopulaire, parseMCB, parseRevolut, parseMCBPdf } from "@/lib/parsers";
+import { detectAndParseFile } from "@/lib/parsers";
 import {
   generateImportHash,
   checkDuplicates,
@@ -36,30 +36,26 @@ export async function importFileAction(formData: FormData) {
   }
 
   const filename = file.name.toLowerCase();
+
   let parseResult;
 
-  if (filename.endsWith(".pdf")) {
-    try {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      parseResult = parseMCBPdf(buffer);
-    } catch (err) {
-      return { error: err instanceof Error ? err.message : "Erreur lors de la lecture du PDF" };
-    }
-  } else if (filename.endsWith(".xlsx")) {
-    const buffer = Buffer.from(await file.arrayBuffer());
-    parseResult = parseRevolut(buffer);
-  } else {
-    const arrayBuffer = await file.arrayBuffer();
-    let content = new TextDecoder("utf-8").decode(arrayBuffer);
-    if (content.includes("") || content.includes("Num")) {
-      content = new TextDecoder("iso-8859-1").decode(arrayBuffer);
-    }
+  try {
+    const isPdf = filename.endsWith(".pdf");
+    const isXlsx = filename.endsWith(".xlsx");
 
-    if (content.includes("Date de la transaction") || content.includes("Devise du compte MGA")) {
-      parseResult = parseMCB(content);
+    if (isPdf || isXlsx) {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      parseResult = await detectAndParseFile(filename, null, buffer);
     } else {
-      parseResult = parseBanquePopulaire(content);
+      const arrayBuffer = await file.arrayBuffer();
+      let content = new TextDecoder("utf-8").decode(arrayBuffer);
+      if (content.includes("\ufffd") || content.includes("Num")) {
+        content = new TextDecoder("iso-8859-1").decode(arrayBuffer);
+      }
+      parseResult = await detectAndParseFile(filename, content, null);
     }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Erreur lors de la lecture du fichier" };
   }
 
   if (parseResult.transactions.length === 0) {
