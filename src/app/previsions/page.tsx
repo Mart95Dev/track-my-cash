@@ -27,7 +27,6 @@ export default async function PrevisionsPage({
 }) {
   const params = await searchParams;
   const months = parseInt(params.months ?? "6");
-  const accountId = params.accountId ? parseInt(params.accountId) : null;
   const accounts = await getAllAccounts();
 
   if (accounts.length === 0) {
@@ -43,9 +42,12 @@ export default async function PrevisionsPage({
     );
   }
 
-  const selectedAccount = accountId ? accounts.find((a) => a.id === accountId) ?? null : null;
-  const currency = selectedAccount?.currency ?? "EUR";
-  const forecast = await getDetailedForecast(months, accountId ?? undefined);
+  const rawAccountId = params.accountId ? parseInt(params.accountId) : null;
+  // Par défaut, utiliser le premier compte si aucun sélectionné
+  const accountId = rawAccountId ?? accounts[0]!.id;
+  const selectedAccount = accounts.find((a) => a.id === accountId) ?? accounts[0]!;
+  const currency = selectedAccount.currency;
+  const forecast = await getDetailedForecast(months, accountId);
   const { monthDetails, currentBalance, projectedBalance, totalIncome, totalExpenses } = forecast;
   const totalNet = totalIncome - totalExpenses;
 
@@ -244,57 +246,6 @@ export default async function PrevisionsPage({
         </Card>
       </div>
 
-      {/* Détail par compte — masqué si un seul compte sélectionné */}
-      {accounts.length > 1 && !accountId && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Détail par compte — fin de période</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0 overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Compte</TableHead>
-                  <TableHead className="text-right">Solde actuel</TableHead>
-                  <TableHead className="text-right text-green-700">Revenus/{months}m</TableHead>
-                  <TableHead className="text-right text-red-700">Dépenses/{months}m</TableHead>
-                  <TableHead className="text-right">Solde projeté</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {monthDetails[monthDetails.length - 1]?.accountBreakdown.map((acc) => {
-                  const account = accounts.find((a) => a.id === acc.accountId);
-                  const initialBal = account?.calculated_balance ?? account?.initial_balance ?? 0;
-                  // Calculer cumul sur la période
-                  const totalAccIncome = monthDetails.reduce((s, m) => {
-                    const bd = m.accountBreakdown.find((b) => b.accountId === acc.accountId);
-                    return s + (bd?.income ?? 0);
-                  }, 0);
-                  const totalAccExpenses = monthDetails.reduce((s, m) => {
-                    const bd = m.accountBreakdown.find((b) => b.accountId === acc.accountId);
-                    return s + (bd?.expenses ?? 0);
-                  }, 0);
-                  return (
-                    <TableRow key={acc.accountId}>
-                      <TableCell className="font-medium">{acc.accountName}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(initialBal, acc.currency)}</TableCell>
-                      <TableCell className="text-right text-green-600">
-                        {totalAccIncome > 0 ? `+${formatCurrency(totalAccIncome, acc.currency)}` : "—"}
-                      </TableCell>
-                      <TableCell className="text-right text-red-600">
-                        {totalAccExpenses > 0 ? `-${formatCurrency(totalAccExpenses, acc.currency)}` : "—"}
-                      </TableCell>
-                      <TableCell className={`text-right font-bold ${acc.endBalance >= 0 ? "" : "text-red-600"}`}>
-                        {formatCurrency(acc.endBalance, acc.currency)}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }

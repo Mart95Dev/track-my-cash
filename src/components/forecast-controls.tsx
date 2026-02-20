@@ -42,10 +42,9 @@ export function ForecastControls({
       {accounts.length > 1 && (
         <select
           className="flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-          value={currentAccountId ?? ""}
+          value={currentAccountId ?? accounts[0]?.id ?? ""}
           onChange={(e) => navigate(currentMonths, e.target.value ? parseInt(e.target.value) : null)}
         >
-          <option value="">Tous les comptes</option>
           {accounts.map((a) => (
             <option key={a.id} value={a.id}>
               {a.name}
