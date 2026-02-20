@@ -120,16 +120,22 @@ export function parseMCB(content: string): ParseResult {
     const credit = parseAmountMCB(parts[5]);
     const solde = parseAmountMCB(parts[6]);
 
-    // Parse date DD-MMM-YYYY
+    // Parse date : DD-MM-YYYY (numérique) ou DD-MMM-YYYY (abréviation)
     const dp = dateRaw.split("-");
     if (dp.length !== 3) continue;
     const day = dp[0].padStart(2, "0");
-    const mon = MONTHS[dp[1]];
-    if (!mon) continue;
     const year = dp[2];
+    let mon: string;
+    if (/^\d+$/.test(dp[1])) {
+      mon = dp[1].padStart(2, "0");
+    } else {
+      mon = MONTHS[dp[1]];
+      if (!mon) continue;
+    }
     const date = `${year}-${mon}-${day}`;
 
-    if (!isNaN(solde)) {
+    // Conserver le solde le plus récent (le fichier peut être trié du plus récent au plus ancien)
+    if (!isNaN(solde) && (!lastBalanceDate || date > lastBalanceDate)) {
       lastBalance = solde;
       lastBalanceDate = date;
     }
