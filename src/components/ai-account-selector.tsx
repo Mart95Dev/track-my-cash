@@ -2,6 +2,7 @@
 
 import { formatCurrency } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
+import { useTranslations } from "next-intl";
 
 interface Account {
   id: number;
@@ -20,6 +21,7 @@ export function AiAccountSelector({
   selectedIds: number[];
   onToggle: (id: number) => void;
 }) {
+  const t = useTranslations("aiAccountSelector");
   const allSelected = accounts.length > 0 && selectedIds.length === accounts.length;
 
   function toggleAll() {
@@ -35,13 +37,13 @@ export function AiAccountSelector({
   }
 
   if (accounts.length === 0) {
-    return <p className="text-sm text-muted-foreground">Aucun compte créé</p>;
+    return <p className="text-sm text-muted-foreground">{t("empty")}</p>;
   }
 
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        Comptes à analyser
+        {t("title")}
       </p>
 
       <div className="space-y-1.5">
@@ -80,7 +82,7 @@ export function AiAccountSelector({
         onClick={toggleAll}
         className="w-full text-xs text-muted-foreground hover:text-foreground border border-dashed border-border rounded-lg py-2 transition-colors"
       >
-        {allSelected ? "Tout désélectionner" : "Tout sélectionner"}
+        {allSelected ? t("deselectAll") : t("selectAll")}
       </button>
     </div>
   );

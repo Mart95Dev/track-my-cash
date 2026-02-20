@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function CurrencySettings({
   liveRate,
@@ -15,22 +16,23 @@ export function CurrencySettings({
   fallbackRate: number;
   onSaveFallback: (rate: number) => Promise<{ success?: boolean; error?: string }>;
 }) {
+  const t = useTranslations("settings.currency");
   const [rate, setRate] = useState(String(fallbackRate));
   const [isPending, startTransition] = useTransition();
 
   return (
     <div className="space-y-4">
       <div className="rounded-lg border p-4 space-y-1">
-        <p className="text-sm font-medium">Taux en temps réel (Frankfurter API)</p>
-        <p className="text-2xl font-bold">1 EUR = {liveRate.toLocaleString("fr-FR")} MGA</p>
-        <p className="text-xs text-muted-foreground">Mis à jour automatiquement toutes les heures. Utilisé pour la conversion sur le dashboard.</p>
+        <p className="text-sm font-medium">{t("liveRate")}</p>
+        <p className="text-2xl font-bold">{t("liveRateValue", { rate: liveRate.toLocaleString("fr-FR") })}</p>
+        <p className="text-xs text-muted-foreground">{t("liveRateDesc")}</p>
       </div>
 
       <div className="space-y-2">
-        <p className="text-sm font-medium">Taux de secours (si l'API est indisponible)</p>
+        <p className="text-sm font-medium">{t("fallbackTitle")}</p>
         <div className="flex items-end gap-3">
           <div className="space-y-1">
-            <Label htmlFor="fallback-rate" className="text-xs">Taux EUR/MGA</Label>
+            <Label htmlFor="fallback-rate" className="text-xs">{t("fallbackLabel")}</Label>
             <Input
               id="fallback-rate"
               type="number"
@@ -49,12 +51,12 @@ export function CurrencySettings({
                 if (result.error) {
                   toast.error(result.error);
                 } else {
-                  toast.success("Taux de secours mis à jour");
+                  toast.success(t("success"));
                 }
               });
             }}
           >
-            {isPending ? "..." : "Enregistrer"}
+            {isPending ? t("saving") : t("save")}
           </Button>
         </div>
       </div>

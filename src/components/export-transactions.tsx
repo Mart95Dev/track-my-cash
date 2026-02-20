@@ -3,14 +3,17 @@
 import { Button } from "@/components/ui/button";
 import type { Transaction } from "@/lib/queries";
 import { formatDate } from "@/lib/format";
+import { useTranslations } from "next-intl";
 
 export function ExportTransactions({ transactions }: { transactions: Transaction[] }) {
+  const t = useTranslations("export");
+
   function exportCSV() {
     const headers = ["Date", "Compte", "Type", "Montant", "Catégorie", "Description"];
     const rows = transactions.map((tx) => [
       tx.date,
       tx.account_name ?? "",
-      tx.type === "income" ? "Revenu" : "Dépense",
+      tx.type === "income" ? t("income") : t("expense"),
       tx.amount.toFixed(2),
       tx.category,
       tx.description,
@@ -32,9 +35,9 @@ export function ExportTransactions({ transactions }: { transactions: Transaction
 
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text("Transactions BankSolo", 14, 20);
+    doc.text(t("pdfTitle"), 14, 20);
     doc.setFontSize(10);
-    doc.text(`Export du ${formatDate(new Date().toISOString().split("T")[0])}`, 14, 28);
+    doc.text(t("pdfSubtitle", { date: formatDate(new Date().toISOString().split("T")[0]) }), 14, 28);
 
     autoTable(doc, {
       startY: 35,
@@ -42,7 +45,7 @@ export function ExportTransactions({ transactions }: { transactions: Transaction
       body: transactions.map((tx) => [
         tx.date,
         tx.account_name ?? "",
-        tx.type === "income" ? "Revenu" : "Dépense",
+        tx.type === "income" ? t("income") : t("expense"),
         `${tx.type === "income" ? "+" : "-"}${tx.amount.toFixed(2)}`,
         tx.category,
         tx.description,
@@ -57,10 +60,10 @@ export function ExportTransactions({ transactions }: { transactions: Transaction
   return (
     <div className="flex gap-2">
       <Button variant="outline" size="sm" onClick={exportCSV} disabled={transactions.length === 0}>
-        Export CSV
+        {t("csvButton")}
       </Button>
       <Button variant="outline" size="sm" onClick={exportPDF} disabled={transactions.length === 0}>
-        Export PDF
+        {t("pdfButton")}
       </Button>
     </div>
   );

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { CategorySubcategoryPicker } from "@/components/category-subcategory-picker";
 import { toast } from "sonner";
 import type { Account } from "@/lib/queries";
+import { useTranslations } from "next-intl";
 
 interface Rule {
   pattern: string;
@@ -23,6 +24,7 @@ export function TransactionForm({
   rules: Rule[];
   defaultAccountId?: number;
 }) {
+  const t = useTranslations("transactions");
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction, isPending] = useActionState(
     async (prev: unknown, formData: FormData) => {
@@ -33,29 +35,29 @@ export function TransactionForm({
 
   useEffect(() => {
     if (state && "success" in state) {
-      toast.success("Transaction ajoutée");
+      toast.success(t("form.success"));
       formRef.current?.reset();
     } else if (state && "error" in state) {
       toast.error(String(state.error));
     }
-  }, [state]);
+  }, [state, t]);
 
   return (
     <form ref={formRef} action={formAction} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="type">Type</Label>
+          <Label htmlFor="type">{t("form.type")}</Label>
           <select
             id="type"
             name="type"
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm"
           >
-            <option value="expense">Dépense</option>
-            <option value="income">Revenu</option>
+            <option value="expense">{t("form.expense")}</option>
+            <option value="income">{t("form.income")}</option>
           </select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="accountId">Compte</Label>
+          <Label htmlFor="accountId">{t("form.account")}</Label>
           <select
             id="accountId"
             name="accountId"
@@ -63,7 +65,7 @@ export function TransactionForm({
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm"
             required
           >
-            <option value="">Sélectionner...</option>
+            <option value="">{t("form.accountPlaceholder")}</option>
             {accounts.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.name}
@@ -72,11 +74,11 @@ export function TransactionForm({
           </select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="amount">Montant</Label>
-          <Input id="amount" name="amount" type="number" step="0.01" placeholder="0.00" required />
+          <Label htmlFor="amount">{t("form.amount")}</Label>
+          <Input id="amount" name="amount" type="number" step="0.01" placeholder={t("form.amountPlaceholder")} required />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="date">Date</Label>
+          <Label htmlFor="date">{t("form.date")}</Label>
           <Input
             id="date"
             name="date"
@@ -86,14 +88,14 @@ export function TransactionForm({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
-          <Input id="description" name="description" placeholder="Ex: Courses" />
+          <Label htmlFor="description">{t("form.description")}</Label>
+          <Input id="description" name="description" placeholder={t("form.descriptionPlaceholder")} />
         </div>
       </div>
       <CategorySubcategoryPicker rules={rules} idPrefix="tx-new" />
 
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Enregistrement..." : "Ajouter"}
+        {isPending ? t("form.saving") : t("form.submit")}
       </Button>
     </form>
   );

@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 export function Pagination({
   currentPage,
@@ -10,6 +11,7 @@ export function Pagination({
   currentPage: number;
   totalPages: number;
 }) {
+  const t = useTranslations("pagination");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -29,10 +31,10 @@ export function Pagination({
         disabled={currentPage <= 1}
         onClick={() => goToPage(currentPage - 1)}
       >
-        Précédent
+        {t("previous")}
       </Button>
       <span className="text-sm text-muted-foreground">
-        Page {currentPage} / {totalPages}
+        {t("page", { current: currentPage, total: totalPages })}
       </span>
       <Button
         variant="outline"
@@ -40,7 +42,7 @@ export function Pagination({
         disabled={currentPage >= totalPages}
         onClick={() => goToPage(currentPage + 1)}
       >
-        Suivant
+        {t("next")}
       </Button>
     </div>
   );

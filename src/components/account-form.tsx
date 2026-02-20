@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function AccountForm() {
+  const t = useTranslations("accounts");
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction, isPending] = useActionState(
     async (prev: unknown, formData: FormData) => {
@@ -18,33 +20,33 @@ export function AccountForm() {
 
   useEffect(() => {
     if (state && "success" in state) {
-      toast.success("Compte créé avec succès");
+      toast.success(t("form.success"));
       formRef.current?.reset();
     } else if (state && "error" in state) {
       toast.error(String(state.error));
     }
-  }, [state]);
+  }, [state, t]);
 
   return (
     <form ref={formRef} action={formAction} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="name">Nom du compte</Label>
-          <Input id="name" name="name" placeholder="Ex: Compte Courant BP" required />
+          <Label htmlFor="name">{t("form.name")}</Label>
+          <Input id="name" name="name" placeholder={t("form.namePlaceholder")} required />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="initialBalance">Solde initial</Label>
+          <Label htmlFor="initialBalance">{t("form.balance")}</Label>
           <Input
             id="initialBalance"
             name="initialBalance"
             type="number"
             step="0.01"
-            placeholder="0.00"
+            placeholder={t("form.balancePlaceholder")}
             required
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="balanceDate">Date du solde</Label>
+          <Label htmlFor="balanceDate">{t("form.balanceDate")}</Label>
           <Input
             id="balanceDate"
             name="balanceDate"
@@ -54,7 +56,7 @@ export function AccountForm() {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="currency">Devise</Label>
+          <Label htmlFor="currency">{t("form.currency")}</Label>
           <select
             id="currency"
             name="currency"
@@ -68,7 +70,7 @@ export function AccountForm() {
       </div>
 
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Création..." : "Ajouter le compte"}
+        {isPending ? t("form.creating") : t("form.submit")}
       </Button>
     </form>
   );

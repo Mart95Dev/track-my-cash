@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import type { Account } from "@/lib/queries";
+import { useTranslations } from "next-intl";
 
 export function TransactionSearch({
   accounts,
@@ -15,6 +16,7 @@ export function TransactionSearch({
   currentSearch?: string;
   currentSort?: string;
 }) {
+  const t = useTranslations("search");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -32,7 +34,7 @@ export function TransactionSearch({
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
       <Input
-        placeholder="Rechercher..."
+        placeholder={t("placeholder")}
         defaultValue={currentSearch}
         className="max-w-xs"
         onChange={(e) => {
@@ -45,7 +47,7 @@ export function TransactionSearch({
         value={currentAccountId ?? ""}
         onChange={(e) => updateParams("accountId", e.target.value)}
       >
-        <option value="">— Choisir un compte —</option>
+        <option value="">{t("selectAccount")}</option>
         {accounts.map((a) => (
           <option key={a.id} value={a.id}>
             {a.name}
@@ -57,10 +59,10 @@ export function TransactionSearch({
         value={currentSort ?? "date_desc"}
         onChange={(e) => updateParams("sort", e.target.value)}
       >
-        <option value="date_desc">Date (récent)</option>
-        <option value="date_asc">Date (ancien)</option>
-        <option value="amount_desc">Montant (haut)</option>
-        <option value="amount_asc">Montant (bas)</option>
+        <option value="date_desc">{t("sortRecent")}</option>
+        <option value="date_asc">{t("sortOldest")}</option>
+        <option value="amount_desc">{t("sortAmountHigh")}</option>
+        <option value="amount_asc">{t("sortAmountLow")}</option>
       </select>
     </div>
   );

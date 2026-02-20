@@ -14,8 +14,10 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import type { Account } from "@/lib/queries";
+import { useTranslations } from "next-intl";
 
 export function EditAccountDialog({ account }: { account: Account }) {
+  const t = useTranslations("editAccount");
   const [open, setOpen] = useState(false);
   const [state, formAction, isPending] = useActionState(
     async (prev: unknown, formData: FormData) => {
@@ -26,49 +28,49 @@ export function EditAccountDialog({ account }: { account: Account }) {
 
   useEffect(() => {
     if (state && "success" in state) {
-      toast.success("Compte mis à jour");
+      toast.success(t("success"));
       setOpen(false);
     } else if (state && "error" in state) {
       toast.error(String(state.error));
     }
-  }, [state]);
+  }, [state, t]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">Modifier</Button>
+        <Button variant="outline" size="sm">{t("button")}</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Modifier le compte</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
         </DialogHeader>
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="id" value={account.id} />
           <div className="space-y-2">
-            <Label htmlFor="edit-name">Nom</Label>
+            <Label htmlFor="edit-name">{t("name")}</Label>
             <Input id="edit-name" name="name" defaultValue={account.name} required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-balance">Solde initial</Label>
+            <Label htmlFor="edit-balance">{t("balance")}</Label>
             <Input id="edit-balance" name="initialBalance" type="number" step="0.01" defaultValue={account.initial_balance} required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-date">Date du solde</Label>
+            <Label htmlFor="edit-date">{t("balanceDate")}</Label>
             <Input id="edit-date" name="balanceDate" type="date" defaultValue={account.balance_date} required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-currency">Devise</Label>
+            <Label htmlFor="edit-currency">{t("currency")}</Label>
             <select id="edit-currency" name="currency" defaultValue={account.currency} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm">
               <option value="EUR">EUR</option>
               <option value="MGA">MGA</option>
             </select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-threshold">Alerte solde bas (optionnel)</Label>
-            <Input id="edit-threshold" name="alertThreshold" type="number" step="0.01" placeholder="Ex: 100" />
+            <Label htmlFor="edit-threshold">{t("alertThreshold")}</Label>
+            <Input id="edit-threshold" name="alertThreshold" type="number" step="0.01" placeholder={t("alertPlaceholder")} />
           </div>
           <Button type="submit" disabled={isPending}>
-            {isPending ? "Enregistrement..." : "Enregistrer"}
+            {isPending ? t("saving") : t("save")}
           </Button>
         </form>
       </DialogContent>

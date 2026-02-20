@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 
 interface Rule {
   pattern: string;
@@ -20,6 +21,7 @@ export function CategorySubcategoryPicker({
   defaultSubcategory?: string;
   idPrefix?: string;
 }) {
+  const t = useTranslations("categoryPicker");
   const broadCategories = [...new Set(rules.map((r) => r.category))].sort();
 
   const initial = defaultCategory && broadCategories.includes(defaultCategory)
@@ -38,7 +40,6 @@ export function CategorySubcategoryPicker({
 
   function handleCategoryChange(cat: string) {
     setSelectedCategory(cat);
-    // Réinitialiser la sous-catégorie si elle n'appartient plus à la nouvelle catégorie
     const stillValid = rules.some((r) => r.category === cat && r.pattern === subcategory);
     if (!stillValid) setSubcategory("");
   }
@@ -46,7 +47,7 @@ export function CategorySubcategoryPicker({
   return (
     <div className="grid grid-cols-2 gap-3">
       <div className="space-y-2">
-        <Label htmlFor={`${idPrefix}-category`}>Catégorie</Label>
+        <Label htmlFor={`${idPrefix}-category`}>{t("category")}</Label>
         <select
           id={`${idPrefix}-category`}
           name="category"
@@ -65,7 +66,7 @@ export function CategorySubcategoryPicker({
 
       <div className="space-y-2">
         <Label htmlFor={`${idPrefix}-subcategory`}>
-          Sous-catégorie <span className="text-xs text-muted-foreground">(optionnel)</span>
+          {t("subcategory")} <span className="text-xs text-muted-foreground">{t("optional")}</span>
         </Label>
         {patternsForCategory.length > 0 && (
           <datalist id={datalistId}>
@@ -80,7 +81,7 @@ export function CategorySubcategoryPicker({
           list={patternsForCategory.length > 0 ? datalistId : undefined}
           value={subcategory}
           onChange={(e) => setSubcategory(e.target.value)}
-          placeholder={patternsForCategory.length > 0 ? "Choisir ou saisir…" : "Saisir librement…"}
+          placeholder={patternsForCategory.length > 0 ? t("placeholder") : t("placeholderFree")}
           autoComplete="off"
         />
       </div>

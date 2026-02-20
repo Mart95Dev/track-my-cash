@@ -5,28 +5,30 @@ import { importDataAction } from "@/app/actions/dashboard-actions";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function ResetButton() {
+  const t = useTranslations("settings.danger");
   const [isPending, startTransition] = useTransition();
 
   return (
     <ConfirmDialog
       trigger={
         <Button variant="destructive" disabled={isPending}>
-          {isPending ? "Suppression..." : "Réinitialiser toutes les données"}
+          {isPending ? t("resetting") : t("reset")}
         </Button>
       }
-      title="Réinitialiser toutes les données"
-      description="ATTENTION : Tous les comptes, transactions et paiements récurrents seront supprimés. Cette action est irréversible."
+      title={t("resetTitle")}
+      description={t("resetDesc")}
       onConfirm={() => {
         startTransition(async () => {
           const result = await importDataAction(
             JSON.stringify({ accounts: [], transactions: [], recurring: [] })
           );
           if (result.error) {
-            toast.error("Erreur lors de la réinitialisation");
+            toast.error(t("error"));
           } else {
-            toast.success("Toutes les données ont été réinitialisées");
+            toast.success(t("success"));
             window.location.reload();
           }
         });

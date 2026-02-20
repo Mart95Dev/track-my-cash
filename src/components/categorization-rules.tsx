@@ -9,8 +9,10 @@ import { CATEGORIES } from "@/lib/format";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { toast } from "sonner";
 import type { CategorizationRule } from "@/lib/queries";
+import { useTranslations } from "next-intl";
 
 export function CategorizationRules({ rules }: { rules: CategorizationRule[] }) {
+  const t = useTranslations("settings.categorization");
   const formRef = useRef<HTMLFormElement>(null);
   const [deletePending, startDeleteTransition] = useTransition();
 
@@ -23,22 +25,22 @@ export function CategorizationRules({ rules }: { rules: CategorizationRule[] }) 
 
   useEffect(() => {
     if (state && "success" in state) {
-      toast.success("Règle ajoutée");
+      toast.success(t("added"));
       formRef.current?.reset();
     } else if (state && "error" in state) {
       toast.error(String(state.error));
     }
-  }, [state]);
+  }, [state, t]);
 
   return (
     <div className="space-y-4">
       <form ref={formRef} action={formAction} className="flex flex-col sm:flex-row gap-3">
         <div className="space-y-1 flex-1">
-          <Label htmlFor="pattern" className="text-xs">Pattern (regex ou texte)</Label>
-          <Input id="pattern" name="pattern" placeholder="Ex: netflix|spotify" required />
+          <Label htmlFor="pattern" className="text-xs">{t("patternLabel")}</Label>
+          <Input id="pattern" name="pattern" placeholder={t("patternPlaceholder")} required />
         </div>
         <div className="space-y-1">
-          <Label htmlFor="rule-category" className="text-xs">Catégorie</Label>
+          <Label htmlFor="rule-category" className="text-xs">{t("categoryLabel")}</Label>
           <select id="rule-category" name="category" className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm" required>
             {CATEGORIES.map((c) => (
               <option key={c.id} value={c.name}>{c.name}</option>
@@ -46,12 +48,12 @@ export function CategorizationRules({ rules }: { rules: CategorizationRule[] }) 
           </select>
         </div>
         <div className="space-y-1 w-20">
-          <Label htmlFor="priority" className="text-xs">Priorité</Label>
+          <Label htmlFor="priority" className="text-xs">{t("priorityLabel")}</Label>
           <Input id="priority" name="priority" type="number" defaultValue="0" />
         </div>
         <div className="flex items-end">
           <Button type="submit" size="sm" disabled={isPending}>
-            {isPending ? "..." : "Ajouter"}
+            {isPending ? t("adding") : t("add")}
           </Button>
         </div>
       </form>
@@ -68,15 +70,15 @@ export function CategorizationRules({ rules }: { rules: CategorizationRule[] }) 
               <ConfirmDialog
                 trigger={
                   <Button variant="ghost" size="sm" className="text-red-600" disabled={deletePending}>
-                    Suppr.
+                    {t("delete")}
                   </Button>
                 }
-                title="Supprimer la règle"
-                description={`La règle "${rule.pattern}" sera supprimée.`}
+                title={t("deleteTitle")}
+                description={t("deleteDesc", { pattern: rule.pattern })}
                 onConfirm={() => {
                   startDeleteTransition(async () => {
                     await deleteRuleAction(rule.id);
-                    toast.success("Règle supprimée");
+                    toast.success(t("deleted"));
                   });
                 }}
               />

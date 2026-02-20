@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function OpenRouterKeySettings({
   hasKey,
@@ -13,37 +14,37 @@ export function OpenRouterKeySettings({
   hasKey: boolean;
   onSave: (key: string) => Promise<{ success?: boolean; error?: string }>;
 }) {
+  const t = useTranslations("settings.openrouter");
   const [key, setKey] = useState("");
   const [isPending, startTransition] = useTransition();
 
   return (
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground">
-        Entrez votre clé API OpenRouter pour utiliser le conseiller IA.
-        Obtenez-la sur{" "}
+        {t("description")}{" "}
         <a
           href="https://openrouter.ai/keys"
           target="_blank"
           rel="noopener noreferrer"
           className="underline text-primary"
         >
-          openrouter.ai/keys
+          {t("linkText")}
         </a>
       </p>
       {hasKey && (
         <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-          Clé API configurée
+          {t("configured")}
         </p>
       )}
       <div className="flex items-end gap-3">
         <div className="space-y-1 flex-1">
           <Label htmlFor="openrouter-key" className="text-xs">
-            {hasKey ? "Remplacer la clé" : "Clé API OpenRouter"}
+            {hasKey ? t("replaceLabel") : t("label")}
           </Label>
           <Input
             id="openrouter-key"
             type="password"
-            placeholder="sk-or-..."
+            placeholder={t("placeholder")}
             value={key}
             onChange={(e) => setKey(e.target.value)}
           />
@@ -57,13 +58,13 @@ export function OpenRouterKeySettings({
               if (result.error) {
                 toast.error(result.error);
               } else {
-                toast.success("Clé API enregistrée");
+                toast.success(t("success"));
                 setKey("");
               }
             });
           }}
         >
-          {isPending ? "..." : "Enregistrer"}
+          {isPending ? t("saving") : t("save")}
         </Button>
       </div>
     </div>

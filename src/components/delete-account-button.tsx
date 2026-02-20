@@ -5,6 +5,7 @@ import { deleteAccountAction } from "@/app/actions/account-actions";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function DeleteAccountButton({
   accountId,
@@ -13,24 +14,25 @@ export function DeleteAccountButton({
   accountId: number;
   accountName: string;
 }) {
+  const t = useTranslations("deleteAccount");
   const [isPending, startTransition] = useTransition();
 
   return (
     <ConfirmDialog
       trigger={
         <Button variant="destructive" size="sm" disabled={isPending}>
-          {isPending ? "..." : "Supprimer"}
+          {isPending ? "..." : t("button")}
         </Button>
       }
-      title="Supprimer le compte"
-      description={`Le compte "${accountName}" et toutes ses transactions seront supprimés. Cette action est irréversible.`}
+      title={t("title")}
+      description={t("description", { name: accountName })}
       onConfirm={() => {
         startTransition(async () => {
           try {
             await deleteAccountAction(accountId);
-            toast.success(`Compte "${accountName}" supprimé`);
+            toast.success(t("success", { name: accountName }));
           } catch {
-            toast.error("Erreur lors de la suppression");
+            toast.error(t("error"));
           }
         });
       }}

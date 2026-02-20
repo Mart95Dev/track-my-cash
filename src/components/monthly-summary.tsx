@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useTranslations } from "next-intl";
 
 interface MonthData {
   month: string;
@@ -19,22 +20,24 @@ interface MonthData {
 }
 
 export function MonthlySummary({ data }: { data: MonthData[] }) {
+  const t = useTranslations("monthlySummary");
+
   if (data.length === 0) return null;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Résumé mensuel</CardTitle>
+        <CardTitle className="text-base">{t("title")}</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Mois</TableHead>
-                <TableHead className="text-right">Revenus</TableHead>
-                <TableHead className="text-right">Dépenses</TableHead>
-                <TableHead className="text-right">Solde net</TableHead>
+                <TableHead>{t("month")}</TableHead>
+                <TableHead className="text-right">{t("income")}</TableHead>
+                <TableHead className="text-right">{t("expenses")}</TableHead>
+                <TableHead className="text-right">{t("netBalance")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

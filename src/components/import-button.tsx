@@ -20,6 +20,7 @@ import {
 import { formatCurrency, formatDate } from "@/lib/format";
 import { toast } from "sonner";
 import type { Account } from "@/lib/queries";
+import { useTranslations } from "next-intl";
 
 interface Rule {
   pattern: string;
@@ -49,6 +50,7 @@ interface PreviewData {
 }
 
 export function ImportButton({ accounts, defaultAccountId }: { accounts: Account[]; defaultAccountId?: number }) {
+  const t = useTranslations("import");
   const [preview, setPreview] = useState<PreviewData | null>(null);
   const [categoryOverrides, setCategoryOverrides] = useState<Record<number, string>>({});
   const [subcategoryOverrides, setSubcategoryOverrides] = useState<Record<number, string>>({});
@@ -83,10 +85,10 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
   async function handleConfirm() {
     if (!preview) return;
 
-    const transactionsWithCategories = preview.transactions.map((t, i) => ({
-      ...t,
-      category: categoryOverrides[i] ?? t.category,
-      subcategory: subcategoryOverrides[i] ?? t.subcategory,
+    const transactionsWithCategories = preview.transactions.map((tx, i) => ({
+      ...tx,
+      category: categoryOverrides[i] ?? tx.category,
+      subcategory: subcategoryOverrides[i] ?? tx.subcategory,
     }));
 
     startTransition(async () => {
@@ -99,9 +101,10 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
       if (result.error) {
         toast.error(result.error);
       } else {
+        const imported = result.imported ?? 0;
         const msg = result.balanceUpdated && result.newBalance != null
-          ? `${result.imported} transaction(s) importée(s) — solde de référence mis à jour : ${result.newBalance.toLocaleString("fr-FR", { style: "currency", currency: preview.currency })}`
-          : `${result.imported} transaction(s) importée(s)`;
+          ? t("successWithBalance", { imported, balance: result.newBalance.toLocaleString("fr-FR", { style: "currency", currency: preview.currency }) })
+          : t("success", { imported });
         toast.success(msg);
         setIsOpen(false);
         setPreview(null);
@@ -134,7 +137,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
           onClick={() => fileRef.current?.click()}
           disabled={isPending || accounts.length === 0}
         >
-          {isPending ? "Analyse..." : "Importer CSV/Excel/PDF"}
+          {isPending ? t("analyzing") : t("button")}
         </Button>
         <input
           ref={fileRef}
@@ -149,7 +152,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
         <DialogContent className="sm:max-w-5xl flex flex-col max-h-[85vh]">
           <DialogHeader>
             <DialogTitle>
-              Aperçu import — {preview?.bankName}
+              {t("previewTitle", { bankName: preview?.bankName ?? "" })}
             </DialogTitle>
           </DialogHeader>
 
@@ -158,43 +161,45 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
               {preview.detectedBalance !== null && (
                 <div className="rounded-lg border bg-blue-50 p-4 dark:bg-blue-950 shrink-0 space-y-1">
                   <p className="font-medium">
-                    Solde détecté : {formatCurrency(preview.detectedBalance, preview.currency)}
-                    {preview.detectedBalanceDate && ` au ${formatDate(preview.detectedBalanceDate)}`}
+                    {t("detectedBalance", {
+                      amount: formatCurrency(preview.detectedBalance, preview.currency),
+                      date: preview.detectedBalanceDate ? formatDate(preview.detectedBalanceDate) : "",
+                    })}
                   </p>
                   <p className="text-sm text-blue-700 dark:text-blue-300">
-                    Le solde de référence du compte sera automatiquement mis à jour à cette valeur. Les transactions importées seront dans l&apos;historique mais non recomptées dans le calcul du solde.
+                    {t("balanceInfo")}
                   </p>
                 </div>
               )}
 
               <div className="flex gap-4 text-sm shrink-0">
-                <span>{preview.totalCount} transactions trouvées</span>
-                <span className="text-green-600 dark:text-green-400">{preview.newCount} nouvelles</span>
+                <span>{t("transactionsFound", { total: preview.totalCount })}</span>
+                <span className="text-green-600 dark:text-green-400">{t("newTransactions", { count: preview.newCount })}</span>
                 {preview.duplicateCount > 0 && (
                   <span className="text-orange-600 dark:text-orange-400">
-                    {preview.duplicateCount} doublons ignorés
+                    {t("duplicatesIgnored", { count: preview.duplicateCount })}
                   </span>
                 )}
               </div>
 
               {preview.newCount === 0 && preview.detectedBalance !== null ? (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  Toutes les transactions sont déjà importées. Seul le solde de référence sera mis à jour.
+                  {t("allImportedWithBalance")}
                 </p>
               ) : preview.newCount === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  Toutes les transactions sont déjà importées.
+                  {t("allImported")}
                 </p>
               ) : (
                 <div className="overflow-y-auto flex-1 border rounded-md">
                   <Table>
                     <TableHeader className="sticky top-0 bg-background">
                       <TableRow>
-                        <TableHead className="w-24">Date</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead className="w-36">Catégorie</TableHead>
-                        <TableHead className="w-40">Sous-catégorie</TableHead>
-                        <TableHead className="text-right w-28">Montant</TableHead>
+                        <TableHead className="w-24">{t("date")}</TableHead>
+                        <TableHead>{t("description")}</TableHead>
+                        <TableHead className="w-36">{t("category")}</TableHead>
+                        <TableHead className="w-40">{t("subcategory")}</TableHead>
+                        <TableHead className="text-right w-28">{t("amount")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -216,7 +221,6 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
                                 value={currentCategory}
                                 onChange={(e) => {
                                   setCategoryOverrides((prev) => ({ ...prev, [i]: e.target.value }));
-                                  // Réinitialiser sous-catégorie si plus valide
                                   const sub = subcategoryOverrides[i] ?? tx.subcategory;
                                   const stillValid = preview.rules.some((r) => r.category === e.target.value && r.pattern === sub);
                                   if (!stillValid) setSubcategoryOverrides((prev) => ({ ...prev, [i]: "" }));
@@ -242,7 +246,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
                                 onChange={(e) =>
                                   setSubcategoryOverrides((prev) => ({ ...prev, [i]: e.target.value }))
                                 }
-                                placeholder="Libre ou suggéré…"
+                                placeholder={t("categoryPlaceholder")}
                                 autoComplete="off"
                               />
                             </TableCell>
@@ -266,14 +270,14 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
 
               <div className="flex gap-2 justify-end shrink-0">
                 <Button variant="outline" onClick={() => setIsOpen(false)}>
-                  Annuler
+                  {t("cancel")}
                 </Button>
                 <Button onClick={handleConfirm} disabled={isPending || !canConfirm}>
                   {isPending
-                    ? "Import..."
+                    ? t("importing")
                     : preview.newCount > 0
-                    ? `Importer ${preview.newCount} transaction(s)`
-                    : "Mettre à jour le solde"}
+                    ? t("importButton", { count: preview.newCount })
+                    : t("updateBalance")}
                 </Button>
               </div>
             </div>

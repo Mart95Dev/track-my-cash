@@ -3,8 +3,10 @@
 import { useRef, useTransition } from "react";
 import { exportDataAction, importDataAction } from "@/app/actions/dashboard-actions";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 export function ExportImportButtons() {
+  const t = useTranslations("settings.backup");
   const fileRef = useRef<HTMLInputElement>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -32,14 +34,14 @@ export function ExportImportButtons() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const content = ev.target?.result as string;
-      if (!confirm("Cette opération remplacera toutes vos données. Continuer ?")) return;
+      if (!confirm(t("confirmImport"))) return;
 
       startTransition(async () => {
         const result = await importDataAction(content);
         if ("error" in result) {
           alert(result.error);
         } else {
-          alert("Données importées avec succès !");
+          alert(t("importSuccess"));
           window.location.reload();
         }
       });
@@ -51,10 +53,10 @@ export function ExportImportButtons() {
   return (
     <div className="flex gap-2">
       <Button onClick={handleExport} disabled={isPending}>
-        Exporter (JSON)
+        {t("export")}
       </Button>
       <Button variant="outline" onClick={() => fileRef.current?.click()} disabled={isPending}>
-        Importer
+        {t("import")}
       </Button>
       <input
         ref={fileRef}

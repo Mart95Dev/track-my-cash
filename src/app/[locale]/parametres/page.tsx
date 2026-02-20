@@ -1,0 +1,106 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ExportImportButtons } from "@/components/export-import-buttons";
+import { ResetButton } from "@/components/reset-button";
+import { CategorizationRules } from "@/components/categorization-rules";
+import { TagManager } from "@/components/tag-manager";
+import { CurrencySettings } from "@/components/currency-settings";
+import { OpenRouterKeySettings } from "@/components/openrouter-key-settings";
+import { getCategorizationRules, getSetting } from "@/lib/queries";
+import { getExchangeRate } from "@/lib/currency";
+import { getTagsAction } from "@/app/actions/tag-actions";
+import { saveExchangeRateAction, saveOpenRouterKeyAction } from "@/app/actions/settings-actions";
+import { getTranslations } from "next-intl/server";
+
+export const dynamic = "force-dynamic";
+
+export default async function ParametresPage() {
+  const [rules, tags, liveRate, fallbackRateStr, openrouterKey, t] = await Promise.all([
+    getCategorizationRules(),
+    getTagsAction(),
+    getExchangeRate(),
+    getSetting("exchange_rate_eur_mga"),
+    getSetting("openrouter_api_key"),
+    getTranslations("settings"),
+  ]);
+
+  const fallbackRate = fallbackRateStr ? parseFloat(fallbackRateStr) : 5000;
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">{t("title")}</h2>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("backup.title")}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <ExportImportButtons />
+          <p className="text-sm text-muted-foreground">
+            {t("backup.description")}
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("currency.title")}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CurrencySettings
+            liveRate={liveRate}
+            fallbackRate={fallbackRate}
+            onSaveFallback={saveExchangeRateAction}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("openrouter.title")}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <OpenRouterKeySettings
+            hasKey={!!openrouterKey}
+            onSave={saveOpenRouterKeyAction}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("tags.title")}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            {t("tags.description")}
+          </p>
+          <TagManager tags={tags} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("categorization.title")}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            {t("categorization.description")}
+          </p>
+          <CategorizationRules rules={rules} />
+        </CardContent>
+      </Card>
+
+      <Card className="border-red-200 dark:border-red-900">
+        <CardHeader>
+          <CardTitle className="text-red-600 dark:text-red-400">{t("danger.title")}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <ResetButton />
+          <p className="text-sm text-muted-foreground">
+            {t("danger.description")}
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

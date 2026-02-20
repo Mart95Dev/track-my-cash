@@ -21,8 +21,10 @@ import {
 } from "@/app/actions/reconciliation-actions";
 import { toast } from "sonner";
 import type { Account } from "@/lib/queries";
+import { useTranslations } from "next-intl";
 
 export function ReconciliationDialog({ account }: { account: Account }) {
+  const t = useTranslations("reconciliation");
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [statementBalance, setStatementBalance] = useState("");
@@ -48,27 +50,27 @@ export function ReconciliationDialog({ account }: { account: Account }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">Rapprochement</Button>
+        <Button variant="outline" size="sm">{t("button")}</Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Rapprochement — {account.name}</DialogTitle>
+          <DialogTitle>{t("title", { accountName: account.name })}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-muted-foreground">Solde calculé</p>
+              <p className="text-sm text-muted-foreground">{t("calculatedBalance")}</p>
               <p className="text-lg font-bold">{formatCurrency(calculatedBalance, account.currency)}</p>
             </div>
             <div className="space-y-2">
-              <Label>Solde du relevé</Label>
+              <Label>{t("statementBalance")}</Label>
               <Input
                 type="number"
                 step="0.01"
                 value={statementBalance}
                 onChange={(e) => setStatementBalance(e.target.value)}
-                placeholder="Solde du relevé bancaire"
+                placeholder={t("statementPlaceholder")}
               />
               <Input
                 type="date"
@@ -81,11 +83,11 @@ export function ReconciliationDialog({ account }: { account: Account }) {
           {diff !== null && (
             <div className={`p-3 rounded-lg border ${Math.abs(diff) < 0.01 ? "bg-green-50 dark:bg-green-950" : "bg-orange-50 dark:bg-orange-950"}`}>
               <p className="font-medium">
-                Écart : {formatCurrency(Math.abs(diff), account.currency)}
+                {t("gap", { amount: formatCurrency(Math.abs(diff), account.currency) })}
                 {Math.abs(diff) < 0.01 ? (
-                  <Badge className="ml-2 bg-green-600">Rapproché</Badge>
+                  <Badge className="ml-2 bg-green-600">{t("reconciled")}</Badge>
                 ) : (
-                  <Badge variant="destructive" className="ml-2">Non rapproché</Badge>
+                  <Badge variant="destructive" className="ml-2">{t("notReconciled")}</Badge>
                 )}
               </p>
             </div>
@@ -93,7 +95,7 @@ export function ReconciliationDialog({ account }: { account: Account }) {
 
           {transactions.length > 0 && (
             <div className="space-y-2">
-              <p className="text-sm font-medium">Transactions non rapprochées :</p>
+              <p className="text-sm font-medium">{t("unreconciledTitle")}</p>
               <div className="max-h-60 overflow-y-auto space-y-1">
                 {transactions.map((tx) => (
                   <div key={tx.id} className="flex items-center gap-3 py-1.5 px-2 rounded border text-sm">
@@ -117,18 +119,18 @@ export function ReconciliationDialog({ account }: { account: Account }) {
           )}
 
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>Fermer</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>{t("close")}</Button>
             <Button
               disabled={isPending || !statementBalance}
               onClick={() => {
                 startTransition(async () => {
                   await updateStatementAction(account.id, parseFloat(statementBalance), statementDate);
-                  toast.success("Relevé enregistré");
+                  toast.success(t("success"));
                   setOpen(false);
                 });
               }}
             >
-              {isPending ? "..." : "Enregistrer le relevé"}
+              {isPending ? t("saving") : t("save")}
             </Button>
           </div>
         </div>

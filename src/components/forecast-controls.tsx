@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import type { Account } from "@/lib/queries";
+import { useTranslations } from "next-intl";
 
 const PERIODS = [3, 6, 9, 12];
 
@@ -15,6 +16,7 @@ export function ForecastControls({
   currentAccountId: number | null;
   accounts: Account[];
 }) {
+  const t = useTranslations("forecasts");
   const router = useRouter();
 
   function navigate(months: number, accountId: number | null) {
@@ -34,7 +36,7 @@ export function ForecastControls({
             size="sm"
             onClick={() => navigate(m, currentAccountId)}
           >
-            {m} mois
+            {t("months", { months: m })}
           </Button>
         ))}
       </div>

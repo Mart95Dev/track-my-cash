@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -14,26 +15,30 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-const links = [
-  { href: "/", label: "Dashboard" },
-  { href: "/comptes", label: "Comptes" },
-  { href: "/transactions", label: "Transactions" },
-  { href: "/recurrents", label: "Récurrents" },
-  { href: "/previsions", label: "Prévisions" },
-  { href: "/conseiller", label: "Conseiller IA" },
-  { href: "/parametres", label: "Paramètres" },
-];
-
 export function Navigation() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const t = useTranslations("nav");
+
+  const links = [
+    { href: "/" as const, label: t("dashboard") },
+    { href: "/comptes" as const, label: t("accounts") },
+    { href: "/transactions" as const, label: t("transactions") },
+    { href: "/recurrents" as const, label: t("recurring") },
+    { href: "/previsions" as const, label: t("forecasts") },
+    { href: "/conseiller" as const, label: t("advisor") },
+    { href: "/parametres" as const, label: t("settings") },
+  ];
 
   return (
     <header className="border-b bg-card">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <h1 className="text-xl font-bold">BankSolo</h1>
+          <Link href="/" className="text-xl font-bold">
+            {t("appName")}
+          </Link>
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <ThemeToggle />
             {/* Mobile hamburger */}
             <Sheet open={open} onOpenChange={setOpen}>
@@ -53,12 +58,12 @@ export function Navigation() {
                     <line x1="3" y1="12" x2="21" y2="12" />
                     <line x1="3" y1="18" x2="21" y2="18" />
                   </svg>
-                  <span className="sr-only">Menu</span>
+                  <span className="sr-only">{t("menu")}</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-64">
                 <SheetHeader>
-                  <SheetTitle>BankSolo</SheetTitle>
+                  <SheetTitle>{t("appName")}</SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col gap-1 mt-4">
                   {links.map((link) => (

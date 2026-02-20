@@ -11,8 +11,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 export function ConfirmDialog({
   trigger,
@@ -27,6 +27,8 @@ export function ConfirmDialog({
   onConfirm: () => void;
   variant?: "destructive" | "default";
 }) {
+  const t = useTranslations("confirm");
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
@@ -36,12 +38,12 @@ export function ConfirmDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Annuler</AlertDialogCancel>
+          <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className={variant === "destructive" ? "bg-destructive text-white hover:bg-destructive/90" : ""}
           >
-            Confirmer
+            {t("confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

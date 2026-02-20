@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Account } from "@/lib/queries";
+import { useTranslations } from "next-intl";
 
 export function AccountFilter({
   accounts,
@@ -12,6 +13,7 @@ export function AccountFilter({
   currentAccountId?: number;
   basePath: string;
 }) {
+  const t = useTranslations("search");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -31,7 +33,7 @@ export function AccountFilter({
       value={currentAccountId ?? ""}
       onChange={(e) => onChange(e.target.value)}
     >
-      <option value="">— Choisir un compte —</option>
+      <option value="">{t("selectAccount")}</option>
       {accounts.map((a) => (
         <option key={a.id} value={a.id}>
           {a.name}
