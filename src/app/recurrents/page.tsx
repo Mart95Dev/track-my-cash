@@ -22,9 +22,6 @@ export default async function RecurrentsPage({
     getCategorizationRules(),
   ]);
 
-  const categories = [...new Set(rules.map((r) => r.category))].sort();
-  if (!categories.includes("Autre")) categories.push("Autre");
-
   const payments = accountId ? await getRecurringPayments(accountId) : [];
 
   return (
@@ -36,7 +33,7 @@ export default async function RecurrentsPage({
           <CardTitle>Nouveau paiement récurrent</CardTitle>
         </CardHeader>
         <CardContent>
-          <RecurringForm accounts={accounts} categories={categories} />
+          <RecurringForm accounts={accounts} rules={rules} />
         </CardContent>
       </Card>
 
@@ -93,7 +90,7 @@ export default async function RecurrentsPage({
                       {p.type === "income" ? "+" : "-"}
                       {formatCurrency(p.amount)}
                     </p>
-                    <EditRecurringDialog payment={p} accounts={accounts} categories={categories} />
+                    <EditRecurringDialog payment={p} accounts={accounts} rules={rules} />
                     <DeleteRecurringButton id={p.id} />
                   </div>
                 </div>

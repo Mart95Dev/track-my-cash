@@ -12,16 +12,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { CATEGORIES } from "@/lib/format";
 import { toast } from "sonner";
 import type { Account, Transaction } from "@/lib/queries";
+
+interface Rule {
+  pattern: string;
+  category: string;
+}
 
 export function EditTransactionDialog({
   transaction,
   accounts,
+  rules,
 }: {
   transaction: Transaction;
   accounts: Account[];
+  rules: Rule[];
 }) {
   const [open, setOpen] = useState(false);
   const [state, formAction, isPending] = useActionState(
@@ -39,6 +45,12 @@ export function EditTransactionDialog({
       toast.error(String(state.error));
     }
   }, [state]);
+
+  const grouped = rules.reduce<Record<string, string[]>>((acc, r) => {
+    if (!acc[r.category]) acc[r.category] = [];
+    acc[r.category].push(r.pattern);
+    return acc;
+  }, {});
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -78,9 +90,14 @@ export function EditTransactionDialog({
             <div className="space-y-2">
               <Label>Catégorie</Label>
               <select name="category" defaultValue={transaction.category} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm">
-                {CATEGORIES.map((c) => (
-                  <option key={c.id} value={c.name}>{c.name}</option>
+                {Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b)).map(([cat, patterns]) => (
+                  <optgroup key={cat} label={cat}>
+                    {patterns.map((p) => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </optgroup>
                 ))}
+                <option value="Autre">Autre</option>
               </select>
             </div>
             <div className="space-y-2">

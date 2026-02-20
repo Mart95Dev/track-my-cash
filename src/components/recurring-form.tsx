@@ -8,12 +8,17 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import type { Account } from "@/lib/queries";
 
+interface Rule {
+  pattern: string;
+  category: string;
+}
+
 export function RecurringForm({
   accounts,
-  categories,
+  rules,
 }: {
   accounts: Account[];
-  categories: string[];
+  rules: Rule[];
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction, isPending] = useActionState(
@@ -31,6 +36,12 @@ export function RecurringForm({
       toast.error(String(state.error));
     }
   }, [state]);
+
+  const grouped = rules.reduce<Record<string, string[]>>((acc, r) => {
+    if (!acc[r.category]) acc[r.category] = [];
+    acc[r.category].push(r.pattern);
+    return acc;
+  }, {});
 
   return (
     <form ref={formRef} action={formAction} className="space-y-4">
@@ -74,9 +85,14 @@ export function RecurringForm({
         <div className="space-y-2">
           <Label htmlFor="category">Catégorie</Label>
           <select id="category" name="category" className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm">
-            {categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
+            {Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b)).map(([cat, patterns]) => (
+              <optgroup key={cat} label={cat}>
+                {patterns.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </optgroup>
             ))}
+            <option value="Autre">Autre</option>
           </select>
         </div>
         <div className="space-y-2">

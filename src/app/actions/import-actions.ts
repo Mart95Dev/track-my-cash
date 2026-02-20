@@ -10,16 +10,16 @@ import {
 } from "@/lib/queries";
 import { revalidatePath } from "next/cache";
 
-// Applique les règles de catégorisation (fetch unique, appliqué à N transactions)
+// Applique les règles de catégorisation — retourne le pattern (sous-catégorie précise)
 function applyRules(
   description: string,
   rules: { pattern: string; category: string }[]
 ): string {
   for (const rule of rules) {
     try {
-      if (new RegExp(rule.pattern, "i").test(description)) return rule.category;
+      if (new RegExp(rule.pattern, "i").test(description)) return rule.pattern;
     } catch {
-      if (description.toLowerCase().includes(rule.pattern.toLowerCase())) return rule.category;
+      if (description.toLowerCase().includes(rule.pattern.toLowerCase())) return rule.pattern;
     }
   }
   return "Autre";
@@ -66,7 +66,8 @@ export async function importFileAction(formData: FormData) {
 
   // Récupération des règles une seule fois pour toutes les transactions
   const rules = await getCategorizationRules();
-  const availableCategories = [...new Set(rules.map((r) => r.category))].sort();
+  // Patterns groupés par catégorie large pour le select de l'import
+  const availableCategories = [...rules.map((r) => r.pattern)].sort();
   if (!availableCategories.includes("Autre")) availableCategories.push("Autre");
 
   const transactionsWithHash = parseResult.transactions.map((t) => ({

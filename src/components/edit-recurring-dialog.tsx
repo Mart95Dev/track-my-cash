@@ -15,14 +15,19 @@ import {
 import { toast } from "sonner";
 import type { Account, RecurringPayment } from "@/lib/queries";
 
+interface Rule {
+  pattern: string;
+  category: string;
+}
+
 export function EditRecurringDialog({
   payment,
   accounts,
-  categories,
+  rules,
 }: {
   payment: RecurringPayment;
   accounts: Account[];
-  categories: string[];
+  rules: Rule[];
 }) {
   const [open, setOpen] = useState(false);
   const [state, formAction, isPending] = useActionState(
@@ -40,6 +45,12 @@ export function EditRecurringDialog({
       toast.error(String(state.error));
     }
   }, [state]);
+
+  const grouped = rules.reduce<Record<string, string[]>>((acc, r) => {
+    if (!acc[r.category]) acc[r.category] = [];
+    acc[r.category].push(r.pattern);
+    return acc;
+  }, {});
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -91,9 +102,14 @@ export function EditRecurringDialog({
             <div className="space-y-2 col-span-2">
               <Label>Catégorie</Label>
               <select name="category" defaultValue={payment.category} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm">
-                {categories.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                {Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b)).map(([cat, patterns]) => (
+                  <optgroup key={cat} label={cat}>
+                    {patterns.map((p) => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </optgroup>
                 ))}
+                <option value="Autre">Autre</option>
               </select>
             </div>
             <div className="space-y-2 col-span-2">

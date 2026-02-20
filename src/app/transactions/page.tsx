@@ -37,9 +37,6 @@ export default async function TransactionsPage({
     getCategorizationRules(),
   ]);
 
-  const categories = [...new Set(rules.map((r) => r.category))].sort();
-  if (!categories.includes("Autre")) categories.push("Autre");
-
   const totalPages = Math.ceil(total / perPage);
 
   return (
@@ -54,7 +51,7 @@ export default async function TransactionsPage({
           <CardTitle>Nouvelle transaction</CardTitle>
         </CardHeader>
         <CardContent>
-          <TransactionForm accounts={accounts} categories={categories} defaultAccountId={accountId} />
+          <TransactionForm accounts={accounts} rules={rules} defaultAccountId={accountId} />
         </CardContent>
       </Card>
 
@@ -111,7 +108,7 @@ export default async function TransactionsPage({
                           {formatCurrency(tx.amount)}
                         </TableCell>
                         <TableCell className="flex gap-1">
-                          <EditTransactionDialog transaction={tx} accounts={accounts} />
+                          <EditTransactionDialog transaction={tx} accounts={accounts} rules={rules} />
                           <DeleteTransactionButton id={tx.id} />
                         </TableCell>
                       </TableRow>
@@ -141,7 +138,7 @@ export default async function TransactionsPage({
                         {tx.type === "income" ? "+" : "-"}
                         {formatCurrency(tx.amount)}
                       </span>
-                      <EditTransactionDialog transaction={tx} accounts={accounts} />
+                      <EditTransactionDialog transaction={tx} accounts={accounts} rules={rules} />
                       <DeleteTransactionButton id={tx.id} />
                     </div>
                   </div>
