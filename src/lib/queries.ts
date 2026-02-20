@@ -275,10 +275,11 @@ export async function searchTransactions(opts: {
 
 // ============ CHART DATA ============
 
-export async function getMonthlyBalanceHistory(months: number = 12) {
+export async function getMonthlyBalanceHistory(months: number = 12, accountId?: number) {
   await ensureSchema();
   const db = getDb();
-  const accounts = await getAllAccounts();
+  const allAccounts = await getAllAccounts();
+  const accounts = accountId ? allAccounts.filter((a) => a.id === accountId) : allAccounts;
   const now = new Date();
   const data: { month: string; total: number }[] = [];
 
@@ -302,19 +303,24 @@ export async function getMonthlyBalanceHistory(months: number = 12) {
   return data;
 }
 
-export async function getMonthlySummary() {
+export async function getMonthlySummary(accountId?: number) {
   await ensureSchema();
   const db = getDb();
-  const result = await db.execute(
-    `SELECT
+  const where = accountId ? "WHERE account_id = ?" : "";
+  const args: number[] = accountId ? [accountId] : [];
+
+  const result = await db.execute({
+    sql: `SELECT
       strftime('%Y-%m', date) as month,
       SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as income,
       SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as expenses
     FROM transactions
+    ${where}
     GROUP BY strftime('%Y-%m', date)
     ORDER BY month DESC
-    LIMIT 12`
-  );
+    LIMIT 12`,
+    args,
+  });
 
   return result.rows.map((row) => ({
     month: String(row.month),
@@ -324,7 +330,7 @@ export async function getMonthlySummary() {
   }));
 }
 
-export async function getExpensesByCategory() {
+export async function getExpensesByCategory(accountId?: number) {
   await ensureSchema();
   const db = getDb();
   const now = new Date();
@@ -332,15 +338,57 @@ export async function getExpensesByCategory() {
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   const monthEnd = nextMonth.toISOString().split("T")[0];
 
+  const where = accountId
+    ? "type = 'expense' AND date >= ? AND date < ? AND account_id = ?"
+    : "type = 'expense' AND date >= ? AND date < ?";
+  const args: (string | number)[] = accountId
+    ? [monthStart, monthEnd, accountId]
+    : [monthStart, monthEnd];
+
   const result = await db.execute({
     sql: `SELECT category, SUM(amount) as total FROM transactions
-      WHERE type = 'expense' AND date >= ? AND date < ?
+      WHERE ${where}
       GROUP BY category ORDER BY total DESC`,
-    args: [monthStart, monthEnd],
+    args,
   });
 
   return result.rows.map((row) => ({
     category: String(row.category),
+    total: Number(row.total),
+  }));
+}
+
+export async function getExpensesByBroadCategory(accountId?: number) {
+  await ensureSchema();
+  const db = getDb();
+  const now = new Date();
+  const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const monthEnd = nextMonth.toISOString().split("T")[0];
+
+  const where = accountId
+    ? "type = 'expense' AND date >= ? AND date < ? AND account_id = ?"
+    : "type = 'expense' AND date >= ? AND date < ?";
+  const args: (string | number)[] = accountId
+    ? [monthStart, monthEnd, accountId]
+    : [monthStart, monthEnd];
+
+  const result = await db.execute({
+    sql: `SELECT
+        COALESCE(
+          (SELECT cr.category FROM categorization_rules cr WHERE cr.pattern = t.category ORDER BY cr.priority DESC LIMIT 1),
+          t.category
+        ) as broad_category,
+        SUM(t.amount) as total
+      FROM transactions t
+      WHERE ${where}
+      GROUP BY broad_category
+      ORDER BY total DESC`,
+    args,
+  });
+
+  return result.rows.map((row) => ({
+    category: String(row.broad_category),
     total: Number(row.total),
   }));
 }
@@ -470,7 +518,7 @@ export async function deleteRecurringPayment(id: number): Promise<void> {
 
 // ============ DASHBOARD ============
 
-export async function getDashboardData() {
+export async function getDashboardData(accountId?: number) {
   await ensureSchema();
   const db = getDb();
   const now = new Date();
@@ -478,28 +526,39 @@ export async function getDashboardData() {
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   const monthEnd = nextMonth.toISOString().split("T")[0];
 
+  const accFilter = accountId ? " AND account_id = ?" : "";
+  const baseArgs: (string | number)[] = [monthStart, monthEnd];
+  const filteredArgs: (string | number)[] = accountId ? [monthStart, monthEnd, accountId] : [monthStart, monthEnd];
+
   const monthlyIncome = await db.execute({
-    sql: "SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE type = 'income' AND date >= ? AND date < ?",
-    args: [monthStart, monthEnd],
+    sql: `SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE type = 'income' AND date >= ? AND date < ?${accFilter}`,
+    args: filteredArgs,
   });
 
   const monthlyExpenses = await db.execute({
-    sql: "SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE type = 'expense' AND date >= ? AND date < ?",
-    args: [monthStart, monthEnd],
+    sql: `SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE type = 'expense' AND date >= ? AND date < ?${accFilter}`,
+    args: filteredArgs,
   });
 
-  const recurringTotal = await db.execute(
-    `SELECT COALESCE(SUM(
+  const recurringFilter = accountId ? " AND account_id = ?" : "";
+  const recurringArgs: (string | number)[] = accountId ? [accountId] : [];
+
+  const recurringTotal = await db.execute({
+    sql: `SELECT COALESCE(SUM(
       CASE frequency
         WHEN 'monthly' THEN amount
         WHEN 'weekly' THEN amount * 4.33
         WHEN 'yearly' THEN amount / 12.0
         ELSE amount
       END
-    ), 0) as total FROM recurring_payments WHERE type = 'expense'`
-  );
+    ), 0) as total FROM recurring_payments WHERE type = 'expense'${recurringFilter}`,
+    args: recurringArgs,
+  });
 
   const accounts = await getAllAccounts();
+
+  // Pour l'affichage du solde : si un compte est sélectionné, on ne montre que lui
+  void baseArgs;
 
   return {
     monthlyIncome: Number(monthlyIncome.rows[0].total),

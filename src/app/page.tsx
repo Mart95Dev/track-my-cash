@@ -1,4 +1,11 @@
-import { getDashboardData, getMonthlyBalanceHistory, getExpensesByCategory, getMonthlySummary } from "@/lib/queries";
+import {
+  getDashboardData,
+  getMonthlyBalanceHistory,
+  getExpensesByCategory,
+  getExpensesByBroadCategory,
+  getMonthlySummary,
+  getAllAccounts,
+} from "@/lib/queries";
 import { getExchangeRate } from "@/lib/currency";
 import { formatCurrency } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,25 +13,50 @@ import { Badge } from "@/components/ui/badge";
 import { BalanceEvolutionChart } from "@/components/charts/balance-evolution-chart";
 import { ExpenseBreakdownChart } from "@/components/charts/expense-breakdown-chart";
 import { MonthlySummary } from "@/components/monthly-summary";
+import { AccountFilter } from "@/components/account-filter";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
-  const [data, balanceHistory, expensesByCategory, monthlySummary, exchangeRate] = await Promise.all([
-    getDashboardData(),
-    getMonthlyBalanceHistory(),
-    getExpensesByCategory(),
-    getMonthlySummary(),
-    getExchangeRate(),
-  ]);
-  const totalInEUR = data.accounts.reduce((sum, account) => {
-    const balance = account.calculated_balance ?? account.initial_balance;
-    return sum + (account.currency === "MGA" ? balance / exchangeRate : balance);
-  }, 0);
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ accountId?: string }>;
+}) {
+  const params = await searchParams;
+  const accountId = params.accountId ? parseInt(params.accountId) : undefined;
+
+  const [data, balanceHistory, expensesByPattern, expensesByBroad, monthlySummary, exchangeRate, accounts] =
+    await Promise.all([
+      getDashboardData(accountId),
+      getMonthlyBalanceHistory(12, accountId),
+      getExpensesByCategory(accountId),
+      getExpensesByBroadCategory(accountId),
+      getMonthlySummary(accountId),
+      getExchangeRate(),
+      getAllAccounts(),
+    ]);
+
+  const selectedAccount = accountId ? accounts.find((a) => a.id === accountId) : null;
+
+  const totalInEUR = (accountId && selectedAccount)
+    ? (selectedAccount.calculated_balance ?? selectedAccount.initial_balance) /
+      (selectedAccount.currency === "MGA" ? exchangeRate : 1)
+    : data.accounts.reduce((sum, account) => {
+        const balance = account.calculated_balance ?? account.initial_balance;
+        return sum + (account.currency === "MGA" ? balance / exchangeRate : balance);
+      }, 0);
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Dashboard</h2>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <h2 className="text-2xl font-bold">
+          Dashboard
+          {selectedAccount && (
+            <span className="ml-2 text-lg font-normal text-muted-foreground">— {selectedAccount.name}</span>
+          )}
+        </h2>
+        <AccountFilter accounts={accounts} currentAccountId={accountId} basePath="/" />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
@@ -76,7 +108,9 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">{formatCurrency(totalInEUR)}</p>
-            <p className="text-xs text-muted-foreground mt-1">Taux en temps réel : 1 EUR = {exchangeRate.toLocaleString("fr-FR", { maximumFractionDigits: 0 })} MGA</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Taux en temps réel : 1 EUR = {exchangeRate.toLocaleString("fr-FR", { maximumFractionDigits: 0 })} MGA
+            </p>
           </CardContent>
         </Card>
       )}
@@ -85,7 +119,7 @@ export default async function DashboardPage() {
         <>
           <h3 className="text-lg font-semibold">Soldes des comptes</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data.accounts.map((account) => {
+            {(accountId ? data.accounts.filter((a) => a.id === accountId) : data.accounts).map((account) => {
               const balance = account.calculated_balance ?? account.initial_balance;
               return (
                 <Card key={account.id}>
@@ -132,17 +166,28 @@ export default async function DashboardPage() {
           </Card>
         )}
 
-        {expensesByCategory.length > 0 && (
+        {expensesByBroad.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Dépenses par catégorie (mois en cours)</CardTitle>
             </CardHeader>
             <CardContent>
-              <ExpenseBreakdownChart data={expensesByCategory} />
+              <ExpenseBreakdownChart data={expensesByBroad} />
             </CardContent>
           </Card>
         )}
       </div>
+
+      {expensesByPattern.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Dépenses par sous-catégorie (mois en cours)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ExpenseBreakdownChart data={expensesByPattern} />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Monthly summary */}
       <MonthlySummary data={monthlySummary} />
