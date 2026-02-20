@@ -5,11 +5,18 @@ import { createTransactionAction } from "@/app/actions/transaction-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CATEGORIES } from "@/lib/format";
 import { toast } from "sonner";
 import type { Account } from "@/lib/queries";
 
-export function TransactionForm({ accounts }: { accounts: Account[] }) {
+export function TransactionForm({
+  accounts,
+  categories,
+  defaultAccountId,
+}: {
+  accounts: Account[];
+  categories: string[];
+  defaultAccountId?: number;
+}) {
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction, isPending] = useActionState(
     async (prev: unknown, formData: FormData) => {
@@ -46,6 +53,7 @@ export function TransactionForm({ accounts }: { accounts: Account[] }) {
           <select
             id="accountId"
             name="accountId"
+            defaultValue={defaultAccountId ?? ""}
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm"
             required
           >
@@ -78,9 +86,9 @@ export function TransactionForm({ accounts }: { accounts: Account[] }) {
             name="category"
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm"
           >
-            {CATEGORIES.map((c) => (
-              <option key={c.id} value={c.name}>
-                {c.name}
+            {categories.map((c) => (
+              <option key={c} value={c}>
+                {c}
               </option>
             ))}
           </select>

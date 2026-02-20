@@ -1,4 +1,4 @@
-import { searchTransactions, getAllAccounts } from "@/lib/queries";
+import { searchTransactions, getAllAccounts, getCategorizationRules } from "@/lib/queries";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -31,10 +31,14 @@ export default async function TransactionsPage({
   const page = params.page ? parseInt(params.page) : 1;
   const perPage = 20;
 
-  const [{ transactions, total }, accounts] = await Promise.all([
+  const [{ transactions, total }, accounts, rules] = await Promise.all([
     searchTransactions({ accountId, search, sort, page, perPage }),
     getAllAccounts(),
+    getCategorizationRules(),
   ]);
+
+  const categories = [...new Set(rules.map((r) => r.category))].sort();
+  if (!categories.includes("Autre")) categories.push("Autre");
 
   const totalPages = Math.ceil(total / perPage);
 
@@ -42,7 +46,7 @@ export default async function TransactionsPage({
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h2 className="text-2xl font-bold">Transactions</h2>
-        <ImportButton accounts={accounts} />
+        <ImportButton accounts={accounts} defaultAccountId={accountId} />
       </div>
 
       <Card>
@@ -50,7 +54,7 @@ export default async function TransactionsPage({
           <CardTitle>Nouvelle transaction</CardTitle>
         </CardHeader>
         <CardContent>
-          <TransactionForm accounts={accounts} />
+          <TransactionForm accounts={accounts} categories={categories} defaultAccountId={accountId} />
         </CardContent>
       </Card>
 

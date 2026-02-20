@@ -5,11 +5,16 @@ import { createRecurringAction } from "@/app/actions/recurring-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CATEGORIES } from "@/lib/format";
 import { toast } from "sonner";
 import type { Account } from "@/lib/queries";
 
-export function RecurringForm({ accounts }: { accounts: Account[] }) {
+export function RecurringForm({
+  accounts,
+  categories,
+}: {
+  accounts: Account[];
+  categories: string[];
+}) {
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction, isPending] = useActionState(
     async (prev: unknown, formData: FormData) => {
@@ -69,8 +74,8 @@ export function RecurringForm({ accounts }: { accounts: Account[] }) {
         <div className="space-y-2">
           <Label htmlFor="category">Catégorie</Label>
           <select id="category" name="category" className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm">
-            {CATEGORIES.map((c) => (
-              <option key={c.id} value={c.name}>{c.name}</option>
+            {categories.map((c) => (
+              <option key={c} value={c}>{c}</option>
             ))}
           </select>
         </div>

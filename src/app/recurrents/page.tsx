@@ -1,16 +1,31 @@
-import { getRecurringPayments, getAllAccounts } from "@/lib/queries";
+import { getRecurringPayments, getAllAccounts, getCategorizationRules } from "@/lib/queries";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RecurringForm } from "@/components/recurring-form";
 import { DeleteRecurringButton } from "@/components/delete-recurring-button";
 import { EditRecurringDialog } from "@/components/edit-recurring-dialog";
+import { AccountFilter } from "@/components/account-filter";
 
 export const dynamic = "force-dynamic";
 
-export default async function RecurrentsPage() {
-  const payments = await getRecurringPayments();
-  const accounts = await getAllAccounts();
+export default async function RecurrentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ accountId?: string }>;
+}) {
+  const params = await searchParams;
+  const accountId = params.accountId ? parseInt(params.accountId) : undefined;
+
+  const [accounts, rules] = await Promise.all([
+    getAllAccounts(),
+    getCategorizationRules(),
+  ]);
+
+  const categories = [...new Set(rules.map((r) => r.category))].sort();
+  if (!categories.includes("Autre")) categories.push("Autre");
+
+  const payments = accountId ? await getRecurringPayments(accountId) : [];
 
   return (
     <div className="space-y-6">
@@ -21,16 +36,29 @@ export default async function RecurrentsPage() {
           <CardTitle>Nouveau paiement récurrent</CardTitle>
         </CardHeader>
         <CardContent>
-          <RecurringForm accounts={accounts} />
+          <RecurringForm accounts={accounts} categories={categories} />
         </CardContent>
       </Card>
 
-      <h3 className="text-lg font-semibold">Liste</h3>
+      <div className="flex items-center gap-3">
+        <h3 className="text-lg font-semibold">Liste</h3>
+        <AccountFilter
+          accounts={accounts}
+          currentAccountId={accountId}
+          basePath="/recurrents"
+        />
+      </div>
 
-      {payments.length === 0 ? (
+      {!accountId ? (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
-            Aucun paiement récurrent
+            Sélectionnez un compte pour voir ses paiements récurrents
+          </CardContent>
+        </Card>
+      ) : payments.length === 0 ? (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            Aucun paiement récurrent pour ce compte
           </CardContent>
         </Card>
       ) : (
@@ -45,7 +73,7 @@ export default async function RecurrentsPage() {
                       <Badge variant="secondary">{p.frequency}</Badge>
                       <Badge variant="outline">{p.category}</Badge>
                       <span className="text-sm text-muted-foreground">
-                        {p.account_name} — Prochain : {formatDate(p.next_date)}
+                        Prochain : {formatDate(p.next_date)}
                       </span>
                       {p.end_date && (
                         <Badge variant="outline" className="text-orange-600 border-orange-300">
@@ -65,7 +93,7 @@ export default async function RecurrentsPage() {
                       {p.type === "income" ? "+" : "-"}
                       {formatCurrency(p.amount)}
                     </p>
-                    <EditRecurringDialog payment={p} accounts={accounts} />
+                    <EditRecurringDialog payment={p} accounts={accounts} categories={categories} />
                     <DeleteRecurringButton id={p.id} />
                   </div>
                 </div>

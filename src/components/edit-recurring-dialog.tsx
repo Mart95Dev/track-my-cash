@@ -12,16 +12,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { CATEGORIES } from "@/lib/format";
 import { toast } from "sonner";
 import type { Account, RecurringPayment } from "@/lib/queries";
 
 export function EditRecurringDialog({
   payment,
   accounts,
+  categories,
 }: {
   payment: RecurringPayment;
   accounts: Account[];
+  categories: string[];
 }) {
   const [open, setOpen] = useState(false);
   const [state, formAction, isPending] = useActionState(
@@ -90,8 +91,8 @@ export function EditRecurringDialog({
             <div className="space-y-2 col-span-2">
               <Label>Catégorie</Label>
               <select name="category" defaultValue={payment.category} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm">
-                {CATEGORIES.map((c) => (
-                  <option key={c.id} value={c.name}>{c.name}</option>
+                {categories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
                 ))}
               </select>
             </div>

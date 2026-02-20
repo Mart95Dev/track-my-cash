@@ -42,10 +42,10 @@ interface PreviewData {
   transactions: PreviewTransaction[];
 }
 
-export function ImportButton({ accounts }: { accounts: Account[] }) {
+export function ImportButton({ accounts, defaultAccountId }: { accounts: Account[]; defaultAccountId?: number }) {
   const [preview, setPreview] = useState<PreviewData | null>(null);
   const [categoryOverrides, setCategoryOverrides] = useState<Record<number, string>>({});
-  const [selectedAccountId, setSelectedAccountId] = useState<number>(accounts[0]?.id ?? 0);
+  const [selectedAccountId, setSelectedAccountId] = useState<number>(defaultAccountId ?? accounts[0]?.id ?? 0);
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
