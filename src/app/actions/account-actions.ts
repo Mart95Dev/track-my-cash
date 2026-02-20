@@ -9,6 +9,7 @@ import {
 } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
+import { canCreateAccount } from "@/lib/subscription-utils";
 import { revalidatePath } from "next/cache";
 
 export async function getAccountsAction() {
@@ -35,6 +36,14 @@ export async function createAccountAction(_prev: unknown, formData: FormData) {
 
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
+
+  // Guard freemium
+  const accounts = await getAllAccounts(db);
+  const check = await canCreateAccount(userId, accounts.length);
+  if (!check.allowed) {
+    return { error: check.reason };
+  }
+
   const account = await createAccount(db, name, initialBalance, balanceDate, currency);
   revalidatePath("/");
   revalidatePath("/comptes");

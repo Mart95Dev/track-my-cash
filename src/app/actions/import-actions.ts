@@ -10,6 +10,7 @@ import {
 } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
+import { canImportFormat } from "@/lib/subscription-utils";
 import { revalidatePath } from "next/cache";
 
 // Applique les règles de catégorisation — retourne { category: catégorie large, subcategory: pattern }
@@ -33,6 +34,13 @@ export async function importFileAction(formData: FormData) {
 
   if (!file || !accountId) {
     return { error: "Fichier et compte requis" };
+  }
+
+  // Guard format d'import (avant toute lecture lourde)
+  const userId = await getRequiredUserId();
+  const formatCheck = await canImportFormat(userId, file.name);
+  if (!formatCheck.allowed) {
+    return { error: formatCheck.reason };
   }
 
   const filename = file.name.toLowerCase();
@@ -62,7 +70,6 @@ export async function importFileAction(formData: FormData) {
     return { error: "Aucune transaction trouvée dans le fichier" };
   }
 
-  const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
 
   // Récupération des règles une seule fois pour toutes les transactions

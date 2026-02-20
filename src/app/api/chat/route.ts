@@ -3,6 +3,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { getSetting, getAllAccounts } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
+import { canUseAI } from "@/lib/subscription-utils";
 import { buildFinancialContext, SYSTEM_PROMPT } from "@/lib/ai-context";
 
 export const maxDuration = 30;
@@ -34,6 +35,16 @@ export async function POST(req: Request) {
     : "openai/gpt-4o-mini";
 
   const userId = await getRequiredUserId();
+
+  // Guard IA : vérifier que le plan autorise l'accès au conseiller IA
+  const aiCheck = await canUseAI(userId);
+  if (!aiCheck.allowed) {
+    return new Response(JSON.stringify({ error: aiCheck.reason }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   const db = await getUserDb(userId);
 
   const apiKey = await getSetting(db, "openrouter_api_key");
