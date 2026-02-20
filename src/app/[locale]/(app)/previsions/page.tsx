@@ -1,4 +1,6 @@
 import { getDetailedForecast, getAllAccounts } from "@/lib/queries";
+import { getUserDb } from "@/lib/db";
+import { getRequiredUserId } from "@/lib/auth-utils";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -23,7 +25,10 @@ export default async function PrevisionsPage({
   const params = await searchParams;
   const months = parseInt(params.months ?? "6");
   const t = await getTranslations("forecasts");
-  const accounts = await getAllAccounts();
+
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  const accounts = await getAllAccounts(db);
 
   const FREQ_LABEL: Record<string, string> = {
     monthly: t("monthly"),
@@ -48,7 +53,7 @@ export default async function PrevisionsPage({
   const accountId = rawAccountId ?? accounts[0]!.id;
   const selectedAccount = accounts.find((a) => a.id === accountId) ?? accounts[0]!;
   const currency = selectedAccount.currency;
-  const forecast = await getDetailedForecast(months, accountId);
+  const forecast = await getDetailedForecast(db, months, accountId);
   const { monthDetails, currentBalance, projectedBalance, totalIncome, totalExpenses } = forecast;
   const totalNet = totalIncome - totalExpenses;
 

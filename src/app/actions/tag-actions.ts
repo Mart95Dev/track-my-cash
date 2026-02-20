@@ -1,6 +1,7 @@
 "use server";
 
-import { getDb, ensureSchema } from "@/lib/db";
+import { getUserDb } from "@/lib/db";
+import { getRequiredUserId } from "@/lib/auth-utils";
 import { revalidatePath } from "next/cache";
 
 export interface Tag {
@@ -10,8 +11,8 @@ export interface Tag {
 }
 
 export async function getTagsAction(): Promise<Tag[]> {
-  await ensureSchema();
-  const db = getDb();
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
   const result = await db.execute("SELECT * FROM tags ORDER BY name");
   return result.rows.map((row) => ({
     id: Number(row.id),
@@ -21,13 +22,13 @@ export async function getTagsAction(): Promise<Tag[]> {
 }
 
 export async function createTagAction(_prev: unknown, formData: FormData) {
-  await ensureSchema();
   const name = formData.get("name") as string;
   const color = (formData.get("color") as string) || "#6b7280";
 
   if (!name) return { error: "Nom requis" };
 
-  const db = getDb();
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
   try {
     await db.execute({
       sql: "INSERT INTO tags (name, color) VALUES (?, ?)",
@@ -42,8 +43,8 @@ export async function createTagAction(_prev: unknown, formData: FormData) {
 }
 
 export async function deleteTagAction(id: number) {
-  await ensureSchema();
-  const db = getDb();
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
   await db.batch([
     { sql: "DELETE FROM transaction_tags WHERE tag_id = ?", args: [id] },
     { sql: "DELETE FROM tags WHERE id = ?", args: [id] },
@@ -53,8 +54,8 @@ export async function deleteTagAction(id: number) {
 }
 
 export async function getTransactionTagsAction(transactionId: number): Promise<number[]> {
-  await ensureSchema();
-  const db = getDb();
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
   const result = await db.execute({
     sql: "SELECT tag_id FROM transaction_tags WHERE transaction_id = ?",
     args: [transactionId],
@@ -63,8 +64,8 @@ export async function getTransactionTagsAction(transactionId: number): Promise<n
 }
 
 export async function setTransactionTagsAction(transactionId: number, tagIds: number[]) {
-  await ensureSchema();
-  const db = getDb();
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
   await db.execute({
     sql: "DELETE FROM transaction_tags WHERE transaction_id = ?",
     args: [transactionId],

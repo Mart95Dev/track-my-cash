@@ -1,6 +1,5 @@
-import { getDb, ensureSchema } from "./db";
+import type { Client, Row } from "@libsql/client";
 import crypto from "crypto";
-import type { Row } from "@libsql/client";
 
 // ============ TYPES ============
 
@@ -132,46 +131,39 @@ function rowToRecurring(row: Row): RecurringPayment {
 
 // ============ ACCOUNTS ============
 
-export async function getAllAccounts(): Promise<Account[]> {
-  await ensureSchema();
-  const db = getDb();
+export async function getAllAccounts(db: Client): Promise<Account[]> {
   const result = await db.execute("SELECT * FROM accounts ORDER BY created_at DESC");
   const accounts = result.rows.map(rowToAccount);
 
   for (const account of accounts) {
-    account.calculated_balance = await getCalculatedBalance(account.id);
+    account.calculated_balance = await getCalculatedBalance(db, account.id);
   }
   return accounts;
 }
 
-export async function getAccountById(id: number): Promise<Account | undefined> {
-  await ensureSchema();
-  const db = getDb();
+export async function getAccountById(db: Client, id: number): Promise<Account | undefined> {
   const result = await db.execute({ sql: "SELECT * FROM accounts WHERE id = ?", args: [id] });
   if (result.rows.length === 0) return undefined;
   const account = rowToAccount(result.rows[0]);
-  account.calculated_balance = await getCalculatedBalance(account.id);
+  account.calculated_balance = await getCalculatedBalance(db, account.id);
   return account;
 }
 
 export async function createAccount(
+  db: Client,
   name: string,
   initialBalance: number,
   balanceDate: string,
   currency: string
 ): Promise<Account> {
-  await ensureSchema();
-  const db = getDb();
   const result = await db.execute({
     sql: "INSERT INTO accounts (name, initial_balance, balance_date, currency) VALUES (?, ?, ?, ?)",
     args: [name, initialBalance, balanceDate, currency],
   });
-  return (await getAccountById(Number(result.lastInsertRowid)))!;
+  return (await getAccountById(db, Number(result.lastInsertRowid)))!;
 }
 
-export async function deleteAccount(id: number): Promise<void> {
-  await ensureSchema();
-  const db = getDb();
+export async function deleteAccount(db: Client, id: number): Promise<void> {
   await db.batch([
     { sql: "DELETE FROM transactions WHERE account_id = ?", args: [id] },
     { sql: "DELETE FROM recurring_payments WHERE account_id = ?", args: [id] },
@@ -179,8 +171,7 @@ export async function deleteAccount(id: number): Promise<void> {
   ], "write");
 }
 
-export async function getCalculatedBalance(accountId: number): Promise<number> {
-  const db = getDb();
+export async function getCalculatedBalance(db: Client, accountId: number): Promise<number> {
   const accResult = await db.execute({
     sql: "SELECT initial_balance, balance_date FROM accounts WHERE id = ?",
     args: [accountId],
@@ -200,12 +191,11 @@ export async function getCalculatedBalance(accountId: number): Promise<number> {
 // ============ TRANSACTIONS ============
 
 export async function getTransactions(
+  db: Client,
   accountId?: number,
   limit?: number,
   offset?: number
 ): Promise<Transaction[]> {
-  await ensureSchema();
-  const db = getDb();
   let query =
     "SELECT t.*, a.name as account_name FROM transactions t LEFT JOIN accounts a ON t.account_id = a.id";
   const args: (number | string)[] = [];
@@ -230,15 +220,16 @@ export async function getTransactions(
   return result.rows.map(rowToTransaction);
 }
 
-export async function searchTransactions(opts: {
-  accountId?: number;
-  search?: string;
-  sort?: string;
-  page?: number;
-  perPage?: number;
-}): Promise<{ transactions: Transaction[]; total: number }> {
-  await ensureSchema();
-  const db = getDb();
+export async function searchTransactions(
+  db: Client,
+  opts: {
+    accountId?: number;
+    search?: string;
+    sort?: string;
+    page?: number;
+    perPage?: number;
+  }
+): Promise<{ transactions: Transaction[]; total: number }> {
   const perPage = opts.perPage ?? 20;
   const page = opts.page ?? 1;
   const conditions: string[] = [];
@@ -279,10 +270,8 @@ export async function searchTransactions(opts: {
 
 // ============ CHART DATA ============
 
-export async function getMonthlyBalanceHistory(months: number = 12, accountId?: number) {
-  await ensureSchema();
-  const db = getDb();
-  const allAccounts = await getAllAccounts();
+export async function getMonthlyBalanceHistory(db: Client, months: number = 12, accountId?: number) {
+  const allAccounts = await getAllAccounts(db);
   const accounts = accountId ? allAccounts.filter((a) => a.id === accountId) : allAccounts;
   const now = new Date();
   const data: { month: string; total: number }[] = [];
@@ -307,9 +296,7 @@ export async function getMonthlyBalanceHistory(months: number = 12, accountId?: 
   return data;
 }
 
-export async function getMonthlySummary(accountId?: number) {
-  await ensureSchema();
-  const db = getDb();
+export async function getMonthlySummary(db: Client, accountId?: number) {
   const where = accountId ? "WHERE account_id = ?" : "";
   const args: number[] = accountId ? [accountId] : [];
 
@@ -334,9 +321,7 @@ export async function getMonthlySummary(accountId?: number) {
   }));
 }
 
-export async function getExpensesByCategory(accountId?: number) {
-  await ensureSchema();
-  const db = getDb();
+export async function getExpensesByCategory(db: Client, accountId?: number) {
   const now = new Date();
   const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
@@ -364,9 +349,7 @@ export async function getExpensesByCategory(accountId?: number) {
   }));
 }
 
-export async function getExpensesByBroadCategory(accountId?: number) {
-  await ensureSchema();
-  const db = getDb();
+export async function getExpensesByBroadCategory(db: Client, accountId?: number) {
   const now = new Date();
   const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
@@ -396,6 +379,7 @@ export async function getExpensesByBroadCategory(accountId?: number) {
 }
 
 export async function createTransaction(
+  db: Client,
   accountId: number,
   type: "income" | "expense",
   amount: number,
@@ -404,8 +388,6 @@ export async function createTransaction(
   subcategory: string,
   description: string
 ): Promise<Transaction> {
-  await ensureSchema();
-  const db = getDb();
   const hash = generateImportHash(date, description, amount);
   const result = await db.execute({
     sql: "INSERT INTO transactions (account_id, type, amount, date, category, subcategory, description, import_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -419,9 +401,7 @@ export async function createTransaction(
   return rowToTransaction(txResult.rows[0]);
 }
 
-export async function deleteTransaction(id: number): Promise<void> {
-  await ensureSchema();
-  const db = getDb();
+export async function deleteTransaction(db: Client, id: number): Promise<void> {
   await db.execute({ sql: "DELETE FROM transactions WHERE id = ?", args: [id] });
 }
 
@@ -434,9 +414,7 @@ export function generateImportHash(
   return crypto.createHash("md5").update(raw).digest("hex");
 }
 
-export async function checkDuplicates(hashes: string[]): Promise<Set<string>> {
-  await ensureSchema();
-  const db = getDb();
+export async function checkDuplicates(db: Client, hashes: string[]): Promise<Set<string>> {
   const existing = new Set<string>();
   for (const hash of hashes) {
     const result = await db.execute({
@@ -449,6 +427,7 @@ export async function checkDuplicates(hashes: string[]): Promise<Set<string>> {
 }
 
 export async function bulkInsertTransactions(
+  db: Client,
   transactions: {
     account_id: number;
     type: "income" | "expense";
@@ -460,8 +439,6 @@ export async function bulkInsertTransactions(
     import_hash: string;
   }[]
 ): Promise<number> {
-  await ensureSchema();
-  const db = getDb();
   const stmts = transactions.map((tx) => ({
     sql: "INSERT INTO transactions (account_id, type, amount, date, category, subcategory, description, import_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
     args: [tx.account_id, tx.type, tx.amount, tx.date, tx.category, tx.subcategory, tx.description, tx.import_hash] as (string | number)[],
@@ -473,9 +450,7 @@ export async function bulkInsertTransactions(
 
 // ============ RECURRING ============
 
-export async function getRecurringPayments(accountId?: number): Promise<RecurringPayment[]> {
-  await ensureSchema();
-  const db = getDb();
+export async function getRecurringPayments(db: Client, accountId?: number): Promise<RecurringPayment[]> {
   let query =
     "SELECT r.*, a.name as account_name FROM recurring_payments r LEFT JOIN accounts a ON r.account_id = a.id";
   const args: number[] = [];
@@ -491,6 +466,7 @@ export async function getRecurringPayments(accountId?: number): Promise<Recurrin
 }
 
 export async function createRecurringPayment(
+  db: Client,
   accountId: number,
   name: string,
   type: "income" | "expense",
@@ -501,8 +477,6 @@ export async function createRecurringPayment(
   endDate: string | null = null,
   subcategory: string | null = null
 ): Promise<RecurringPayment> {
-  await ensureSchema();
-  const db = getDb();
   const result = await db.execute({
     sql: "INSERT INTO recurring_payments (account_id, name, type, amount, frequency, next_date, category, end_date, subcategory) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
     args: [accountId, name, type, amount, frequency, nextDate, category, endDate, subcategory],
@@ -515,24 +489,19 @@ export async function createRecurringPayment(
   return rowToRecurring(recResult.rows[0]);
 }
 
-export async function deleteRecurringPayment(id: number): Promise<void> {
-  await ensureSchema();
-  const db = getDb();
+export async function deleteRecurringPayment(db: Client, id: number): Promise<void> {
   await db.execute({ sql: "DELETE FROM recurring_payments WHERE id = ?", args: [id] });
 }
 
 // ============ DASHBOARD ============
 
-export async function getDashboardData(accountId?: number) {
-  await ensureSchema();
-  const db = getDb();
+export async function getDashboardData(db: Client, accountId?: number) {
   const now = new Date();
   const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   const monthEnd = nextMonth.toISOString().split("T")[0];
 
   const accFilter = accountId ? " AND account_id = ?" : "";
-  const baseArgs: (string | number)[] = [monthStart, monthEnd];
   const filteredArgs: (string | number)[] = accountId ? [monthStart, monthEnd, accountId] : [monthStart, monthEnd];
 
   const monthlyIncome = await db.execute({
@@ -560,10 +529,7 @@ export async function getDashboardData(accountId?: number) {
     args: recurringArgs,
   });
 
-  const accounts = await getAllAccounts();
-
-  // Pour l'affichage du solde : si un compte est sélectionné, on ne montre que lui
-  void baseArgs;
+  const accounts = await getAllAccounts(db);
 
   return {
     monthlyIncome: Number(monthlyIncome.rows[0].total),
@@ -603,10 +569,10 @@ function getMonthlyContribution(r: RecurringPayment, forecastDate: Date): number
   }
 }
 
-export async function getDetailedForecast(months: number, accountId?: number): Promise<DetailedForecastResult> {
-  const allAccounts = await getAllAccounts();
+export async function getDetailedForecast(db: Client, months: number, accountId?: number): Promise<DetailedForecastResult> {
+  const allAccounts = await getAllAccounts(db);
   const accounts = accountId ? allAccounts.filter((a) => a.id === accountId) : allAccounts;
-  const allRecurring = await getRecurringPayments();
+  const allRecurring = await getRecurringPayments(db);
   const recurringPayments = accountId ? allRecurring.filter((r) => r.account_id === accountId) : allRecurring;
   const now = new Date();
 
@@ -714,9 +680,7 @@ export async function getDetailedForecast(months: number, accountId?: number): P
 
 // ============ EXPORT / IMPORT ============
 
-export async function exportAllData() {
-  await ensureSchema();
-  const db = getDb();
+export async function exportAllData(db: Client) {
   const [accounts, transactions, recurring] = await Promise.all([
     db.execute("SELECT * FROM accounts"),
     db.execute("SELECT * FROM transactions"),
@@ -732,14 +696,14 @@ export async function exportAllData() {
   };
 }
 
-export async function importAllData(data: {
-  accounts: Record<string, unknown>[];
-  transactions: Record<string, unknown>[];
-  recurring: Record<string, unknown>[];
-}) {
-  await ensureSchema();
-  const db = getDb();
-
+export async function importAllData(
+  db: Client,
+  data: {
+    accounts: Record<string, unknown>[];
+    transactions: Record<string, unknown>[];
+    recurring: Record<string, unknown>[];
+  }
+) {
   // Clear all tables
   await db.batch([
     "DELETE FROM transactions",
@@ -808,12 +772,11 @@ export async function importAllData(data: {
 // ============ UPDATE (EDIT) ============
 
 export async function updateAccountBalance(
+  db: Client,
   accountId: number,
   newBalance: number,
   newBalanceDate: string
 ): Promise<void> {
-  await ensureSchema();
-  const db = getDb();
   await db.execute({
     sql: "UPDATE accounts SET initial_balance = ?, balance_date = ? WHERE id = ?",
     args: [newBalance, newBalanceDate, accountId],
@@ -821,6 +784,7 @@ export async function updateAccountBalance(
 }
 
 export async function updateAccount(
+  db: Client,
   id: number,
   name: string,
   initialBalance: number,
@@ -828,8 +792,6 @@ export async function updateAccount(
   currency: string,
   alertThreshold: number | null
 ): Promise<void> {
-  await ensureSchema();
-  const db = getDb();
   await db.execute({
     sql: "UPDATE accounts SET name = ?, initial_balance = ?, balance_date = ?, currency = ?, alert_threshold = ? WHERE id = ?",
     args: [name, initialBalance, balanceDate, currency, alertThreshold, id],
@@ -837,6 +799,7 @@ export async function updateAccount(
 }
 
 export async function updateTransaction(
+  db: Client,
   id: number,
   accountId: number,
   type: "income" | "expense",
@@ -846,8 +809,6 @@ export async function updateTransaction(
   subcategory: string,
   description: string
 ): Promise<void> {
-  await ensureSchema();
-  const db = getDb();
   await db.execute({
     sql: "UPDATE transactions SET account_id = ?, type = ?, amount = ?, date = ?, category = ?, subcategory = ?, description = ? WHERE id = ?",
     args: [accountId, type, amount, date, category, subcategory, description, id],
@@ -855,6 +816,7 @@ export async function updateTransaction(
 }
 
 export async function updateRecurringPayment(
+  db: Client,
   id: number,
   accountId: number,
   name: string,
@@ -866,8 +828,6 @@ export async function updateRecurringPayment(
   endDate: string | null = null,
   subcategory: string | null = null
 ): Promise<void> {
-  await ensureSchema();
-  const db = getDb();
   await db.execute({
     sql: "UPDATE recurring_payments SET account_id = ?, name = ?, type = ?, amount = ?, frequency = ?, next_date = ?, category = ?, end_date = ?, subcategory = ? WHERE id = ?",
     args: [accountId, name, type, amount, frequency, nextDate, category, endDate, subcategory, id],
@@ -883,9 +843,7 @@ export interface CategorizationRule {
   priority: number;
 }
 
-export async function getCategorizationRules(): Promise<CategorizationRule[]> {
-  await ensureSchema();
-  const db = getDb();
+export async function getCategorizationRules(db: Client): Promise<CategorizationRule[]> {
   const result = await db.execute("SELECT * FROM categorization_rules ORDER BY priority DESC");
   return result.rows.map((row) => ({
     id: Number(row.id),
@@ -896,26 +854,23 @@ export async function getCategorizationRules(): Promise<CategorizationRule[]> {
 }
 
 export async function createCategorizationRule(
+  db: Client,
   pattern: string,
   category: string,
   priority: number
 ): Promise<void> {
-  await ensureSchema();
-  const db = getDb();
   await db.execute({
     sql: "INSERT INTO categorization_rules (pattern, category, priority) VALUES (?, ?, ?)",
     args: [pattern, category, priority],
   });
 }
 
-export async function deleteCategorizationRule(id: number): Promise<void> {
-  await ensureSchema();
-  const db = getDb();
+export async function deleteCategorizationRule(db: Client, id: number): Promise<void> {
   await db.execute({ sql: "DELETE FROM categorization_rules WHERE id = ?", args: [id] });
 }
 
-export async function autoCategorize(description: string): Promise<string> {
-  const rules = await getCategorizationRules();
+export async function autoCategorize(db: Client, description: string): Promise<string> {
+  const rules = await getCategorizationRules(db);
   for (const rule of rules) {
     try {
       const regex = new RegExp(rule.pattern, "i");
@@ -933,16 +888,12 @@ export async function autoCategorize(description: string): Promise<string> {
 
 // ============ SETTINGS ============
 
-export async function getSetting(key: string): Promise<string | null> {
-  await ensureSchema();
-  const db = getDb();
+export async function getSetting(db: Client, key: string): Promise<string | null> {
   const result = await db.execute({ sql: "SELECT value FROM settings WHERE key = ?", args: [key] });
   return result.rows.length > 0 ? String(result.rows[0].value) : null;
 }
 
-export async function setSetting(key: string, value: string): Promise<void> {
-  await ensureSchema();
-  const db = getDb();
+export async function setSetting(db: Client, key: string, value: string): Promise<void> {
   await db.execute({
     sql: "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
     args: [key, value],

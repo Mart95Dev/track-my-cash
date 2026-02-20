@@ -1,4 +1,6 @@
 import { getRecurringPayments, getAllAccounts, getCategorizationRules } from "@/lib/queries";
+import { getUserDb } from "@/lib/db";
+import { getRequiredUserId } from "@/lib/auth-utils";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,12 +21,15 @@ export default async function RecurrentsPage({
   const accountId = params.accountId ? parseInt(params.accountId) : undefined;
   const t = await getTranslations("recurring");
 
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+
   const [accounts, rules] = await Promise.all([
-    getAllAccounts(),
-    getCategorizationRules(),
+    getAllAccounts(db),
+    getCategorizationRules(db),
   ]);
 
-  const payments = accountId ? await getRecurringPayments(accountId) : [];
+  const payments = accountId ? await getRecurringPayments(db, accountId) : [];
 
   return (
     <div className="space-y-6">

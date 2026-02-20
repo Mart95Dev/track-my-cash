@@ -5,10 +5,14 @@ import {
   createCategorizationRule,
   deleteCategorizationRule,
 } from "@/lib/queries";
+import { getUserDb } from "@/lib/db";
+import { getRequiredUserId } from "@/lib/auth-utils";
 import { revalidatePath } from "next/cache";
 
 export async function getRulesAction() {
-  return getCategorizationRules();
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  return getCategorizationRules(db);
 }
 
 export async function createRuleAction(_prev: unknown, formData: FormData) {
@@ -20,13 +24,17 @@ export async function createRuleAction(_prev: unknown, formData: FormData) {
     return { error: "Pattern et catégorie requis" };
   }
 
-  await createCategorizationRule(pattern, category, priority);
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  await createCategorizationRule(db, pattern, category, priority);
   revalidatePath("/parametres");
   return { success: true };
 }
 
 export async function deleteRuleAction(id: number) {
-  await deleteCategorizationRule(id);
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  await deleteCategorizationRule(db, id);
   revalidatePath("/parametres");
   return { success: true };
 }

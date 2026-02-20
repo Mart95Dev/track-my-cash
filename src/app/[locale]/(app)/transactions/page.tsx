@@ -1,4 +1,6 @@
 import { searchTransactions, getAllAccounts, getCategorizationRules } from "@/lib/queries";
+import { getUserDb } from "@/lib/db";
+import { getRequiredUserId } from "@/lib/auth-utils";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -33,10 +35,13 @@ export default async function TransactionsPage({
   const perPage = 20;
   const t = await getTranslations("transactions");
 
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+
   const [{ transactions, total }, accounts, rules] = await Promise.all([
-    searchTransactions({ accountId, search, sort, page, perPage }),
-    getAllAccounts(),
-    getCategorizationRules(),
+    searchTransactions(db, { accountId, search, sort, page, perPage }),
+    getAllAccounts(db),
+    getCategorizationRules(db),
   ]);
 
   const totalPages = Math.ceil(total / perPage);

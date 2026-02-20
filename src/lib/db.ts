@@ -12,9 +12,20 @@ export function getDb(): Client {
   return client;
 }
 
+export async function getUserDb(userId: string): Promise<Client> {
+  const { getUserDbClient } = await import("./turso-manager");
+  return getUserDbClient(userId);
+}
+
 export async function initSchema() {
   const db = getDb();
   await db.executeMultiple(`
+    CREATE TABLE IF NOT EXISTS users_databases (
+      user_id TEXT PRIMARY KEY,
+      db_hostname TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS accounts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,

@@ -1,18 +1,26 @@
 "use server";
 
 import { getDashboardData, getDetailedForecast, exportAllData, importAllData } from "@/lib/queries";
+import { getUserDb } from "@/lib/db";
+import { getRequiredUserId } from "@/lib/auth-utils";
 import { revalidatePath } from "next/cache";
 
 export async function getDashboardAction() {
-  return getDashboardData();
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  return getDashboardData(db);
 }
 
 export async function getForecastAction(months: number) {
-  return getDetailedForecast(months);
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  return getDetailedForecast(db, months);
 }
 
 export async function exportDataAction() {
-  return exportAllData();
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  return exportAllData(db);
 }
 
 export async function importDataAction(jsonString: string) {
@@ -20,7 +28,9 @@ export async function importDataAction(jsonString: string) {
   if (!data.accounts || !data.transactions) {
     return { error: "Format de données invalide" };
   }
-  await importAllData({
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  await importAllData(db, {
     accounts: data.accounts,
     transactions: data.transactions,
     recurring: data.recurring || [],

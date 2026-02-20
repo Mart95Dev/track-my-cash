@@ -7,14 +7,20 @@ import {
   getAccountById,
   updateAccount,
 } from "@/lib/queries";
+import { getUserDb } from "@/lib/db";
+import { getRequiredUserId } from "@/lib/auth-utils";
 import { revalidatePath } from "next/cache";
 
 export async function getAccountsAction() {
-  return getAllAccounts();
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  return getAllAccounts(db);
 }
 
 export async function getAccountAction(id: number) {
-  return getAccountById(id);
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  return getAccountById(db, id);
 }
 
 export async function createAccountAction(_prev: unknown, formData: FormData) {
@@ -27,7 +33,9 @@ export async function createAccountAction(_prev: unknown, formData: FormData) {
     return { error: "Nom et date du solde requis" };
   }
 
-  const account = await createAccount(name, initialBalance, balanceDate, currency);
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  const account = await createAccount(db, name, initialBalance, balanceDate, currency);
   revalidatePath("/");
   revalidatePath("/comptes");
   return { success: true, account };
@@ -46,14 +54,18 @@ export async function updateAccountAction(_prev: unknown, formData: FormData) {
     return { error: "Champs obligatoires manquants" };
   }
 
-  await updateAccount(id, name, initialBalance, balanceDate, currency, alertThreshold);
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  await updateAccount(db, id, name, initialBalance, balanceDate, currency, alertThreshold);
   revalidatePath("/");
   revalidatePath("/comptes");
   return { success: true };
 }
 
 export async function deleteAccountAction(id: number) {
-  await deleteAccount(id);
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  await deleteAccount(db, id);
   revalidatePath("/");
   revalidatePath("/comptes");
   return { success: true };

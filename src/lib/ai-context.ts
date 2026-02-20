@@ -1,9 +1,7 @@
-import { getDb, ensureSchema } from "./db";
+import type { Client } from "@libsql/client";
 import type { Account } from "./queries";
 
-export async function buildFinancialContext(accounts: Account[]): Promise<string> {
-  await ensureSchema();
-  const db = getDb();
+export async function buildFinancialContext(db: Client, accounts: Account[]): Promise<string> {
   const sections: string[] = [];
 
   const now = new Date();
@@ -21,7 +19,7 @@ export async function buildFinancialContext(accounts: Account[]): Promise<string
     if (account.alert_threshold != null) {
       lines.push(`- Seuil d'alerte : ${account.alert_threshold.toLocaleString("fr-FR")} ${account.currency}`);
       if (balance < account.alert_threshold) {
-        lines.push(`- ⚠ SOLDE SOUS LE SEUIL D'ALERTE`);
+        lines.push(`- SOLDE SOUS LE SEUIL D'ALERTE`);
       }
     }
 

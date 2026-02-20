@@ -6,10 +6,14 @@ import {
   deleteRecurringPayment,
   updateRecurringPayment,
 } from "@/lib/queries";
+import { getUserDb } from "@/lib/db";
+import { getRequiredUserId } from "@/lib/auth-utils";
 import { revalidatePath } from "next/cache";
 
 export async function getRecurringAction(accountId?: number) {
-  return getRecurringPayments(accountId);
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  return getRecurringPayments(db, accountId);
 }
 
 export async function createRecurringAction(_prev: unknown, formData: FormData) {
@@ -29,7 +33,9 @@ export async function createRecurringAction(_prev: unknown, formData: FormData) 
     return { error: "Champs obligatoires manquants" };
   }
 
-  const payment = await createRecurringPayment(accountId, name, type, amount, frequency, nextDate, category, endDate, subcategory);
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  const payment = await createRecurringPayment(db, accountId, name, type, amount, frequency, nextDate, category, endDate, subcategory);
   revalidatePath("/");
   revalidatePath("/recurrents");
   revalidatePath("/previsions");
@@ -54,7 +60,9 @@ export async function updateRecurringAction(_prev: unknown, formData: FormData) 
     return { error: "Champs obligatoires manquants" };
   }
 
-  await updateRecurringPayment(id, accountId, name, type, amount, frequency, nextDate, category, endDate, subcategory);
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  await updateRecurringPayment(db, id, accountId, name, type, amount, frequency, nextDate, category, endDate, subcategory);
   revalidatePath("/");
   revalidatePath("/recurrents");
   revalidatePath("/previsions");
@@ -62,7 +70,9 @@ export async function updateRecurringAction(_prev: unknown, formData: FormData) 
 }
 
 export async function deleteRecurringAction(id: number) {
-  await deleteRecurringPayment(id);
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  await deleteRecurringPayment(db, id);
   revalidatePath("/");
   revalidatePath("/recurrents");
   return { success: true };

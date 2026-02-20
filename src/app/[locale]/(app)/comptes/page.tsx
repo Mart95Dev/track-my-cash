@@ -1,4 +1,6 @@
 import { getAllAccounts } from "@/lib/queries";
+import { getUserDb } from "@/lib/db";
+import { getRequiredUserId } from "@/lib/auth-utils";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +13,9 @@ import { getTranslations } from "next-intl/server";
 export const dynamic = "force-dynamic";
 
 export default async function ComptesPage() {
-  const accounts = await getAllAccounts();
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  const accounts = await getAllAccounts(db);
   const t = await getTranslations("accounts");
 
   return (

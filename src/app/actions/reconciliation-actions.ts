@@ -1,6 +1,7 @@
 "use server";
 
-import { getDb, ensureSchema } from "@/lib/db";
+import { getUserDb } from "@/lib/db";
+import { getRequiredUserId } from "@/lib/auth-utils";
 import { revalidatePath } from "next/cache";
 
 export async function updateStatementAction(
@@ -8,8 +9,8 @@ export async function updateStatementAction(
   statementBalance: number,
   statementDate: string
 ) {
-  await ensureSchema();
-  const db = getDb();
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
   await db.execute({
     sql: "UPDATE accounts SET statement_balance = ?, statement_date = ? WHERE id = ?",
     args: [statementBalance, statementDate, accountId],
@@ -19,8 +20,8 @@ export async function updateStatementAction(
 }
 
 export async function toggleReconciledAction(transactionId: number, reconciled: boolean) {
-  await ensureSchema();
-  const db = getDb();
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
   await db.execute({
     sql: "UPDATE transactions SET reconciled = ? WHERE id = ?",
     args: [reconciled ? 1 : 0, transactionId],
@@ -31,8 +32,8 @@ export async function toggleReconciledAction(transactionId: number, reconciled: 
 }
 
 export async function getUnreconciledTransactions(accountId: number) {
-  await ensureSchema();
-  const db = getDb();
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
   const result = await db.execute({
     sql: "SELECT t.*, a.name as account_name FROM transactions t LEFT JOIN accounts a ON t.account_id = a.id WHERE t.account_id = ? AND (t.reconciled IS NULL OR t.reconciled = 0) ORDER BY t.date DESC LIMIT 50",
     args: [accountId],

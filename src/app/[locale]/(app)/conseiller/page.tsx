@@ -1,13 +1,17 @@
 import { getAllAccounts, getSetting } from "@/lib/queries";
+import { getUserDb } from "@/lib/db";
+import { getRequiredUserId } from "@/lib/auth-utils";
 import { AiChat } from "@/components/ai-chat";
 import { getTranslations } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function ConseillerPage() {
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
   const [accounts, apiKey, t] = await Promise.all([
-    getAllAccounts(),
-    getSetting("openrouter_api_key"),
+    getAllAccounts(db),
+    getSetting(db, "openrouter_api_key"),
     getTranslations("advisor"),
   ]);
 

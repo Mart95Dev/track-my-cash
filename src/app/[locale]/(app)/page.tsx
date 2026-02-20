@@ -6,6 +6,8 @@ import {
   getMonthlySummary,
   getAllAccounts,
 } from "@/lib/queries";
+import { getUserDb } from "@/lib/db";
+import { getRequiredUserId } from "@/lib/auth-utils";
 import { getExchangeRate } from "@/lib/currency";
 import { formatCurrency } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,15 +29,18 @@ export default async function DashboardPage({
   const accountId = params.accountId ? parseInt(params.accountId) : undefined;
   const t = await getTranslations("dashboard");
 
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+
   const [data, balanceHistory, expensesByPattern, expensesByBroad, monthlySummary, exchangeRate, accounts] =
     await Promise.all([
-      getDashboardData(accountId),
-      getMonthlyBalanceHistory(12, accountId),
-      getExpensesByCategory(accountId),
-      getExpensesByBroadCategory(accountId),
-      getMonthlySummary(accountId),
-      getExchangeRate(),
-      getAllAccounts(),
+      getDashboardData(db, accountId),
+      getMonthlyBalanceHistory(db, 12, accountId),
+      getExpensesByCategory(db, accountId),
+      getExpensesByBroadCategory(db, accountId),
+      getMonthlySummary(db, accountId),
+      getExchangeRate(db),
+      getAllAccounts(db),
     ]);
 
   const selectedAccount = accountId ? accounts.find((a) => a.id === accountId) : null;

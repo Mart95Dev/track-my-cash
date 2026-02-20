@@ -6,10 +6,14 @@ import {
   deleteTransaction,
   updateTransaction,
 } from "@/lib/queries";
+import { getUserDb } from "@/lib/db";
+import { getRequiredUserId } from "@/lib/auth-utils";
 import { revalidatePath } from "next/cache";
 
 export async function getTransactionsAction(accountId?: number) {
-  return getTransactions(accountId);
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  return getTransactions(db, accountId);
 }
 
 export async function createTransactionAction(_prev: unknown, formData: FormData) {
@@ -25,7 +29,9 @@ export async function createTransactionAction(_prev: unknown, formData: FormData
     return { error: "Champs obligatoires manquants" };
   }
 
-  const transaction = await createTransaction(accountId, type, amount, date, category, subcategory, description);
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  const transaction = await createTransaction(db, accountId, type, amount, date, category, subcategory, description);
   revalidatePath("/");
   revalidatePath("/transactions");
   return { success: true, transaction };
@@ -45,14 +51,18 @@ export async function updateTransactionAction(_prev: unknown, formData: FormData
     return { error: "Champs obligatoires manquants" };
   }
 
-  await updateTransaction(id, accountId, type, amount, date, category, subcategory, description);
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  await updateTransaction(db, id, accountId, type, amount, date, category, subcategory, description);
   revalidatePath("/");
   revalidatePath("/transactions");
   return { success: true };
 }
 
 export async function deleteTransactionAction(id: number) {
-  await deleteTransaction(id);
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  await deleteTransaction(db, id);
   revalidatePath("/");
   revalidatePath("/transactions");
   return { success: true };

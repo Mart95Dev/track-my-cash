@@ -8,6 +8,8 @@ import {
   getCategorizationRules,
   updateAccountBalance,
 } from "@/lib/queries";
+import { getUserDb } from "@/lib/db";
+import { getRequiredUserId } from "@/lib/auth-utils";
 import { revalidatePath } from "next/cache";
 
 // Applique les règles de catégorisation — retourne { category: catégorie large, subcategory: pattern }
@@ -64,8 +66,11 @@ export async function importFileAction(formData: FormData) {
     return { error: "Aucune transaction trouvée dans le fichier" };
   }
 
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+
   // Récupération des règles une seule fois pour toutes les transactions
-  const rules = await getCategorizationRules();
+  const rules = await getCategorizationRules(db);
 
   const transactionsWithHash = parseResult.transactions.map((t) => {
     const { category, subcategory } = applyRules(t.description, rules);
@@ -77,7 +82,7 @@ export async function importFileAction(formData: FormData) {
     };
   });
 
-  const existingHashes = await checkDuplicates(transactionsWithHash.map((t) => t.import_hash));
+  const existingHashes = await checkDuplicates(db, transactionsWithHash.map((t) => t.import_hash));
   const newTransactions = transactionsWithHash.filter((t) => !existingHashes.has(t.import_hash));
   const duplicateCount = transactionsWithHash.length - newTransactions.length;
 
@@ -131,7 +136,9 @@ export async function confirmImportAction(
     import_hash: t.import_hash,
   }));
 
-  const count = await bulkInsertTransactions(toInsert);
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  const count = await bulkInsertTransactions(db, toInsert);
 
   // Mise à jour du solde de référence si le relevé fournit un solde détecté.
   // balance_date = lendemain de la dernière tx pour éviter le double comptage.
@@ -151,7 +158,7 @@ export async function confirmImportAction(
     newBalanceDate = nextDay.toISOString().split("T")[0];
     newBalance = detectedBalance;
 
-    await updateAccountBalance(accountId, newBalance, newBalanceDate);
+    await updateAccountBalance(db, accountId, newBalance, newBalanceDate);
     balanceUpdated = true;
   }
 
