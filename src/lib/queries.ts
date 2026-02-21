@@ -85,6 +85,23 @@ export interface DetailedForecastResult {
   totalExpenses: number;
 }
 
+export interface Budget {
+  id: number;
+  account_id: number;
+  category: string;
+  amount_limit: number;
+  period: "monthly" | "yearly";
+  created_at: string;
+}
+
+export interface BudgetStatus {
+  category: string;
+  spent: number;
+  limit: number;
+  percentage: number;
+  period: "monthly" | "yearly";
+}
+
 function rowToAccount(row: Row): Account {
   return {
     id: Number(row.id),
@@ -906,4 +923,74 @@ export async function setSetting(db: Client, key: string, value: string): Promis
     sql: "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
     args: [key, value],
   });
+}
+
+// ============ BUDGETS ============
+
+export async function getBudgets(db: Client, accountId: number): Promise<Budget[]> {
+  const result = await db.execute({
+    sql: "SELECT * FROM budgets WHERE account_id = ? ORDER BY category",
+    args: [accountId],
+  });
+  return result.rows.map((row) => ({
+    id: Number(row.id),
+    account_id: Number(row.account_id),
+    category: String(row.category),
+    amount_limit: Number(row.amount_limit),
+    period: String(row.period) as "monthly" | "yearly",
+    created_at: String(row.created_at),
+  }));
+}
+
+export async function getBudgetStatus(
+  db: Client,
+  accountId: number
+): Promise<BudgetStatus[]> {
+  const now = new Date();
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split("T")[0];
+
+  const result = await db.execute({
+    sql: `
+      SELECT b.category, b.amount_limit, b.period,
+             COALESCE(SUM(t.amount), 0) as spent
+      FROM budgets b
+      LEFT JOIN transactions t ON t.account_id = b.account_id
+        AND t.category = b.category
+        AND t.type = 'expense'
+        AND t.date >= ? AND t.date <= ?
+      WHERE b.account_id = ?
+      GROUP BY b.id
+    `,
+    args: [firstDay, lastDay, accountId],
+  });
+
+  return result.rows.map((row) => ({
+    category: String(row.category),
+    spent: Number(row.spent),
+    limit: Number(row.amount_limit),
+    percentage: Number(row.amount_limit) > 0
+      ? (Number(row.spent) / Number(row.amount_limit)) * 100
+      : 0,
+    period: String(row.period) as "monthly" | "yearly",
+  }));
+}
+
+export async function upsertBudget(
+  db: Client,
+  accountId: number,
+  category: string,
+  amountLimit: number,
+  period: "monthly" | "yearly"
+): Promise<void> {
+  await db.execute({
+    sql: `INSERT INTO budgets (account_id, category, amount_limit, period)
+          VALUES (?, ?, ?, ?)
+          ON CONFLICT(account_id, category) DO UPDATE SET amount_limit = excluded.amount_limit, period = excluded.period`,
+    args: [accountId, category, amountLimit, period],
+  });
+}
+
+export async function deleteBudget(db: Client, id: number): Promise<void> {
+  await db.execute({ sql: "DELETE FROM budgets WHERE id = ?", args: [id] });
 }

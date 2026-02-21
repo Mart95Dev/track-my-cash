@@ -112,6 +112,15 @@ export async function initSchema() {
     "ALTER TABLE recurring_payments ADD COLUMN subcategory TEXT",
     "ALTER TABLE transactions ADD COLUMN subcategory TEXT",
     "ALTER TABLE accounts ADD COLUMN last_alert_sent_at TEXT",
+    `CREATE TABLE IF NOT EXISTS budgets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+      category TEXT NOT NULL,
+      amount_limit REAL NOT NULL,
+      period TEXT NOT NULL DEFAULT 'monthly',
+      created_at TEXT DEFAULT (datetime('now'))
+    )`,
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_budgets_account_category ON budgets(account_id, category)",
     // Migre les anciennes lignes : l'ancien category (pattern) → subcategory,
     // et dérive la catégorie large depuis les règles → category.
     // WHERE subcategory IS NULL cible uniquement les lignes pré-migration.

@@ -6,6 +6,7 @@ import {
   getMonthlySummary,
   getAllAccounts,
   getSetting,
+  getBudgetStatus,
 } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
@@ -17,6 +18,7 @@ import { BalanceEvolutionChart } from "@/components/charts/balance-evolution-cha
 import { ExpenseBreakdownChart } from "@/components/charts/expense-breakdown-chart";
 import { MonthlySummary } from "@/components/monthly-summary";
 import { AccountFilter } from "@/components/account-filter";
+import { BudgetProgress } from "@/components/budget-progress";
 import { getTranslations, getLocale } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
@@ -34,7 +36,7 @@ export default async function DashboardPage({
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
 
-  const [data, balanceHistory, expensesByPattern, expensesByBroad, monthlySummary, rates, accounts, refCurrencySetting] =
+  const [data, balanceHistory, expensesByPattern, expensesByBroad, monthlySummary, rates, accounts, refCurrencySetting, budgetStatuses] =
     await Promise.all([
       getDashboardData(db, accountId),
       getMonthlyBalanceHistory(db, 12, accountId),
@@ -44,6 +46,7 @@ export default async function DashboardPage({
       getAllRates(db),
       getAllAccounts(db),
       getSetting(db, "reference_currency"),
+      accountId ? getBudgetStatus(db, accountId) : Promise.resolve([]),
     ]);
 
   const refCurrency = refCurrencySetting ?? REFERENCE_CURRENCY;
@@ -200,6 +203,26 @@ export default async function DashboardPage({
           </CardHeader>
           <CardContent>
             <ExpenseBreakdownChart data={expensesByPattern} />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Budgets */}
+      {budgetStatuses.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Budgets du mois</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {budgetStatuses.map((b) => (
+                <BudgetProgress
+                  key={b.category}
+                  budget={b}
+                  currency={selectedAccount?.currency ?? "EUR"}
+                />
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}

@@ -8,7 +8,8 @@ import { CurrencySettings } from "@/components/currency-settings";
 import { OpenRouterKeySettings } from "@/components/openrouter-key-settings";
 import { BillingPortalButton } from "@/components/billing-portal-button";
 import { DeleteUserAccountDialog } from "@/components/delete-user-account-dialog";
-import { getCategorizationRules, getSetting } from "@/lib/queries";
+import { BudgetForm } from "@/components/budget-form";
+import { getCategorizationRules, getSetting, getAllAccounts, getBudgets } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { getExchangeRate } from "@/lib/currency";
@@ -24,7 +25,7 @@ export default async function ParametresPage() {
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
 
-  const [rules, tags, liveRate, fallbackRateStr, openrouterKey, subscription, t] = await Promise.all([
+  const [rules, tags, liveRate, fallbackRateStr, openrouterKey, subscription, t, accounts] = await Promise.all([
     getCategorizationRules(db),
     getTagsAction(),
     getExchangeRate(db),
@@ -32,7 +33,12 @@ export default async function ParametresPage() {
     getSetting(db, "openrouter_api_key"),
     getUserSubscription(),
     getTranslations("settings"),
+    getAllAccounts(db),
   ]);
+
+  // Budgets pour le premier compte (si présent)
+  const firstAccount = accounts[0];
+  const budgets = firstAccount ? await getBudgets(db, firstAccount.id) : [];
 
   const plan = getPlan(subscription.planId);
   const renewalDate = subscription.currentPeriodEnd
@@ -105,6 +111,21 @@ export default async function ParametresPage() {
           />
         </CardContent>
       </Card>
+
+      {firstAccount && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Budgets mensuels</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Définissez des budgets par catégorie pour {firstAccount.name}. Une barre de progression apparaîtra
+              sur le tableau de bord.
+            </p>
+            <BudgetForm accountId={firstAccount.id} budgets={budgets} />
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
