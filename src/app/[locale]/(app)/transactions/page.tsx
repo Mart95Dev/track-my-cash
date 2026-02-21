@@ -1,4 +1,4 @@
-import { searchTransactions, getAllAccounts, getCategorizationRules } from "@/lib/queries";
+import { searchTransactions, getAllAccounts, getCategorizationRules, getUncategorizedTransactions } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { formatCurrency, formatDate } from "@/lib/format";
@@ -20,6 +20,8 @@ import { TransactionSearch } from "@/components/transaction-search";
 import { TransactionTagPopover } from "@/components/transaction-tag-popover";
 import { Pagination } from "@/components/pagination";
 import { ExportTransactions } from "@/components/export-transactions";
+import { AutoCategorizeButton } from "@/components/auto-categorize-button";
+import { canUseAI } from "@/lib/subscription-utils";
 import { getTagsAction, getTransactionTagsBatchAction } from "@/app/actions/tag-actions";
 import { getTranslations, getLocale } from "next-intl/server";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -45,11 +47,13 @@ export default async function TransactionsPage({
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
 
-  const [{ transactions, total }, accounts, rules, allTags] = await Promise.all([
+  const [{ transactions, total }, accounts, rules, allTags, uncategorized, aiAccess] = await Promise.all([
     searchTransactions(db, { accountId, search, sort, page, perPage, tagId }),
     getAllAccounts(db),
     getCategorizationRules(db),
     getTagsAction(),
+    getUncategorizedTransactions(db, 50),
+    canUseAI(userId),
   ]);
 
   const txIds = transactions.map((tx) => tx.id);
@@ -82,7 +86,12 @@ export default async function TransactionsPage({
           tags={allTags}
           currentTagId={tagId}
         />
-        <ExportTransactions transactions={transactions} accounts={accounts} />
+        <div className="flex items-center gap-2">
+          {aiAccess.allowed && (
+            <AutoCategorizeButton uncategorizedCount={uncategorized.length} />
+          )}
+          <ExportTransactions transactions={transactions} accounts={accounts} />
+        </div>
       </div>
 
       <Card>
