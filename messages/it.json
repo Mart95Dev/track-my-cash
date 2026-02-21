@@ -413,5 +413,18 @@
     "ctaTitle": "Pronto a riprendere il controllo delle tue finanze?",
     "ctaSubtitle": "Unisciti a migliaia di utenti che gestiscono le loro finanze con serenità.",
     "ctaButton": "Crea il mio account gratuito"
+  },
+  "errors": {
+    "notFound": {
+      "title": "Pagina non trovata",
+      "description": "Questa pagina non esiste o è stata spostata.",
+      "backHome": "Torna alla home",
+      "dashboard": "Dashboard"
+    },
+    "serverError": {
+      "title": "Si è verificato un errore",
+      "description": "Qualcosa è andato storto. Riprova.",
+      "retry": "Riprova"
+    }
   }
 }

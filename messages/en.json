@@ -413,5 +413,18 @@
     "ctaTitle": "Ready to take control of your finances?",
     "ctaSubtitle": "Join thousands of users who manage their finances with peace of mind.",
     "ctaButton": "Create my free account"
+  },
+  "errors": {
+    "notFound": {
+      "title": "Page not found",
+      "description": "This page does not exist or has been moved.",
+      "backHome": "Back to home",
+      "dashboard": "Dashboard"
+    },
+    "serverError": {
+      "title": "An error occurred",
+      "description": "Something went wrong. Please try again.",
+      "retry": "Try again"
+    }
   }
 }

@@ -413,5 +413,18 @@
     "ctaTitle": "Bereit, die Kontrolle über Ihre Finanzen zurückzugewinnen?",
     "ctaSubtitle": "Schließen Sie sich Tausenden von Nutzern an, die ihre Finanzen gelassen verwalten.",
     "ctaButton": "Mein kostenloses Konto erstellen"
+  },
+  "errors": {
+    "notFound": {
+      "title": "Seite nicht gefunden",
+      "description": "Diese Seite existiert nicht oder wurde verschoben.",
+      "backHome": "Zurück zur Startseite",
+      "dashboard": "Dashboard"
+    },
+    "serverError": {
+      "title": "Ein Fehler ist aufgetreten",
+      "description": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+      "retry": "Erneut versuchen"
+    }
   }
 }
