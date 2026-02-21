@@ -17,6 +17,27 @@ interface MonthData {
   income: number;
   expenses: number;
   net: number;
+  savingsRate?: number | null;
+}
+
+function SavingsRateBadge({ rate }: { rate: number | null | undefined }) {
+  if (rate == null) {
+    return <span className="text-muted-foreground">—</span>;
+  }
+  const isPositive = rate >= 0;
+  return (
+    <span
+      data-testid="savings-rate-badge"
+      className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${
+        isPositive
+          ? "bg-income/10 text-income border border-income/20"
+          : "bg-expense/10 text-expense border border-expense/20"
+      }`}
+    >
+      {rate >= 0 ? "+" : ""}
+      {rate.toFixed(1)}%
+    </span>
+  );
 }
 
 export function MonthlySummary({ data }: { data: MonthData[] }) {
@@ -39,6 +60,7 @@ export function MonthlySummary({ data }: { data: MonthData[] }) {
                 <TableHead className="text-right">{t("income")}</TableHead>
                 <TableHead className="text-right">{t("expenses")}</TableHead>
                 <TableHead className="text-right">{t("netBalance")}</TableHead>
+                <TableHead className="text-right">Épargne</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -61,6 +83,9 @@ export function MonthlySummary({ data }: { data: MonthData[] }) {
                           ({evolution >= 0 ? "+" : ""}{evolution.toFixed(0)}%)
                         </span>
                       )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <SavingsRateBadge rate={m.savingsRate} />
                     </TableCell>
                   </TableRow>
                 );

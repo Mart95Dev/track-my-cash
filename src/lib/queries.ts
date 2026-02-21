@@ -340,12 +340,13 @@ export async function getMonthlySummary(db: Client, accountId?: number) {
     args,
   });
 
-  return result.rows.map((row) => ({
-    month: String(row.month),
-    income: Number(row.income),
-    expenses: Number(row.expenses),
-    net: Number(row.income) - Number(row.expenses),
-  }));
+  return result.rows.map((row) => {
+    const income = Number(row.income);
+    const expenses = Number(row.expenses);
+    const net = income - expenses;
+    const savingsRate = income > 0 ? (net / income) * 100 : null;
+    return { month: String(row.month), income, expenses, net, savingsRate };
+  });
 }
 
 export async function getExpensesByCategory(db: Client, accountId?: number) {
