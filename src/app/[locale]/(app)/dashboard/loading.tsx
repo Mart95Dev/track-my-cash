@@ -49,6 +49,15 @@ export default function DashboardLoading() {
           </Card>
         ))}
       </div>
+      {/* Graphique tendances */}
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-5 w-56" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-72 w-full" />
+        </CardContent>
+      </Card>
     </div>
   );
 }

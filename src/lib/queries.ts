@@ -405,6 +405,40 @@ export async function getExpensesByBroadCategory(db: Client, accountId?: number)
   }));
 }
 
+export interface SpendingTrendEntry {
+  month: string;
+  category: string;
+  amount: number;
+}
+
+export async function getSpendingTrend(
+  db: Client,
+  months: number,
+  accountId?: number
+): Promise<SpendingTrendEntry[]> {
+  const where = accountId
+    ? "type = 'expense' AND date >= date('now', ?) AND account_id = ?"
+    : "type = 'expense' AND date >= date('now', ?)";
+  const args: (string | number)[] = accountId
+    ? [`-${months} months`, accountId]
+    : [`-${months} months`];
+
+  const result = await db.execute({
+    sql: `SELECT strftime('%Y-%m', date) as month, category, SUM(amount) as total
+      FROM transactions
+      WHERE ${where}
+      GROUP BY month, category
+      ORDER BY month ASC, total DESC`,
+    args,
+  });
+
+  return result.rows.map((row) => ({
+    month: String(row.month),
+    category: String(row.category),
+    amount: Number(row.total),
+  }));
+}
+
 export async function createTransaction(
   db: Client,
   accountId: number,

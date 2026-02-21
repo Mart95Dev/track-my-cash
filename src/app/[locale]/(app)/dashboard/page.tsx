@@ -4,6 +4,7 @@ import {
   getExpensesByCategory,
   getExpensesByBroadCategory,
   getMonthlySummary,
+  getSpendingTrend,
   getAllAccounts,
   getSetting,
   getBudgetStatus,
@@ -19,6 +20,7 @@ import { ExpenseBreakdownChart } from "@/components/charts/expense-breakdown-cha
 import { MonthlySummary } from "@/components/monthly-summary";
 import { AccountFilter } from "@/components/account-filter";
 import { BudgetProgress } from "@/components/budget-progress";
+import { SpendingTrendChart } from "@/components/charts/spending-trend-chart";
 import { getTranslations, getLocale } from "next-intl/server";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LayoutDashboard } from "lucide-react";
@@ -39,13 +41,14 @@ export default async function DashboardPage({
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
 
-  const [data, balanceHistory, expensesByPattern, expensesByBroad, monthlySummary, rates, accounts, refCurrencySetting, budgetStatuses, onboardingCompleted] =
+  const [data, balanceHistory, expensesByPattern, expensesByBroad, monthlySummary, spendingTrend, rates, accounts, refCurrencySetting, budgetStatuses, onboardingCompleted] =
     await Promise.all([
       getDashboardData(db, accountId),
       getMonthlyBalanceHistory(db, 12, accountId),
       getExpensesByCategory(db, accountId),
       getExpensesByBroadCategory(db, accountId),
       getMonthlySummary(db, accountId),
+      getSpendingTrend(db, 6, accountId),
       getAllRates(db),
       getAllAccounts(db),
       getSetting(db, "reference_currency"),
@@ -244,6 +247,21 @@ export default async function DashboardPage({
                 />
               ))}
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Tendances dépenses 6 mois */}
+      {spendingTrend.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Tendances des dépenses (6 mois)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SpendingTrendChart
+              data={spendingTrend}
+              currency={selectedAccount?.currency ?? refCurrency}
+            />
           </CardContent>
         </Card>
       )}
