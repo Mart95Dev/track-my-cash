@@ -1,82 +1,91 @@
 sprint:
-  id: sprint-ux-stabilite
-  goal: "Activation utilisateur, polish UX, dette technique, rétention budgets"
+  id: sprint-objectifs-intelligence
+  goal: "Objectifs d'épargne + Catégorisation IA + PWA + PDF + Notifications + Prévisions IA"
   start_date: "2026-02-21"
-  end_date: null
-  status: completed
   end_date: "2026-02-21"
+  status: completed
 
 stories:
-  - id: STORY-019
-    title: "Fix ESLint set-state-in-effect (3 dialogs)"
-    complexity: XS
-    priority: P0
-    status: completed
-    blockedBy: []
-    points: 1
-    commit: "5c2fb87"
+  # === SPRINT OBJECTIFS & INTELLIGENCE ===
 
-  - id: STORY-020
-    title: "Pages d'erreur (404, 500, error.tsx)"
-    complexity: S
-    priority: P0
-    status: completed
-    blockedBy: ["STORY-019"]
-    points: 2
-    commit: "f5307b5"
-
-  - id: STORY-021
-    title: "Empty states avec guidance contextuelle"
-    complexity: S
-    priority: P1
-    status: completed
-    blockedBy: ["STORY-020"]
-    points: 3
-    commit: "9f730f3"
-
-  - id: STORY-022
-    title: "Onboarding first-time (wizard post-inscription)"
+  - id: STORY-033
+    title: "Objectifs d'épargne (Savings Goals)"
+    epic: objectifs
     complexity: M
     priority: P1
     status: completed
-    blockedBy: ["STORY-021"]
-    points: 5
-    commit: "cabf216"
+    blockedBy: []
+    points: 3
+    commit: "607d5ee"
+    tests: 5
 
-  - id: STORY-023
-    title: "Skeleton screens (loading states)"
+  - id: STORY-034
+    title: "Catégorisation automatique des transactions par IA"
+    epic: intelligence
+    complexity: M
+    priority: P1
+    status: completed
+    blockedBy: []
+    points: 3
+    commit: "542857e"
+    tests: 5
+
+  - id: STORY-035
+    title: "PWA installable (manifest + install prompt)"
+    epic: mobile
     complexity: S
     priority: P2
     status: completed
-    blockedBy: ["STORY-022"]
-    points: 3
-    commit: "f21a0ec"
+    blockedBy: []
+    points: 2
+    commit: "81a4cbf"
+    tests: 5
 
-  - id: STORY-024
-    title: "Alerte email budget (seuil 80% et dépassement)"
+  - id: STORY-036
+    title: "Export rapport PDF mensuel"
+    epic: objectifs
+    complexity: M
+    priority: P2
+    status: completed
+    blockedBy: ["STORY-033"]
+    points: 3
+    commit: "8792f0f"
+    tests: 5
+
+  - id: STORY-037
+    title: "Centre de notifications in-app"
+    epic: ux
     complexity: S
     priority: P2
     status: completed
-    blockedBy: ["STORY-023"]
+    blockedBy: ["STORY-033"]
+    points: 2
+    commit: "5e3fe8d"
+    tests: 5
+
+  - id: STORY-038
+    title: "Prévisions intelligentes (AI spending forecast)"
+    epic: intelligence
+    complexity: M
+    priority: P2
+    status: completed
+    blockedBy: ["STORY-034"]
     points: 3
-    commit: "711a170"
+    commit: "dc214d6"
+    tests: 5
 
 metrics:
   total: 6
   completed: 6
   in_progress: 0
   pending: 0
-  total_points: 17
-
-  qa_verdict: PASS
-  qa_tests: 184
-  qa_commit: "1862e93"
+  total_points: 16
+  tests_total: 253
 
 previous_sprint:
-  id: sprint-growth-qualite
-  stories: 10
-  completed: 10
+  id: sprint-retention-technique
+  stories: 8
+  completed: 8
   qa_verdict: PASS
-  tests: 156
-  coverage_lines: 90.54
-  commit: "f7af356"
+  tests: 223
+  commit: "079dec6"

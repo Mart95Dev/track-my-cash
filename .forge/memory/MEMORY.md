@@ -28,11 +28,13 @@ SaaS freemium avec abonnements Stripe, conseiller IA multi-modèles, multi-devis
 
 ## Commits récents
 
-- `f664d8c` feat(sprint-qualite): 8 stories — corrections bugs et finitions
-- `afb8c73` feat(phase-5): préparation déploiement Vercel
-- `60288da` feat(phase-4): freemium guards selon le plan
-- `e6cdb32` feat(phase-3): Stripe subscriptions
-- `3b2a392` feat(phase-2.6): conseiller IA multi-modèles
+- `079dec6` feat(story-032): cache devises persisté en base de données
+- `706988a` feat(story-031): tests server actions account + budget
+- `7f63231` feat(story-029+030): rate limiting /api/chat 30 req/h
+- `ea59753` feat(story-028): widget taux d'épargne dans MonthlySummary
+- `6fbd6d5` feat(story-027): graphique tendances dépenses 6 mois
+- `846d010` feat(story-026): récapitulatif email mensuel
+- `c045d0a` feat(story-025,029): export CSV RFC 4180 + en-têtes sécurité HTTP
 
 ## Décisions architecturales
 
@@ -85,7 +87,43 @@ QA : 156 tests, 0 fail, couverture 90.54% lignes, TypeScript 0 erreur.
 - Dashboard : `getAllRates()` + `convertToReference()`, lire `reference_currency` en settings
 - Tags transactions : `getTransactionTagsBatchAction(txIds)` pour batch (1 requête)
 
+## Sprint Objectifs & Intelligence — TERMINÉ + QA PASS (2026-02-21)
+
+6/6 stories complétées, 253 tests, 0 échec, TypeScript clean (commit `dc214d6`).
+
+- STORY-033 : Objectifs d'épargne — table `goals`, page /objectifs, SavingsGoalsWidget dashboard
+- STORY-034 : Catégorisation IA — autoCategorizeAction (OpenRouter gpt-4o-mini), AutoCategorizeButton
+- STORY-035 : PWA installable — manifest.ts, icônes 192/512, PwaInstallBanner (beforeinstallprompt + iOS)
+- STORY-036 : Rapport PDF mensuel — generateMonthlyReportAction (jspdf), MonthlyReportButton dans /parametres
+- STORY-037 : Notifications in-app — table `notifications`, NotificationsBell (Popover + badge), layout.tsx
+- STORY-038 : Prévisions IA — computeForecast() logique pure, ForecastTable, AIForecastInsights (3 insights via OpenRouter)
+
+**Patterns nouveaux :**
+- Freemium AI guard : `canUseAI(userId)` → `{ allowed, reason }`
+- Navigation rightSlot : `<Navigation rightSlot={...} />` pour injecter contenu serveur dans header client
+- vi.hoisted() pour mocks de classes dans Vitest (évite hoisting issues avec vi.fn() dans factory)
+- Dynamic import jspdf/jspdf-autotable dans les Server Actions (évite erreur SSR)
+
+## Sprint Rétention & Technique — TERMINÉ + QA PASS (2026-02-21)
+
+8/8 stories complétées, 223 tests, 0 échec, TypeScript clean (commit `079dec6`).
+
+**Sprint Rétention :**
+- STORY-025 : Export CSV RFC 4180 — `src/lib/csv-export.ts`, BOM UTF-8, 8 colonnes
+- STORY-026 : Email récapitulatif mensuel — `sendMonthlySummaryAction()`, template HTML, bouton dans /parametres
+- STORY-027 : Graphique tendances dépenses — `SpendingTrendChart` (Recharts stacked), `getSpendingTrend()` dans queries
+- STORY-028 : Widget taux d'épargne — `savingsRate` dans getMonthlySummary, `SavingsRateBadge` dans MonthlySummary
+
+**Sprint Technique :**
+- STORY-029 : En-têtes sécurité HTTP — `headers()` dans next.config.ts (X-Frame-Options, CSP, etc.)
+- STORY-030 : Rate limiting /api/chat — `src/lib/rate-limiter.ts`, 30 req/h par userId, Map en mémoire
+- STORY-031 : Tests server actions — account-actions (4 tests) + budget-actions (4 tests), vi.mock complet
+- STORY-032 : Cache devises DB — fire-and-forget setSetting + fallback getSetting dans getAllRates()
+
 **Coverage QA — scope actuel :**
-- `src/lib/format.ts` : 100% (formatCurrency, formatDate)
-- `src/lib/currency.ts` : 84% (convertToReference, convertFromReference, getAllRates, getExchangeRate)
-- Server actions et parsers : non testés (nécessitent mocks auth+db complexes — sprint suivant)
+- `src/lib/format.ts` : 100%
+- `src/lib/currency.ts` : 100% (avec cache DB)
+- `src/lib/rate-limiter.ts` : 100%
+- `src/lib/csv-export.ts` : 100%
+- Server actions account + budget : testés avec vi.mock
+- 35 fichiers de test, 223 tests au total
