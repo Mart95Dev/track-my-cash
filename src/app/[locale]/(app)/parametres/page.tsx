@@ -7,6 +7,7 @@ import { TagManager } from "@/components/tag-manager";
 import { CurrencySettings } from "@/components/currency-settings";
 import { OpenRouterKeySettings } from "@/components/openrouter-key-settings";
 import { BillingPortalButton } from "@/components/billing-portal-button";
+import { DeleteUserAccountDialog } from "@/components/delete-user-account-dialog";
 import { getCategorizationRules, getSetting } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
@@ -138,6 +139,14 @@ export default async function ParametresPage() {
           <p className="text-sm text-muted-foreground">
             {t("danger.description")}
           </p>
+          <div className="pt-4 border-t border-destructive/20">
+            <p className="text-sm font-medium text-destructive mb-2">Suppression du compte (RGPD)</p>
+            <p className="text-sm text-muted-foreground mb-4">
+              Supprime définitivement votre compte, toutes vos données et annule votre abonnement actif.
+              Cette action est irréversible.
+            </p>
+            <DeleteUserAccountDialog />
+          </div>
         </CardContent>
       </Card>
     </div>
