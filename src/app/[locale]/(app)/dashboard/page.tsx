@@ -22,6 +22,7 @@ import { BudgetProgress } from "@/components/budget-progress";
 import { getTranslations, getLocale } from "next-intl/server";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LayoutDashboard } from "lucide-react";
+import { OnboardingWizard } from "@/components/onboarding-wizard";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +39,7 @@ export default async function DashboardPage({
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
 
-  const [data, balanceHistory, expensesByPattern, expensesByBroad, monthlySummary, rates, accounts, refCurrencySetting, budgetStatuses] =
+  const [data, balanceHistory, expensesByPattern, expensesByBroad, monthlySummary, rates, accounts, refCurrencySetting, budgetStatuses, onboardingCompleted] =
     await Promise.all([
       getDashboardData(db, accountId),
       getMonthlyBalanceHistory(db, 12, accountId),
@@ -49,7 +50,10 @@ export default async function DashboardPage({
       getAllAccounts(db),
       getSetting(db, "reference_currency"),
       accountId ? getBudgetStatus(db, accountId) : Promise.resolve([]),
+      getSetting(db, "onboarding_completed"),
     ]);
+
+  const showOnboarding = !onboardingCompleted && accounts.length === 0;
 
   const refCurrency = refCurrencySetting ?? REFERENCE_CURRENCY;
   const selectedAccount = accountId ? accounts.find((a) => a.id === accountId) : null;
@@ -76,6 +80,7 @@ export default async function DashboardPage({
           description={t("emptyDescription")}
           action={{ label: t("emptyCta"), href: `/${locale}/comptes` }}
         />
+        {showOnboarding && <OnboardingWizard open={true} />}
       </div>
     );
   }
