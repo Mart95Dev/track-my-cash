@@ -127,4 +127,40 @@ describe("checkAndSendBudgetAlerts", () => {
     const { checkAndSendBudgetAlerts } = await import("@/lib/budget-alert-service");
     await expect(checkAndSendBudgetAlerts(mockDb, 1, "user@example.com")).resolves.toBeUndefined();
   });
+
+  it("TU-1-7 : si sendEmail retourne { success: false } → DB NOT mise à jour", async () => {
+    mockGetBudgets.mockResolvedValue([baseBudget]);
+    mockGetBudgetStatus.mockResolvedValue([
+      { category: "Alimentation", spent: 420, limit: 500, percentage: 84, period: "monthly" },
+    ]);
+    mockSendEmail.mockResolvedValue({ success: false });
+    const { checkAndSendBudgetAlerts } = await import("@/lib/budget-alert-service");
+    await checkAndSendBudgetAlerts(mockDb, 1, "user@example.com");
+    expect(mockDbExecute).not.toHaveBeenCalled();
+  });
+
+  it("TU-1-8 : escalade 'warning' → 'exceeded' autorisée (sendEmail appelé)", async () => {
+    mockGetBudgets.mockResolvedValue([
+      { ...baseBudget, last_budget_alert_type: "warning" },
+    ]);
+    mockGetBudgetStatus.mockResolvedValue([
+      { category: "Alimentation", spent: 550, limit: 500, percentage: 110, period: "monthly" },
+    ]);
+    const { checkAndSendBudgetAlerts } = await import("@/lib/budget-alert-service");
+    await checkAndSendBudgetAlerts(mockDb, 1, "user@example.com");
+    expect(mockSendEmail).toHaveBeenCalledOnce();
+    expect(mockSendEmail.mock.calls[0][0].subject).toContain("🚨");
+  });
+
+  it("TU-1-9 : multi-budgets — deux catégories à 80%+ → deux emails envoyés", async () => {
+    const budget2 = { ...baseBudget, id: 2, category: "Transport", last_budget_alert_type: null };
+    mockGetBudgets.mockResolvedValue([baseBudget, budget2]);
+    mockGetBudgetStatus.mockResolvedValue([
+      { category: "Alimentation", spent: 420, limit: 500, percentage: 84, period: "monthly" },
+      { category: "Transport", spent: 190, limit: 200, percentage: 95, period: "monthly" },
+    ]);
+    const { checkAndSendBudgetAlerts } = await import("@/lib/budget-alert-service");
+    await checkAndSendBudgetAlerts(mockDb, 1, "user@example.com");
+    expect(mockSendEmail).toHaveBeenCalledTimes(2);
+  });
 });
