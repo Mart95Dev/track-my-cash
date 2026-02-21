@@ -48,13 +48,13 @@ export function MonthlySummary({ data }: { data: MonthData[] }) {
                 return (
                   <TableRow key={m.month}>
                     <TableCell className="font-medium">{m.month}</TableCell>
-                    <TableCell className="text-right text-green-600 dark:text-green-400">
+                    <TableCell className="text-right text-income">
                       {formatCurrency(m.income, "EUR", locale)}
                     </TableCell>
-                    <TableCell className="text-right text-red-600 dark:text-red-400">
+                    <TableCell className="text-right text-expense">
                       {formatCurrency(m.expenses, "EUR", locale)}
                     </TableCell>
-                    <TableCell className={`text-right font-medium ${m.net >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                    <TableCell className={`text-right font-medium ${m.net >= 0 ? "text-income" : "text-expense"}`}>
                       {formatCurrency(m.net, "EUR", locale)}
                       {evolution !== null && (
                         <span className="text-xs text-muted-foreground ml-1">

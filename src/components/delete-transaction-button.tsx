@@ -14,7 +14,7 @@ export function DeleteTransactionButton({ id }: { id: number }) {
   return (
     <ConfirmDialog
       trigger={
-        <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300" disabled={isPending}>
+        <Button variant="outline" size="sm" className="text-destructive hover:text-destructive/80 border-destructive/20 hover:border-destructive/40" disabled={isPending}>
           {isPending ? "..." : t("button")}
         </Button>
       }

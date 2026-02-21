@@ -131,8 +131,8 @@ export default async function TransactionsPage({
                         <TableCell
                           className={`text-right font-medium whitespace-nowrap ${
                             tx.type === "income"
-                              ? "text-green-600 dark:text-green-400"
-                              : "text-red-600 dark:text-red-400"
+                              ? "text-income"
+                              : "text-expense"
                           }`}
                         >
                           {tx.type === "income" ? "+" : "-"}
@@ -163,8 +163,8 @@ export default async function TransactionsPage({
                         <span
                           className={`font-medium ${
                             tx.type === "income"
-                              ? "text-green-600 dark:text-green-400"
-                              : "text-red-600 dark:text-red-400"
+                              ? "text-income"
+                              : "text-expense"
                           }`}
                         >
                           {tx.type === "income" ? "+" : "-"}

@@ -27,7 +27,7 @@ export function BillingPortalButton() {
       <Button onClick={handleClick} disabled={isPending}>
         {isPending ? "Redirection…" : "Gérer mon abonnement"}
       </Button>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }

@@ -69,7 +69,7 @@ export function AiAccountSelector({
               </div>
               <p
                 className={`text-xs mt-0.5 font-mono ${
-                  balance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                  balance >= 0 ? "text-income" : "text-expense"
                 }`}
               >
                 {formatCurrency(balance, account.currency, locale)}

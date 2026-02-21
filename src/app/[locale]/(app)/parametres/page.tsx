@@ -55,14 +55,14 @@ export default async function ParametresPage() {
               {plan.id === "free" ? "Gratuit" : `${plan.price}€/mois`}
             </Badge>
             {subscription.status === "active" && plan.id !== "free" && (
-              <Badge variant="outline" className="text-green-600 border-green-400">Actif</Badge>
+              <Badge variant="outline" className="text-income border-income/50">Actif</Badge>
             )}
           </div>
           {renewalDate && !subscription.cancelAtPeriodEnd && (
             <p className="text-sm text-muted-foreground">Renouvellement le {renewalDate}</p>
           )}
           {renewalDate && subscription.cancelAtPeriodEnd && (
-            <p className="text-sm text-orange-600">Annulation en cours — actif jusqu&apos;au {renewalDate}</p>
+            <p className="text-sm text-warning">Annulation en cours — actif jusqu&apos;au {renewalDate}</p>
           )}
           {subscription.stripeCustomerId && <BillingPortalButton />}
         </CardContent>
@@ -129,9 +129,9 @@ export default async function ParametresPage() {
         </CardContent>
       </Card>
 
-      <Card className="border-red-200 dark:border-red-900">
+      <Card className="border-destructive/20">
         <CardHeader>
-          <CardTitle className="text-red-600 dark:text-red-400">{t("danger.title")}</CardTitle>
+          <CardTitle className="text-destructive">{t("danger.title")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <ResetButton />

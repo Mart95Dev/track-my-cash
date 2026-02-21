@@ -86,7 +86,7 @@ export default async function PrevisionsPage({
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">{t("currentBalance")}</p>
-            <p className={`text-2xl font-bold mt-1 ${currentBalance >= 0 ? "text-green-600" : "text-red-600"}`}>
+            <p className={`text-2xl font-bold mt-1 ${currentBalance >= 0 ? "text-income" : "text-expense"}`}>
               {formatCurrency(currentBalance, currency, locale)}
             </p>
           </CardContent>
@@ -94,7 +94,7 @@ export default async function PrevisionsPage({
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">{t("incomeOver", { months })}</p>
-            <p className="text-2xl font-bold mt-1 text-green-600">
+            <p className="text-2xl font-bold mt-1 text-income">
               +{formatCurrency(totalIncome, currency, locale)}
             </p>
           </CardContent>
@@ -102,7 +102,7 @@ export default async function PrevisionsPage({
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">{t("expensesOver", { months })}</p>
-            <p className="text-2xl font-bold mt-1 text-red-600">
+            <p className="text-2xl font-bold mt-1 text-expense">
               -{formatCurrency(totalExpenses, currency, locale)}
             </p>
           </CardContent>
@@ -110,10 +110,10 @@ export default async function PrevisionsPage({
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">{t("balanceIn", { months })}</p>
-            <p className={`text-2xl font-bold mt-1 ${projectedBalance >= 0 ? "text-green-600" : "text-red-600"}`}>
+            <p className={`text-2xl font-bold mt-1 ${projectedBalance >= 0 ? "text-income" : "text-expense"}`}>
               {formatCurrency(projectedBalance, currency, locale)}
             </p>
-            <p className={`text-xs mt-1 ${totalNet >= 0 ? "text-green-600" : "text-red-600"}`}>
+            <p className={`text-xs mt-1 ${totalNet >= 0 ? "text-income" : "text-expense"}`}>
               {totalNet >= 0 ? "+" : ""}{formatCurrency(totalNet, currency)} net
             </p>
           </CardContent>
@@ -130,8 +130,8 @@ export default async function PrevisionsPage({
             <TableHeader>
               <TableRow>
                 <TableHead>{t("month")}</TableHead>
-                <TableHead className="text-right text-green-700">{t("income")}</TableHead>
-                <TableHead className="text-right text-red-700">{t("expenses")}</TableHead>
+                <TableHead className="text-right text-income">{t("income")}</TableHead>
+                <TableHead className="text-right text-expense">{t("expenses")}</TableHead>
                 <TableHead className="text-right">{t("netMonth")}</TableHead>
                 <TableHead className="text-right">{t("endBalance")}</TableHead>
               </TableRow>
@@ -140,16 +140,16 @@ export default async function PrevisionsPage({
               {monthDetails.map((m, i) => (
                 <TableRow key={i}>
                   <TableCell className="font-medium capitalize">{m.month}</TableCell>
-                  <TableCell className="text-right text-green-600">
+                  <TableCell className="text-right text-income">
                     {m.income > 0 ? `+${formatCurrency(m.income, currency, locale)}` : "—"}
                   </TableCell>
-                  <TableCell className="text-right text-red-600">
+                  <TableCell className="text-right text-expense">
                     {m.expenses > 0 ? `-${formatCurrency(m.expenses, currency, locale)}` : "—"}
                   </TableCell>
-                  <TableCell className={`text-right font-semibold ${m.netCashflow >= 0 ? "text-green-600" : "text-red-600"}`}>
+                  <TableCell className={`text-right font-semibold ${m.netCashflow >= 0 ? "text-income" : "text-expense"}`}>
                     {m.netCashflow >= 0 ? "▲" : "▼"} {formatCurrency(Math.abs(m.netCashflow), currency, locale)}
                   </TableCell>
-                  <TableCell className={`text-right font-bold ${m.endBalance >= 0 ? "" : "text-red-600"}`}>
+                  <TableCell className={`text-right font-bold ${m.endBalance >= 0 ? "" : "text-expense"}`}>
                     {formatCurrency(m.endBalance, currency, locale)}
                   </TableCell>
                 </TableRow>
@@ -164,7 +164,7 @@ export default async function PrevisionsPage({
         {/* Revenus récurrents */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-green-700">{t("recurringIncome")}</CardTitle>
+            <CardTitle className="text-income">{t("recurringIncome")}</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {allIncomeItems.size === 0 ? (
@@ -189,13 +189,13 @@ export default async function PrevisionsPage({
                       <TableCell>
                         <Badge variant="secondary">{FREQ_LABEL[item.frequency] ?? item.frequency}</Badge>
                       </TableCell>
-                      <TableCell className="text-right text-green-600 font-medium">
+                      <TableCell className="text-right text-income font-medium">
                         +{formatCurrency(item.amount, currency, locale)}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
                         <span>{t("from", { date: formatDate(item.startsFrom, locale) })}</span>
                         {item.endsAt && (
-                          <span className="block text-orange-600">{t("until", { date: formatDate(item.endsAt, locale) })}</span>
+                          <span className="block text-warning">{t("until", { date: formatDate(item.endsAt, locale) })}</span>
                         )}
                       </TableCell>
                     </TableRow>
@@ -209,7 +209,7 @@ export default async function PrevisionsPage({
         {/* Dépenses récurrentes */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-red-700">{t("recurringExpenses")}</CardTitle>
+            <CardTitle className="text-expense">{t("recurringExpenses")}</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {allExpenseItems.size === 0 ? (
@@ -234,13 +234,13 @@ export default async function PrevisionsPage({
                       <TableCell>
                         <Badge variant="secondary">{FREQ_LABEL[item.frequency] ?? item.frequency}</Badge>
                       </TableCell>
-                      <TableCell className="text-right text-red-600 font-medium">
+                      <TableCell className="text-right text-expense font-medium">
                         -{formatCurrency(item.amount, currency, locale)}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
                         <span>{t("from", { date: formatDate(item.startsFrom, locale) })}</span>
                         {item.endsAt && (
-                          <span className="block text-orange-600">{t("until", { date: formatDate(item.endsAt, locale) })}</span>
+                          <span className="block text-warning">{t("until", { date: formatDate(item.endsAt, locale) })}</span>
                         )}
                       </TableCell>
                     </TableRow>

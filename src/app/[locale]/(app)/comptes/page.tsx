@@ -61,7 +61,7 @@ export default async function ComptesPage() {
                     <div className="flex items-center gap-3">
                       <p
                         className={`text-xl font-bold ${
-                          balance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                          balance >= 0 ? "text-income" : "text-expense"
                         }`}
                       >
                         {formatCurrency(balance, account.currency, locale)}

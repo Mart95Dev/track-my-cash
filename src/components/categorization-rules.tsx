@@ -69,7 +69,7 @@ export function CategorizationRules({ rules }: { rules: CategorizationRule[] }) 
               </div>
               <ConfirmDialog
                 trigger={
-                  <Button variant="ghost" size="sm" className="text-red-600" disabled={deletePending}>
+                  <Button variant="ghost" size="sm" className="text-destructive" disabled={deletePending}>
                     {t("delete")}
                   </Button>
                 }

@@ -45,11 +45,33 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
+  /* ── Tokens sémantiques métier ──────────────────────────────────────────
+     Pour changer la couleur des revenus/dépenses dans toute l'app :
+     modifier uniquement --income / --expense dans :root et .dark ci-dessous.
+     Les classes Tailwind text-income, text-expense, text-warning, text-info,
+     bg-income-subtle, bg-warning-subtle, bg-info-subtle sont auto-générées.
+  ── */
+  --color-income: var(--income);
+  --color-expense: var(--expense);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-income-subtle: var(--income-subtle);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-info-subtle: var(--info-subtle);
 }
 
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
+  /* Tokens sémantiques métier — mode clair */
+  --income: oklch(0.527 0.154 150.069);         /* vert-600 : couleur revenus */
+  --expense: oklch(0.577 0.245 27.325);          /* rouge-600 : couleur dépenses */
+  --warning: oklch(0.646 0.222 41.116);          /* orange-600 : avertissements */
+  --info: oklch(0.546 0.245 262.881);            /* bleu-600 : informations */
+  --income-subtle: oklch(0.982 0.018 155.826);   /* vert-50 : fond revenu clair */
+  --warning-subtle: oklch(0.98 0.016 73.684);    /* orange-50 : fond warning clair */
+  --info-subtle: oklch(0.97 0.013 236.62);       /* bleu-50 : fond info clair */
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -84,6 +106,14 @@
 
 .dark {
   --background: oklch(0.145 0 0);
+  /* Tokens sémantiques métier — mode sombre */
+  --income: oklch(0.723 0.13 150.069);           /* vert-400 : couleur revenus dark */
+  --expense: oklch(0.704 0.191 22.216);           /* rouge-400 : couleur dépenses dark */
+  --warning: oklch(0.75 0.183 55.0);              /* orange-400 : avertissements dark */
+  --info: oklch(0.707 0.165 254.624);             /* bleu-400 : informations dark */
+  --income-subtle: oklch(0.262 0.051 159.9);      /* vert-950 : fond revenu dark */
+  --warning-subtle: oklch(0.266 0.07 26.899);     /* orange-950 : fond warning dark */
+  --info-subtle: oklch(0.282 0.091 267.935);      /* bleu-950 : fond info dark */
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);

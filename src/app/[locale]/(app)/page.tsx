@@ -81,7 +81,7 @@ export default async function DashboardPage({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+            <p className="text-2xl font-bold text-income">
               {formatCurrency(data.monthlyIncome, "EUR", locale)}
             </p>
           </CardContent>
@@ -94,7 +94,7 @@ export default async function DashboardPage({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+            <p className="text-2xl font-bold text-expense">
               {formatCurrency(data.monthlyExpenses, "EUR", locale)}
             </p>
           </CardContent>
@@ -149,7 +149,7 @@ export default async function DashboardPage({
                   <CardContent>
                     <p
                       className={`text-2xl font-bold ${
-                        balance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                        balance >= 0 ? "text-income" : "text-expense"
                       }`}
                     >
                       {formatCurrency(balance, account.currency, locale)}

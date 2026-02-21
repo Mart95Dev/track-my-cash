@@ -82,11 +82,11 @@ export function ReconciliationDialog({ account }: { account: Account }) {
           </div>
 
           {diff !== null && (
-            <div className={`p-3 rounded-lg border ${Math.abs(diff) < 0.01 ? "bg-green-50 dark:bg-green-950" : "bg-orange-50 dark:bg-orange-950"}`}>
+            <div className={`p-3 rounded-lg border ${Math.abs(diff) < 0.01 ? "bg-income-subtle" : "bg-warning-subtle"}`}>
               <p className="font-medium">
                 {t("gap", { amount: formatCurrency(Math.abs(diff), account.currency, locale) })}
                 {Math.abs(diff) < 0.01 ? (
-                  <Badge className="ml-2 bg-green-600">{t("reconciled")}</Badge>
+                  <Badge className="ml-2 bg-income">{t("reconciled")}</Badge>
                 ) : (
                   <Badge variant="destructive" className="ml-2">{t("notReconciled")}</Badge>
                 )}
@@ -110,7 +110,7 @@ export function ReconciliationDialog({ account }: { account: Account }) {
                     />
                     <span className="text-muted-foreground">{formatDate(tx.date, locale)}</span>
                     <span className="flex-1 truncate">{tx.description || "—"}</span>
-                    <span className={tx.type === "income" ? "text-green-600" : "text-red-600"}>
+                    <span className={tx.type === "income" ? "text-income" : "text-expense"}>
                       {tx.type === "income" ? "+" : "-"}{formatCurrency(tx.amount, account.currency, locale)}
                     </span>
                   </div>

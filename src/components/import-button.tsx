@@ -160,14 +160,14 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
           {preview && (
             <div className="flex flex-col gap-4 flex-1 overflow-hidden">
               {preview.detectedBalance !== null && (
-                <div className="rounded-lg border bg-blue-50 p-4 dark:bg-blue-950 shrink-0 space-y-1">
+                <div className="rounded-lg border bg-info-subtle p-4 shrink-0 space-y-1">
                   <p className="font-medium">
                     {t("detectedBalance", {
                       amount: formatCurrency(preview.detectedBalance, preview.currency, locale),
                       date: preview.detectedBalanceDate ? formatDate(preview.detectedBalanceDate, locale) : "",
                     })}
                   </p>
-                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                  <p className="text-sm text-info">
                     {t("balanceInfo")}
                   </p>
                 </div>
@@ -175,9 +175,9 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
 
               <div className="flex gap-4 text-sm shrink-0">
                 <span>{t("transactionsFound", { total: preview.totalCount })}</span>
-                <span className="text-green-600 dark:text-green-400">{t("newTransactions", { count: preview.newCount })}</span>
+                <span className="text-income">{t("newTransactions", { count: preview.newCount })}</span>
                 {preview.duplicateCount > 0 && (
-                  <span className="text-orange-600 dark:text-orange-400">
+                  <span className="text-warning">
                     {t("duplicatesIgnored", { count: preview.duplicateCount })}
                   </span>
                 )}
@@ -254,8 +254,8 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
                             <TableCell
                               className={`text-right font-medium ${
                                 tx.type === "income"
-                                  ? "text-green-600 dark:text-green-400"
-                                  : "text-red-600 dark:text-red-400"
+                                  ? "text-income"
+                                  : "text-expense"
                               }`}
                             >
                               {tx.type === "income" ? "+" : "-"}

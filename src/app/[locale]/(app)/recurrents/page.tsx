@@ -84,7 +84,7 @@ export default async function RecurrentsPage({
                         {t("nextDate", { date: formatDate(p.next_date, locale) })}
                       </span>
                       {p.end_date && (
-                        <Badge variant="outline" className="text-orange-600 border-orange-300">
+                        <Badge variant="outline" className="text-warning border-warning/50">
                           {t("untilDate", { date: formatDate(p.end_date, locale) })}
                         </Badge>
                       )}
@@ -94,8 +94,8 @@ export default async function RecurrentsPage({
                     <p
                       className={`text-lg font-bold ${
                         p.type === "income"
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
+                          ? "text-income"
+                          : "text-expense"
                       }`}
                     >
                       {p.type === "income" ? "+" : "-"}
