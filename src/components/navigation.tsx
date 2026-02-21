@@ -16,7 +16,11 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-export function Navigation() {
+type NavigationProps = {
+  rightSlot?: React.ReactNode;
+};
+
+export function Navigation({ rightSlot }: NavigationProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -47,6 +51,7 @@ export function Navigation() {
             {t("appName")}
           </Link>
           <div className="flex items-center gap-2">
+            {rightSlot}
             <LanguageSwitcher />
             <ThemeToggle />
             <Button
