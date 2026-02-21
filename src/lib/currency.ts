@@ -32,12 +32,22 @@ export async function getAllRates(db?: Client): Promise<Record<string, number>> 
 
     if (Object.keys(rates).length > 0) {
       _ratesCache = { rates, fetchedAt: Date.now() };
+
+      // Persister en DB pour survivre aux redémarrages (fire-and-forget)
+      if (db) {
+        const { setSetting } = await import("@/lib/queries");
+        setSetting(db, "exchange_rates_cache", JSON.stringify({
+          rates,
+          cachedAt: new Date().toISOString(),
+        })).catch(() => { /* ignore */ });
+      }
+
       return rates;
     }
 
     throw new Error("Taux non trouvés");
   } catch {
-    // Fallback : taux stockés en settings ou valeurs par défaut
+    // Fallback : taux persistés en DB, puis valeurs par défaut
     const fallback: Record<string, number> = {
       EUR: 1,
       MGA: 5000,
@@ -53,6 +63,17 @@ export async function getAllRates(db?: Client): Promise<Record<string, number>> 
     if (db) {
       try {
         const { getSetting } = await import("@/lib/queries");
+
+        // Priorité 1 : cache complet JSON
+        const cached = await getSetting(db, "exchange_rates_cache");
+        if (cached) {
+          const parsed = JSON.parse(cached) as { rates?: Record<string, number> };
+          if (parsed.rates && Object.keys(parsed.rates).length > 0) {
+            return parsed.rates;
+          }
+        }
+
+        // Priorité 2 : taux MGA individuel (rétro-compatibilité)
         const stored = await getSetting(db, "exchange_rate_eur_mga");
         if (stored) fallback.MGA = parseFloat(stored);
       } catch { /* ignore */ }
