@@ -1,6 +1,10 @@
-import { getDetailedForecast, getAllAccounts } from "@/lib/queries";
+import { getDetailedForecast, getAllAccounts, getSpendingTrend, getBudgets } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
+import { canUseAI } from "@/lib/subscription-utils";
+import { computeForecast } from "@/lib/forecasting";
+import { ForecastTable } from "@/components/forecast-table";
+import { AIForecastInsights } from "@/components/ai-forecast-insights";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -57,8 +61,16 @@ export default async function PrevisionsPage({
   const accountId = rawAccountId ?? accounts[0]!.id;
   const selectedAccount = accounts.find((a) => a.id === accountId) ?? accounts[0]!;
   const currency = selectedAccount.currency;
-  const forecast = await getDetailedForecast(db, months, accountId);
+  const [forecast, trendData, accountBudgets, aiAccess] = await Promise.all([
+    getDetailedForecast(db, months, accountId),
+    getSpendingTrend(db, 3, accountId),
+    getBudgets(db, accountId),
+    canUseAI(userId),
+  ]);
   const { monthDetails, currentBalance, projectedBalance, totalIncome, totalExpenses } = forecast;
+  const categoryForecasts = computeForecast(trendData, accountBudgets);
+  // Compter les mois distincts dans trendData
+  const distinctMonths = new Set(trendData.map((e) => e.month)).size;
   const totalNet = totalIncome - totalExpenses;
 
   const allIncomeItems = new Map<string, { name: string; amount: number; frequency: string; accountName: string; startsFrom: string; endsAt: string | null }>();
@@ -269,6 +281,39 @@ export default async function PrevisionsPage({
           </CardContent>
         </Card>
       </div>
+
+      {/* Section Prévisions IA */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Prévisions du mois prochain</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {distinctMonths < 2 ? (
+            <p className="text-sm text-muted-foreground">
+              Données insuffisantes pour les prévisions (minimum 2 mois requis — actuellement {distinctMonths} mois).
+            </p>
+          ) : categoryForecasts.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Aucune dépense catégorisée trouvée sur les 3 derniers mois.
+            </p>
+          ) : (
+            <div className="space-y-6">
+              <div className="overflow-x-auto">
+                <ForecastTable forecasts={categoryForecasts} />
+              </div>
+              {aiAccess.allowed && (
+                <div>
+                  <h4 className="text-sm font-semibold mb-3">Insights IA</h4>
+                  <AIForecastInsights
+                    forecasts={categoryForecasts}
+                    canUseAI={aiAccess.allowed}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
     </div>
   );
