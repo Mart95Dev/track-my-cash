@@ -30,7 +30,7 @@ export default function ConnexionPage() {
       return;
     }
 
-    router.push("/");
+    router.push("/dashboard");
     router.refresh();
   }
 

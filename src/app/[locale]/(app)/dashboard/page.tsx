@@ -70,7 +70,7 @@ export default async function DashboardPage({
             <span className="ml-2 text-lg font-normal text-muted-foreground">— {selectedAccount.name}</span>
           )}
         </h2>
-        <AccountFilter accounts={accounts} currentAccountId={accountId} basePath="/" />
+        <AccountFilter accounts={accounts} currentAccountId={accountId} basePath="/dashboard" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
