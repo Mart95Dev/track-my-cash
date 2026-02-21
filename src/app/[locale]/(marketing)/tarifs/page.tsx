@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { SubscribeButton } from "@/components/subscribe-button";
 import { getSession } from "@/lib/auth-utils";
 import { getUserPlanId } from "@/lib/subscription-utils";
+
+export const metadata: Metadata = {
+  title: "Tarifs — TrackMyCash",
+  description:
+    "Découvrez nos plans gratuit, Pro et Premium. Commencez gratuitement, évoluez selon vos besoins.",
+  openGraph: {
+    title: "Tarifs — TrackMyCash",
+    description:
+      "Découvrez nos plans gratuit, Pro et Premium. Commencez gratuitement, évoluez selon vos besoins.",
+    type: "website",
+  },
+};
 
 export default async function TarifsPage() {
   const t = await getTranslations("auth");

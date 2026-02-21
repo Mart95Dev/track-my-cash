@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,35 @@ import {
   Bot,
   Globe,
 } from "lucide-react";
+
+const DESCRIPTIONS: Record<string, string> = {
+  fr: "Centralisez vos comptes bancaires, suivez vos dépenses et prenez de meilleures décisions financières. Gratuit, sécurisé, sans publicité.",
+  en: "Centralize your bank accounts, track your expenses and make better financial decisions. Free, secure, no ads.",
+  es: "Centraliza tus cuentas bancarias, controla tus gastos y toma mejores decisiones financieras. Gratis, seguro, sin anuncios.",
+  it: "Centralizza i tuoi conti bancari, monitora le spese e prendi decisioni finanziarie migliori. Gratuito, sicuro, senza pubblicità.",
+  de: "Zentralisieren Sie Ihre Bankkonten, verfolgen Sie Ihre Ausgaben. Kostenlos, sicher, werbefrei.",
+};
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://trackmycash.com";
+  const description = DESCRIPTIONS[locale] ?? DESCRIPTIONS.fr;
+
+  return {
+    title: "TrackMyCash — Gérez vos finances personnelles",
+    description,
+    openGraph: {
+      title: "TrackMyCash — Gérez vos finances personnelles",
+      description,
+      url: `${baseUrl}/${locale}`,
+      type: "website",
+    },
+  };
+}
 
 export default async function HomePage() {
   const t = await getTranslations("landing");
