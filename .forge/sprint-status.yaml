@@ -1,105 +1,103 @@
 sprint:
-  id: sprint-qualite-finitions
-  goal: "Corriger les bugs critiques et finaliser les fonctionnalités incomplètes"
+  id: sprint-growth-qualite
+  goal: "Landing page marketing, emails transactionnels, RGPD, features utilisateur"
   start_date: "2026-02-21"
-  end_date: "2026-02-21"
-  status: completed
+  end_date: null
+  status: in_progress
 
 stories:
-  - id: STORY-001
-    title: "formatCurrency/formatDate : locale dynamique"
+  - id: STORY-009
+    title: "Navbar + Footer publics"
     complexity: S
     priority: P0
-    status: completed
-    qa:
-      verdict: PASS
-      tests: 12
-      coverage: "format.ts 100% lines, 100% functions"
-      notes: "12 tests couvrant EN/FR/ES, locale par défaut, MGA, montant négatif, zéro"
-  - id: STORY-002
-    title: "Redirections Stripe : locale dynamique"
-    complexity: XS
-    priority: P0
-    status: completed
-    qa:
-      verdict: PASS
-      tests: 10
-      notes: "10 tests extractLocale : null, chemin vide, fr/en/es/it/de, locale invalide, URL invalide"
-  - id: STORY-003
-    title: "Dashboard : conversion multi-devises complète"
-    complexity: S
-    priority: P0
-    status: completed
-    qa:
-      verdict: PASS
-      tests: 16
-      coverage: "currency.ts 84% lines, 100% functions"
-      notes: "convertToReference, convertFromReference, getAllRates (mock fetch), getExchangeRate"
-  - id: STORY-004
-    title: "UI Tags dans la page Transactions"
+    status: pending
+    blockedBy: []
+    points: 2
+
+  - id: STORY-010
+    title: "Page d'accueil publique (Landing Page)"
     complexity: M
-    priority: P1
-    status: completed
-    qa:
-      verdict: PASS
-      tests: 10
-      notes: "buildBatchTagMap, placeholders SQL, searchTransactions filtre tagId EXISTS"
-  - id: STORY-005
-    title: "Bouton Gérer mon abonnement (Stripe Portal)"
+    priority: P0
+    status: pending
+    blockedBy: ["STORY-009"]
+    points: 5
+
+  - id: STORY-011
+    title: "SEO meta tags + robots.txt + sitemap.xml"
+    complexity: S
+    priority: P0
+    status: pending
+    blockedBy: ["STORY-010"]
+    points: 2
+
+  - id: STORY-012
+    title: "Service email Nodemailer/Hostinger"
     complexity: S
     priority: P1
-    status: completed
-    qa:
-      verdict: CONCERNS
-      notes: "BillingPortalButton est un composant React/Server Action — test E2E requis. Logique vérifiée par code review."
-  - id: STORY-006
-    title: "importAllData : restauration complète"
-    complexity: XS
+    status: pending
+    blockedBy: []
+    points: 3
+
+  - id: STORY-013
+    title: "Email de bienvenue (post-inscription)"
+    complexity: S
     priority: P1
-    status: completed
-    qa:
-      verdict: PASS
-      tests: 7
-      notes: "Vérifie subcategory et reconciled dans INSERT, args corrects, null quand absent, DELETE préalable"
-  - id: STORY-007
-    title: "Webhook Stripe : utiliser getDb()"
-    complexity: XS
+    status: pending
+    blockedBy: ["STORY-012"]
+    points: 3
+
+  - id: STORY-014
+    title: "Alerte solde bas (email automatique)"
+    complexity: S
     priority: P1
-    status: completed
-    qa:
-      verdict: WAIVED
-      notes: "Route webhook Next.js — test nécessite mock stripe + auth. Vérifié par code review : createClient() supprimé, getDb() utilisé."
-  - id: STORY-008
-    title: "checkDuplicates : WHERE IN (1 requête)"
-    complexity: XS
+    status: pending
+    blockedBy: ["STORY-012"]
+    points: 3
+
+  - id: STORY-015
+    title: "Suppression de compte RGPD"
+    complexity: M
     priority: P2
-    status: completed
-    qa:
-      verdict: PASS
-      tests: 5
-      notes: "Vérifie 0 requête pour tableau vide, IN clause avec N placeholders, retourne Set correct"
+    status: pending
+    blockedBy: []
+    points: 5
+
+  - id: STORY-016
+    title: "Extension couverture tests (parsers)"
+    complexity: M
+    priority: P2
+    status: pending
+    blockedBy: []
+    points: 5
+
+  - id: STORY-017
+    title: "Budgets par catégorie"
+    complexity: L
+    priority: P3
+    status: pending
+    blockedBy: []
+    points: 8
+
+  - id: STORY-018
+    title: "Nouveau parser Crédit Agricole"
+    complexity: S
+    priority: P3
+    status: pending
+    blockedBy: []
+    points: 3
 
 metrics:
-  total: 8
-  completed: 8
+  total: 10
+  completed: 0
   in_progress: 0
-  pending: 0
-  velocity: 8
-  commit: "f664d8c"
+  pending: 10
+  total_points: 39
 
-qa:
-  agent: TEA
-  date: "2026-02-21"
-  test_files: 5
-  total_tests: 64
-  all_pass: true
-  coverage:
-    lines: 86.84
-    functions: 100.0
-    branches: 71.42
-    scope: "src/lib/format.ts, src/lib/currency.ts"
-  verdict: PASS
-  concerns:
-    - "STORY-005 : BillingPortalButton non testé (React/Server Action, E2E requis)"
-    - "STORY-007 : webhook non testé (mock stripe complexe, WAIVED)"
-    - "coverage include limité aux lib utilities purs — actions serveur et parsers à tester en sprint suivant"
+previous_sprint:
+  id: sprint-qualite-finitions
+  stories: 8
+  completed: 8
+  qa_verdict: PASS
+  tests: 64
+  coverage_lines: 86.84
+  commit: "f664d8c"
