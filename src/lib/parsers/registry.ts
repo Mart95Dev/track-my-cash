@@ -1,4 +1,5 @@
 import { banquePopulaireParser } from "./banque-populaire";
+import { creditAgricoleParser } from "./credit-agricole";
 import { mcbCsvParser } from "./mcb-csv";
 import { mcbPdfParser } from "./mcb-pdf";
 import { revolutParser } from "./revolut";
@@ -8,6 +9,7 @@ const parsers: BankParser[] = [
   mcbPdfParser,           // PDF en premier (extension spécifique)
   revolutParser,          // XLSX en second
   mcbCsvParser,           // MCB CSV
+  creditAgricoleParser,   // Crédit Agricole CSV (avant BP car headers distincts)
   banquePopulaireParser,  // Fallback BP / CSV générique
 ];
 
