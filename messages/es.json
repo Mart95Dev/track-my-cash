@@ -44,13 +44,18 @@
     "lowBalance": "Saldo bajo",
     "balanceEvolution": "Evolución del saldo (12 meses)",
     "expensesByCategory": "Gastos por categoría (mes actual)",
-    "expensesBySubcategory": "Gastos por subcategoría (mes actual)"
+    "expensesBySubcategory": "Gastos por subcategoría (mes actual)",
+    "emptyTitle": "Sin cuentas bancarias",
+    "emptyDescription": "Comienza creando tu primera cuenta para seguir tus finanzas.",
+    "emptyCta": "Crear mi primera cuenta"
   },
   "accounts": {
     "title": "Mis Cuentas",
     "createNew": "Crear una nueva cuenta",
     "existing": "Cuentas existentes",
     "empty": "Ninguna cuenta por el momento",
+    "emptyTitle": "Sin cuentas por ahora",
+    "emptyDescription": "Usa el formulario de arriba para añadir tu primera cuenta.",
     "initialBalance": "Saldo inicial el {date}:",
     "lowBalance": "Saldo bajo",
     "form": {
@@ -70,6 +75,8 @@
     "newTransaction": "Nueva transacción",
     "selectAccount": "Seleccione una cuenta para ver sus transacciones",
     "empty": "Ninguna transacción",
+    "emptyTitle": "Ninguna transacción para esta cuenta",
+    "emptyDescription": "Importe un extracto bancario o añada una transacción manualmente.",
     "form": {
       "type": "Tipo",
       "expense": "Gasto",
@@ -92,6 +99,8 @@
     "list": "Lista",
     "selectAccount": "Seleccione una cuenta para ver sus pagos recurrentes",
     "empty": "Ningún pago recurrente para esta cuenta",
+    "emptyTitle": "Sin pagos recurrentes",
+    "emptyDescription": "Añade tus suscripciones y domiciliaciones usando el formulario de arriba.",
     "nextDate": "Próximo: {date}",
     "untilDate": "Hasta el {date}",
     "form": {
@@ -143,7 +152,10 @@
     "monthly": "Mensual",
     "weekly": "Semanal",
     "yearly": "Anual",
-    "months": "{months} meses"
+    "months": "{months} meses",
+    "noRecurrents": "Sin pagos recurrentes configurados",
+    "noRecurrentsDesc": "Configura tus pagos recurrentes para ver previsiones detalladas.",
+    "noRecurrentsCta": "Configurar recurrentes"
   },
   "advisor": {
     "title": "Asesor IA",

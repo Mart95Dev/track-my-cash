@@ -14,6 +14,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ForecastControls } from "@/components/forecast-controls";
 import { getTranslations, getLocale } from "next-intl/server";
+import { EmptyState } from "@/components/ui/empty-state";
+import { TrendingUp } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -41,11 +43,12 @@ export default async function PrevisionsPage({
     return (
       <div className="space-y-6">
         <h2 className="text-2xl font-bold">{t("title")}</h2>
-        <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
-            {t("noAccounts")}
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={<TrendingUp className="h-12 w-12" />}
+          title={t("noAccounts")}
+          description={t("noRecurrentsDesc")}
+          action={{ label: t("noRecurrentsCta"), href: `/${locale}/comptes` }}
+        />
       </div>
     );
   }
@@ -68,6 +71,21 @@ export default async function PrevisionsPage({
     for (const item of m.expenseItems) {
       if (!allExpenseItems.has(item.name)) allExpenseItems.set(item.name, item);
     }
+  }
+
+  if (allIncomeItems.size === 0 && allExpenseItems.size === 0) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold">{t("title")}</h2>
+        <ForecastControls currentMonths={months} currentAccountId={accountId} accounts={accounts} />
+        <EmptyState
+          icon={<TrendingUp className="h-12 w-12" />}
+          title={t("noRecurrents")}
+          description={t("noRecurrentsDesc")}
+          action={{ label: t("noRecurrentsCta"), href: `/${locale}/recurrents` }}
+        />
+      </div>
+    );
   }
 
   return (

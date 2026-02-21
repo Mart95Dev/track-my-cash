@@ -44,13 +44,18 @@
     "lowBalance": "Low balance",
     "balanceEvolution": "Balance evolution (12 months)",
     "expensesByCategory": "Expenses by category (current month)",
-    "expensesBySubcategory": "Expenses by subcategory (current month)"
+    "expensesBySubcategory": "Expenses by subcategory (current month)",
+    "emptyTitle": "No bank account",
+    "emptyDescription": "Start by creating your first account to track your finances.",
+    "emptyCta": "Create my first account"
   },
   "accounts": {
     "title": "My Accounts",
     "createNew": "Create a new account",
     "existing": "Existing accounts",
     "empty": "No accounts yet",
+    "emptyTitle": "No accounts yet",
+    "emptyDescription": "Use the form above to add your first account.",
     "initialBalance": "Initial balance on {date}:",
     "lowBalance": "Low balance",
     "form": {
@@ -70,6 +75,8 @@
     "newTransaction": "New transaction",
     "selectAccount": "Select an account to see its transactions",
     "empty": "No transactions",
+    "emptyTitle": "No transactions for this account",
+    "emptyDescription": "Import a bank statement or add a transaction manually.",
     "form": {
       "type": "Type",
       "expense": "Expense",
@@ -92,6 +99,8 @@
     "list": "List",
     "selectAccount": "Select an account to see its recurring payments",
     "empty": "No recurring payments for this account",
+    "emptyTitle": "No recurring payments",
+    "emptyDescription": "Add your subscriptions and standing orders using the form above.",
     "nextDate": "Next: {date}",
     "untilDate": "Until {date}",
     "form": {
@@ -143,7 +152,10 @@
     "monthly": "Monthly",
     "weekly": "Weekly",
     "yearly": "Yearly",
-    "months": "{months} months"
+    "months": "{months} months",
+    "noRecurrents": "No recurring payments configured",
+    "noRecurrentsDesc": "Set up your recurring payments to see detailed forecasts.",
+    "noRecurrentsCta": "Set up recurring payments"
   },
   "advisor": {
     "title": "AI Advisor",

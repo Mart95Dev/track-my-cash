@@ -22,6 +22,8 @@ import { Pagination } from "@/components/pagination";
 import { ExportTransactions } from "@/components/export-transactions";
 import { getTagsAction, getTransactionTagsBatchAction } from "@/app/actions/tag-actions";
 import { getTranslations, getLocale } from "next-intl/server";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ArrowDownUp } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -90,9 +92,11 @@ export default async function TransactionsPage({
               {t("selectAccount")}
             </p>
           ) : transactions.length === 0 ? (
-            <p className="py-8 text-center text-muted-foreground">
-              {t("empty")}
-            </p>
+            <EmptyState
+              icon={<ArrowDownUp className="h-12 w-12" />}
+              title={t("emptyTitle")}
+              description={t("emptyDescription")}
+            />
           ) : (
             <>
               {/* Desktop table */}

@@ -44,13 +44,18 @@
     "lowBalance": "Niedriger Kontostand",
     "balanceEvolution": "Saldoentwicklung (12 Monate)",
     "expensesByCategory": "Ausgaben nach Kategorie (aktueller Monat)",
-    "expensesBySubcategory": "Ausgaben nach Unterkategorie (aktueller Monat)"
+    "expensesBySubcategory": "Ausgaben nach Unterkategorie (aktueller Monat)",
+    "emptyTitle": "Kein Bankkonto vorhanden",
+    "emptyDescription": "Erstellen Sie zunächst Ihr erstes Konto, um Ihre Finanzen zu verfolgen.",
+    "emptyCta": "Erstes Konto erstellen"
   },
   "accounts": {
     "title": "Meine Konten",
     "createNew": "Neues Konto erstellen",
     "existing": "Vorhandene Konten",
     "empty": "Noch keine Konten vorhanden",
+    "emptyTitle": "Noch keine Konten",
+    "emptyDescription": "Verwenden Sie das Formular oben, um Ihr erstes Konto hinzuzufügen.",
     "initialBalance": "Anfangssaldo am {date}:",
     "lowBalance": "Niedriger Kontostand",
     "form": {
@@ -70,6 +75,8 @@
     "newTransaction": "Neue Transaktion",
     "selectAccount": "Wählen Sie ein Konto aus, um seine Transaktionen zu sehen",
     "empty": "Keine Transaktionen",
+    "emptyTitle": "Keine Transaktionen für dieses Konto",
+    "emptyDescription": "Importieren Sie einen Kontoauszug oder fügen Sie eine Transaktion manuell hinzu.",
     "form": {
       "type": "Typ",
       "expense": "Ausgabe",
@@ -92,6 +99,8 @@
     "list": "Liste",
     "selectAccount": "Wählen Sie ein Konto aus, um seine wiederkehrenden Zahlungen zu sehen",
     "empty": "Keine wiederkehrenden Zahlungen für dieses Konto",
+    "emptyTitle": "Keine Daueraufträge",
+    "emptyDescription": "Fügen Sie Abonnements und Daueraufträge über das obige Formular hinzu.",
     "nextDate": "Nächste: {date}",
     "untilDate": "Bis {date}",
     "form": {
@@ -143,7 +152,10 @@
     "monthly": "Monatlich",
     "weekly": "Wöchentl.",
     "yearly": "Jährlich",
-    "months": "{months} Monate"
+    "months": "{months} Monate",
+    "noRecurrents": "Keine Daueraufträge konfiguriert",
+    "noRecurrentsDesc": "Richten Sie Ihre Daueraufträge ein, um detaillierte Prognosen zu sehen.",
+    "noRecurrentsCta": "Daueraufträge konfigurieren"
   },
   "advisor": {
     "title": "KI-Berater",

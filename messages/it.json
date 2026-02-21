@@ -44,13 +44,18 @@
     "lowBalance": "Saldo basso",
     "balanceEvolution": "Evoluzione del saldo (12 mesi)",
     "expensesByCategory": "Spese per categoria (mese corrente)",
-    "expensesBySubcategory": "Spese per sottocategoria (mese corrente)"
+    "expensesBySubcategory": "Spese per sottocategoria (mese corrente)",
+    "emptyTitle": "Nessun conto bancario",
+    "emptyDescription": "Inizia creando il tuo primo conto per monitorare le tue finanze.",
+    "emptyCta": "Crea il mio primo conto"
   },
   "accounts": {
     "title": "I Miei Conti",
     "createNew": "Crea un nuovo conto",
     "existing": "Conti esistenti",
     "empty": "Nessun conto per il momento",
+    "emptyTitle": "Nessun conto per ora",
+    "emptyDescription": "Usa il modulo sopra per aggiungere il tuo primo conto.",
     "initialBalance": "Saldo iniziale il {date}:",
     "lowBalance": "Saldo basso",
     "form": {
@@ -70,6 +75,8 @@
     "newTransaction": "Nuova transazione",
     "selectAccount": "Seleziona un conto per vedere le sue transazioni",
     "empty": "Nessuna transazione",
+    "emptyTitle": "Nessuna transazione per questo conto",
+    "emptyDescription": "Importa un estratto conto o aggiungi una transazione manualmente.",
     "form": {
       "type": "Tipo",
       "expense": "Spesa",
@@ -92,6 +99,8 @@
     "list": "Elenco",
     "selectAccount": "Seleziona un conto per vedere i suoi pagamenti ricorrenti",
     "empty": "Nessun pagamento ricorrente per questo conto",
+    "emptyTitle": "Nessun pagamento ricorrente",
+    "emptyDescription": "Aggiungi abbonamenti e addebiti usando il modulo sopra.",
     "nextDate": "Prossimo: {date}",
     "untilDate": "Fino al {date}",
     "form": {
@@ -143,7 +152,10 @@
     "monthly": "Mensile",
     "weekly": "Settim.",
     "yearly": "Annuale",
-    "months": "{months} mesi"
+    "months": "{months} mesi",
+    "noRecurrents": "Nessun pagamento ricorrente configurato",
+    "noRecurrentsDesc": "Configura i pagamenti ricorrenti per vedere previsioni dettagliate.",
+    "noRecurrentsCta": "Configura i ricorrenti"
   },
   "advisor": {
     "title": "Consulente IA",

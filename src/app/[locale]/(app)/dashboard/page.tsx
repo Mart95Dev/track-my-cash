@@ -20,6 +20,8 @@ import { MonthlySummary } from "@/components/monthly-summary";
 import { AccountFilter } from "@/components/account-filter";
 import { BudgetProgress } from "@/components/budget-progress";
 import { getTranslations, getLocale } from "next-intl/server";
+import { EmptyState } from "@/components/ui/empty-state";
+import { LayoutDashboard } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -63,6 +65,20 @@ export default async function DashboardPage({
         const balance = account.calculated_balance ?? account.initial_balance;
         return sum + convertToReference(balance, account.currency, rates);
       }, 0);
+
+  if (data.accounts.length === 0) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold">{t("title")}</h2>
+        <EmptyState
+          icon={<LayoutDashboard className="h-12 w-12" />}
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
+          action={{ label: t("emptyCta"), href: `/${locale}/comptes` }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -44,13 +44,18 @@
     "lowBalance": "Solde bas",
     "balanceEvolution": "Évolution du solde (12 mois)",
     "expensesByCategory": "Dépenses par catégorie (mois en cours)",
-    "expensesBySubcategory": "Dépenses par sous-catégorie (mois en cours)"
+    "expensesBySubcategory": "Dépenses par sous-catégorie (mois en cours)",
+    "emptyTitle": "Aucun compte bancaire",
+    "emptyDescription": "Commencez par créer votre premier compte pour suivre vos finances.",
+    "emptyCta": "Créer mon premier compte"
   },
   "accounts": {
     "title": "Mes Comptes",
     "createNew": "Créer un nouveau compte",
     "existing": "Comptes existants",
     "empty": "Aucun compte pour le moment",
+    "emptyTitle": "Aucun compte pour le moment",
+    "emptyDescription": "Utilisez le formulaire ci-dessus pour ajouter votre premier compte.",
     "initialBalance": "Solde initial au {date} :",
     "lowBalance": "Solde bas",
     "form": {
@@ -70,6 +75,8 @@
     "newTransaction": "Nouvelle transaction",
     "selectAccount": "Sélectionnez un compte pour voir ses transactions",
     "empty": "Aucune transaction",
+    "emptyTitle": "Aucune transaction pour ce compte",
+    "emptyDescription": "Importez un relevé bancaire ou ajoutez une transaction manuellement.",
     "form": {
       "type": "Type",
       "expense": "Dépense",
@@ -92,6 +99,8 @@
     "list": "Liste",
     "selectAccount": "Sélectionnez un compte pour voir ses paiements récurrents",
     "empty": "Aucun paiement récurrent pour ce compte",
+    "emptyTitle": "Aucun paiement récurrent",
+    "emptyDescription": "Ajoutez vos abonnements et prélèvements via le formulaire ci-dessus.",
     "nextDate": "Prochain : {date}",
     "untilDate": "Jusqu'au {date}",
     "form": {
@@ -143,7 +152,10 @@
     "monthly": "Mensuel",
     "weekly": "Hebdo",
     "yearly": "Annuel",
-    "months": "{months} mois"
+    "months": "{months} mois",
+    "noRecurrents": "Aucun paiement récurrent configuré",
+    "noRecurrentsDesc": "Configurez vos paiements récurrents pour voir des prévisions détaillées.",
+    "noRecurrentsCta": "Configurer les récurrents"
   },
   "advisor": {
     "title": "Conseiller IA",

@@ -9,6 +9,8 @@ import { DeleteAccountButton } from "@/components/delete-account-button";
 import { EditAccountDialog } from "@/components/edit-account-dialog";
 import { ReconciliationDialog } from "@/components/reconciliation-dialog";
 import { getTranslations, getLocale } from "next-intl/server";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Landmark } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -35,11 +37,11 @@ export default async function ComptesPage() {
       <h3 className="text-lg font-semibold">{t("existing")}</h3>
 
       {accounts.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
-            {t("empty")}
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={<Landmark className="h-12 w-12" />}
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
+        />
       ) : (
         <div className="space-y-3">
           {accounts.map((account) => {

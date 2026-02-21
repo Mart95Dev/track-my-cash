@@ -9,6 +9,8 @@ import { DeleteRecurringButton } from "@/components/delete-recurring-button";
 import { EditRecurringDialog } from "@/components/edit-recurring-dialog";
 import { AccountFilter } from "@/components/account-filter";
 import { getTranslations, getLocale } from "next-intl/server";
+import { EmptyState } from "@/components/ui/empty-state";
+import { RefreshCw } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -61,11 +63,11 @@ export default async function RecurrentsPage({
           </CardContent>
         </Card>
       ) : payments.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
-            {t("empty")}
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={<RefreshCw className="h-12 w-12" />}
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
+        />
       ) : (
         <div className="space-y-3">
           {payments.map((p) => (
