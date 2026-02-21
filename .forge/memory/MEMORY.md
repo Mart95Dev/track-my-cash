@@ -89,7 +89,7 @@ QA : 156 tests, 0 fail, couverture 90.54% lignes, TypeScript 0 erreur.
 
 ## Sprint Objectifs & Intelligence — TERMINÉ + QA PASS (2026-02-21)
 
-6/6 stories complétées, 253 tests, 0 échec, TypeScript clean (commit `dc214d6`).
+6/6 stories complétées, 258 tests, 0 échec, TypeScript clean. QA PASS (commit `dc214d6`).
 
 - STORY-033 : Objectifs d'épargne — table `goals`, page /objectifs, SavingsGoalsWidget dashboard
 - STORY-034 : Catégorisation IA — autoCategorizeAction (OpenRouter gpt-4o-mini), AutoCategorizeButton

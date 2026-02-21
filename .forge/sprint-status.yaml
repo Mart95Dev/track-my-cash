@@ -72,7 +72,9 @@ stories:
     blockedBy: ["STORY-034"]
     points: 3
     commit: "dc214d6"
-    tests: 5
+    tests: 10
+    qa_verdict: PASS
+    qa_gaps_fixed: ["trend=down", "status=at_risk", "trend=stable-1-month", "sort-order", "avgAmount-precision"]
 
 metrics:
   total: 6
@@ -80,7 +82,16 @@ metrics:
   in_progress: 0
   pending: 0
   total_points: 16
-  tests_total: 253
+  tests_total: 258
+  qa_verdict: PASS
+
+qa:
+  agent: TEA
+  verdict: PASS
+  date: "2026-02-21"
+  tests_added: 5
+  gaps_covered: 5
+  concerns: "AC-3 badge 'on_track' → variant 'default' (pas explicitement vert) — mineur, acceptable"
 
 previous_sprint:
   id: sprint-retention-technique
