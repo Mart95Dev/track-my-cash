@@ -5,6 +5,10 @@ import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { canUseAI } from "@/lib/subscription-utils";
 import { buildFinancialContext, SYSTEM_PROMPT } from "@/lib/ai-context";
+import { checkRateLimit } from "@/lib/rate-limiter";
+
+const RATE_LIMIT = 30;
+const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 heure
 
 export const maxDuration = 30;
 
@@ -35,6 +39,24 @@ export async function POST(req: Request) {
     : "openai/gpt-4o-mini";
 
   const userId = await getRequiredUserId();
+
+  // Rate limiting : 30 requêtes / heure par userId
+  const rateLimit = checkRateLimit(userId, RATE_LIMIT, RATE_WINDOW_MS);
+  if (!rateLimit.allowed) {
+    const resetInMin = Math.ceil((rateLimit.resetAt - Date.now()) / 60000);
+    return new Response(
+      JSON.stringify({
+        error: `Limite atteinte. Réessayez dans ${resetInMin} minute${resetInMin > 1 ? "s" : ""}.`,
+      }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "X-RateLimit-Remaining": "0",
+        },
+      }
+    );
+  }
 
   // Guard IA : vérifier que le plan autorise l'accès au conseiller IA
   const aiCheck = await canUseAI(userId);
