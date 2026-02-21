@@ -82,7 +82,7 @@ export default async function TransactionsPage({
           tags={allTags}
           currentTagId={tagId}
         />
-        <ExportTransactions transactions={transactions} />
+        <ExportTransactions transactions={transactions} accounts={accounts} />
       </div>
 
       <Card>

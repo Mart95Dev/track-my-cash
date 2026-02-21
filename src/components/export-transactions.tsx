@@ -1,27 +1,37 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import type { Transaction } from "@/lib/queries";
+import type { Transaction, Account } from "@/lib/queries";
 import { formatDate } from "@/lib/format";
 import { useTranslations, useLocale } from "next-intl";
+import { generateTransactionsCsv } from "@/lib/csv-export";
 
-export function ExportTransactions({ transactions }: { transactions: Transaction[] }) {
+export function ExportTransactions({
+  transactions,
+  accounts = [],
+}: {
+  transactions: Transaction[];
+  accounts?: Account[];
+}) {
   const t = useTranslations("export");
   const locale = useLocale();
 
   function exportCSV() {
-    const headers = ["Date", "Compte", "Type", "Montant", "Catégorie", "Description"];
-    const rows = transactions.map((tx) => [
-      tx.date,
-      tx.account_name ?? "",
-      tx.type === "income" ? t("income") : t("expense"),
-      tx.amount.toFixed(2),
-      tx.category,
-      tx.description,
-    ]);
+    const currencyByAccountId = new Map(accounts.map((a) => [a.id, a.currency]));
 
-    const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const rows = transactions.map((tx) => ({
+      date: tx.date,
+      description: tx.description ?? "",
+      category: tx.category,
+      subcategory: tx.subcategory,
+      type: tx.type,
+      amount: tx.amount,
+      currency: currencyByAccountId.get(tx.account_id) ?? "EUR",
+      account_name: tx.account_name ?? "",
+    }));
+
+    const csv = generateTransactionsCsv(rows);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
