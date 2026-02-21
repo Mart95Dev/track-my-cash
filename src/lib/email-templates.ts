@@ -1,5 +1,76 @@
 import { renderEmailBase } from "@/lib/email";
 
+export interface MonthlySummaryData {
+  month: string;
+  income: number;
+  expenses: number;
+  net: number;
+  currency: string;
+  topCategories: { category: string; total: number; percentage: number }[];
+}
+
+export function renderMonthlySummaryEmail(data: MonthlySummaryData): string {
+  const fmt = (n: number) =>
+    new Intl.NumberFormat("fr-FR", { style: "currency", currency: data.currency }).format(n);
+
+  const monthLabel = new Date(data.month + "-02").toLocaleDateString("fr-FR", {
+    month: "long",
+    year: "numeric",
+  });
+
+  const isPositive = data.net >= 0;
+  const netColor = isPositive ? "#2e7d32" : "#d32f2f";
+  const netPrefix = isPositive ? "+" : "";
+  const cashflowLabel = isPositive ? "excédent" : "déficit";
+
+  const categoriesHtml =
+    data.topCategories.length === 0
+      ? `<p style="color: #888; font-style: italic;">Aucune dépense ce mois</p>`
+      : data.topCategories
+          .slice(0, 3)
+          .map(
+            (c) => `
+          <tr>
+            <td style="padding: 8px 12px; color: #555; font-size: 14px;">${c.category}</td>
+            <td style="padding: 8px 12px; color: #333; font-size: 14px; text-align: right;">${fmt(c.total)}</td>
+            <td style="padding: 8px 12px; color: #888; font-size: 13px; text-align: right;">${Math.round(c.percentage)}%</td>
+          </tr>`
+          )
+          .join("");
+
+  const body = `
+    <h2 style="margin: 0 0 4px; font-size: 22px; color: #1a1a1a;">Récapitulatif mensuel</h2>
+    <p style="margin: 0 0 24px; color: #888; font-size: 14px;">${monthLabel}</p>
+
+    <table style="width: 100%; border-collapse: collapse; margin: 0 0 24px;">
+      <tr>
+        <td style="padding: 10px 12px; background: #f5f5f5; border-radius: 4px 0 0 4px; color: #555; font-size: 14px;">Revenus</td>
+        <td style="padding: 10px 12px; background: #f5f5f5; border-radius: 0 4px 4px 0; color: #2e7d32; font-weight: 700; font-size: 16px; text-align: right;">${fmt(data.income)}</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px 12px; color: #555; font-size: 14px;">Dépenses</td>
+        <td style="padding: 10px 12px; color: #d32f2f; font-weight: 700; font-size: 16px; text-align: right;">${fmt(data.expenses)}</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px 12px; background: #f0f0f0; color: #333; font-size: 14px; font-weight: 600; border-radius: 4px 0 0 4px;">Cashflow net (${cashflowLabel})</td>
+        <td style="padding: 10px 12px; background: #f0f0f0; color: ${netColor}; font-weight: 700; font-size: 16px; text-align: right; border-radius: 0 4px 4px 0;">${netPrefix}${fmt(data.net)}</td>
+      </tr>
+    </table>
+
+    <h3 style="margin: 0 0 12px; font-size: 16px; color: #1a1a1a;">Top catégories de dépenses</h3>
+    <table style="width: 100%; border-collapse: collapse; margin: 0 0 24px;">
+      <tr style="border-bottom: 1px solid #e0e0e0;">
+        <th style="padding: 8px 12px; text-align: left; font-size: 12px; color: #888; text-transform: uppercase;">Catégorie</th>
+        <th style="padding: 8px 12px; text-align: right; font-size: 12px; color: #888; text-transform: uppercase;">Montant</th>
+        <th style="padding: 8px 12px; text-align: right; font-size: 12px; color: #888; text-transform: uppercase;">Part</th>
+      </tr>
+      ${categoriesHtml}
+    </table>
+  `;
+
+  return renderEmailBase(`Récapitulatif mensuel — ${monthLabel}`, body);
+}
+
 export function renderLowBalanceAlert(
   accountName: string,
   balance: number,
