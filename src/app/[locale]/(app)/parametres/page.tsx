@@ -10,6 +10,7 @@ import { BillingPortalButton } from "@/components/billing-portal-button";
 import { DeleteUserAccountDialog } from "@/components/delete-user-account-dialog";
 import { BudgetForm } from "@/components/budget-form";
 import { MonthlySummaryEmailButton } from "@/components/monthly-summary-email-button";
+import { MonthlyReportButton } from "@/components/monthly-report-button";
 import { getCategorizationRules, getSetting, getAllAccounts, getBudgets } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
@@ -25,6 +26,8 @@ export const dynamic = "force-dynamic";
 export default async function ParametresPage() {
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
+
+  const aiAccess = await (await import("@/lib/subscription-utils")).canUseAI(userId);
 
   const [rules, tags, liveRate, fallbackRateStr, openrouterKey, subscription, t, accounts] = await Promise.all([
     getCategorizationRules(db),
@@ -83,6 +86,7 @@ export default async function ParametresPage() {
         <CardContent className="space-y-4">
           <ExportImportButtons />
           <MonthlySummaryEmailButton />
+          {aiAccess.allowed && <MonthlyReportButton />}
           <p className="text-sm text-muted-foreground">
             {t("backup.description")}
           </p>
