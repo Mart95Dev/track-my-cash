@@ -47,3 +47,42 @@ describe("renderWelcomeEmail", () => {
     expect(callArg).toContain("—");
   });
 });
+
+describe("renderLowBalanceAlert", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("TU-2-1 : contient le nom du compte", async () => {
+    const { renderLowBalanceAlert } = await import("@/lib/email-templates");
+    const { renderEmailBase } = await import("@/lib/email");
+    renderLowBalanceAlert("Compte Courant", 250, 500, "EUR");
+    const body = vi.mocked(renderEmailBase).mock.calls[0][1];
+    expect(body).toContain("Compte Courant");
+  });
+
+  it("TU-2-2 : contient le solde formaté en euros", async () => {
+    const { renderLowBalanceAlert } = await import("@/lib/email-templates");
+    const { renderEmailBase } = await import("@/lib/email");
+    renderLowBalanceAlert("Compte Courant", 250, 500, "EUR");
+    const body = vi.mocked(renderEmailBase).mock.calls[0][1];
+    // Intl.NumberFormat fr-FR formate 250 en "250,00 €" ou "250 €"
+    expect(body).toMatch(/250/);
+  });
+
+  it("TU-2-3 : contient le seuil d'alerte formaté", async () => {
+    const { renderLowBalanceAlert } = await import("@/lib/email-templates");
+    const { renderEmailBase } = await import("@/lib/email");
+    renderLowBalanceAlert("Compte Courant", 250, 500, "EUR");
+    const body = vi.mocked(renderEmailBase).mock.calls[0][1];
+    expect(body).toMatch(/500/);
+  });
+
+  it("TU-2-4 : contient '⚠️' ou 'alerte' dans le titre passé à renderEmailBase", async () => {
+    const { renderLowBalanceAlert } = await import("@/lib/email-templates");
+    const { renderEmailBase } = await import("@/lib/email");
+    renderLowBalanceAlert("Compte Courant", 250, 500, "EUR");
+    const title = vi.mocked(renderEmailBase).mock.calls[0][0];
+    expect(title.toLowerCase()).toMatch(/alerte|⚠️/);
+  });
+});

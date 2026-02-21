@@ -12,6 +12,7 @@ export interface Account {
   created_at: string;
   calculated_balance?: number;
   alert_threshold?: number | null;
+  last_alert_sent_at?: string | null;
 }
 
 export interface Transaction {
@@ -93,6 +94,7 @@ function rowToAccount(row: Row): Account {
     currency: String(row.currency),
     created_at: String(row.created_at),
     alert_threshold: row.alert_threshold != null ? Number(row.alert_threshold) : null,
+    last_alert_sent_at: row.last_alert_sent_at != null ? String(row.last_alert_sent_at) : null,
   };
 }
 

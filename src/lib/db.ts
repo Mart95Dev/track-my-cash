@@ -111,6 +111,7 @@ export async function initSchema() {
     "ALTER TABLE recurring_payments ADD COLUMN end_date TEXT",
     "ALTER TABLE recurring_payments ADD COLUMN subcategory TEXT",
     "ALTER TABLE transactions ADD COLUMN subcategory TEXT",
+    "ALTER TABLE accounts ADD COLUMN last_alert_sent_at TEXT",
     // Migre les anciennes lignes : l'ancien category (pattern) → subcategory,
     // et dérive la catégorie large depuis les règles → category.
     // WHERE subcategory IS NULL cible uniquement les lignes pré-migration.

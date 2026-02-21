@@ -9,7 +9,8 @@ import {
   updateAccountBalance,
 } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
-import { getRequiredUserId } from "@/lib/auth-utils";
+import { getRequiredUserId, getRequiredSession } from "@/lib/auth-utils";
+import { checkAndSendLowBalanceAlert } from "@/lib/alert-service";
 import { canImportFormat } from "@/lib/subscription-utils";
 import { revalidatePath } from "next/cache";
 
@@ -139,7 +140,8 @@ export async function confirmImportAction(
     import_hash: t.import_hash,
   }));
 
-  const userId = await getRequiredUserId();
+  const session = await getRequiredSession();
+  const userId = session.user.id;
   const db = await getUserDb(userId);
   const count = await bulkInsertTransactions(db, toInsert);
 
@@ -165,6 +167,8 @@ export async function confirmImportAction(
     balanceUpdated = true;
   }
 
+  // Fire-and-forget — ne bloque pas l'import
+  checkAndSendLowBalanceAlert(db, accountId, session.user.email).catch(() => {});
   revalidatePath("/");
   revalidatePath("/transactions");
   revalidatePath("/comptes");

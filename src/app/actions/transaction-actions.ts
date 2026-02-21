@@ -7,7 +7,8 @@ import {
   updateTransaction,
 } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
-import { getRequiredUserId } from "@/lib/auth-utils";
+import { getRequiredUserId, getRequiredSession } from "@/lib/auth-utils";
+import { checkAndSendLowBalanceAlert } from "@/lib/alert-service";
 import { revalidatePath } from "next/cache";
 
 export async function getTransactionsAction(accountId?: number) {
@@ -29,9 +30,12 @@ export async function createTransactionAction(_prev: unknown, formData: FormData
     return { error: "Champs obligatoires manquants" };
   }
 
-  const userId = await getRequiredUserId();
+  const session = await getRequiredSession();
+  const userId = session.user.id;
   const db = await getUserDb(userId);
   const transaction = await createTransaction(db, accountId, type, amount, date, category, subcategory, description);
+  // Fire-and-forget — ne bloque pas la création
+  checkAndSendLowBalanceAlert(db, accountId, session.user.email).catch(() => {});
   revalidatePath("/");
   revalidatePath("/transactions");
   return { success: true, transaction };
