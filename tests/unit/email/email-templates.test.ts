@@ -86,3 +86,37 @@ describe("renderLowBalanceAlert", () => {
     expect(title.toLowerCase()).toMatch(/alerte|⚠️/);
   });
 });
+
+describe("renderBudgetAlert", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("TU-3-1 : type 'warning' — sujet contient ⚠️ et la catégorie", async () => {
+    const { renderBudgetAlert } = await import("@/lib/email-templates");
+    const { renderEmailBase } = await import("@/lib/email");
+    renderBudgetAlert("Alimentation", 420, 500, 84, "warning", "EUR");
+    const title = vi.mocked(renderEmailBase).mock.calls[0][0];
+    expect(title).toContain("⚠️");
+    expect(title).toContain("Alimentation");
+  });
+
+  it("TU-3-2 : type 'exceeded' — sujet contient 🚨 et le pourcentage dans le corps", async () => {
+    const { renderBudgetAlert } = await import("@/lib/email-templates");
+    const { renderEmailBase } = await import("@/lib/email");
+    renderBudgetAlert("Transport", 550, 500, 110, "exceeded", "EUR");
+    const title = vi.mocked(renderEmailBase).mock.calls[0][0];
+    const body = vi.mocked(renderEmailBase).mock.calls[0][1];
+    expect(title).toContain("🚨");
+    expect(body).toContain("110");
+  });
+
+  it("TU-3-3 : les montants dépensé et limite sont présents dans le corps", async () => {
+    const { renderBudgetAlert } = await import("@/lib/email-templates");
+    const { renderEmailBase } = await import("@/lib/email");
+    renderBudgetAlert("Loisirs", 80, 100, 80, "warning", "EUR");
+    const body = vi.mocked(renderEmailBase).mock.calls[0][1];
+    expect(body).toMatch(/80/);
+    expect(body).toMatch(/100/);
+  });
+});

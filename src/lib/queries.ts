@@ -92,6 +92,8 @@ export interface Budget {
   amount_limit: number;
   period: "monthly" | "yearly";
   created_at: string;
+  last_budget_alert_at?: string | null;
+  last_budget_alert_type?: "warning" | "exceeded" | null;
 }
 
 export interface BudgetStatus {
@@ -939,6 +941,10 @@ export async function getBudgets(db: Client, accountId: number): Promise<Budget[
     amount_limit: Number(row.amount_limit),
     period: String(row.period) as "monthly" | "yearly",
     created_at: String(row.created_at),
+    last_budget_alert_at: row.last_budget_alert_at != null ? String(row.last_budget_alert_at) : null,
+    last_budget_alert_type: row.last_budget_alert_type != null
+      ? String(row.last_budget_alert_type) as "warning" | "exceeded"
+      : null,
   }));
 }
 

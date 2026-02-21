@@ -9,6 +9,7 @@ import {
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId, getRequiredSession } from "@/lib/auth-utils";
 import { checkAndSendLowBalanceAlert } from "@/lib/alert-service";
+import { checkAndSendBudgetAlerts } from "@/lib/budget-alert-service";
 import { revalidatePath } from "next/cache";
 
 export async function getTransactionsAction(accountId?: number) {
@@ -36,6 +37,7 @@ export async function createTransactionAction(_prev: unknown, formData: FormData
   const transaction = await createTransaction(db, accountId, type, amount, date, category, subcategory, description);
   // Fire-and-forget — ne bloque pas la création
   checkAndSendLowBalanceAlert(db, accountId, session.user.email).catch(() => {});
+  checkAndSendBudgetAlerts(db, accountId, session.user.email).catch(() => {});
   revalidatePath("/");
   revalidatePath("/transactions");
   return { success: true, transaction };

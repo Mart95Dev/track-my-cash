@@ -125,6 +125,8 @@ export async function initSchema() {
     // et dérive la catégorie large depuis les règles → category.
     // WHERE subcategory IS NULL cible uniquement les lignes pré-migration.
     `UPDATE transactions SET subcategory = category, category = COALESCE((SELECT cr.category FROM categorization_rules cr WHERE cr.pattern = transactions.category ORDER BY cr.priority DESC LIMIT 1), category) WHERE subcategory IS NULL`,
+    "ALTER TABLE budgets ADD COLUMN last_budget_alert_at TEXT",
+    "ALTER TABLE budgets ADD COLUMN last_budget_alert_type TEXT",
   ];
   for (const sql of migrations) {
     try {
