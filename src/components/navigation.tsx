@@ -28,6 +28,7 @@ export function Navigation() {
     { href: "/transactions" as const, label: t("transactions") },
     { href: "/recurrents" as const, label: t("recurring") },
     { href: "/previsions" as const, label: t("forecasts") },
+    { href: "/objectifs" as const, label: t("goals") },
     { href: "/conseiller" as const, label: t("advisor") },
     { href: "/parametres" as const, label: t("settings") },
   ];

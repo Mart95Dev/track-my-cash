@@ -127,6 +127,24 @@ export async function initSchema() {
     `UPDATE transactions SET subcategory = category, category = COALESCE((SELECT cr.category FROM categorization_rules cr WHERE cr.pattern = transactions.category ORDER BY cr.priority DESC LIMIT 1), category) WHERE subcategory IS NULL`,
     "ALTER TABLE budgets ADD COLUMN last_budget_alert_at TEXT",
     "ALTER TABLE budgets ADD COLUMN last_budget_alert_type TEXT",
+    `CREATE TABLE IF NOT EXISTS goals (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      target_amount REAL NOT NULL,
+      current_amount REAL NOT NULL DEFAULT 0,
+      currency TEXT NOT NULL DEFAULT 'EUR',
+      deadline TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )`,
+    `CREATE TABLE IF NOT EXISTS notifications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT NOT NULL,
+      title TEXT NOT NULL,
+      message TEXT NOT NULL,
+      read INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )`,
+    "CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(read, created_at DESC)",
   ];
   for (const sql of migrations) {
     try {

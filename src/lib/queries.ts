@@ -1035,3 +1035,161 @@ export async function upsertBudget(
 export async function deleteBudget(db: Client, id: number): Promise<void> {
   await db.execute({ sql: "DELETE FROM budgets WHERE id = ?", args: [id] });
 }
+
+// ============ GOALS ============
+
+export interface Goal {
+  id: number;
+  name: string;
+  target_amount: number;
+  current_amount: number;
+  currency: string;
+  deadline: string | null;
+  created_at: string;
+}
+
+function rowToGoal(row: Row): Goal {
+  return {
+    id: Number(row.id),
+    name: String(row.name),
+    target_amount: Number(row.target_amount),
+    current_amount: Number(row.current_amount),
+    currency: String(row.currency),
+    deadline: row.deadline != null ? String(row.deadline) : null,
+    created_at: String(row.created_at),
+  };
+}
+
+export async function getGoals(db: Client): Promise<Goal[]> {
+  const result = await db.execute({
+    sql: "SELECT * FROM goals ORDER BY created_at DESC",
+    args: [],
+  });
+  return result.rows.map(rowToGoal);
+}
+
+export async function createGoal(
+  db: Client,
+  name: string,
+  targetAmount: number,
+  currentAmount: number,
+  currency: string,
+  deadline?: string
+): Promise<Goal> {
+  const result = await db.execute({
+    sql: "INSERT INTO goals (name, target_amount, current_amount, currency, deadline) VALUES (?, ?, ?, ?, ?)",
+    args: [name, targetAmount, currentAmount, currency, deadline ?? null],
+  });
+  const row = await db.execute({
+    sql: "SELECT * FROM goals WHERE id = ?",
+    args: [Number(result.lastInsertRowid)],
+  });
+  return rowToGoal(row.rows[0]);
+}
+
+export async function updateGoal(
+  db: Client,
+  id: number,
+  data: { name?: string; target_amount?: number; current_amount?: number; currency?: string; deadline?: string | null }
+): Promise<void> {
+  const sets: string[] = [];
+  const args: (string | number | null)[] = [];
+  if (data.name !== undefined) { sets.push("name = ?"); args.push(data.name); }
+  if (data.target_amount !== undefined) { sets.push("target_amount = ?"); args.push(data.target_amount); }
+  if (data.current_amount !== undefined) { sets.push("current_amount = ?"); args.push(data.current_amount); }
+  if (data.currency !== undefined) { sets.push("currency = ?"); args.push(data.currency); }
+  if (data.deadline !== undefined) { sets.push("deadline = ?"); args.push(data.deadline); }
+  if (sets.length === 0) return;
+  args.push(id);
+  await db.execute({ sql: `UPDATE goals SET ${sets.join(", ")} WHERE id = ?`, args });
+}
+
+export async function deleteGoal(db: Client, id: number): Promise<void> {
+  await db.execute({ sql: "DELETE FROM goals WHERE id = ?", args: [id] });
+}
+
+// ============ NOTIFICATIONS ============
+
+export interface Notification {
+  id: number;
+  type: "budget_exceeded" | "low_balance" | "import_complete" | "goal_reached";
+  title: string;
+  message: string;
+  read: boolean;
+  created_at: string;
+}
+
+function rowToNotification(row: Row): Notification {
+  return {
+    id: Number(row.id),
+    type: String(row.type) as Notification["type"],
+    title: String(row.title),
+    message: String(row.message),
+    read: Number(row.read) === 1,
+    created_at: String(row.created_at),
+  };
+}
+
+export async function getNotifications(db: Client, limit = 10): Promise<Notification[]> {
+  const result = await db.execute({
+    sql: "SELECT * FROM notifications ORDER BY created_at DESC LIMIT ?",
+    args: [limit],
+  });
+  return result.rows.map(rowToNotification);
+}
+
+export async function getUnreadNotificationsCount(db: Client): Promise<number> {
+  const result = await db.execute({
+    sql: "SELECT COUNT(*) as count FROM notifications WHERE read = 0",
+    args: [],
+  });
+  return Number(result.rows[0]?.count ?? 0);
+}
+
+export async function createNotification(
+  db: Client,
+  type: Notification["type"],
+  title: string,
+  message: string
+): Promise<void> {
+  await db.execute({
+    sql: "INSERT INTO notifications (type, title, message) VALUES (?, ?, ?)",
+    args: [type, title, message],
+  });
+}
+
+export async function markNotificationRead(db: Client, id: number): Promise<void> {
+  await db.execute({ sql: "UPDATE notifications SET read = 1 WHERE id = ?", args: [id] });
+}
+
+export async function markAllNotificationsRead(db: Client): Promise<void> {
+  await db.execute({ sql: "UPDATE notifications SET read = 1 WHERE read = 0", args: [] });
+}
+
+// ============ AI CATEGORIZE ============
+
+export async function getUncategorizedTransactions(
+  db: Client,
+  limit = 50
+): Promise<Transaction[]> {
+  const result = await db.execute({
+    sql: `SELECT t.*, a.name as account_name FROM transactions t
+      LEFT JOIN accounts a ON t.account_id = a.id
+      WHERE (t.category = '' OR t.category = 'Autre' OR t.category IS NULL)
+      ORDER BY t.date DESC LIMIT ?`,
+    args: [limit],
+  });
+  return result.rows.map(rowToTransaction);
+}
+
+export async function batchUpdateCategories(
+  db: Client,
+  categorizations: { id: number; category: string; subcategory?: string }[]
+): Promise<void> {
+  for (const c of categorizations) {
+    await db.execute({
+      sql: "UPDATE transactions SET category = ?, subcategory = ? WHERE id = ?",
+      args: [c.category, c.subcategory ?? null, c.id],
+    });
+  }
+}

@@ -8,6 +8,7 @@ import {
   getAllAccounts,
   getSetting,
   getBudgetStatus,
+  getGoals,
 } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
@@ -21,6 +22,7 @@ import { MonthlySummary } from "@/components/monthly-summary";
 import { AccountFilter } from "@/components/account-filter";
 import { BudgetProgress } from "@/components/budget-progress";
 import { SpendingTrendChart } from "@/components/charts/spending-trend-chart";
+import { SavingsGoalsWidget } from "@/components/savings-goals-widget";
 import { getTranslations, getLocale } from "next-intl/server";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LayoutDashboard } from "lucide-react";
@@ -41,7 +43,7 @@ export default async function DashboardPage({
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
 
-  const [data, balanceHistory, expensesByPattern, expensesByBroad, monthlySummary, spendingTrend, rates, accounts, refCurrencySetting, budgetStatuses, onboardingCompleted] =
+  const [data, balanceHistory, expensesByPattern, expensesByBroad, monthlySummary, spendingTrend, rates, accounts, refCurrencySetting, budgetStatuses, onboardingCompleted, goals] =
     await Promise.all([
       getDashboardData(db, accountId),
       getMonthlyBalanceHistory(db, 12, accountId),
@@ -54,6 +56,7 @@ export default async function DashboardPage({
       getSetting(db, "reference_currency"),
       accountId ? getBudgetStatus(db, accountId) : Promise.resolve([]),
       getSetting(db, "onboarding_completed"),
+      getGoals(db),
     ]);
 
   const showOnboarding = !onboardingCompleted && accounts.length === 0;
@@ -265,6 +268,9 @@ export default async function DashboardPage({
           </CardContent>
         </Card>
       )}
+
+      {/* Objectifs d'épargne */}
+      {goals.length > 0 && <SavingsGoalsWidget goals={goals} />}
 
       {/* Monthly summary */}
       <MonthlySummary data={monthlySummary} />

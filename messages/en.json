@@ -9,7 +9,8 @@
     "settings": "Settings",
     "appName": "TrackMyCash",
     "menu": "Menu",
-    "logout": "Log out"
+    "logout": "Log out",
+    "goals": "Goals"
   },
   "auth": {
     "signIn": "Sign in",
