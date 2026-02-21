@@ -3,7 +3,8 @@ sprint:
   goal: "Activation utilisateur, polish UX, dette technique, rétention budgets"
   start_date: "2026-02-21"
   end_date: null
-  status: in_progress
+  status: completed
+  end_date: "2026-02-21"
 
 stories:
   - id: STORY-019
@@ -66,6 +67,10 @@ metrics:
   in_progress: 0
   pending: 0
   total_points: 17
+
+  qa_verdict: PASS
+  qa_tests: 184
+  qa_commit: "1862e93"
 
 previous_sprint:
   id: sprint-growth-qualite
