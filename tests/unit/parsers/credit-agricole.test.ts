@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "fs";
 import { join } from "path";
+import type { ParseResult } from "@/lib/parsers/types";
 import { creditAgricoleParser } from "@/lib/parsers/credit-agricole";
 
 const fixture = readFileSync(join(__dirname, "../../fixtures/credit-agricole.csv"), "utf-8");
@@ -26,26 +27,26 @@ describe("creditAgricoleParser", () => {
 
   describe("parse", () => {
     it("TU-1-5 : retourne 5 transactions depuis le fixture", () => {
-      const result = creditAgricoleParser.parse(fixture, null);
-      expect((result as ReturnType<typeof creditAgricoleParser.parse>).transactions).toHaveLength(5);
+      const result = creditAgricoleParser.parse(fixture, null) as ParseResult;
+      expect(result.transactions).toHaveLength(5);
     });
 
     it("TU-1-6 : les débits sont des dépenses (expense)", () => {
-      const result = creditAgricoleParser.parse(fixture, null) as { transactions: Array<{ type: string; amount: number }> };
+      const result = creditAgricoleParser.parse(fixture, null) as ParseResult;
       const expenses = result.transactions.filter((t) => t.type === "expense");
       expect(expenses).toHaveLength(3);
       expect(expenses[0].amount).toBeCloseTo(87.5);
     });
 
     it("TU-1-7 : les crédits sont des revenus (income)", () => {
-      const result = creditAgricoleParser.parse(fixture, null) as { transactions: Array<{ type: string; amount: number }> };
+      const result = creditAgricoleParser.parse(fixture, null) as ParseResult;
       const incomes = result.transactions.filter((t) => t.type === "income");
       expect(incomes).toHaveLength(2);
       expect(incomes[0].amount).toBeCloseTo(2500);
     });
 
     it("TU-1-8 : bankName = 'Crédit Agricole', currency = 'EUR'", () => {
-      const result = creditAgricoleParser.parse(fixture, null) as { bankName: string; currency: string };
+      const result = creditAgricoleParser.parse(fixture, null) as ParseResult;
       expect(result.bankName).toBe("Crédit Agricole");
       expect(result.currency).toBe("EUR");
     });
