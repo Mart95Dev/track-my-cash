@@ -2,7 +2,7 @@
 
 import { formatCurrency } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 interface Account {
   id: number;
@@ -22,6 +22,7 @@ export function AiAccountSelector({
   onToggle: (id: number) => void;
 }) {
   const t = useTranslations("aiAccountSelector");
+  const locale = useLocale();
   const allSelected = accounts.length > 0 && selectedIds.length === accounts.length;
 
   function toggleAll() {
@@ -71,7 +72,7 @@ export function AiAccountSelector({
                   balance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
                 }`}
               >
-                {formatCurrency(balance, account.currency)}
+                {formatCurrency(balance, account.currency, locale)}
               </p>
             </button>
           );

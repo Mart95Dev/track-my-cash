@@ -1,0 +1,27 @@
+# Track Standard — Fonctionnalité / module (1-5 jours)
+name: standard
+description: "Nouvelle fonctionnalité ou module"
+agents:
+  - pm
+  - architect
+  - sm
+  - dev
+  - qa
+steps:
+  - id: plan
+    agent: pm
+    action: "/forge-plan"
+  - id: architect
+    agent: architect
+    action: "/forge-architect"
+  - id: stories
+    agent: sm
+    action: "/forge-stories"
+  - id: build
+    agent: dev
+    action: "/forge-build STORY-XXX"
+    repeat: per_story
+  - id: verify
+    agent: qa
+    action: "/forge-verify STORY-XXX"
+    repeat: per_story

@@ -3,6 +3,7 @@ import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -16,33 +17,41 @@ import { DeleteTransactionButton } from "@/components/delete-transaction-button"
 import { EditTransactionDialog } from "@/components/edit-transaction-dialog";
 import { ImportButton } from "@/components/import-button";
 import { TransactionSearch } from "@/components/transaction-search";
+import { TransactionTagPopover } from "@/components/transaction-tag-popover";
 import { Pagination } from "@/components/pagination";
 import { ExportTransactions } from "@/components/export-transactions";
-import { getTranslations } from "next-intl/server";
+import { getTagsAction, getTransactionTagsBatchAction } from "@/app/actions/tag-actions";
+import { getTranslations, getLocale } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function TransactionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ accountId?: string; q?: string; sort?: string; page?: string }>;
+  searchParams: Promise<{ accountId?: string; q?: string; sort?: string; page?: string; tagId?: string }>;
 }) {
   const params = await searchParams;
   const accountId = params.accountId ? parseInt(params.accountId) : undefined;
   const search = params.q || undefined;
   const sort = params.sort || "date_desc";
   const page = params.page ? parseInt(params.page) : 1;
+  const tagId = params.tagId ? parseInt(params.tagId) : undefined;
   const perPage = 20;
   const t = await getTranslations("transactions");
+  const locale = await getLocale();
 
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
 
-  const [{ transactions, total }, accounts, rules] = await Promise.all([
-    searchTransactions(db, { accountId, search, sort, page, perPage }),
+  const [{ transactions, total }, accounts, rules, allTags] = await Promise.all([
+    searchTransactions(db, { accountId, search, sort, page, perPage, tagId }),
     getAllAccounts(db),
     getCategorizationRules(db),
+    getTagsAction(),
   ]);
+
+  const txIds = transactions.map((tx) => tx.id);
+  const txTagsMap = await getTransactionTagsBatchAction(txIds);
 
   const totalPages = Math.ceil(total / perPage);
 
@@ -68,6 +77,8 @@ export default async function TransactionsPage({
           currentAccountId={accountId}
           currentSearch={search}
           currentSort={sort}
+          tags={allTags}
+          currentTagId={tagId}
         />
         <ExportTransactions transactions={transactions} />
       </div>
@@ -92,6 +103,7 @@ export default async function TransactionsPage({
                       <TableHead>Date</TableHead>
                       <TableHead>Description</TableHead>
                       <TableHead>Catégorie</TableHead>
+                      <TableHead>Tags</TableHead>
                       <TableHead className="text-right">Montant</TableHead>
                       <TableHead></TableHead>
                     </TableRow>
@@ -100,7 +112,7 @@ export default async function TransactionsPage({
                     {transactions.map((tx) => (
                       <TableRow key={tx.id}>
                         <TableCell className="whitespace-nowrap">
-                          {formatDate(tx.date)}
+                          {formatDate(tx.date, locale)}
                         </TableCell>
                         <TableCell>{tx.description || "—"}</TableCell>
                         <TableCell>
@@ -108,6 +120,13 @@ export default async function TransactionsPage({
                           {tx.subcategory && (
                             <span className="block text-xs text-muted-foreground">{tx.subcategory}</span>
                           )}
+                        </TableCell>
+                        <TableCell>
+                          <TransactionTagPopover
+                            transactionId={tx.id}
+                            allTags={allTags}
+                            initialTagIds={txTagsMap[tx.id] ?? []}
+                          />
                         </TableCell>
                         <TableCell
                           className={`text-right font-medium whitespace-nowrap ${
@@ -117,7 +136,7 @@ export default async function TransactionsPage({
                           }`}
                         >
                           {tx.type === "income" ? "+" : "-"}
-                          {formatCurrency(tx.amount)}
+                          {formatCurrency(tx.amount, "EUR", locale)}
                         </TableCell>
                         <TableCell className="flex gap-1">
                           <EditTransactionDialog transaction={tx} accounts={accounts} rules={rules} />
@@ -132,27 +151,46 @@ export default async function TransactionsPage({
               {/* Mobile cards */}
               <div className="md:hidden divide-y">
                 {transactions.map((tx) => (
-                  <div key={tx.id} className="p-4 flex items-center justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium truncate">{tx.description || tx.category}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDate(tx.date)}
-                      </p>
+                  <div key={tx.id} className="p-4 space-y-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium truncate">{tx.description || tx.category}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(tx.date, locale)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span
+                          className={`font-medium ${
+                            tx.type === "income"
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-red-600 dark:text-red-400"
+                          }`}
+                        >
+                          {tx.type === "income" ? "+" : "-"}
+                          {formatCurrency(tx.amount, "EUR", locale)}
+                        </span>
+                        <EditTransactionDialog transaction={tx} accounts={accounts} rules={rules} />
+                        <DeleteTransactionButton id={tx.id} />
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span
-                        className={`font-medium ${
-                          tx.type === "income"
-                            ? "text-green-600 dark:text-green-400"
-                            : "text-red-600 dark:text-red-400"
-                        }`}
-                      >
-                        {tx.type === "income" ? "+" : "-"}
-                        {formatCurrency(tx.amount)}
-                      </span>
-                      <EditTransactionDialog transaction={tx} accounts={accounts} rules={rules} />
-                      <DeleteTransactionButton id={tx.id} />
-                    </div>
+                    {(txTagsMap[tx.id]?.length ?? 0) > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {(txTagsMap[tx.id] ?? []).map((tagIdVal) => {
+                          const tag = allTags.find((tg) => tg.id === tagIdVal);
+                          if (!tag) return null;
+                          return (
+                            <Badge
+                              key={tag.id}
+                              style={{ backgroundColor: tag.color, color: "#fff" }}
+                              className="text-xs"
+                            >
+                              {tag.name}
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

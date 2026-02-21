@@ -8,7 +8,7 @@ import { RecurringForm } from "@/components/recurring-form";
 import { DeleteRecurringButton } from "@/components/delete-recurring-button";
 import { EditRecurringDialog } from "@/components/edit-recurring-dialog";
 import { AccountFilter } from "@/components/account-filter";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +20,7 @@ export default async function RecurrentsPage({
   const params = await searchParams;
   const accountId = params.accountId ? parseInt(params.accountId) : undefined;
   const t = await getTranslations("recurring");
+  const locale = await getLocale();
 
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
@@ -80,11 +81,11 @@ export default async function RecurrentsPage({
                         <span className="text-xs text-muted-foreground self-center">{p.subcategory}</span>
                       )}
                       <span className="text-sm text-muted-foreground">
-                        {t("nextDate", { date: formatDate(p.next_date) })}
+                        {t("nextDate", { date: formatDate(p.next_date, locale) })}
                       </span>
                       {p.end_date && (
                         <Badge variant="outline" className="text-orange-600 border-orange-300">
-                          {t("untilDate", { date: formatDate(p.end_date) })}
+                          {t("untilDate", { date: formatDate(p.end_date, locale) })}
                         </Badge>
                       )}
                     </div>
@@ -98,7 +99,7 @@ export default async function RecurrentsPage({
                       }`}
                     >
                       {p.type === "income" ? "+" : "-"}
-                      {formatCurrency(p.amount)}
+                      {formatCurrency(p.amount, "EUR", locale)}
                     </p>
                     <EditRecurringDialog payment={p} accounts={accounts} rules={rules} />
                     <DeleteRecurringButton id={p.id} />

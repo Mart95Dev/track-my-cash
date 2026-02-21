@@ -1,0 +1,16 @@
+# Track Quick — Bug fix / hotfix (< 1 jour)
+name: quick
+description: "Correction rapide ou petite amélioration"
+agents:
+  - dev
+  - quick-qa
+steps:
+  - id: spec
+    agent: dev
+    action: "/forge-quick-spec"
+  - id: build
+    agent: dev
+    action: "/forge-build"
+  - id: verify
+    agent: quick-qa
+    action: "/forge-verify --quick"

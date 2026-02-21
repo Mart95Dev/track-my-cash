@@ -51,3 +51,23 @@ Routes françaises : `/`, `/comptes`, `/transactions`, `/recurrents`, `/previsio
 - Ne jamais référencer Claude/AI dans les messages de commit
 - Couleurs unies uniquement (pas de dégradés) sauf demande explicite
 - Formatage monétaire via `src/lib/format.ts` (Intl.NumberFormat fr-FR)
+
+## FORGE — Commandes disponibles
+
+```bash
+/forge-auto "objectif"   # Autopilote complet (plan → archi → stories → build → verify)
+/forge-plan              # Générer le PRD (Product Requirements Document)
+/forge-architect         # Générer l'architecture technique
+/forge-stories           # Décomposer en stories avec specs de tests
+/forge-build STORY-XXX   # Implémenter une story (TDD)
+/forge-verify STORY-XXX  # QA : audit + certification de la story
+/forge-status            # Voir l'état du sprint
+/forge-resume            # Reprendre là où on s'est arrêté
+/forge-quick-spec "desc" # Track rapide : spec + implémentation directe
+/forge-review <fichier>  # Revue contradictoire d'un artefact
+/forge-memory sync       # Synchroniser la mémoire vectorielle
+```
+
+**Configuration :** `.forge/config.yml`
+**Mémoire persistante :** `.forge/memory/MEMORY.md`
+**Stories :** `docs/stories/`

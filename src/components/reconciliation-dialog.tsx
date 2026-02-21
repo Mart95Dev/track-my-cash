@@ -21,10 +21,11 @@ import {
 } from "@/app/actions/reconciliation-actions";
 import { toast } from "sonner";
 import type { Account } from "@/lib/queries";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 export function ReconciliationDialog({ account }: { account: Account }) {
   const t = useTranslations("reconciliation");
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [statementBalance, setStatementBalance] = useState("");
@@ -61,7 +62,7 @@ export function ReconciliationDialog({ account }: { account: Account }) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-muted-foreground">{t("calculatedBalance")}</p>
-              <p className="text-lg font-bold">{formatCurrency(calculatedBalance, account.currency)}</p>
+              <p className="text-lg font-bold">{formatCurrency(calculatedBalance, account.currency, locale)}</p>
             </div>
             <div className="space-y-2">
               <Label>{t("statementBalance")}</Label>
@@ -83,7 +84,7 @@ export function ReconciliationDialog({ account }: { account: Account }) {
           {diff !== null && (
             <div className={`p-3 rounded-lg border ${Math.abs(diff) < 0.01 ? "bg-green-50 dark:bg-green-950" : "bg-orange-50 dark:bg-orange-950"}`}>
               <p className="font-medium">
-                {t("gap", { amount: formatCurrency(Math.abs(diff), account.currency) })}
+                {t("gap", { amount: formatCurrency(Math.abs(diff), account.currency, locale) })}
                 {Math.abs(diff) < 0.01 ? (
                   <Badge className="ml-2 bg-green-600">{t("reconciled")}</Badge>
                 ) : (
@@ -107,10 +108,10 @@ export function ReconciliationDialog({ account }: { account: Account }) {
                         });
                       }}
                     />
-                    <span className="text-muted-foreground">{formatDate(tx.date)}</span>
+                    <span className="text-muted-foreground">{formatDate(tx.date, locale)}</span>
                     <span className="flex-1 truncate">{tx.description || "—"}</span>
                     <span className={tx.type === "income" ? "text-green-600" : "text-red-600"}>
-                      {tx.type === "income" ? "+" : "-"}{formatCurrency(tx.amount, account.currency)}
+                      {tx.type === "income" ? "+" : "-"}{formatCurrency(tx.amount, account.currency, locale)}
                     </span>
                   </div>
                 ))}

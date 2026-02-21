@@ -5,10 +5,11 @@ import {
   getExpensesByBroadCategory,
   getMonthlySummary,
   getAllAccounts,
+  getSetting,
 } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
-import { getExchangeRate } from "@/lib/currency";
+import { getAllRates, convertToReference, REFERENCE_CURRENCY } from "@/lib/currency";
 import { formatCurrency } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +17,7 @@ import { BalanceEvolutionChart } from "@/components/charts/balance-evolution-cha
 import { ExpenseBreakdownChart } from "@/components/charts/expense-breakdown-chart";
 import { MonthlySummary } from "@/components/monthly-summary";
 import { AccountFilter } from "@/components/account-filter";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
 
@@ -28,29 +29,36 @@ export default async function DashboardPage({
   const params = await searchParams;
   const accountId = params.accountId ? parseInt(params.accountId) : undefined;
   const t = await getTranslations("dashboard");
+  const locale = await getLocale();
 
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
 
-  const [data, balanceHistory, expensesByPattern, expensesByBroad, monthlySummary, exchangeRate, accounts] =
+  const [data, balanceHistory, expensesByPattern, expensesByBroad, monthlySummary, rates, accounts, refCurrencySetting] =
     await Promise.all([
       getDashboardData(db, accountId),
       getMonthlyBalanceHistory(db, 12, accountId),
       getExpensesByCategory(db, accountId),
       getExpensesByBroadCategory(db, accountId),
       getMonthlySummary(db, accountId),
-      getExchangeRate(db),
+      getAllRates(db),
       getAllAccounts(db),
+      getSetting(db, "reference_currency"),
     ]);
 
+  const refCurrency = refCurrencySetting ?? REFERENCE_CURRENCY;
   const selectedAccount = accountId ? accounts.find((a) => a.id === accountId) : null;
+  const hasMultiCurrency = data.accounts.some((a) => a.currency !== refCurrency);
 
-  const totalInEUR = (accountId && selectedAccount)
-    ? (selectedAccount.calculated_balance ?? selectedAccount.initial_balance) /
-      (selectedAccount.currency === "MGA" ? exchangeRate : 1)
+  const totalInRef = (accountId && selectedAccount)
+    ? convertToReference(
+        selectedAccount.calculated_balance ?? selectedAccount.initial_balance,
+        selectedAccount.currency,
+        rates
+      )
     : data.accounts.reduce((sum, account) => {
         const balance = account.calculated_balance ?? account.initial_balance;
-        return sum + (account.currency === "MGA" ? balance / exchangeRate : balance);
+        return sum + convertToReference(balance, account.currency, rates);
       }, 0);
 
   return (
@@ -74,7 +82,7 @@ export default async function DashboardPage({
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {formatCurrency(data.monthlyIncome)}
+              {formatCurrency(data.monthlyIncome, "EUR", locale)}
             </p>
           </CardContent>
         </Card>
@@ -87,7 +95,7 @@ export default async function DashboardPage({
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-              {formatCurrency(data.monthlyExpenses)}
+              {formatCurrency(data.monthlyExpenses, "EUR", locale)}
             </p>
           </CardContent>
         </Card>
@@ -100,13 +108,13 @@ export default async function DashboardPage({
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">
-              {formatCurrency(data.recurringMonthly)}
+              {formatCurrency(data.recurringMonthly, "EUR", locale)}
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {data.accounts.length > 1 && data.accounts.some((a) => a.currency !== "EUR") && (
+      {data.accounts.length > 1 && hasMultiCurrency && (
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -114,9 +122,9 @@ export default async function DashboardPage({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{formatCurrency(totalInEUR)}</p>
+            <p className="text-2xl font-bold">{formatCurrency(totalInRef, refCurrency, locale)}</p>
             <p className="text-xs text-muted-foreground mt-1">
-              {t("exchangeRate", { rate: exchangeRate.toLocaleString("fr-FR", { maximumFractionDigits: 0 }) })}
+              {t("totalConverted", { currency: refCurrency })}
             </p>
           </CardContent>
         </Card>
@@ -144,7 +152,7 @@ export default async function DashboardPage({
                         balance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
                       }`}
                     >
-                      {formatCurrency(balance, account.currency)}
+                      {formatCurrency(balance, account.currency, locale)}
                     </p>
                     {account.alert_threshold != null &&
                       balance < account.alert_threshold && (

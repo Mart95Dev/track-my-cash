@@ -1,15 +1,17 @@
-export function formatCurrency(amount: number, currency: string = "EUR"): string {
-  return new Intl.NumberFormat("fr-FR", {
+export function formatCurrency(amount: number, currency: string = "EUR", locale: string = "fr"): string {
+  const bcp47 = locale.includes("-") ? locale : `${locale}-${locale.toUpperCase()}`;
+  return new Intl.NumberFormat(bcp47, {
     style: "currency",
     currency,
   }).format(amount);
 }
 
-export function formatDate(dateString: string): string {
+export function formatDate(dateString: string, locale: string = "fr"): string {
   const date = new Date(dateString + "T00:00:00");
-  return new Intl.DateTimeFormat("fr-FR", {
+  const bcp47 = locale.includes("-") ? locale : `${locale}-${locale.toUpperCase()}`;
+  return new Intl.DateTimeFormat(bcp47, {
     day: "2-digit",
-    month: "2-digit",
+    month: "short",
     year: "numeric",
   }).format(date);
 }

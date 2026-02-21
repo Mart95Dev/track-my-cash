@@ -73,11 +73,8 @@ async function upsertSubscription(
     cancelAtPeriodEnd?: number;
   }
 ) {
-  const { createClient } = await import("@libsql/client");
-  const db = createClient({
-    url: process.env.DATABASE_URL_TURSO ?? "file:./dev-auth.db",
-    authToken: process.env.API_KEY_TURSO,
-  });
+  const { getDb } = await import("@/lib/db");
+  const db = getDb();
 
   await db.execute({
     sql: `INSERT INTO subscriptions (id, user_id, stripe_customer_id, stripe_subscription_id, plan_id, status, current_period_end, cancel_at_period_end)

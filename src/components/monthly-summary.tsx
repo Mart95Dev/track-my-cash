@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 interface MonthData {
   month: string;
@@ -21,6 +21,7 @@ interface MonthData {
 
 export function MonthlySummary({ data }: { data: MonthData[] }) {
   const t = useTranslations("monthlySummary");
+  const locale = useLocale();
 
   if (data.length === 0) return null;
 
@@ -48,13 +49,13 @@ export function MonthlySummary({ data }: { data: MonthData[] }) {
                   <TableRow key={m.month}>
                     <TableCell className="font-medium">{m.month}</TableCell>
                     <TableCell className="text-right text-green-600 dark:text-green-400">
-                      {formatCurrency(m.income)}
+                      {formatCurrency(m.income, "EUR", locale)}
                     </TableCell>
                     <TableCell className="text-right text-red-600 dark:text-red-400">
-                      {formatCurrency(m.expenses)}
+                      {formatCurrency(m.expenses, "EUR", locale)}
                     </TableCell>
                     <TableCell className={`text-right font-medium ${m.net >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-                      {formatCurrency(m.net)}
+                      {formatCurrency(m.net, "EUR", locale)}
                       {evolution !== null && (
                         <span className="text-xs text-muted-foreground ml-1">
                           ({evolution >= 0 ? "+" : ""}{evolution.toFixed(0)}%)

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ForecastControls } from "@/components/forecast-controls";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +25,7 @@ export default async function PrevisionsPage({
   const params = await searchParams;
   const months = parseInt(params.months ?? "6");
   const t = await getTranslations("forecasts");
+  const locale = await getLocale();
 
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
@@ -86,7 +87,7 @@ export default async function PrevisionsPage({
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">{t("currentBalance")}</p>
             <p className={`text-2xl font-bold mt-1 ${currentBalance >= 0 ? "text-green-600" : "text-red-600"}`}>
-              {formatCurrency(currentBalance, currency)}
+              {formatCurrency(currentBalance, currency, locale)}
             </p>
           </CardContent>
         </Card>
@@ -94,7 +95,7 @@ export default async function PrevisionsPage({
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">{t("incomeOver", { months })}</p>
             <p className="text-2xl font-bold mt-1 text-green-600">
-              +{formatCurrency(totalIncome, currency)}
+              +{formatCurrency(totalIncome, currency, locale)}
             </p>
           </CardContent>
         </Card>
@@ -102,7 +103,7 @@ export default async function PrevisionsPage({
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">{t("expensesOver", { months })}</p>
             <p className="text-2xl font-bold mt-1 text-red-600">
-              -{formatCurrency(totalExpenses, currency)}
+              -{formatCurrency(totalExpenses, currency, locale)}
             </p>
           </CardContent>
         </Card>
@@ -110,7 +111,7 @@ export default async function PrevisionsPage({
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">{t("balanceIn", { months })}</p>
             <p className={`text-2xl font-bold mt-1 ${projectedBalance >= 0 ? "text-green-600" : "text-red-600"}`}>
-              {formatCurrency(projectedBalance, currency)}
+              {formatCurrency(projectedBalance, currency, locale)}
             </p>
             <p className={`text-xs mt-1 ${totalNet >= 0 ? "text-green-600" : "text-red-600"}`}>
               {totalNet >= 0 ? "+" : ""}{formatCurrency(totalNet, currency)} net
@@ -140,16 +141,16 @@ export default async function PrevisionsPage({
                 <TableRow key={i}>
                   <TableCell className="font-medium capitalize">{m.month}</TableCell>
                   <TableCell className="text-right text-green-600">
-                    {m.income > 0 ? `+${formatCurrency(m.income, currency)}` : "—"}
+                    {m.income > 0 ? `+${formatCurrency(m.income, currency, locale)}` : "—"}
                   </TableCell>
                   <TableCell className="text-right text-red-600">
-                    {m.expenses > 0 ? `-${formatCurrency(m.expenses, currency)}` : "—"}
+                    {m.expenses > 0 ? `-${formatCurrency(m.expenses, currency, locale)}` : "—"}
                   </TableCell>
                   <TableCell className={`text-right font-semibold ${m.netCashflow >= 0 ? "text-green-600" : "text-red-600"}`}>
-                    {m.netCashflow >= 0 ? "▲" : "▼"} {formatCurrency(Math.abs(m.netCashflow), currency)}
+                    {m.netCashflow >= 0 ? "▲" : "▼"} {formatCurrency(Math.abs(m.netCashflow), currency, locale)}
                   </TableCell>
                   <TableCell className={`text-right font-bold ${m.endBalance >= 0 ? "" : "text-red-600"}`}>
-                    {formatCurrency(m.endBalance, currency)}
+                    {formatCurrency(m.endBalance, currency, locale)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -189,12 +190,12 @@ export default async function PrevisionsPage({
                         <Badge variant="secondary">{FREQ_LABEL[item.frequency] ?? item.frequency}</Badge>
                       </TableCell>
                       <TableCell className="text-right text-green-600 font-medium">
-                        +{formatCurrency(item.amount, currency)}
+                        +{formatCurrency(item.amount, currency, locale)}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
-                        <span>{t("from", { date: formatDate(item.startsFrom) })}</span>
+                        <span>{t("from", { date: formatDate(item.startsFrom, locale) })}</span>
                         {item.endsAt && (
-                          <span className="block text-orange-600">{t("until", { date: formatDate(item.endsAt) })}</span>
+                          <span className="block text-orange-600">{t("until", { date: formatDate(item.endsAt, locale) })}</span>
                         )}
                       </TableCell>
                     </TableRow>
@@ -234,12 +235,12 @@ export default async function PrevisionsPage({
                         <Badge variant="secondary">{FREQ_LABEL[item.frequency] ?? item.frequency}</Badge>
                       </TableCell>
                       <TableCell className="text-right text-red-600 font-medium">
-                        -{formatCurrency(item.amount, currency)}
+                        -{formatCurrency(item.amount, currency, locale)}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
-                        <span>{t("from", { date: formatDate(item.startsFrom) })}</span>
+                        <span>{t("from", { date: formatDate(item.startsFrom, locale) })}</span>
                         {item.endsAt && (
-                          <span className="block text-orange-600">{t("until", { date: formatDate(item.endsAt) })}</span>
+                          <span className="block text-orange-600">{t("until", { date: formatDate(item.endsAt, locale) })}</span>
                         )}
                       </TableCell>
                     </TableRow>

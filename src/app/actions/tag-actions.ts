@@ -63,6 +63,24 @@ export async function getTransactionTagsAction(transactionId: number): Promise<n
   return result.rows.map((row) => Number(row.tag_id));
 }
 
+export async function getTransactionTagsBatchAction(transactionIds: number[]): Promise<Record<number, number[]>> {
+  if (transactionIds.length === 0) return {};
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  const placeholders = transactionIds.map(() => "?").join(", ");
+  const result = await db.execute({
+    sql: `SELECT transaction_id, tag_id FROM transaction_tags WHERE transaction_id IN (${placeholders})`,
+    args: transactionIds,
+  });
+  const map: Record<number, number[]> = {};
+  for (const row of result.rows) {
+    const txId = Number(row.transaction_id);
+    if (!map[txId]) map[txId] = [];
+    map[txId].push(Number(row.tag_id));
+  }
+  return map;
+}
+
 export async function setTransactionTagsAction(transactionId: number, tagIds: number[]) {
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);

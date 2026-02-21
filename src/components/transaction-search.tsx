@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import type { Account } from "@/lib/queries";
+import type { Tag } from "@/app/actions/tag-actions";
 import { useTranslations } from "next-intl";
 
 export function TransactionSearch({
@@ -10,11 +11,15 @@ export function TransactionSearch({
   currentAccountId,
   currentSearch,
   currentSort,
+  tags = [],
+  currentTagId,
 }: {
   accounts: Account[];
   currentAccountId?: number;
   currentSearch?: string;
   currentSort?: string;
+  tags?: Tag[];
+  currentTagId?: number;
 }) {
   const t = useTranslations("search");
   const router = useRouter();
@@ -64,6 +69,20 @@ export function TransactionSearch({
         <option value="amount_desc">{t("sortAmountHigh")}</option>
         <option value="amount_asc">{t("sortAmountLow")}</option>
       </select>
+      {tags.length > 0 && (
+        <select
+          className="flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+          value={currentTagId ?? ""}
+          onChange={(e) => updateParams("tagId", e.target.value)}
+        >
+          <option value="">Tous les tags</option>
+          {tags.map((tag) => (
+            <option key={tag.id} value={tag.id}>
+              {tag.name}
+            </option>
+          ))}
+        </select>
+      )}
     </div>
   );
 }

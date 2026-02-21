@@ -1,0 +1,41 @@
+project:
+  name: "track-my-cash"
+  type: web-app
+  language: TypeScript
+  framework: Next.js
+  package_manager: npm
+  scale: standard
+
+stack:
+  frontend: Next.js 16 (App Router), React 19, Tailwind CSS v4, shadcn/ui
+  backend: Next.js Server Actions (pas d'API routes)
+  database: libsql (Turso/SQLite) via Kysely
+  auth: better-auth
+  payments: Stripe
+  ai: Vercel AI SDK (OpenAI)
+  i18n: next-intl
+
+conventions:
+  language: français
+  no_any: true
+  no_gradients: true
+  monetary_format: "src/lib/format.ts (Intl.NumberFormat fr-FR)"
+  commit_style: "feat/fix/chore(scope): description"
+
+loop:
+  max_iterations: 30
+  cost_cap_usd: 10.00
+  mode: hitl
+  sandbox:
+    enabled: false
+
+memory:
+  enabled: true
+  auto_save: true
+  session_logs: true
+  agent_memory: true
+
+security:
+  audit_skills: true
+  sandbox_loops: false
+  credential_store: env

@@ -38,6 +38,7 @@
     "monthlyExpenses": "Monatliche Ausgaben",
     "recurringMonthly": "Wiederkehrend /Monat",
     "totalBalance": "Gesamtguthaben aller Konten (in EUR)",
+    "totalConverted": "Gesamt konvertiert zu {currency} (Echtzeit-Kurs)",
     "exchangeRate": "Echtzeit-Kurs: 1 EUR = {rate} MGA",
     "accountBalances": "Kontostände",
     "lowBalance": "Niedriger Kontostand",

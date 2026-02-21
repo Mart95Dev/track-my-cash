@@ -228,6 +228,7 @@ export async function searchTransactions(
     sort?: string;
     page?: number;
     perPage?: number;
+    tagId?: number;
   }
 ): Promise<{ transactions: Transaction[]; total: number }> {
   const perPage = opts.perPage ?? 20;
@@ -244,6 +245,11 @@ export async function searchTransactions(
     conditions.push("(t.description LIKE ? OR t.category LIKE ?)");
     const q = `%${opts.search}%`;
     args.push(q, q);
+  }
+
+  if (opts.tagId) {
+    conditions.push("EXISTS (SELECT 1 FROM transaction_tags tt WHERE tt.transaction_id = t.id AND tt.tag_id = ?)");
+    args.push(opts.tagId);
   }
 
   const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
@@ -415,15 +421,13 @@ export function generateImportHash(
 }
 
 export async function checkDuplicates(db: Client, hashes: string[]): Promise<Set<string>> {
-  const existing = new Set<string>();
-  for (const hash of hashes) {
-    const result = await db.execute({
-      sql: "SELECT import_hash FROM transactions WHERE import_hash = ?",
-      args: [hash],
-    });
-    if (result.rows.length > 0) existing.add(hash);
-  }
-  return existing;
+  if (hashes.length === 0) return new Set<string>();
+  const placeholders = hashes.map(() => "?").join(", ");
+  const result = await db.execute({
+    sql: `SELECT import_hash FROM transactions WHERE import_hash IN (${placeholders})`,
+    args: hashes,
+  });
+  return new Set(result.rows.map((r) => String(r.import_hash)));
 }
 
 export async function bulkInsertTransactions(
@@ -730,7 +734,7 @@ export async function importAllData(
 
   // Insert transactions
   const txStmts = data.transactions.map((t) => ({
-    sql: "INSERT INTO transactions (id, account_id, type, amount, date, category, description, import_hash, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    sql: "INSERT INTO transactions (id, account_id, type, amount, date, category, subcategory, description, import_hash, reconciled, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     args: [
       Number(t.id),
       Number(t.account_id ?? t.accountId),
@@ -738,8 +742,10 @@ export async function importAllData(
       Number(t.amount),
       String(t.date),
       String(t.category ?? "Autre"),
+      t.subcategory ? String(t.subcategory) : null,
       String(t.description ?? ""),
       t.import_hash ? String(t.import_hash) : null,
+      t.reconciled ? Number(t.reconciled) : 0,
       String(t.created_at ?? new Date().toISOString()),
     ] as (string | number | null)[],
   }));

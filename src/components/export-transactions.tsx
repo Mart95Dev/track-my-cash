@@ -3,10 +3,11 @@
 import { Button } from "@/components/ui/button";
 import type { Transaction } from "@/lib/queries";
 import { formatDate } from "@/lib/format";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 export function ExportTransactions({ transactions }: { transactions: Transaction[] }) {
   const t = useTranslations("export");
+  const locale = useLocale();
 
   function exportCSV() {
     const headers = ["Date", "Compte", "Type", "Montant", "Catégorie", "Description"];
@@ -37,7 +38,7 @@ export function ExportTransactions({ transactions }: { transactions: Transaction
     doc.setFontSize(16);
     doc.text(t("pdfTitle"), 14, 20);
     doc.setFontSize(10);
-    doc.text(t("pdfSubtitle", { date: formatDate(new Date().toISOString().split("T")[0]) }), 14, 28);
+    doc.text(t("pdfSubtitle", { date: formatDate(new Date().toISOString().split("T")[0], locale) }), 14, 28);
 
     autoTable(doc, {
       startY: 35,

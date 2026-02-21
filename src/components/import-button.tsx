@@ -20,7 +20,7 @@ import {
 import { formatCurrency, formatDate } from "@/lib/format";
 import { toast } from "sonner";
 import type { Account } from "@/lib/queries";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 interface Rule {
   pattern: string;
@@ -51,6 +51,7 @@ interface PreviewData {
 
 export function ImportButton({ accounts, defaultAccountId }: { accounts: Account[]; defaultAccountId?: number }) {
   const t = useTranslations("import");
+  const locale = useLocale();
   const [preview, setPreview] = useState<PreviewData | null>(null);
   const [categoryOverrides, setCategoryOverrides] = useState<Record<number, string>>({});
   const [subcategoryOverrides, setSubcategoryOverrides] = useState<Record<number, string>>({});
@@ -162,8 +163,8 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
                 <div className="rounded-lg border bg-blue-50 p-4 dark:bg-blue-950 shrink-0 space-y-1">
                   <p className="font-medium">
                     {t("detectedBalance", {
-                      amount: formatCurrency(preview.detectedBalance, preview.currency),
-                      date: preview.detectedBalanceDate ? formatDate(preview.detectedBalanceDate) : "",
+                      amount: formatCurrency(preview.detectedBalance, preview.currency, locale),
+                      date: preview.detectedBalanceDate ? formatDate(preview.detectedBalanceDate, locale) : "",
                     })}
                   </p>
                   <p className="text-sm text-blue-700 dark:text-blue-300">
@@ -213,7 +214,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
                         const datalistId = `import-sub-${i}`;
                         return (
                           <TableRow key={i}>
-                            <TableCell className="whitespace-nowrap">{formatDate(tx.date)}</TableCell>
+                            <TableCell className="whitespace-nowrap">{formatDate(tx.date, locale)}</TableCell>
                             <TableCell className="text-xs">{tx.description}</TableCell>
                             <TableCell>
                               <select
@@ -258,7 +259,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
                               }`}
                             >
                               {tx.type === "income" ? "+" : "-"}
-                              {formatCurrency(tx.amount, preview.currency)}
+                              {formatCurrency(tx.amount, preview.currency, locale)}
                             </TableCell>
                           </TableRow>
                         );

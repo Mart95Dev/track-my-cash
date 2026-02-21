@@ -50,4 +50,11 @@ firebase-debug.log
 *.md
 !README.md
 !CLAUDE.md
+!.forge/**/*.md
+!docs/**/*.md
 dev-auth.db
+
+# FORGE
+.forge/memory/index.sqlite
+.forge/secrets/
+.forge/audit.log

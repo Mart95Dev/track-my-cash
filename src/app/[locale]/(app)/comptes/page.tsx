@@ -8,7 +8,7 @@ import { AccountForm } from "@/components/account-form";
 import { DeleteAccountButton } from "@/components/delete-account-button";
 import { EditAccountDialog } from "@/components/edit-account-dialog";
 import { ReconciliationDialog } from "@/components/reconciliation-dialog";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +17,7 @@ export default async function ComptesPage() {
   const db = await getUserDb(userId);
   const accounts = await getAllAccounts(db);
   const t = await getTranslations("accounts");
+  const locale = await getLocale();
 
   return (
     <div className="space-y-6">
@@ -53,8 +54,8 @@ export default async function ComptesPage() {
                         <Badge variant="outline">{account.currency}</Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        {t("initialBalance", { date: formatDate(account.balance_date) })}{" "}
-                        {formatCurrency(account.initial_balance, account.currency)}
+                        {t("initialBalance", { date: formatDate(account.balance_date, locale) })}{" "}
+                        {formatCurrency(account.initial_balance, account.currency, locale)}
                       </p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -63,7 +64,7 @@ export default async function ComptesPage() {
                           balance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
                         }`}
                       >
-                        {formatCurrency(balance, account.currency)}
+                        {formatCurrency(balance, account.currency, locale)}
                       </p>
                       {account.alert_threshold != null && balance < account.alert_threshold && (
                         <Badge variant="destructive">{t("lowBalance")}</Badge>

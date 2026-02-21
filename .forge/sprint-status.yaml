@@ -1,0 +1,15 @@
+sprint:
+  id: null
+  goal: null
+  start_date: null
+  end_date: null
+  status: not_started
+
+stories: []
+
+metrics:
+  total: 0
+  completed: 0
+  in_progress: 0
+  pending: 0
+  velocity: 0

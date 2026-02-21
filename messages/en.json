@@ -38,6 +38,7 @@
     "monthlyExpenses": "Monthly Expenses",
     "recurringMonthly": "Recurring /month",
     "totalBalance": "Total balance of all accounts (in EUR)",
+    "totalConverted": "Total converted to {currency} (live rate)",
     "exchangeRate": "Live rate: 1 EUR = {rate} MGA",
     "accountBalances": "Account Balances",
     "lowBalance": "Low balance",

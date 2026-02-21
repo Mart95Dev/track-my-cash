@@ -2,18 +2,11 @@
 
 import { getRequiredSession } from "@/lib/auth-utils";
 import { stripe } from "@/lib/stripe";
-import { createClient } from "@libsql/client";
-
-async function getMainDb() {
-  return createClient({
-    url: process.env.DATABASE_URL_TURSO ?? "file:./dev-auth.db",
-    authToken: process.env.API_KEY_TURSO,
-  });
-}
+import { getDb } from "@/lib/db";
 
 export async function getUserSubscription() {
   const session = await getRequiredSession();
-  const db = await getMainDb();
+  const db = getDb();
 
   const result = await db.execute({
     sql: "SELECT * FROM subscriptions WHERE user_id = ?",
@@ -33,7 +26,7 @@ export async function getUserSubscription() {
   };
 }
 
-export async function createBillingPortalSession() {
+export async function createBillingPortalSession(locale: string = "fr") {
   const sub = await getUserSubscription();
 
   if (!sub.stripeCustomerId) {
@@ -43,7 +36,7 @@ export async function createBillingPortalSession() {
   const baseUrl = process.env.BETTER_AUTH_URL ?? "http://localhost:3000";
   const portalSession = await stripe.billingPortal.sessions.create({
     customer: sub.stripeCustomerId,
-    return_url: `${baseUrl}/fr/parametres?tab=billing`,
+    return_url: `${baseUrl}/${locale}/parametres?tab=billing`,
   });
 
   return { url: portalSession.url };

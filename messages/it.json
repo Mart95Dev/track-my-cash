@@ -38,6 +38,7 @@
     "monthlyExpenses": "Spese del mese",
     "recurringMonthly": "Ricorrenti /mese",
     "totalBalance": "Saldo totale di tutti i conti (in EUR)",
+    "totalConverted": "Totale convertito in {currency} (tasso in tempo reale)",
     "exchangeRate": "Tasso in tempo reale: 1 EUR = {rate} MGA",
     "accountBalances": "Saldi dei conti",
     "lowBalance": "Saldo basso",
