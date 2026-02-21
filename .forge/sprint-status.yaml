@@ -1,125 +1,71 @@
 sprint:
-  id: sprint-growth-qualite
-  goal: "Landing page marketing, emails transactionnels, RGPD, features utilisateur"
+  id: sprint-ux-stabilite
+  goal: "Activation utilisateur, polish UX, dette technique, rétention budgets"
   start_date: "2026-02-21"
-  end_date: "2026-02-21"
-  status: completed
+  end_date: null
+  status: in_progress
 
 stories:
-  - id: STORY-009
-    title: "Navbar + Footer publics"
+  - id: STORY-019
+    title: "Fix ESLint set-state-in-effect (3 dialogs)"
+    complexity: XS
+    priority: P0
+    status: pending
+    blockedBy: []
+    points: 1
+
+  - id: STORY-020
+    title: "Pages d'erreur (404, 500, error.tsx)"
     complexity: S
     priority: P0
-    status: completed
-    blockedBy: []
+    status: pending
+    blockedBy: ["STORY-019"]
     points: 2
-    qa_verdict: PASS
-    tests_added: 4
 
-  - id: STORY-010
-    title: "Page d'accueil publique (Landing Page)"
+  - id: STORY-021
+    title: "Empty states avec guidance contextuelle"
+    complexity: S
+    priority: P1
+    status: pending
+    blockedBy: ["STORY-020"]
+    points: 3
+
+  - id: STORY-022
+    title: "Onboarding first-time (wizard post-inscription)"
     complexity: M
-    priority: P0
-    status: completed
-    blockedBy: ["STORY-009"]
+    priority: P1
+    status: pending
+    blockedBy: ["STORY-021"]
     points: 5
-    qa_verdict: PASS
-    tests_added: 5
 
-  - id: STORY-011
-    title: "SEO meta tags + robots.txt + sitemap.xml"
+  - id: STORY-023
+    title: "Skeleton screens (loading states)"
     complexity: S
-    priority: P0
-    status: completed
-    blockedBy: ["STORY-010"]
-    points: 2
-    qa_verdict: PASS
-    tests_added: 10
-
-  - id: STORY-012
-    title: "Service email Nodemailer/Hostinger"
-    complexity: S
-    priority: P1
-    status: completed
-    blockedBy: []
-    points: 3
-    qa_verdict: PASS
-    tests_added: 7
-
-  - id: STORY-013
-    title: "Email de bienvenue (post-inscription)"
-    complexity: S
-    priority: P1
-    status: completed
-    blockedBy: ["STORY-012"]
-    points: 3
-    qa_verdict: PASS
-    tests_added: 5
-
-  - id: STORY-014
-    title: "Alerte solde bas (email automatique)"
-    complexity: S
-    priority: P1
-    status: completed
-    blockedBy: ["STORY-012"]
-    points: 3
-    qa_verdict: PASS
-    tests_added: 11
-
-  - id: STORY-015
-    title: "Suppression de compte RGPD"
-    complexity: M
     priority: P2
-    status: completed
-    blockedBy: []
-    points: 5
-    qa_verdict: PASS
-    tests_added: 4
-
-  - id: STORY-016
-    title: "Extension couverture tests (parsers)"
-    complexity: M
-    priority: P2
-    status: completed
-    blockedBy: []
-    points: 5
-    qa_verdict: PASS
-    tests_added: 22
-
-  - id: STORY-017
-    title: "Budgets par catégorie"
-    complexity: L
-    priority: P3
-    status: completed
-    blockedBy: []
-    points: 8
-    qa_verdict: PASS
-    tests_added: 10
-
-  - id: STORY-018
-    title: "Nouveau parser Crédit Agricole"
-    complexity: S
-    priority: P3
-    status: completed
-    blockedBy: []
+    status: pending
+    blockedBy: ["STORY-022"]
     points: 3
-    qa_verdict: PASS
-    tests_added: 8
+
+  - id: STORY-024
+    title: "Alerte email budget (seuil 80% et dépassement)"
+    complexity: S
+    priority: P2
+    status: pending
+    blockedBy: ["STORY-023"]
+    points: 3
 
 metrics:
-  total: 10
-  completed: 10
+  total: 6
+  completed: 0
   in_progress: 0
-  pending: 0
-  total_points: 39
-  tests_total: 156
-  tests_added_sprint: 86
+  pending: 6
+  total_points: 17
 
 previous_sprint:
-  id: sprint-qualite-finitions
-  stories: 8
-  completed: 8
+  id: sprint-growth-qualite
+  stories: 10
+  completed: 10
   qa_verdict: PASS
-  tests: 64
-  coverage_lines: 86.84
-  commit: "f664d8c"
+  tests: 156
+  coverage_lines: 90.54
+  commit: "f7af356"

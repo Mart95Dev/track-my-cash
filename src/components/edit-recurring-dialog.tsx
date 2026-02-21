@@ -43,7 +43,8 @@ export function EditRecurringDialog({
   useEffect(() => {
     if (state && "success" in state) {
       toast.success(t("success"));
-      setOpen(false);
+      const timer = setTimeout(() => setOpen(false), 0);
+      return () => clearTimeout(timer);
     } else if (state && "error" in state) {
       toast.error(String(state.error));
     }

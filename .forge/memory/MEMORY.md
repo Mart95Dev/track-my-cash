@@ -58,6 +58,17 @@ SaaS freemium avec abonnements Stripe, conseiller IA multi-modèles, multi-devis
 8 stories complétées, build TypeScript sans erreur (commit `f664d8c`).
 QA automatisé : 64 tests, 5 fichiers, 86.84% lignes, 100% fonctions — PASS.
 
+## Sprint Growth & Qualité — TERMINÉ + QA PASS (2026-02-21)
+
+10/10 stories complétées, commit `f7af356`.
+- Landing page marketing (Navbar, Footer, Landing, SEO/sitemap)
+- Service email Nodemailer/Hostinger + email bienvenue + alerte solde bas
+- Suppression compte RGPD (droit à l'oubli, best-effort)
+- Tests parsers étendus : Banque Populaire, MCB CSV, Crédit Agricole
+- Budgets par catégorie (table `budgets`, BudgetProgress, BudgetForm)
+- Parser Crédit Agricole CSV enregistré dans registry.ts
+QA : 156 tests, 0 fail, couverture 90.54% lignes, TypeScript 0 erreur.
+
 **Test infrastructure :**
 - Framework : Vitest v4.0.18 + happy-dom + @vitest/coverage-v8
 - Config : `vitest.config.ts` — alias `@` → `src/`, coverage sur lib utilities purs
