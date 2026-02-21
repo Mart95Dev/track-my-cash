@@ -28,11 +28,11 @@ SaaS freemium avec abonnements Stripe, conseiller IA multi-modèles, multi-devis
 
 ## Commits récents
 
+- `f664d8c` feat(sprint-qualite): 8 stories — corrections bugs et finitions
 - `afb8c73` feat(phase-5): préparation déploiement Vercel
 - `60288da` feat(phase-4): freemium guards selon le plan
 - `e6cdb32` feat(phase-3): Stripe subscriptions
 - `3b2a392` feat(phase-2.6): conseiller IA multi-modèles
-- `3a8555e` feat(phase-2.5): multi-devises généralisé
 
 ## Décisions architecturales
 
@@ -41,7 +41,10 @@ SaaS freemium avec abonnements Stripe, conseiller IA multi-modèles, multi-devis
 | Mutations | Server Actions | Simplicité, revalidatePath |
 | ORM | Kysely | Type-safe, léger, compatible libsql |
 | Auth | better-auth | Simple, flexible |
-| Monétaire | Intl.NumberFormat fr-FR | Standard, multi-devises |
+| Monétaire | Intl.NumberFormat + locale param | Dynamique selon la locale user |
+| DB main | getDb() depuis @/lib/db | Singleton partagé, jamais createClient inline |
+| Taux de change | getAllRates() + convertToReference() | Multi-devises, pas binaire EUR/MGA |
+| Tags | table transaction_tags, batch query | Évite N+1, popover + filtre |
 
 ## Conventions
 
@@ -50,10 +53,28 @@ SaaS freemium avec abonnements Stripe, conseiller IA multi-modèles, multi-devis
 - Couleurs unies (pas de dégradés)
 - Commits : `feat/fix/chore(scope): description` (sans référence à Claude/AI)
 
-## Stories actives
+## Sprint Qualité & Finitions — TERMINÉ + QA PASS (2026-02-21)
 
-Aucune story en cours.
+8 stories complétées, build TypeScript sans erreur (commit `f664d8c`).
+QA automatisé : 64 tests, 5 fichiers, 86.84% lignes, 100% fonctions — PASS.
 
-## Notes de session
+**Test infrastructure :**
+- Framework : Vitest v4.0.18 + happy-dom + @vitest/coverage-v8
+- Config : `vitest.config.ts` — alias `@` → `src/`, coverage sur lib utilities purs
+- Setup : `tests/setup.ts` (jest-dom)
+- Scripts : `npm test` (run), `npm run test:coverage` (avec rapport)
+- Pour mocker fetch dans les tests : `vi.stubGlobal("fetch", vi.fn())` + `vi.resetModules()`
 
-_Les sessions FORGE seront loguées dans `.forge/memory/sessions/`_
+**Patterns établis :**
+- `formatCurrency(amount, currency, locale)` — 3 params, locale optionnel (défaut "fr")
+- `formatDate(dateString, locale)` — locale optionnel (défaut "fr")
+- Server Components : `const locale = await getLocale()` de next-intl/server
+- Client Components : `const locale = useLocale()` de next-intl
+- Ne jamais créer `createClient()` inline, toujours `getDb()` ou `getUserDb()`
+- Dashboard : `getAllRates()` + `convertToReference()`, lire `reference_currency` en settings
+- Tags transactions : `getTransactionTagsBatchAction(txIds)` pour batch (1 requête)
+
+**Coverage QA — scope actuel :**
+- `src/lib/format.ts` : 100% (formatCurrency, formatDate)
+- `src/lib/currency.ts` : 84% (convertToReference, convertFromReference, getAllRates, getExchangeRate)
+- Server actions et parsers : non testés (nécessitent mocks auth+db complexes — sprint suivant)
