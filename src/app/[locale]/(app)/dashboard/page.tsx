@@ -27,6 +27,8 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LayoutDashboard } from "lucide-react";
 import { OnboardingWizard } from "@/components/onboarding-wizard";
+import { VariationBadge } from "@/components/variation-badge";
+import { computeMoMVariation } from "@/lib/mom-calculator";
 
 export const dynamic = "force-dynamic";
 
@@ -63,6 +65,14 @@ export default async function DashboardPage({
 
   const refCurrency = refCurrencySetting ?? REFERENCE_CURRENCY;
   const selectedAccount = accountId ? accounts.find((a) => a.id === accountId) : null;
+
+  // MoM : calculer les variations revenus/dépenses vs mois précédent
+  const now = new Date();
+  const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevMonthKey = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, "0")}`;
+  const prevSummary = monthlySummary.find((m) => m.month === prevMonthKey);
+  const incomeVariation = computeMoMVariation(data.monthlyIncome, prevSummary?.income ?? null);
+  const expensesVariation = computeMoMVariation(data.monthlyExpenses, prevSummary?.expenses ?? null);
   const hasMultiCurrency = data.accounts.some((a) => a.currency !== refCurrency);
 
   const totalInRef = (accountId && selectedAccount)
@@ -114,6 +124,7 @@ export default async function DashboardPage({
             <p className="text-2xl font-bold text-income">
               {formatCurrency(data.monthlyIncome, "EUR", locale)}
             </p>
+            <VariationBadge variation={incomeVariation} variant="income" />
           </CardContent>
         </Card>
 
@@ -127,6 +138,7 @@ export default async function DashboardPage({
             <p className="text-2xl font-bold text-expense">
               {formatCurrency(data.monthlyExpenses, "EUR", locale)}
             </p>
+            <VariationBadge variation={expensesVariation} variant="expense" />
           </CardContent>
         </Card>
 

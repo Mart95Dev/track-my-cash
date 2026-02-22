@@ -11,6 +11,7 @@ import { DeleteUserAccountDialog } from "@/components/delete-user-account-dialog
 import { BudgetForm } from "@/components/budget-form";
 import { MonthlySummaryEmailButton } from "@/components/monthly-summary-email-button";
 import { MonthlyReportButton } from "@/components/monthly-report-button";
+import { AnnualReportButton } from "@/components/annual-report-button";
 import { getCategorizationRules, getSetting, getAllAccounts, getBudgets } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
@@ -87,6 +88,7 @@ export default async function ParametresPage() {
           <ExportImportButtons />
           <MonthlySummaryEmailButton />
           {aiAccess.allowed && <MonthlyReportButton />}
+          {aiAccess.allowed && accounts.length > 0 && <AnnualReportButton accounts={accounts} />}
           <p className="text-sm text-muted-foreground">
             {t("backup.description")}
           </p>

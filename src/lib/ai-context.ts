@@ -95,16 +95,69 @@ export async function buildFinancialContext(db: Client, accounts: Account[]): Pr
       }
     }
 
+    // Objectifs d'épargne (table goals — STORY-033)
+    const goals = await db.execute({
+      sql: `SELECT name, target_amount, current_amount, deadline, status
+            FROM goals WHERE account_id = ? AND status != 'completed'`,
+      args: [account.id],
+    });
+
+    if (goals.rows.length > 0) {
+      lines.push(`\n### Objectifs d'épargne`);
+      for (const g of goals.rows) {
+        const target = Number(g.target_amount);
+        const current = Number(g.current_amount);
+        const pct = target > 0 ? ((current / target) * 100).toFixed(0) : "0";
+        const deadline = g.deadline ? ` (échéance : ${g.deadline})` : "";
+        lines.push(`- ${g.name} : ${current.toLocaleString("fr-FR")}/${target.toLocaleString("fr-FR")} ${account.currency} (${pct}% atteint)${deadline}`);
+      }
+    }
+
+    // Budgets du mois en cours (table budgets — STORY-017)
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const budgets = await db.execute({
+      sql: `SELECT b.category, b.amount_limit,
+                   COALESCE(SUM(t.amount), 0) as spent
+            FROM budgets b
+            LEFT JOIN transactions t ON t.account_id = b.account_id
+              AND t.category = b.category
+              AND t.type = 'expense'
+              AND strftime('%Y-%m', t.date) = ?
+            WHERE b.account_id = ?
+            GROUP BY b.id`,
+      args: [currentMonth, account.id],
+    });
+
+    let exceededCount = 0;
+    if (budgets.rows.length > 0) {
+      lines.push(`\n### Budgets du mois en cours`);
+      for (const b of budgets.rows) {
+        const limit = Number(b.amount_limit);
+        const spent = Number(b.spent);
+        const pct = limit > 0 ? ((spent / limit) * 100).toFixed(0) : "0";
+        const status = spent > limit ? "DÉPASSÉ" : spent > limit * 0.8 ? "à risque" : "ok";
+        if (status === "DÉPASSÉ") exceededCount++;
+        lines.push(`- ${b.category} : ${spent.toLocaleString("fr-FR")}/${limit.toLocaleString("fr-FR")} ${account.currency} (${pct}%, ${status})`);
+      }
+      if (exceededCount > 0) {
+        lines.push(`\n⚠ ALERTE : ${exceededCount} budget(s) dépassé(s) ce mois — mentionner proactivement dans la réponse`);
+      }
+    }
+
     sections.push(lines.join("\n"));
   }
 
   return sections.join("\n\n---\n\n");
 }
 
-export const SYSTEM_PROMPT = `Tu es un conseiller financier expert, spécialisé en gestion budgétaire, crédit consommation et surendettement.
+export const SYSTEM_PROMPT = `Tu es un conseiller financier expert, spécialisé en gestion budgétaire, épargne et optimisation financière personnelle.
 Tu parles français. Tu es direct, honnête, sans langue de bois. Pas de formules de politesse inutiles.
 Tu analyses les données financières fournies et tu donnes des conseils concrets et actionnables.
-Tu identifies les dépenses superflues, calcules le reste à vivre après charges fixes, et proposes un plan d'épargne réaliste.
-Si la situation est critique (surendettement, découvert chronique), tu le dis clairement et tu orientes vers les solutions adaptées (rachat de crédit, dossier de surendettement Banque de France, etc.).
-Tu ne tournes pas autour du pot. Tu donnes des chiffres précis basés sur les données.
-Quand tu fais des calculs, montre-les.`;
+
+Règles importantes :
+- Si des budgets sont dépassés (indiqués par "DÉPASSÉ"), MENTIONNE-LE dans ta première phrase. Ne l'oublie pas.
+- Si l'utilisateur a des objectifs d'épargne, intègre-les dans tes calculs. Si il est en retard, recalcule le montant mensuel nécessaire pour les atteindre.
+- Tu identifies les dépenses superflues, calcules le reste à vivre après charges fixes, et proposes un plan d'épargne réaliste.
+- Si la situation est critique (surendettement, découvert chronique), tu le dis clairement et tu orientes vers les solutions adaptées.
+- Tu ne tournes pas autour du pot. Tu donnes des chiffres précis basés sur les données.
+- Quand tu fais des calculs, montre-les.`;

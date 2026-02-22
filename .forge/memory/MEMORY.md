@@ -127,3 +127,34 @@ QA : 156 tests, 0 fail, couverture 90.54% lignes, TypeScript 0 erreur.
 - `src/lib/csv-export.ts` : 100%
 - Server actions account + budget : testés avec vi.mock
 - 35 fichiers de test, 223 tests au total
+
+### Consolidation — 2026-02-21
+
+**STORY-038**:
+- 2026-02-21 21:44:48 [qa] — QA PASS STORY-038 : computeForecast() 10 tests (5 gaps couverts), 258 tests total, sprint Objectifs & Intelligence certifié
+
+## Sprint Compatibilité, IA & Analyse Avancée (v6) — 7/8 stories ✅ (2026-02-22)
+
+310 tests, 0 échec, TypeScript 0 erreur. STORY-040 (parser CSV générique) reste pending.
+
+**Fichiers créés ce sprint :**
+- `src/lib/parsers/bnp-paribas.ts`, `societe-generale.ts`, `caisse-epargne.ts` (STORY-039)
+- `src/lib/parsers/n26.ts`, `wise.ts` (STORY-043)
+- `src/lib/mom-calculator.ts` + `src/components/variation-badge.tsx` (STORY-041)
+- `src/lib/recurring-detector.ts` + `src/components/recurring-suggestions.tsx` (STORY-042)
+- `src/lib/anomaly-detector.ts` + `src/lib/anomaly-service.ts` (STORY-045)
+- `src/lib/annual-report.ts` + `src/app/actions/annual-report-actions.ts` + `src/components/annual-report-button.tsx` (STORY-046)
+
+**Architecture parsers (IMPORTANT) :**
+- `BankParser` interface avec `parse(content: string | null, _buffer: Buffer | null): ParseResult` (2 params)
+- Nouveaux parsers utilisent `export const parser = { ... } satisfies BankParser` (préserve le type retour concret)
+- Registry order : mcbPdf, revolut, mcbCsv, n26, wise, caisseEpargne, societeGenerale, creditAgricole, bnp, banquePopulaire
+- fixMojibake : NE PAS appliquer si le contenu est déjà UTF-8 valide (corrompt les chaînes)
+
+**Patterns nouveaux :**
+- `computeMoMVariation(current, previous)` → `MoMVariation { direction, percentChange }` (lib pure)
+- `detectRecurringPatterns({ transactions, existingRecurrings })` → `RecurringSuggestion[]`
+- `detectAnomalies(txs, avgByCategory, options)` → `Anomaly[]` (threshold=2.0, minAmount=50)
+- Fire-and-forget anomalies dans `confirmImportAction` (comme `checkAndSendLowBalanceAlert`)
+- Services fire-and-forget : créer dans `src/lib/xxx-service.ts`, appeler `.catch(() => {})` depuis server action
+- `satisfies BankParser` plutôt que `: BankParser` pour préserver les types de retour concrets

@@ -1,102 +1,114 @@
 sprint:
-  id: sprint-objectifs-intelligence
-  goal: "Objectifs d'épargne + Catégorisation IA + PWA + PDF + Notifications + Prévisions IA"
-  start_date: "2026-02-21"
-  end_date: "2026-02-21"
-  status: completed
+  id: sprint-compatibilite-ia-analyse
+  goal: "Compatibilité bancaire élargie (BNP/SG/CE/N26/Wise), parser CSV générique, enrichissement IA (objectifs+budgets+anomalies), comparaisons MoM, détection récurrents, bilan annuel IA"
+  start_date: "2026-02-22"
+  end_date: "2026-02-22"
+  status: in_progress
 
 stories:
-  # === SPRINT OBJECTIFS & INTELLIGENCE ===
+  # === SPRINT COMPATIBILITÉ, IA & ANALYSE AVANCÉE (v6) ===
 
-  - id: STORY-033
-    title: "Objectifs d'épargne (Savings Goals)"
-    epic: objectifs
+  - id: STORY-039
+    title: "Parsers BNP Paribas, Société Générale, Caisse d'Épargne"
+    epic: parsers
     complexity: M
     priority: P1
     status: completed
     blockedBy: []
     points: 3
-    commit: "607d5ee"
-    tests: 5
+    tests: 16
+    notes: "BNP (5 tests), SG (5 tests), CE (6 tests) — satisfies BankParser, parse(_buffer) ajouté"
 
-  - id: STORY-034
-    title: "Catégorisation automatique des transactions par IA"
-    epic: intelligence
+  - id: STORY-040
+    title: "Parser CSV générique avec mapping colonnes (catch-all)"
+    epic: parsers
     complexity: M
+    priority: P1
+    status: pending
+    blockedBy: []
+    points: 3
+
+  - id: STORY-041
+    title: "Comparaisons Mois/Mois (MoM) dans le Dashboard"
+    epic: analytics
+    complexity: S
     priority: P1
     status: completed
     blockedBy: []
-    points: 3
-    commit: "542857e"
+    points: 2
     tests: 5
+    notes: "computeMoMVariation (5 tests) + VariationBadge composant + intégration dashboard"
 
-  - id: STORY-035
-    title: "PWA installable (manifest + install prompt)"
-    epic: mobile
+  - id: STORY-042
+    title: "Détection automatique des paiements récurrents"
+    epic: automatisation
+    complexity: M
+    priority: P2
+    status: completed
+    blockedBy: []
+    points: 3
+    tests: 6
+    notes: "detectRecurringPatterns (6 tests) + RecurringSuggestions UI + server actions"
+
+  - id: STORY-043
+    title: "Parsers N26 + Wise (marché EU)"
+    epic: parsers
     complexity: S
     priority: P2
     status: completed
     blockedBy: []
     points: 2
-    commit: "81a4cbf"
-    tests: 5
+    tests: 8
+    notes: "N26 (4 tests), Wise (4 tests) — devise multi-currency, montants avec espace"
 
-  - id: STORY-036
-    title: "Export rapport PDF mensuel"
-    epic: objectifs
-    complexity: M
-    priority: P2
-    status: completed
-    blockedBy: ["STORY-033"]
-    points: 3
-    commit: "8792f0f"
-    tests: 5
-
-  - id: STORY-037
-    title: "Centre de notifications in-app"
-    epic: ux
+  - id: STORY-044
+    title: "Enrichissement contexte conseiller IA (objectifs + budgets)"
+    epic: intelligence
     complexity: S
-    priority: P2
+    priority: P1
     status: completed
-    blockedBy: ["STORY-033"]
+    blockedBy: []
     points: 2
-    commit: "5e3fe8d"
     tests: 5
+    notes: "buildFinancialContext enrichi goals+budgets, SYSTEM_PROMPT amélioré"
 
-  - id: STORY-038
-    title: "Prévisions intelligentes (AI spending forecast)"
+  - id: STORY-045
+    title: "Détection d'anomalies financières (push automatique post-import)"
     epic: intelligence
     complexity: M
     priority: P2
     status: completed
-    blockedBy: ["STORY-034"]
+    blockedBy: []
     points: 3
-    commit: "dc214d6"
-    tests: 10
-    qa_verdict: PASS
-    qa_gaps_fixed: ["trend=down", "status=at_risk", "trend=stable-1-month", "sort-order", "avgAmount-precision"]
+    tests: 6
+    notes: "detectAnomalies (6 tests) + anomaly-service fire-and-forget dans confirmImportAction"
+
+  - id: STORY-046
+    title: "Bilan annuel IA + export PDF (Pro/Premium)"
+    epic: intelligence
+    complexity: M
+    priority: P3
+    status: completed
+    blockedBy: []
+    points: 4
+    tests: 6
+    notes: "computeAnnualReport (6 tests) + annual-report-actions + AnnualReportButton"
 
 metrics:
-  total: 6
-  completed: 6
+  total: 8
+  completed: 7
   in_progress: 0
-  pending: 0
-  total_points: 16
-  tests_total: 258
-  qa_verdict: PASS
-
-qa:
-  agent: TEA
-  verdict: PASS
-  date: "2026-02-21"
-  tests_added: 5
-  gaps_covered: 5
-  concerns: "AC-3 badge 'on_track' → variant 'default' (pas explicitement vert) — mineur, acceptable"
+  pending: 1
+  total_points: 22
+  points_completed: 19
+  tests_total: 310
+  tests_sprint: 52
+  qa_verdict: ""
 
 previous_sprint:
-  id: sprint-retention-technique
-  stories: 8
-  completed: 8
+  id: sprint-objectifs-intelligence
+  stories: 6
+  completed: 6
   qa_verdict: PASS
-  tests: 223
-  commit: "079dec6"
+  tests: 258
+  commit: "dc214d6"

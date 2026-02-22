@@ -11,6 +11,7 @@ import {
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId, getRequiredSession } from "@/lib/auth-utils";
 import { checkAndSendLowBalanceAlert } from "@/lib/alert-service";
+import { detectAndNotifyAnomalies } from "@/lib/anomaly-service";
 import { canImportFormat } from "@/lib/subscription-utils";
 import { revalidatePath } from "next/cache";
 
@@ -169,6 +170,7 @@ export async function confirmImportAction(
 
   // Fire-and-forget — ne bloque pas l'import
   checkAndSendLowBalanceAlert(db, accountId, session.user.email).catch(() => {});
+  detectAndNotifyAnomalies(db, accountId, transactions).catch(() => {});
   revalidatePath("/");
   revalidatePath("/transactions");
   revalidatePath("/comptes");

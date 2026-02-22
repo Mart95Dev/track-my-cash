@@ -11,6 +11,8 @@ import { AccountFilter } from "@/components/account-filter";
 import { getTranslations, getLocale } from "next-intl/server";
 import { EmptyState } from "@/components/ui/empty-state";
 import { RefreshCw } from "lucide-react";
+import { detectRecurringSuggestionsAction } from "@/app/actions/recurring-actions";
+import { RecurringSuggestions } from "@/components/recurring-suggestions";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +34,10 @@ export default async function RecurrentsPage({
     getCategorizationRules(db),
   ]);
 
-  const payments = accountId ? await getRecurringPayments(db, accountId) : [];
+  const [payments, suggestions] = await Promise.all([
+    accountId ? getRecurringPayments(db, accountId) : Promise.resolve([]),
+    accountId ? detectRecurringSuggestionsAction(accountId) : Promise.resolve([]),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -46,6 +51,10 @@ export default async function RecurrentsPage({
           <RecurringForm accounts={accounts} rules={rules} />
         </CardContent>
       </Card>
+
+      {suggestions.length > 0 && accountId && (
+        <RecurringSuggestions suggestions={suggestions} accountId={accountId} />
+      )}
 
       <div className="flex items-center gap-3">
         <h3 className="text-lg font-semibold">{t("list")}</h3>

@@ -1,6 +1,11 @@
 export type { ParsedTransaction, ParseResult, BankParser } from "./types";
 export { detectAndParseFile, parsers } from "./registry";
 export { banquePopulaireParser } from "./banque-populaire";
+export { bnpParser } from "./bnp-paribas";
+export { caisseEpargneParser } from "./caisse-epargne";
 export { mcbCsvParser } from "./mcb-csv";
 export { mcbPdfParser } from "./mcb-pdf";
+export { n26Parser } from "./n26";
 export { revolutParser } from "./revolut";
+export { societeGeneraleParser } from "./societe-generale";
+export { wiseParser } from "./wise";
