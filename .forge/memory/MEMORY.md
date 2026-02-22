@@ -133,21 +133,30 @@ QA : 156 tests, 0 fail, couverture 90.54% lignes, TypeScript 0 erreur.
 **STORY-038**:
 - 2026-02-21 21:44:48 [qa] — QA PASS STORY-038 : computeForecast() 10 tests (5 gaps couverts), 258 tests total, sprint Objectifs & Intelligence certifié
 
-## Sprint Intelligence & UX IA (v7) — EN COURS 🚧 (2026-02-22)
+## Sprint Intelligence & UX IA (v7) — TERMINÉ ✅ (2026-02-22)
 
-6 stories, 15 points, objectif ~35 tests.
+6/6 stories, 15/15 points, 375 tests, QA PASS.
 
-- STORY-047 : Score de santé financière — `computeHealthScore(HealthScoreInput): HealthScore` (4 dimensions, 0-100) + `HealthScoreWidget`
-- STORY-048 : Suggestions chat — `generateChatSuggestions(FinancialSummary): string[]` + chips cliquables
-- STORY-049 : Catégorisation auto import — setting `auto_categorize_on_import` + fire-and-forget dans `confirmImportAction`
-- STORY-050 : Tool calling — `createBudgetTool` + `createGoalTool` (Vercel AI SDK `tool()`, schemas Zod) + `ToolResultCard`
-- STORY-051 : Simulateur scénarios — `simulateScenario(BaseForecast, Scenario): SimulationResult` + UI client-side useMemo
-- STORY-052 : Suggestions budgets — `suggestBudgets(CategoryExpense[], existingBudgets): BudgetSuggestion[]`
+- STORY-047 : Score de santé financière — `computeHealthScore()` + `HealthScoreWidget`
+- STORY-048 : Suggestions chat — `generateChatSuggestions()` + chips cliquables
+- STORY-049 : Catégorisation auto import — setting `auto_categorize_on_import`
+- STORY-050 : Tool calling — `createBudgetTool` + `createGoalTool` + `ToolResultCard`
+- STORY-051 : Simulateur scénarios — `simulateScenario()` + UI ScenarioSimulator
+- STORY-052 : Suggestions budgets — `suggestBudgets()` + page `/budgets` créée
+
+**4 corrections post-sprint (2026-02-22) :**
+1. **Fix 1** — Bug `getBudgetStatus()` : dates via SQL `CASE b.period` (yearly vs monthly)
+2. **Fix 2** — Goals : `account_id` + `monthly_contribution` (migration + queries + GoalForm)
+3. **Fix 3** — Vercel Cron : route `GET /api/cron/monthly-contributions` + `vercel.json` (`0 6 1 * *`)
+4. **Fix 4** — Historique budgets : table `budget_history` + `snapshotBudgetHistory()` + `getBudgetHistory()` + `BudgetHistoryDialog`
 
 **Patterns Sprint v7 :**
-- Tool calling Vercel AI SDK : `import { tool } from "ai"` + `z.object()` schema + `execute()` async + `maxSteps: 3` dans streamText
+- Tool calling Vercel AI SDK : `import { tool } from "ai"` + `z.object()` schema + `execute()` async
 - Tous les modules lib sont des **fonctions pures** (pas d'I/O) pour faciliter les tests unitaires
 - Fire-and-forget pattern : `someAction().catch(() => {})` — ne jamais bloquer l'action principale
+- Vercel Cron : `vercel.json` `"crons"` + route `GET` + `Authorization: Bearer CRON_SECRET`
+- Boucle SaaS multi-user : `SELECT user_id FROM users_databases` (main DB) → `getUserDb(userId)` par user
+- Mock server actions dans tests : `vi.mock("@/app/actions/xxx")` dans `tests/setup.ts` si l'import cause BetterAuth init
 
 ## Sprint Compatibilité, IA & Analyse Avancée (v6) — TERMINÉ ✅ (2026-02-22)
 

@@ -16,7 +16,9 @@ export async function createGoalAction(
   targetAmount: number,
   currentAmount: number,
   currency: string,
-  deadline?: string
+  deadline?: string,
+  accountId?: number,
+  monthlyContribution?: number
 ): Promise<{ success: true } | { error: string }> {
   if (!name?.trim()) return { error: "Le nom est requis" };
   if (!targetAmount || targetAmount <= 0) return { error: "Le montant cible doit être supérieur à 0" };
@@ -24,7 +26,7 @@ export async function createGoalAction(
 
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
-  await createGoal(db, name.trim(), targetAmount, currentAmount, currency, deadline);
+  await createGoal(db, name.trim(), targetAmount, currentAmount, currency, deadline, accountId, monthlyContribution);
   revalidatePath("/dashboard");
   revalidatePath("/objectifs");
   return { success: true };
@@ -32,7 +34,7 @@ export async function createGoalAction(
 
 export async function updateGoalAction(
   id: number,
-  data: { name?: string; target_amount?: number; current_amount?: number; currency?: string; deadline?: string | null }
+  data: { name?: string; target_amount?: number; current_amount?: number; currency?: string; deadline?: string | null; account_id?: number | null; monthly_contribution?: number }
 ): Promise<{ success: true } | { error: string }> {
   if (!id) return { error: "ID invalide" };
   const userId = await getRequiredUserId();

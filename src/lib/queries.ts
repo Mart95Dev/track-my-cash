@@ -987,10 +987,6 @@ export async function getBudgetStatus(
   db: Client,
   accountId: number
 ): Promise<BudgetStatus[]> {
-  const now = new Date();
-  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
-  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split("T")[0];
-
   const result = await db.execute({
     sql: `
       SELECT b.category, b.amount_limit, b.period,
@@ -999,11 +995,18 @@ export async function getBudgetStatus(
       LEFT JOIN transactions t ON t.account_id = b.account_id
         AND t.category = b.category
         AND t.type = 'expense'
-        AND t.date >= ? AND t.date <= ?
+        AND t.date >= CASE b.period
+          WHEN 'yearly' THEN strftime('%Y-01-01', 'now')
+          ELSE date('now', 'start of month')
+        END
+        AND t.date <= CASE b.period
+          WHEN 'yearly' THEN strftime('%Y-12-31', 'now')
+          ELSE date('now', 'start of month', '+1 month', '-1 day')
+        END
       WHERE b.account_id = ?
       GROUP BY b.id
     `,
-    args: [firstDay, lastDay, accountId],
+    args: [accountId],
   });
 
   return result.rows.map((row) => ({
@@ -1017,6 +1020,62 @@ export async function getBudgetStatus(
   }));
 }
 
+// ============ BUDGET HISTORY ============
+
+export interface BudgetHistoryEntry {
+  id: number;
+  account_id: number;
+  category: string;
+  period: string;
+  limit_amount: number;
+  spent_amount: number;
+  month: string;
+  created_at: string;
+}
+
+export async function snapshotBudgetHistory(db: Client, accountId: number): Promise<void> {
+  const month = new Date().toISOString().slice(0, 7); // YYYY-MM
+  const statuses = await getBudgetStatus(db, accountId);
+  for (const s of statuses) {
+    try {
+      await db.execute({
+        sql: `INSERT INTO budget_history (account_id, category, period, limit_amount, spent_amount, month)
+              VALUES (?, ?, ?, ?, ?, ?)`,
+        args: [accountId, s.category, s.period, s.limit, s.spent, month],
+      });
+    } catch {
+      // Unique constraint: snapshot already exists for this month, skip
+    }
+  }
+}
+
+export async function getBudgetHistory(
+  db: Client,
+  accountId: number,
+  category?: string,
+  limit = 12
+): Promise<BudgetHistoryEntry[]> {
+  const result = category
+    ? await db.execute({
+        sql: "SELECT * FROM budget_history WHERE account_id = ? AND category = ? ORDER BY month DESC LIMIT ?",
+        args: [accountId, category, limit],
+      })
+    : await db.execute({
+        sql: "SELECT * FROM budget_history WHERE account_id = ? ORDER BY month DESC LIMIT ?",
+        args: [accountId, limit],
+      });
+  return result.rows.map((row) => ({
+    id: Number(row.id),
+    account_id: Number(row.account_id),
+    category: String(row.category),
+    period: String(row.period),
+    limit_amount: Number(row.limit_amount),
+    spent_amount: Number(row.spent_amount),
+    month: String(row.month),
+    created_at: String(row.created_at),
+  }));
+}
+
 export async function upsertBudget(
   db: Client,
   accountId: number,
@@ -1024,6 +1083,9 @@ export async function upsertBudget(
   amountLimit: number,
   period: "monthly" | "yearly"
 ): Promise<void> {
+  // Snapshot current state before modification
+  await snapshotBudgetHistory(db, accountId);
+
   await db.execute({
     sql: `INSERT INTO budgets (account_id, category, amount_limit, period)
           VALUES (?, ?, ?, ?)
@@ -1046,6 +1108,8 @@ export interface Goal {
   currency: string;
   deadline: string | null;
   created_at: string;
+  account_id: number | null;
+  monthly_contribution: number;
 }
 
 function rowToGoal(row: Row): Goal {
@@ -1057,10 +1121,19 @@ function rowToGoal(row: Row): Goal {
     currency: String(row.currency),
     deadline: row.deadline != null ? String(row.deadline) : null,
     created_at: String(row.created_at),
+    account_id: row.account_id != null ? Number(row.account_id) : null,
+    monthly_contribution: row.monthly_contribution != null ? Number(row.monthly_contribution) : 0,
   };
 }
 
-export async function getGoals(db: Client): Promise<Goal[]> {
+export async function getGoals(db: Client, accountId?: number): Promise<Goal[]> {
+  if (accountId) {
+    const result = await db.execute({
+      sql: "SELECT * FROM goals WHERE account_id = ? ORDER BY created_at DESC",
+      args: [accountId],
+    });
+    return result.rows.map(rowToGoal);
+  }
   const result = await db.execute({
     sql: "SELECT * FROM goals ORDER BY created_at DESC",
     args: [],
@@ -1074,11 +1147,13 @@ export async function createGoal(
   targetAmount: number,
   currentAmount: number,
   currency: string,
-  deadline?: string
+  deadline?: string,
+  accountId?: number,
+  monthlyContribution?: number
 ): Promise<Goal> {
   const result = await db.execute({
-    sql: "INSERT INTO goals (name, target_amount, current_amount, currency, deadline) VALUES (?, ?, ?, ?, ?)",
-    args: [name, targetAmount, currentAmount, currency, deadline ?? null],
+    sql: "INSERT INTO goals (name, target_amount, current_amount, currency, deadline, account_id, monthly_contribution) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    args: [name, targetAmount, currentAmount, currency, deadline ?? null, accountId ?? null, monthlyContribution ?? 0],
   });
   const row = await db.execute({
     sql: "SELECT * FROM goals WHERE id = ?",
@@ -1090,7 +1165,7 @@ export async function createGoal(
 export async function updateGoal(
   db: Client,
   id: number,
-  data: { name?: string; target_amount?: number; current_amount?: number; currency?: string; deadline?: string | null }
+  data: { name?: string; target_amount?: number; current_amount?: number; currency?: string; deadline?: string | null; account_id?: number | null; monthly_contribution?: number }
 ): Promise<void> {
   const sets: string[] = [];
   const args: (string | number | null)[] = [];
@@ -1099,6 +1174,8 @@ export async function updateGoal(
   if (data.current_amount !== undefined) { sets.push("current_amount = ?"); args.push(data.current_amount); }
   if (data.currency !== undefined) { sets.push("currency = ?"); args.push(data.currency); }
   if (data.deadline !== undefined) { sets.push("deadline = ?"); args.push(data.deadline); }
+  if (data.account_id !== undefined) { sets.push("account_id = ?"); args.push(data.account_id); }
+  if (data.monthly_contribution !== undefined) { sets.push("monthly_contribution = ?"); args.push(data.monthly_contribution); }
   if (sets.length === 0) return;
   args.push(id);
   await db.execute({ sql: `UPDATE goals SET ${sets.join(", ")} WHERE id = ?`, args });

@@ -145,6 +145,19 @@ export async function initSchema() {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     )`,
     "CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(read, created_at DESC)",
+    "ALTER TABLE goals ADD COLUMN account_id INTEGER REFERENCES accounts(id)",
+    "ALTER TABLE goals ADD COLUMN monthly_contribution REAL DEFAULT 0",
+    `CREATE TABLE IF NOT EXISTS budget_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      account_id INTEGER NOT NULL,
+      category TEXT NOT NULL,
+      period TEXT NOT NULL,
+      limit_amount REAL NOT NULL,
+      spent_amount REAL NOT NULL,
+      month TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now'))
+    )`,
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_budget_history_month ON budget_history(account_id, category, month)",
   ];
   for (const sql of migrations) {
     try {

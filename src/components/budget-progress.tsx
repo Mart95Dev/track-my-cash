@@ -1,8 +1,10 @@
 import type { BudgetStatus } from "@/lib/queries";
+import { BudgetHistoryDialog } from "@/components/budget-history-dialog";
 
 type Props = {
   budget: BudgetStatus;
   currency?: string;
+  accountId?: number;
 };
 
 function formatAmount(amount: number, currency = "EUR") {
@@ -14,7 +16,7 @@ function formatAmount(amount: number, currency = "EUR") {
   }).format(amount);
 }
 
-export function BudgetProgress({ budget, currency = "EUR" }: Props) {
+export function BudgetProgress({ budget, currency = "EUR", accountId }: Props) {
   const { category, spent, limit, percentage } = budget;
   const isOver = percentage > 100;
   const clampedPct = Math.min(percentage, 100);
@@ -22,7 +24,16 @@ export function BudgetProgress({ budget, currency = "EUR" }: Props) {
   return (
     <div className="space-y-1" data-testid="budget-progress">
       <div className="flex justify-between items-baseline">
-        <span className="text-sm font-medium">{category}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">{category}</span>
+          {accountId && (
+            <BudgetHistoryDialog
+              accountId={accountId}
+              category={category}
+              currency={currency}
+            />
+          )}
+        </div>
         <span className={`text-xs ${isOver ? "text-expense font-semibold" : "text-muted-foreground"}`}>
           {Math.round(percentage)}%
         </span>

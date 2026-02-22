@@ -13,21 +13,26 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { createGoalAction, updateGoalAction } from "@/app/actions/goals-actions";
-import type { Goal } from "@/lib/queries";
+import type { Account, Goal } from "@/lib/queries";
 import { SUPPORTED_CURRENCIES } from "@/lib/currency";
 
 type Props = {
   goal?: Goal;
+  accounts?: Account[];
   onSuccess?: () => void;
 };
 
-export function GoalForm({ goal, onSuccess }: Props) {
+export function GoalForm({ goal, accounts = [], onSuccess }: Props) {
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState(goal?.name ?? "");
   const [targetAmount, setTargetAmount] = useState(goal ? String(goal.target_amount) : "");
   const [currentAmount, setCurrentAmount] = useState(goal ? String(goal.current_amount) : "0");
   const [currency, setCurrency] = useState(goal?.currency ?? "EUR");
   const [deadline, setDeadline] = useState(goal?.deadline ?? "");
+  const [accountId, setAccountId] = useState(goal?.account_id ? String(goal.account_id) : "");
+  const [monthlyContribution, setMonthlyContribution] = useState(
+    goal?.monthly_contribution ? String(goal.monthly_contribution) : ""
+  );
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -38,6 +43,9 @@ export function GoalForm({ goal, onSuccess }: Props) {
         toast.error("Le montant cible doit être supérieur à 0");
         return;
       }
+      const parsedAccountId = accountId ? parseInt(accountId) : undefined;
+      const parsedContrib = monthlyContribution ? parseFloat(monthlyContribution) : undefined;
+
       const result = goal
         ? await updateGoalAction(goal.id, {
             name,
@@ -45,8 +53,10 @@ export function GoalForm({ goal, onSuccess }: Props) {
             current_amount: current,
             currency,
             deadline: deadline || null,
+            account_id: parsedAccountId ?? null,
+            monthly_contribution: parsedContrib ?? 0,
           })
-        : await createGoalAction(name, target, current, currency, deadline || undefined);
+        : await createGoalAction(name, target, current, currency, deadline || undefined, parsedAccountId, parsedContrib);
 
       if ("error" in result) {
         toast.error(result.error);
@@ -122,6 +132,37 @@ export function GoalForm({ goal, onSuccess }: Props) {
           />
         </div>
       </div>
+
+      {accounts.length > 0 && (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="goal-account">Compte associé (optionnel)</Label>
+            <Select value={accountId} onValueChange={setAccountId}>
+              <SelectTrigger id="goal-account">
+                <SelectValue placeholder="Aucun" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Aucun</SelectItem>
+                {accounts.map((a) => (
+                  <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="goal-contribution">Versement mensuel auto. (optionnel)</Label>
+            <Input
+              id="goal-contribution"
+              type="number"
+              min="0"
+              step="0.01"
+              value={monthlyContribution}
+              onChange={(e) => setMonthlyContribution(e.target.value)}
+              placeholder="0"
+            />
+          </div>
+        </div>
+      )}
 
       <Button type="submit" disabled={isPending} className="w-full">
         {isPending ? "Enregistrement..." : goal ? "Modifier" : "Créer l'objectif"}

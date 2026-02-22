@@ -1,4 +1,4 @@
-import { getGoals, deleteGoal } from "@/lib/queries";
+import { getGoals, deleteGoal, getAllAccounts } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +14,7 @@ export { deleteGoal };
 export default async function ObjectifsPage() {
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
-  const goals = await getGoals(db);
+  const [goals, accounts] = await Promise.all([getGoals(db), getAllAccounts(db)]);
 
   return (
     <div className="space-y-6">
@@ -28,7 +28,7 @@ export default async function ObjectifsPage() {
           <CardTitle>Nouvel objectif</CardTitle>
         </CardHeader>
         <CardContent>
-          <GoalForm />
+          <GoalForm accounts={accounts} />
         </CardContent>
       </Card>
 

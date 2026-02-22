@@ -72,6 +72,7 @@ export default async function BudgetsPage({
                 key={b.category}
                 budget={b}
                 currency={selectedAccount.currency}
+                accountId={accountId}
               />
             ))}
           </CardContent>

@@ -35,14 +35,16 @@ describe("getBudgetStatus — logique de calcul", () => {
     expect(result[0].spent).toBe(350);
   });
 
-  it("TU-1-4 : la requête utilise les bornes de date (firstDay, lastDay) comme paramètres", async () => {
+  it("TU-1-4 : la requête utilise les bornes de date via SQL CASE (1 seul arg : accountId)", async () => {
     mockExecute.mockResolvedValue({ rows: [] });
     const { getBudgetStatus } = await import("@/lib/queries");
     await getBudgetStatus(mockDb, 42);
     const call = mockExecute.mock.calls[0][0];
-    // La requête doit avoir 3 args : firstDay, lastDay, accountId
-    expect(call.args).toHaveLength(3);
-    expect(call.args[2]).toBe(42);
+    // Les dates sont gérées via CASE b.period dans le SQL, seul accountId est en arg
+    expect(call.args).toHaveLength(1);
+    expect(call.args[0]).toBe(42);
+    // Le SQL doit contenir CASE b.period pour les bornes annuelles/mensuelles
+    expect(call.sql).toContain("CASE b.period");
   });
 
   it("TU-1-5 : percentage = (spent / limit) * 100", async () => {
