@@ -28,7 +28,7 @@ stories:
     blockedBy: []
     points: 3
     tests: 6
-    notes: "genericCsvParser (canHandle, detectHeaders, parseWithMapping) + CsvMappingDialog + importWithMappingAction + mapping sauvegardé en DB"
+    notes: "genericCsvParser (canHandle, detectHeaders, parseWithMapping) + CsvMappingDialog + importWithMappingAction + mapping sauvegardé en DB — QA: 15 tests (6 Dev + 9 QA gaps couverts)"
 
   - id: STORY-041
     title: "Comparaisons Mois/Mois (MoM) dans le Dashboard"
@@ -103,9 +103,9 @@ metrics:
   pending: 0
   total_points: 22
   points_completed: 22
-  tests_total: 316
-  tests_sprint: 58
-  qa_verdict: ""
+  tests_total: 325
+  tests_sprint: 67
+  qa_verdict: PASS
 
 previous_sprint:
   id: sprint-objectifs-intelligence

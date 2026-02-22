@@ -15,6 +15,18 @@ const GENERIC_CSV_DEBIT_CREDIT = `Date;Libellé;Débit;Crédit
 2026-01-18;Carrefour;85.30;
 2026-01-15;Virement salaire;;2500.00`;
 
+const GENERIC_CSV_DATE_FR = `Date;Libellé;Montant
+15/01/2026;Virement salaire;2500.00
+18/01/2026;Carrefour;-85.30`;
+
+const GENERIC_CSV_DATE_DASH = `Date;Libellé;Montant
+15-01-2026;Virement salaire;2500.00
+18-01-2026;Carrefour;-85.30`;
+
+const GENERIC_CSV_DATE_MMM = `Date;Libellé;Montant
+15-Jan-2026;Virement salaire;2500.00
+18-Mar-2026;Carrefour;-85.30`;
+
 const MAPPING_SIMPLE: ColumnMapping = {
   dateColumn: "Date",
   amountColumn: "Montant",
@@ -41,6 +53,10 @@ describe("genericCsvParser", () => {
     it("TU-1-2 : retourne false pour .xlsx", () => {
       expect(genericCsvParser.canHandle("releve.xlsx")).toBe(false);
     });
+
+    it("QA-1 : insensible à la casse du nom de fichier (.CSV majuscules)", () => {
+      expect(genericCsvParser.canHandle("RELEVE.CSV")).toBe(true);
+    });
   });
 
   describe("detectHeaders", () => {
@@ -60,6 +76,19 @@ describe("genericCsvParser", () => {
       expect(resultComma.headers).toHaveLength(4);
       // Fingerprints différents car headers différents
       expect(resultSemicolon.fingerprint).not.toBe(resultComma.fingerprint);
+    });
+
+    it("QA-2 : contenu vide → headers=[], preview=[], fingerprint='empty'", () => {
+      const result = genericCsvParser.detectHeaders("");
+      expect(result.headers).toHaveLength(0);
+      expect(result.preview).toHaveLength(0);
+      expect(result.fingerprint).toBe("empty");
+    });
+
+    it("QA-3 : le même format de headers produit toujours le même fingerprint", () => {
+      const r1 = genericCsvParser.detectHeaders(GENERIC_CSV_SEMICOLON);
+      const r2 = genericCsvParser.detectHeaders(`Date;Libellé;Montant;Solde\n2026-02-01;Test;100;500`);
+      expect(r1.fingerprint).toBe(r2.fingerprint);
     });
   });
 
@@ -89,6 +118,48 @@ describe("genericCsvParser", () => {
       const income = result.transactions.find((t) => t.type === "income");
       expect(expense?.amount).toBeCloseTo(85.3);
       expect(income?.amount).toBeCloseTo(2500);
+    });
+
+    it("QA-4 : format date DD/MM/YYYY converti correctement en YYYY-MM-DD", () => {
+      const mapping: ColumnMapping = { ...MAPPING_SIMPLE, dateColumn: "Date", dateFormat: "DD/MM/YYYY" };
+      const result = genericCsvParser.parseWithMapping(GENERIC_CSV_DATE_FR, mapping);
+      expect(result.transactions).toHaveLength(2);
+      expect(result.transactions[0]?.date).toBe("2026-01-15");
+      expect(result.transactions[1]?.date).toBe("2026-01-18");
+    });
+
+    it("QA-5 : format date DD-MM-YYYY converti correctement en YYYY-MM-DD", () => {
+      const mapping: ColumnMapping = { ...MAPPING_SIMPLE, dateColumn: "Date", dateFormat: "DD-MM-YYYY" };
+      const result = genericCsvParser.parseWithMapping(GENERIC_CSV_DATE_DASH, mapping);
+      expect(result.transactions).toHaveLength(2);
+      expect(result.transactions[0]?.date).toBe("2026-01-15");
+    });
+
+    it("QA-6 : format date DD-MMM-YYYY (15-Jan-2026) converti correctement", () => {
+      const mapping: ColumnMapping = { ...MAPPING_SIMPLE, dateColumn: "Date", dateFormat: "DD-MMM-YYYY" };
+      const result = genericCsvParser.parseWithMapping(GENERIC_CSV_DATE_MMM, mapping);
+      expect(result.transactions).toHaveLength(2);
+      expect(result.transactions[0]?.date).toBe("2026-01-15");
+      expect(result.transactions[1]?.date).toBe("2026-03-18");
+    });
+
+    it("QA-7 : contenu vide → 0 transactions", () => {
+      const result = genericCsvParser.parseWithMapping("", MAPPING_SIMPLE);
+      expect(result.transactions).toHaveLength(0);
+    });
+
+    it("QA-8 : header seul sans données → 0 transactions", () => {
+      const result = genericCsvParser.parseWithMapping("Date;Libellé;Montant", MAPPING_SIMPLE);
+      expect(result.transactions).toHaveLength(0);
+    });
+
+    it("QA-9 : montant avec virgule décimale (format européen) parsé correctement", () => {
+      const csv = `Date;Libellé;Montant\n2026-01-15;Loyer;-850,00\n2026-01-20;Salaire;2 500,00`;
+      const result = genericCsvParser.parseWithMapping(csv, MAPPING_SIMPLE);
+      expect(result.transactions).toHaveLength(2);
+      expect(result.transactions[0]?.amount).toBeCloseTo(850);
+      expect(result.transactions[0]?.type).toBe("expense");
+      expect(result.transactions[1]?.amount).toBeCloseTo(2500);
     });
   });
 });
