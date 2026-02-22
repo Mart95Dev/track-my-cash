@@ -144,7 +144,7 @@
 |----|-------|----------|------------|--------|-------|
 | STORY-061 | Email récapitulatif hebdomadaire IA (Pro/Premium) | P1 | M | ✅ completed | PASS |
 | STORY-062 | Création de récurrents via tool calling chat IA | P2 | S | ✅ completed | PASS |
-| STORY-063 | Vue agrégée "Tous les comptes" (dashboard global) | P1 | M | ⏳ pending | — |
+| STORY-063 | Vue agrégée "Tous les comptes" (dashboard global) | P1 | M | ✅ completed | PASS |
 | STORY-064 | Comparaison Année/Année (YoY) dans le dashboard | P2 | S | ⏳ pending | — |
 | STORY-065 | Export données personnelles (portabilité RGPD) | P1 | S | ⏳ pending | — |
 | STORY-066 | Notes et mémos sur les transactions | P2 | S | ⏳ pending | — |
@@ -152,7 +152,7 @@
 
 ### Métriques Sprint Engagement & Analyse Avancée
 
-- **Stories complétées :** 2/7
-- **Points total :** 5/17
-- **Tests sprint :** 26 (STORY-061+062) — 455 total, 0 échec
+- **Stories complétées :** 3/7
+- **Points total :** 8/17
+- **Tests sprint :** 35 (STORY-061+062+063) — 464 total, 0 échec
 - **TypeScript :** 0 erreur

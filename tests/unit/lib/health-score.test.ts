@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeHealthScore } from "@/lib/health-score";
+import { computeHealthScore, computeGlobalHealthScore } from "@/lib/health-score";
 
 const SUMMARIES_STABLE = [
   { income: 3000, expenses: 2000 },
@@ -162,5 +162,45 @@ describe("computeHealthScore", () => {
     });
     expect(result.stabilityScore).toBe(0);
     expect(result.savingsScore).toBe(0);
+  });
+});
+
+// === STORY-063 — computeGlobalHealthScore ===
+
+describe("computeGlobalHealthScore (STORY-063, AC-4)", () => {
+  it("TU-63-1 : liste vide → 0", () => {
+    expect(computeGlobalHealthScore([])).toBe(0);
+  });
+
+  it("TU-63-2 : compte unique → retourne son score arrondi", () => {
+    expect(computeGlobalHealthScore([{ score: 72, balance: 5000 }])).toBe(72);
+  });
+
+  it("TU-63-3 : 2 comptes → moyenne pondérée par solde positif", () => {
+    // Compte 1 : score=80, balance=8000 (80% du poids)
+    // Compte 2 : score=40, balance=2000 (20% du poids)
+    // Score global = 80*0.8 + 40*0.2 = 64+8 = 72
+    const result = computeGlobalHealthScore([
+      { score: 80, balance: 8000 },
+      { score: 40, balance: 2000 },
+    ]);
+    expect(result).toBe(72);
+  });
+
+  it("TU-63-4 : soldes tous nuls → moyenne simple", () => {
+    const result = computeGlobalHealthScore([
+      { score: 60, balance: 0 },
+      { score: 80, balance: 0 },
+    ]);
+    expect(result).toBe(70);
+  });
+
+  it("TU-63-5 : soldes négatifs ignorés pour la pondération", () => {
+    // Seul compte 1 a un solde positif → il a 100% du poids
+    const result = computeGlobalHealthScore([
+      { score: 80, balance: 1000 },
+      { score: 40, balance: -500 },
+    ]);
+    expect(result).toBe(80);
   });
 });

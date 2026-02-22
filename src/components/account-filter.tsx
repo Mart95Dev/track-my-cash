@@ -10,7 +10,7 @@ export function AccountFilter({
   basePath,
 }: {
   accounts: Account[];
-  currentAccountId?: number;
+  currentAccountId?: number | "all";
   basePath: string;
 }) {
   const t = useTranslations("search");
@@ -33,6 +33,7 @@ export function AccountFilter({
       value={currentAccountId ?? ""}
       onChange={(e) => onChange(e.target.value)}
     >
+      <option value="all">{t("allAccounts")}</option>
       <option value="">{t("selectAccount")}</option>
       {accounts.map((a) => (
         <option key={a.id} value={a.id}>

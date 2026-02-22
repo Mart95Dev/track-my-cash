@@ -93,3 +93,30 @@ export function computeHealthScore(data: HealthScoreInput): HealthScore {
     label,
   };
 }
+
+/**
+ * Calcule un score de santé global (0-100) à partir des scores par compte,
+ * pondérés par leur solde (les comptes avec un solde positif plus élevé ont plus de poids).
+ */
+export function computeGlobalHealthScore(
+  perAccountScores: { score: number; balance: number }[]
+): number {
+  if (perAccountScores.length === 0) return 0;
+
+  const totalPositiveBalance = perAccountScores.reduce(
+    (sum, a) => sum + Math.max(0, a.balance),
+    0
+  );
+
+  if (totalPositiveBalance === 0) {
+    const sum = perAccountScores.reduce((s, a) => s + a.score, 0);
+    return Math.round(sum / perAccountScores.length);
+  }
+
+  const weightedSum = perAccountScores.reduce((sum, a) => {
+    const weight = Math.max(0, a.balance) / totalPositiveBalance;
+    return sum + a.score * weight;
+  }, 0);
+
+  return Math.round(weightedSum);
+}

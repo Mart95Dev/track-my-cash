@@ -29,7 +29,7 @@ import { LayoutDashboard } from "lucide-react";
 import { OnboardingWizard } from "@/components/onboarding-wizard";
 import { VariationBadge } from "@/components/variation-badge";
 import { computeMoMVariation } from "@/lib/mom-calculator";
-import { computeHealthScore } from "@/lib/health-score";
+import { computeHealthScore, computeGlobalHealthScore } from "@/lib/health-score";
 import { HealthScoreWidget } from "@/components/health-score-widget";
 
 export const dynamic = "force-dynamic";
@@ -40,7 +40,8 @@ export default async function DashboardPage({
   searchParams: Promise<{ accountId?: string }>;
 }) {
   const params = await searchParams;
-  const accountId = params.accountId ? parseInt(params.accountId) : undefined;
+  const isAll = params.accountId === "all";
+  const accountId = (!isAll && params.accountId) ? parseInt(params.accountId) : undefined;
   const t = await getTranslations("dashboard");
   const locale = await getLocale();
 
@@ -78,11 +79,35 @@ export default async function DashboardPage({
   const hasMultiCurrency = data.accounts.some((a) => a.currency !== refCurrency);
 
   // Score de santé financière — 3 derniers mois de données
-  const healthScore = computeHealthScore({
-    monthlySummaries: monthlySummary.slice(0, 3).map((m) => ({ income: m.income, expenses: m.expenses })),
-    budgets: budgetStatuses.map((b) => ({ category: b.category, amount_limit: b.limit, spent: b.spent })),
-    goals: goals.map((g) => ({ target_amount: g.target_amount, current_amount: g.current_amount })),
-  });
+  // Mode "Tous les comptes" : score global pondéré par solde par compte
+  const healthScore = isAll
+    ? (() => {
+        const perAccountScores = data.accounts.map((acc) => {
+          const balance = convertToReference(
+            acc.calculated_balance ?? acc.initial_balance,
+            acc.currency,
+            rates
+          );
+          const score = computeHealthScore({
+            monthlySummaries: monthlySummary.slice(0, 3).map((m) => ({ income: m.income, expenses: m.expenses })),
+            budgets: [],
+            goals: goals.map((g) => ({ target_amount: g.target_amount, current_amount: g.current_amount })),
+          });
+          return { score: score.total, balance };
+        });
+        const globalTotal = computeGlobalHealthScore(perAccountScores);
+        const baseScore = computeHealthScore({
+          monthlySummaries: monthlySummary.slice(0, 3).map((m) => ({ income: m.income, expenses: m.expenses })),
+          budgets: [],
+          goals: goals.map((g) => ({ target_amount: g.target_amount, current_amount: g.current_amount })),
+        });
+        return { ...baseScore, total: globalTotal };
+      })()
+    : computeHealthScore({
+        monthlySummaries: monthlySummary.slice(0, 3).map((m) => ({ income: m.income, expenses: m.expenses })),
+        budgets: budgetStatuses.map((b) => ({ category: b.category, amount_limit: b.limit, spent: b.spent })),
+        goals: goals.map((g) => ({ target_amount: g.target_amount, current_amount: g.current_amount })),
+      });
 
   const totalInRef = (accountId && selectedAccount)
     ? convertToReference(
@@ -118,8 +143,11 @@ export default async function DashboardPage({
           {selectedAccount && (
             <span className="ml-2 text-lg font-normal text-muted-foreground">— {selectedAccount.name}</span>
           )}
+          {isAll && (
+            <span className="ml-2 text-lg font-normal text-muted-foreground">— Tous les comptes</span>
+          )}
         </h2>
-        <AccountFilter accounts={accounts} currentAccountId={accountId} basePath="/dashboard" />
+        <AccountFilter accounts={accounts} currentAccountId={isAll ? "all" : accountId} basePath="/dashboard" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -168,7 +196,7 @@ export default async function DashboardPage({
       {/* Score de santé financière */}
       <HealthScoreWidget score={healthScore} />
 
-      {data.accounts.length > 1 && hasMultiCurrency && (
+      {(isAll || (data.accounts.length > 1 && hasMultiCurrency)) && (
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">

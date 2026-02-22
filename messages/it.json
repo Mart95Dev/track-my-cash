@@ -348,6 +348,7 @@
   },
   "search": {
     "placeholder": "Cerca...",
+    "allAccounts": "Tutti i conti",
     "selectAccount": "— Scegli un conto —",
     "sortRecent": "Data (recente)",
     "sortOldest": "Data (più vecchio)",
