@@ -7,6 +7,7 @@ export type TransactionCsvRow = {
   amount: number;
   currency: string;
   account_name: string;
+  note?: string | null;
 };
 
 function escapeField(value: string): string {
@@ -30,6 +31,7 @@ export function generateTransactionsCsv(rows: TransactionCsvRow[]): string {
     "Montant",
     "Devise",
     "Compte",
+    "Note",
   ];
 
   const lines = [
@@ -44,6 +46,7 @@ export function generateTransactionsCsv(rows: TransactionCsvRow[]): string {
         escapeField(row.amount.toFixed(2)),
         escapeField(row.currency),
         escapeField(row.account_name ?? ""),
+        escapeField(row.note ?? ""),
       ].join(",")
     ),
   ];

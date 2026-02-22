@@ -28,6 +28,7 @@ export function ExportTransactions({
       amount: tx.amount,
       currency: currencyByAccountId.get(tx.account_id) ?? "EUR",
       account_name: tx.account_name ?? "",
+      note: tx.note,
     }));
 
     const csv = generateTransactionsCsv(rows);

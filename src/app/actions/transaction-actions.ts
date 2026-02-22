@@ -5,6 +5,7 @@ import {
   createTransaction,
   deleteTransaction,
   updateTransaction,
+  updateTransactionNote,
 } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId, getRequiredSession } from "@/lib/auth-utils";
@@ -52,6 +53,8 @@ export async function updateTransactionAction(_prev: unknown, formData: FormData
   const category = (formData.get("category") as string) || "Autre";
   const subcategory = (formData.get("subcategory") as string) || "";
   const description = (formData.get("description") as string) || "";
+  const noteRaw = ((formData.get("note") as string) || "").trim();
+  const note = noteRaw === "" ? null : noteRaw;
 
   if (!id || !accountId || !amount || !date || !type) {
     return { error: "Champs obligatoires manquants" };
@@ -60,6 +63,7 @@ export async function updateTransactionAction(_prev: unknown, formData: FormData
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
   await updateTransaction(db, id, accountId, type, amount, date, category, subcategory, description);
+  await updateTransactionNote(db, id, note);
   revalidatePath("/");
   revalidatePath("/transactions");
   return { success: true };
@@ -70,6 +74,18 @@ export async function deleteTransactionAction(id: number) {
   const db = await getUserDb(userId);
   await deleteTransaction(db, id);
   revalidatePath("/");
+  revalidatePath("/transactions");
+  return { success: true };
+}
+
+export async function updateTransactionNoteAction(
+  txId: number,
+  note: string
+): Promise<{ success: boolean }> {
+  const trimmed = note.trim();
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  await updateTransactionNote(db, txId, trimmed === "" ? null : trimmed);
   revalidatePath("/transactions");
   return { success: true };
 }

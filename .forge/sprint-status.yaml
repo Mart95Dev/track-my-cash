@@ -73,12 +73,12 @@ stories:
     epic: ux
     complexity: S
     priority: P2
-    status: pending
+    status: completed
     blockedBy: []
     points: 2
-    tests: 0
-    qa_verdict: ""
-    notes: "ALTER TABLE transactions ADD note TEXT + updateTransactionNote() + textarea + icône + CSV"
+    tests: 5
+    qa_verdict: "PASS"
+    notes: "Migration note TEXT + updateTransactionNote() + updateTransactionNoteAction() + textarea dialog + icône StickyNote + colonne CSV"
 
   - id: STORY-067
     title: "Parsers ING Direct + Boursorama (marché FR)"
@@ -94,13 +94,13 @@ stories:
 
 metrics:
   total: 7
-  completed: 5
+  completed: 6
   in_progress: 0
-  pending: 2
+  pending: 1
   total_points: 17
-  points_completed: 12
-  tests_total: 474
-  tests_sprint: 45
+  points_completed: 14
+  tests_total: 479
+  tests_sprint: 50
   qa_verdict: ""
 
 previous_sprint:

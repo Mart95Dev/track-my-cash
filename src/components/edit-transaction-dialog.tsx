@@ -96,6 +96,17 @@ export function EditTransactionDialog({
             defaultSubcategory={transaction.subcategory ?? undefined}
             idPrefix={`tx-edit-${transaction.id}`}
           />
+          <div className="space-y-2">
+            <Label>Note <span className="text-xs text-muted-foreground">(optionnel, 500 car. max)</span></Label>
+            <textarea
+              name="note"
+              defaultValue={transaction.note ?? ""}
+              maxLength={500}
+              rows={2}
+              className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
+              placeholder="Ajouter une note..."
+            />
+          </div>
           <Button type="submit" disabled={isPending}>
             {isPending ? t("saving") : t("save")}
           </Button>

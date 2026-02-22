@@ -147,7 +147,7 @@
 | STORY-063 | Vue agrégée "Tous les comptes" (dashboard global) | P1 | M | ✅ completed | PASS |
 | STORY-064 | Comparaison Année/Année (YoY) dans le dashboard | P2 | S | ✅ completed | PASS |
 | STORY-065 | Export données personnelles (portabilité RGPD) | P1 | S | ✅ completed | PASS |
-| STORY-066 | Notes et mémos sur les transactions | P2 | S | ⏳ pending | — |
+| STORY-066 | Notes et mémos sur les transactions | P2 | S | ✅ completed | PASS |
 | STORY-067 | Parsers ING Direct + Boursorama (marché FR) | P3 | S | ⏳ pending | — |
 
 ### Métriques Sprint Engagement & Analyse Avancée

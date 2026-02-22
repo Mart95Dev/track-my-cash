@@ -27,6 +27,7 @@ export interface Transaction {
   import_hash: string | null;
   created_at: string;
   account_name?: string;
+  note: string | null;
 }
 
 export interface RecurringPayment {
@@ -130,6 +131,7 @@ function rowToTransaction(row: Row): Transaction {
     import_hash: row.import_hash ? String(row.import_hash) : null,
     created_at: String(row.created_at),
     account_name: row.account_name ? String(row.account_name) : undefined,
+    note: row.note != null ? String(row.note) : null,
   };
 }
 
@@ -874,6 +876,17 @@ export async function updateTransaction(
   await db.execute({
     sql: "UPDATE transactions SET account_id = ?, type = ?, amount = ?, date = ?, category = ?, subcategory = ?, description = ? WHERE id = ?",
     args: [accountId, type, amount, date, category, subcategory, description, id],
+  });
+}
+
+export async function updateTransactionNote(
+  db: Client,
+  id: number,
+  note: string | null
+): Promise<void> {
+  await db.execute({
+    sql: "UPDATE transactions SET note = ? WHERE id = ?",
+    args: [note, id],
   });
 }
 

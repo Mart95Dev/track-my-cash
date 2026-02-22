@@ -25,7 +25,7 @@ import { canUseAI } from "@/lib/subscription-utils";
 import { getTagsAction, getTransactionTagsBatchAction } from "@/app/actions/tag-actions";
 import { getTranslations, getLocale } from "next-intl/server";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ArrowDownUp } from "lucide-react";
+import { ArrowDownUp, StickyNote } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -127,7 +127,16 @@ export default async function TransactionsPage({
                         <TableCell className="whitespace-nowrap">
                           {formatDate(tx.date, locale)}
                         </TableCell>
-                        <TableCell>{tx.description || "—"}</TableCell>
+                        <TableCell>
+                          <span className="flex items-center gap-1.5">
+                            {tx.description || "—"}
+                            {tx.note && (
+                              <span title={tx.note}>
+                                <StickyNote className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              </span>
+                            )}
+                          </span>
+                        </TableCell>
                         <TableCell>
                           <span className="text-sm">{tx.category}</span>
                           {tx.subcategory && (
@@ -167,7 +176,14 @@ export default async function TransactionsPage({
                   <div key={tx.id} className="p-4 space-y-2">
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium truncate">{tx.description || tx.category}</p>
+                        <p className="font-medium truncate flex items-center gap-1.5">
+                          {tx.description || tx.category}
+                          {tx.note && (
+                            <span title={tx.note}>
+                              <StickyNote className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                            </span>
+                          )}
+                        </p>
                         <p className="text-xs text-muted-foreground">
                           {formatDate(tx.date, locale)}
                         </p>

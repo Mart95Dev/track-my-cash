@@ -173,6 +173,7 @@ export async function initSchema() {
       reason TEXT,
       notified_at TEXT
     )`,
+    "ALTER TABLE transactions ADD COLUMN note TEXT",
   ];
   for (const sql of migrations) {
     try {
