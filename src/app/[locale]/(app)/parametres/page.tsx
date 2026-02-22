@@ -12,12 +12,13 @@ import { BudgetForm } from "@/components/budget-form";
 import { MonthlySummaryEmailButton } from "@/components/monthly-summary-email-button";
 import { MonthlyReportButton } from "@/components/monthly-report-button";
 import { AnnualReportButton } from "@/components/annual-report-button";
+import { AutoCategorizeToggle } from "@/components/auto-categorize-toggle";
 import { getCategorizationRules, getSetting, getAllAccounts, getBudgets } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { getExchangeRate } from "@/lib/currency";
 import { getTagsAction } from "@/app/actions/tag-actions";
-import { saveExchangeRateAction, saveOpenRouterKeyAction } from "@/app/actions/settings-actions";
+import { saveExchangeRateAction, saveOpenRouterKeyAction, toggleAutoCategorizationAction } from "@/app/actions/settings-actions";
 import { getUserSubscription } from "@/app/actions/billing-actions";
 import { getPlan } from "@/lib/stripe-plans";
 import { getTranslations } from "next-intl/server";
@@ -30,7 +31,7 @@ export default async function ParametresPage() {
 
   const aiAccess = await (await import("@/lib/subscription-utils")).canUseAI(userId);
 
-  const [rules, tags, liveRate, fallbackRateStr, openrouterKey, subscription, t, accounts] = await Promise.all([
+  const [rules, tags, liveRate, fallbackRateStr, openrouterKey, subscription, t, accounts, autoCategorizeSetting] = await Promise.all([
     getCategorizationRules(db),
     getTagsAction(),
     getExchangeRate(db),
@@ -39,6 +40,7 @@ export default async function ParametresPage() {
     getUserSubscription(),
     getTranslations("settings"),
     getAllAccounts(db),
+    getSetting(db, "auto_categorize_on_import"),
   ]);
 
   // Budgets pour le premier compte (si présent)
@@ -116,6 +118,22 @@ export default async function ParametresPage() {
           <OpenRouterKeySettings
             hasKey={!!openrouterKey}
             onSave={saveOpenRouterKeyAction}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Intelligence artificielle</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Paramètres liés aux fonctionnalités IA de TrackMyCash.
+          </p>
+          <AutoCategorizeToggle
+            enabled={autoCategorizeSetting === "true"}
+            isPro={aiAccess.allowed}
+            onToggle={toggleAutoCategorizationAction}
           />
         </CardContent>
       </Card>

@@ -133,4 +133,34 @@ describe("computeHealthScore", () => {
     });
     expect(result.goalsScore).toBe(25);
   });
+
+  // === Tests QA — couverture des branches manquantes ===
+
+  it("QA-47-1 : aucun mois avec revenu > 0 → savingsScore = 0 (ligne 22)", () => {
+    // Tous les mois ont income = 0 → validMonths vide → branche else à savingsScore = 0
+    const result = computeHealthScore({
+      monthlySummaries: [
+        { income: 0, expenses: 0 },
+        { income: 0, expenses: 100 },
+      ],
+      budgets: [],
+      goals: [],
+    });
+    expect(result.savingsScore).toBe(0);
+  });
+
+  it("QA-47-2 : moyenne des revenus = 0 (incomes tous nuls) → stabilityScore = 0 (ligne 63)", () => {
+    // mean = 0 → cv non calculable → stabilityScore = 0
+    const result = computeHealthScore({
+      monthlySummaries: [
+        { income: 0, expenses: 200 },
+        { income: 0, expenses: 150 },
+        { income: 0, expenses: 300 },
+      ],
+      budgets: [],
+      goals: [],
+    });
+    expect(result.stabilityScore).toBe(0);
+    expect(result.savingsScore).toBe(0);
+  });
 });

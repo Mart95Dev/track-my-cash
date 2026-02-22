@@ -90,6 +90,26 @@
 
 - **Stories complétées :** 8/8 ✅
 - **Points total :** 22/22 ✅
-- **Tests sprint :** 58 nouveaux tests (316 total, 0 échec)
+- **Tests sprint :** 67 nouveaux tests (325 total, 0 échec)
 - **Fichiers créés :** 17 nouveaux fichiers (lib + actions + components)
 - **TypeScript :** 0 erreur (`npx tsc --noEmit`)
+
+---
+
+## Sprint Intelligence & UX IA (v7) — EN COURS 🚧
+
+| ID | Titre | Priorité | Complexité | Statut | QA |
+|----|-------|----------|------------|--------|-------|
+| STORY-047 | Score de santé financière (widget dashboard) | P1 | M | ⏳ pending | — |
+| STORY-048 | Questions suggérées dans le chat conseiller | P1 | S | ⏳ pending | — |
+| STORY-049 | Catégorisation IA automatique à l'import (option) | P1 | S | ⏳ pending | — |
+| STORY-050 | Tool calling — créer budgets/objectifs depuis le chat | P2 | M | ⏳ pending | — |
+| STORY-051 | Simulateur de scénarios "Et si..." dans les prévisions | P2 | M | ⏳ pending | — |
+| STORY-052 | Suggestions de budgets basées sur l'historique | P3 | S | ⏳ pending | — |
+
+### Métriques Sprint Intelligence & UX IA
+
+- **Stories complétées :** 0/6
+- **Points total :** 0/15
+- **Tests sprint :** 0 (objectif ~35 nouveaux tests)
+- **TypeScript :** objectif 0 erreur

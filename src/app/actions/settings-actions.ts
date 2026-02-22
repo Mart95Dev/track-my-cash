@@ -75,6 +75,14 @@ export async function sendMonthlySummaryAction() {
   return { success: true };
 }
 
+export async function toggleAutoCategorizationAction(enabled: boolean) {
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  await setSetting(db, "auto_categorize_on_import", enabled ? "true" : "false");
+  revalidatePath("/parametres");
+  return { success: true };
+}
+
 export async function saveExchangeRateAction(rate: number) {
   if (!rate || rate <= 0) {
     return { error: "Taux invalide" };

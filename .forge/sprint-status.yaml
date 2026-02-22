@@ -16,74 +16,80 @@ stories:
     status: completed
     blockedBy: []
     points: 3
-    tests: 9
-    notes: "computeHealthScore() (9 tests) — 4 dimensions (épargne, budgets, objectifs, stabilité) — HealthScoreWidget (jauge SVG + sous-scores) — intégré dashboard"
+    tests: 11
+    qa_verdict: PASS
+    notes: "computeHealthScore() (11 tests, 2 QA gap tests ajoutés) — 4 dimensions (épargne, budgets, objectifs, stabilité) — HealthScoreWidget (jauge SVG + sous-scores) — intégré dashboard"
 
   - id: STORY-048
     title: "Questions suggérées dans le chat conseiller"
     epic: intelligence
     complexity: S
     priority: P1
-    status: pending
+    status: completed
     blockedBy: []
     points: 2
-    tests: 0
-    notes: "generateChatSuggestions() — chips cliquables contextuelles — disparaissent après premier envoi"
+    tests: 7
+    qa_verdict: PASS
+    notes: "generateChatSuggestions() (7 tests, 2 QA gap tests ajoutés) — 3 niveaux de priorité (budgets > objectifs > épargne) — ChatSuggestions (chips Badge, état local visible) — auto-send via sendMessage — intégré page conseiller"
 
   - id: STORY-049
     title: "Catégorisation IA automatique à l'import (option)"
     epic: intelligence
     complexity: S
     priority: P1
-    status: pending
+    status: completed
     blockedBy: []
     points: 2
-    tests: 0
-    notes: "Setting auto_categorize_on_import — fire-and-forget dans confirmImportAction — Pro/Premium uniquement"
+    tests: 6
+    qa_verdict: PASS
+    notes: "Setting auto_categorize_on_import (6 tests, 2 QA gap ajoutés) — fire-and-forget dans confirmImportAction — double-guard canUseAI — AutoCategorizeToggle (Checkbox) — section IA dans /parametres (Pro/Premium)"
 
   - id: STORY-050
     title: "Tool calling — créer budgets et objectifs depuis le chat"
     epic: intelligence
     complexity: M
     priority: P2
-    status: pending
+    status: completed
     blockedBy: []
     points: 3
-    tests: 0
-    notes: "Vercel AI SDK tool() — createBudgetTool + createGoalTool — schemas Zod — ToolResultCard — Pro/Premium"
+    tests: 8
+    qa_verdict: PASS
+    notes: "createBudgetSchema + createGoalSchema (Zod, 8 tests, 2 QA gaps ajoutés) — createAiTools() factory — inputSchema (AI SDK v6) — stopWhen: stepCountIs(3) — DynamicToolUIPart detection (state: output-available) — ToolResultCard — Pro/Premium via canUseAI guard"
 
   - id: STORY-051
     title: "Simulateur de scénarios 'Et si...' dans les prévisions"
     epic: analytics
     complexity: M
     priority: P2
-    status: pending
+    status: completed
     blockedBy: []
     points: 3
-    tests: 0
-    notes: "simulateScenario() pure — 3 types (extra savings, cut expense, income increase) — client-side useMemo"
+    tests: 9
+    qa_verdict: PASS
+    notes: "simulateScenario() pure (9 tests, 2 QA gap tests ajoutés) — 3 types (extra savings, cut expense, income increase) — plafonnement 100% — monthsToGoal — ScenarioSimulator client (3 onglets, slider, tableau Avant/Après, useMemo) — intégré /previsions"
 
   - id: STORY-052
     title: "Suggestions de budgets basées sur l'historique"
     epic: intelligence
     complexity: S
     priority: P3
-    status: pending
+    status: completed
     blockedBy: []
     points: 2
-    tests: 0
-    notes: "suggestBudgets() pure — arrondi dizaine supérieure — confiance high/medium/low — /budgets page"
+    tests: 9
+    qa_verdict: PASS
+    notes: "suggestBudgets() pure (9 tests, 2 QA gap tests ajoutés) — arrondi dizaine supérieure — confiance high/medium/low — CV (coefficient de variation) — getBudgetSuggestionsAction() — BudgetSuggestions (client) — page /budgets dédiée créée"
 
 metrics:
   total: 6
-  completed: 1
+  completed: 6
   in_progress: 0
-  pending: 5
+  pending: 0
   total_points: 15
-  points_completed: 3
-  tests_total: 334
-  tests_sprint: 9
-  qa_verdict: pending
+  points_completed: 15
+  tests_total: 375
+  tests_sprint: 50
+  qa_verdict: PASS
 
 previous_sprint:
   id: sprint-compatibilite-ia-analyse

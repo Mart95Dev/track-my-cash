@@ -1,4 +1,4 @@
-import { streamText, convertToModelMessages, type UIMessage } from "ai";
+import { streamText, convertToModelMessages, stepCountIs, type UIMessage } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { getSetting, getAllAccounts } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
@@ -6,6 +6,7 @@ import { getRequiredUserId } from "@/lib/auth-utils";
 import { canUseAI } from "@/lib/subscription-utils";
 import { buildFinancialContext, SYSTEM_PROMPT } from "@/lib/ai-context";
 import { checkRateLimit } from "@/lib/rate-limiter";
+import { createAiTools } from "@/lib/ai-tools";
 
 const RATE_LIMIT = 30;
 const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 heure
@@ -105,10 +106,14 @@ ${
     : "L'utilisateur n'a sélectionné aucun compte à analyser. Demande-lui de sélectionner au moins un compte pour pouvoir l'aider."
 }`;
 
+  const accountId = accountIds[0] ?? 0;
+
   const result = streamText({
     model: openrouter(selectedModel),
     system: systemMessage,
     messages: await convertToModelMessages(messages),
+    tools: createAiTools(db, accountId),
+    stopWhen: stepCountIs(3),
   });
 
   return result.toUIMessageStreamResponse();

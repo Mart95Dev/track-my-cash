@@ -15,8 +15,9 @@ import { getUserDb } from "@/lib/db";
 import { getRequiredUserId, getRequiredSession } from "@/lib/auth-utils";
 import { checkAndSendLowBalanceAlert } from "@/lib/alert-service";
 import { detectAndNotifyAnomalies } from "@/lib/anomaly-service";
-import { canImportFormat } from "@/lib/subscription-utils";
+import { canImportFormat, canUseAI } from "@/lib/subscription-utils";
 import { revalidatePath } from "next/cache";
+import { autoCategorizeAction } from "@/app/actions/ai-categorize-actions";
 
 // Applique les règles de catégorisation — retourne { category: catégorie large, subcategory: pattern }
 function applyRules(
@@ -200,6 +201,16 @@ export async function confirmImportAction(
   revalidatePath("/");
   revalidatePath("/transactions");
   revalidatePath("/comptes");
+
+  // Auto-catégorisation IA si activée (fire-and-forget)
+  const autoCategorizeSetting = await getSetting(db, "auto_categorize_on_import");
+  if (autoCategorizeSetting === "true") {
+    const aiCheck = await canUseAI(userId);
+    if (aiCheck.allowed) {
+      autoCategorizeAction().catch(() => {});
+    }
+  }
+
   return { success: true, imported: count, balanceUpdated, newBalance, newBalanceDate };
 }
 

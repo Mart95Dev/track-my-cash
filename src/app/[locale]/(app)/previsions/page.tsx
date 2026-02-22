@@ -1,4 +1,4 @@
-import { getDetailedForecast, getAllAccounts, getSpendingTrend, getBudgets } from "@/lib/queries";
+import { getDetailedForecast, getAllAccounts, getSpendingTrend, getBudgets, getGoals } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { canUseAI } from "@/lib/subscription-utils";
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ForecastControls } from "@/components/forecast-controls";
+import { ScenarioSimulator } from "@/components/scenario-simulator";
 import { getTranslations, getLocale } from "next-intl/server";
 import { EmptyState } from "@/components/ui/empty-state";
 import { TrendingUp } from "lucide-react";
@@ -61,11 +62,12 @@ export default async function PrevisionsPage({
   const accountId = rawAccountId ?? accounts[0]!.id;
   const selectedAccount = accounts.find((a) => a.id === accountId) ?? accounts[0]!;
   const currency = selectedAccount.currency;
-  const [forecast, trendData, accountBudgets, aiAccess] = await Promise.all([
+  const [forecast, trendData, accountBudgets, aiAccess, goals] = await Promise.all([
     getDetailedForecast(db, months, accountId),
     getSpendingTrend(db, 3, accountId),
     getBudgets(db, accountId),
     canUseAI(userId),
+    getGoals(db),
   ]);
   const { monthDetails, currentBalance, projectedBalance, totalIncome, totalExpenses } = forecast;
   const categoryForecasts = computeForecast(trendData, accountBudgets);
@@ -314,6 +316,18 @@ export default async function PrevisionsPage({
           )}
         </CardContent>
       </Card>
+
+      {/* Simulateur de scénarios */}
+      <ScenarioSimulator
+        base={{
+          avgMonthlyIncome: months > 0 ? totalIncome / months : 0,
+          avgMonthlyExpenses: months > 0 ? totalExpenses / months : 0,
+          goals: goals.map((g) => ({
+            target_amount: g.target_amount,
+            current_amount: g.current_amount,
+          })),
+        }}
+      />
 
     </div>
   );

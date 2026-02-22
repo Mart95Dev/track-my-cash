@@ -133,6 +133,22 @@ QA : 156 tests, 0 fail, couverture 90.54% lignes, TypeScript 0 erreur.
 **STORY-038**:
 - 2026-02-21 21:44:48 [qa] — QA PASS STORY-038 : computeForecast() 10 tests (5 gaps couverts), 258 tests total, sprint Objectifs & Intelligence certifié
 
+## Sprint Intelligence & UX IA (v7) — EN COURS 🚧 (2026-02-22)
+
+6 stories, 15 points, objectif ~35 tests.
+
+- STORY-047 : Score de santé financière — `computeHealthScore(HealthScoreInput): HealthScore` (4 dimensions, 0-100) + `HealthScoreWidget`
+- STORY-048 : Suggestions chat — `generateChatSuggestions(FinancialSummary): string[]` + chips cliquables
+- STORY-049 : Catégorisation auto import — setting `auto_categorize_on_import` + fire-and-forget dans `confirmImportAction`
+- STORY-050 : Tool calling — `createBudgetTool` + `createGoalTool` (Vercel AI SDK `tool()`, schemas Zod) + `ToolResultCard`
+- STORY-051 : Simulateur scénarios — `simulateScenario(BaseForecast, Scenario): SimulationResult` + UI client-side useMemo
+- STORY-052 : Suggestions budgets — `suggestBudgets(CategoryExpense[], existingBudgets): BudgetSuggestion[]`
+
+**Patterns Sprint v7 :**
+- Tool calling Vercel AI SDK : `import { tool } from "ai"` + `z.object()` schema + `execute()` async + `maxSteps: 3` dans streamText
+- Tous les modules lib sont des **fonctions pures** (pas d'I/O) pour faciliter les tests unitaires
+- Fire-and-forget pattern : `someAction().catch(() => {})` — ne jamais bloquer l'action principale
+
 ## Sprint Compatibilité, IA & Analyse Avancée (v6) — TERMINÉ ✅ (2026-02-22)
 
 316 tests, 0 échec, TypeScript 0 erreur. Sprint 100% complété (8/8 stories, 22/22 points).

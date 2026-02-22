@@ -8,8 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { AiAccountSelector } from "@/components/ai-account-selector";
+import { ChatSuggestions } from "@/components/chat-suggestions";
+import { ToolResultCard } from "@/components/tool-result-card";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import type { ToolCallResult } from "@/lib/ai-tools";
+import type { DynamicToolUIPart } from "ai";
 
 interface Account {
   id: number;
@@ -47,9 +51,11 @@ type ModelId = (typeof MODELS)[number]["id"];
 export function AiChat({
   accounts,
   hasApiKey,
+  suggestions = [],
 }: {
   accounts: Account[];
   hasApiKey: boolean;
+  suggestions?: string[];
 }) {
   const t = useTranslations("advisor");
   const [selectedIds, setSelectedIds] = useState<number[]>(
@@ -99,6 +105,16 @@ export function AiChat({
       .filter((p): p is { type: "text"; text: string } => p.type === "text")
       .map((p) => p.text)
       .join("");
+  };
+
+  const getToolResults = (message: (typeof messages)[0]): ToolCallResult[] => {
+    return message.parts
+      .filter(
+        (p): p is DynamicToolUIPart & { state: "output-available"; output: ToolCallResult } =>
+          p.type === "dynamic-tool" &&
+          (p as DynamicToolUIPart).state === "output-available"
+      )
+      .map((p) => p.output);
   };
 
   if (!hasApiKey) {
@@ -158,49 +174,44 @@ export function AiChat({
             <div className="text-center text-muted-foreground py-12 space-y-2">
               <p className="text-lg font-medium">{t("heading")}</p>
               <p className="text-sm">{t("description")}</p>
-              <div className="flex flex-wrap gap-2 justify-center mt-4">
-                {[t("suggestion1"), t("suggestion2"), t("suggestion3")].map(
-                  (suggestion) => (
-                    <Button
-                      key={suggestion}
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
-                      onClick={() => setInput(suggestion)}
-                    >
-                      {suggestion}
-                    </Button>
-                  )
-                )}
-              </div>
+              <ChatSuggestions
+                suggestions={suggestions}
+                onSelect={(text) => sendMessage({ text })}
+              />
             </div>
           )}
 
           {messages.map((message) => {
             const text = getMessageText(message);
-            if (!text) return null;
+            const toolResults = getToolResults(message);
+            if (!text && toolResults.length === 0) return null;
             return (
               <div
                 key={message.id}
-                className={`flex ${
-                  message.role === "user" ? "justify-end" : "justify-start"
+                className={`flex flex-col ${
+                  message.role === "user" ? "items-end" : "items-start"
                 }`}
               >
-                <div
-                  className={`max-w-[85%] rounded-lg px-4 py-2 ${
-                    message.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
-                  }`}
-                >
-                  {message.role === "user" ? (
-                    <p className="text-sm">{text}</p>
-                  ) : (
-                    <div className="prose prose-sm dark:prose-invert max-w-none">
-                      <ReactMarkdown>{text}</ReactMarkdown>
-                    </div>
-                  )}
-                </div>
+                {toolResults.map((result, i) => (
+                  <ToolResultCard key={i} result={result} />
+                ))}
+                {text && (
+                  <div
+                    className={`max-w-[85%] rounded-lg px-4 py-2 ${
+                      message.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted"
+                    }`}
+                  >
+                    {message.role === "user" ? (
+                      <p className="text-sm">{text}</p>
+                    ) : (
+                      <div className="prose prose-sm dark:prose-invert max-w-none">
+                        <ReactMarkdown>{text}</ReactMarkdown>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
