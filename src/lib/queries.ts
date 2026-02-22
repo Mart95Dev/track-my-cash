@@ -1370,3 +1370,46 @@ export async function getWeeklySummaryData(
     goalsProgress,
   };
 }
+
+// ============ YoY — dépenses par catégorie ============
+
+export interface CategoryExpense {
+  category: string;
+  total: number;
+}
+
+/**
+ * Retourne les dépenses agrégées par catégorie pour un mois et une année donnés.
+ * Utilisé pour la comparaison Année/Année (YoY) dans le dashboard.
+ */
+export async function getMonthlyExpensesByCategory(
+  db: Client,
+  accountId: number | undefined,
+  year: number,
+  month: number
+): Promise<CategoryExpense[]> {
+  const yearStr = String(year);
+  const monthStr = String(month).padStart(2, "0");
+
+  const where = accountId
+    ? "type = 'expense' AND strftime('%Y', date) = ? AND strftime('%m', date) = ? AND account_id = ?"
+    : "type = 'expense' AND strftime('%Y', date) = ? AND strftime('%m', date) = ?";
+
+  const args: (string | number)[] = accountId
+    ? [yearStr, monthStr, accountId]
+    : [yearStr, monthStr];
+
+  const result = await db.execute({
+    sql: `SELECT category, SUM(amount) as total
+      FROM transactions
+      WHERE ${where}
+      GROUP BY category
+      ORDER BY total DESC`,
+    args,
+  });
+
+  return result.rows.map((row) => ({
+    category: String(row.category),
+    total: Number(row.total),
+  }));
+}

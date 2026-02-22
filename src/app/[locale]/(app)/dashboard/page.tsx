@@ -9,6 +9,7 @@ import {
   getSetting,
   getBudgetStatus,
   getGoals,
+  getMonthlyExpensesByCategory,
 } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
@@ -28,9 +29,10 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { LayoutDashboard } from "lucide-react";
 import { OnboardingWizard } from "@/components/onboarding-wizard";
 import { VariationBadge } from "@/components/variation-badge";
-import { computeMoMVariation } from "@/lib/mom-calculator";
+import { computeMoMVariation, computeYoYComparison } from "@/lib/mom-calculator";
 import { computeHealthScore, computeGlobalHealthScore } from "@/lib/health-score";
 import { HealthScoreWidget } from "@/components/health-score-widget";
+import { YoYComparisonWidget } from "@/components/yoy-comparison-widget";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +50,12 @@ export default async function DashboardPage({
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
 
-  const [data, balanceHistory, expensesByPattern, expensesByBroad, monthlySummary, spendingTrend, rates, accounts, refCurrencySetting, budgetStatuses, onboardingCompleted, goals] =
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const previousYear = currentYear - 1;
+
+  const [data, balanceHistory, expensesByPattern, expensesByBroad, monthlySummary, spendingTrend, rates, accounts, refCurrencySetting, budgetStatuses, onboardingCompleted, goals, yoyCurrent, yoyPrevious] =
     await Promise.all([
       getDashboardData(db, accountId),
       getMonthlyBalanceHistory(db, 12, accountId),
@@ -62,6 +69,8 @@ export default async function DashboardPage({
       accountId ? getBudgetStatus(db, accountId) : Promise.resolve([]),
       getSetting(db, "onboarding_completed"),
       getGoals(db),
+      getMonthlyExpensesByCategory(db, accountId, currentYear, currentMonth),
+      getMonthlyExpensesByCategory(db, accountId, previousYear, currentMonth),
     ]);
 
   const showOnboarding = !onboardingCompleted && accounts.length === 0;
@@ -70,7 +79,6 @@ export default async function DashboardPage({
   const selectedAccount = accountId ? accounts.find((a) => a.id === accountId) : null;
 
   // MoM : calculer les variations revenus/dépenses vs mois précédent
-  const now = new Date();
   const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const prevMonthKey = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, "0")}`;
   const prevSummary = monthlySummary.find((m) => m.month === prevMonthKey);
@@ -108,6 +116,9 @@ export default async function DashboardPage({
         budgets: budgetStatuses.map((b) => ({ category: b.category, amount_limit: b.limit, spent: b.spent })),
         goals: goals.map((g) => ({ target_amount: g.target_amount, current_amount: g.current_amount })),
       });
+
+  // YoY — comparaison par catégorie (conditionnel : seulement si données N-1 disponibles)
+  const yoyData = yoyPrevious.length > 0 ? computeYoYComparison(yoyCurrent, yoyPrevious) : [];
 
   const totalInRef = (accountId && selectedAccount)
     ? convertToReference(
@@ -323,6 +334,17 @@ export default async function DashboardPage({
 
       {/* Objectifs d'épargne */}
       {goals.length > 0 && <SavingsGoalsWidget goals={goals} />}
+
+      {/* Comparaison Année/Année (YoY) — conditionnel si données N-1 disponibles (AC-1/AC-4) */}
+      {yoyData.length > 0 && (
+        <YoYComparisonWidget
+          data={yoyData}
+          currency={selectedAccount?.currency ?? refCurrency}
+          locale={locale}
+          currentYear={currentYear}
+          previousYear={previousYear}
+        />
+      )}
 
       {/* Monthly summary */}
       <MonthlySummary data={monthlySummary} />

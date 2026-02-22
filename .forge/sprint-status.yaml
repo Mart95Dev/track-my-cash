@@ -49,12 +49,12 @@ stories:
     epic: analytics
     complexity: S
     priority: P2
-    status: pending
+    status: completed
     blockedBy: []
     points: 2
-    tests: 0
-    qa_verdict: ""
-    notes: "computeYoYComparison() + getMonthlyExpensesByCategory() + YoYComparisonWidget"
+    tests: 6
+    qa_verdict: "PASS"
+    notes: "computeYoYComparison() (seuil ±10%) + CategoryExpense/YoYResult types + getMonthlyExpensesByCategory() + YoYComparisonWidget tableau + dashboard conditionnel si données N-1"
 
   - id: STORY-065
     title: "Export données personnelles (portabilité RGPD)"
@@ -94,13 +94,13 @@ stories:
 
 metrics:
   total: 7
-  completed: 3
+  completed: 4
   in_progress: 0
-  pending: 4
+  pending: 3
   total_points: 17
-  points_completed: 8
-  tests_total: 464
-  tests_sprint: 35
+  points_completed: 10
+  tests_total: 470
+  tests_sprint: 41
   qa_verdict: ""
 
 previous_sprint:
