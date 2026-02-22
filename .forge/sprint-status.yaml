@@ -2,8 +2,8 @@ sprint:
   id: sprint-production-saas-croissance
   goal: "Tracking IA (ai_usage), période d'essai 14j Pro, RGPD crons suppression J+25/J+30, skeleton screens, pages 404/500, parsers HSBC + Monzo, IA multi-modèles parallèles Premium, bannière upgrade freemium + page tarifs enrichie"
   start_date: "2026-02-22"
-  end_date: ""
-  status: in_progress
+  end_date: "2026-02-22"
+  status: completed
 
 stories:
   # === SPRINT PRODUCTION SAAS & CROISSANCE (v8) ===
