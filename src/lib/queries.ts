@@ -1098,6 +1098,30 @@ export async function deleteBudget(db: Client, id: number): Promise<void> {
   await db.execute({ sql: "DELETE FROM budgets WHERE id = ?", args: [id] });
 }
 
+export async function getAllBudgets(db: Client): Promise<Budget[]> {
+  const result = await db.execute("SELECT * FROM budgets ORDER BY account_id, category");
+  return result.rows.map((row) => ({
+    id: Number(row.id),
+    account_id: Number(row.account_id),
+    category: String(row.category),
+    amount_limit: Number(row.amount_limit),
+    period: String(row.period) as "monthly" | "yearly",
+    created_at: String(row.created_at),
+    last_budget_alert_at: row.last_budget_alert_at != null ? String(row.last_budget_alert_at) : null,
+    last_budget_alert_type: row.last_budget_alert_type != null
+      ? String(row.last_budget_alert_type) as "warning" | "exceeded"
+      : null,
+  }));
+}
+
+export async function getAllSettings(db: Client): Promise<{ key: string; value: string }[]> {
+  const result = await db.execute("SELECT key, value FROM settings ORDER BY key");
+  return result.rows.map((row) => ({
+    key: String(row.key),
+    value: String(row.value),
+  }));
+}
+
 // ============ GOALS ============
 
 export interface Goal {

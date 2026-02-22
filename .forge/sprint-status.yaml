@@ -61,12 +61,12 @@ stories:
     epic: compliance
     complexity: S
     priority: P1
-    status: pending
+    status: completed
     blockedBy: []
     points: 2
-    tests: 0
-    qa_verdict: ""
-    notes: "exportUserDataAction() + bouton /parametres + JSON avec tous les modèles"
+    tests: 4
+    qa_verdict: "PASS"
+    notes: "exportUserDataAction() (JSON: version 1.0 + 6 clés) + getAllBudgets/getAllSettings dans queries + ExportDataButton + section RGPD dans /parametres"
 
   - id: STORY-066
     title: "Notes et mémos sur les transactions"
@@ -94,13 +94,13 @@ stories:
 
 metrics:
   total: 7
-  completed: 4
+  completed: 5
   in_progress: 0
-  pending: 3
+  pending: 2
   total_points: 17
-  points_completed: 10
-  tests_total: 470
-  tests_sprint: 41
+  points_completed: 12
+  tests_total: 474
+  tests_sprint: 45
   qa_verdict: ""
 
 previous_sprint:

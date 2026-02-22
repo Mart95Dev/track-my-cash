@@ -13,6 +13,7 @@ import { MonthlyReportButton } from "@/components/monthly-report-button";
 import { AnnualReportButton } from "@/components/annual-report-button";
 import { AutoCategorizeToggle } from "@/components/auto-categorize-toggle";
 import { WeeklyEmailToggle } from "@/components/weekly-email-toggle";
+import { ExportDataButton } from "@/components/export-data-button";
 import { getCategorizationRules, getSetting, getAllAccounts, getBudgets } from "@/lib/queries";
 import { getUserDb, getDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
@@ -98,6 +99,18 @@ export default async function ParametresPage() {
           <p className="text-sm text-muted-foreground">
             {t("backup.description")}
           </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Mes données (RGPD)</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Téléchargez une copie complète de vos données personnelles (comptes, transactions, récurrents, budgets, objectifs) conformément à l&apos;article 20 du RGPD (droit à la portabilité).
+          </p>
+          <ExportDataButton />
         </CardContent>
       </Card>
 
