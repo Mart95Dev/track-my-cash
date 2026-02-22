@@ -1,4 +1,5 @@
 import { renderEmailBase } from "@/lib/email";
+import type { WeeklySummaryData } from "@/lib/queries";
 
 export interface MonthlySummaryData {
   month: string;
@@ -228,4 +229,106 @@ export function renderDeletionReminderEmail(
   `;
 
   return renderEmailBase("Rappel : suppression de votre compte", body);
+}
+
+export type { WeeklySummaryData };
+
+export function renderWeeklyEmail(
+  data: WeeklySummaryData,
+  userName: string,
+  appUrl: string
+): string {
+  const fmt = (n: number) =>
+    new Intl.NumberFormat("fr-FR", { style: "currency", currency: data.currency }).format(n);
+
+  const weekLabel = `${new Date(data.weekStart + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long" })} – ${new Date(data.weekEnd + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}`;
+
+  const categoriesHtml =
+    data.topCategories.length === 0
+      ? `<p style="color: #888; font-style: italic;">Aucune dépense cette semaine</p>`
+      : data.topCategories
+          .map(
+            (c) => `
+          <tr>
+            <td style="padding: 8px 12px; color: #555; font-size: 14px;">${c.category}</td>
+            <td style="padding: 8px 12px; color: #333; font-size: 14px; text-align: right;">${fmt(c.amount)}</td>
+          </tr>`
+          )
+          .join("");
+
+  const budgetsHtml =
+    data.budgetsOver.length === 0
+      ? ""
+      : `
+    <h3 style="margin: 0 0 12px; font-size: 16px; color: #d32f2f;">Budgets dépassés</h3>
+    <table style="width: 100%; border-collapse: collapse; margin: 0 0 24px;">
+      ${data.budgetsOver
+        .map(
+          (b) => `
+        <tr>
+          <td style="padding: 8px 12px; color: #555; font-size: 14px;">${b.category}</td>
+          <td style="padding: 8px 12px; color: #d32f2f; font-size: 14px; text-align: right;">${fmt(b.spent)} / ${fmt(b.limit)}</td>
+        </tr>`
+        )
+        .join("")}
+    </table>`;
+
+  const goalsHtml =
+    data.goalsProgress.length === 0
+      ? ""
+      : `
+    <h3 style="margin: 0 0 12px; font-size: 16px; color: #1a1a1a;">Vos objectifs</h3>
+    <table style="width: 100%; border-collapse: collapse; margin: 0 0 24px;">
+      ${data.goalsProgress
+        .map(
+          (g) => `
+        <tr>
+          <td style="padding: 8px 12px; color: #555; font-size: 14px;">${g.name}</td>
+          <td style="padding: 8px 12px; color: #1a1a1a; font-size: 14px; text-align: right;">${g.percent}%</td>
+        </tr>`
+        )
+        .join("")}
+    </table>`;
+
+  const greeting = userName ? `Bonjour ${userName},` : "Bonjour,";
+
+  const body = `
+    <h2 style="margin: 0 0 4px; font-size: 22px; color: #1a1a1a;">Récapitulatif hebdomadaire</h2>
+    <p style="margin: 0 0 24px; color: #888; font-size: 14px;">${weekLabel}</p>
+    <p style="margin: 0 0 20px; color: #555; font-size: 14px;">${greeting}</p>
+
+    <table style="width: 100%; border-collapse: collapse; margin: 0 0 24px;">
+      <tr>
+        <td style="padding: 10px 12px; background: #f5f5f5; border-radius: 4px 0 0 4px; color: #555; font-size: 14px;">Revenus</td>
+        <td style="padding: 10px 12px; background: #f5f5f5; border-radius: 0 4px 4px 0; color: #2e7d32; font-weight: 700; font-size: 16px; text-align: right;">${fmt(data.totalIncome)}</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px 12px; color: #555; font-size: 14px;">Dépenses</td>
+        <td style="padding: 10px 12px; color: #d32f2f; font-weight: 700; font-size: 16px; text-align: right;">${fmt(data.totalExpenses)}</td>
+      </tr>
+    </table>
+
+    <h3 style="margin: 0 0 12px; font-size: 16px; color: #1a1a1a;">Top catégories</h3>
+    <table style="width: 100%; border-collapse: collapse; margin: 0 0 24px;">
+      <tr style="border-bottom: 1px solid #e0e0e0;">
+        <th style="padding: 8px 12px; text-align: left; font-size: 12px; color: #888; text-transform: uppercase;">Catégorie</th>
+        <th style="padding: 8px 12px; text-align: right; font-size: 12px; color: #888; text-transform: uppercase;">Montant</th>
+      </tr>
+      ${categoriesHtml}
+    </table>
+
+    ${budgetsHtml}
+    ${goalsHtml}
+
+    <div style="text-align: center; margin: 0 0 24px;">
+      <a href="${appUrl}" style="display: inline-block; background-color: #1a1a1a; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">
+        Voir mon tableau de bord
+      </a>
+    </div>
+    <p style="margin: 0; color: #888; font-size: 13px; line-height: 1.5;">
+      Pour ne plus recevoir ces emails, rendez-vous dans vos <a href="${appUrl}/parametres" style="color: #555;">paramètres</a>.
+    </p>
+  `;
+
+  return renderEmailBase(`Récapitulatif hebdomadaire — ${weekLabel}`, body);
 }

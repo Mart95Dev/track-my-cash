@@ -13,12 +13,12 @@ stories:
     epic: engagement
     complexity: M
     priority: P1
-    status: pending
+    status: completed
     blockedBy: []
     points: 3
-    tests: 0
-    qa_verdict: ""
-    notes: "Cron lundi 8h, getWeeklySummaryData(), weeklyEmailTemplate(), toggle /parametres"
+    tests: 14
+    qa_verdict: "PASS"
+    notes: "GET /api/cron/weekly-summary + WeeklySummaryData + renderWeeklyEmail() + WeeklyEmailToggle + toggleWeeklyEmailAction()"
 
   - id: STORY-062
     title: "Création de récurrents via tool calling chat IA"
@@ -94,13 +94,13 @@ stories:
 
 metrics:
   total: 7
-  completed: 0
+  completed: 1
   in_progress: 0
-  pending: 7
+  pending: 6
   total_points: 17
-  points_completed: 0
-  tests_total: 429
-  tests_sprint: 0
+  points_completed: 3
+  tests_total: 443
+  tests_sprint: 14
   qa_verdict: ""
 
 previous_sprint:

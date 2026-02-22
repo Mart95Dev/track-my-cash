@@ -1270,3 +1270,103 @@ export async function batchUpdateCategories(
     });
   }
 }
+
+// ============ WEEKLY SUMMARY ============
+
+export interface WeeklySummaryData {
+  weekStart: string;
+  weekEnd: string;
+  totalExpenses: number;
+  totalIncome: number;
+  currency: string;
+  topCategories: { category: string; amount: number }[];
+  budgetsOver: { category: string; spent: number; limit: number }[];
+  goalsProgress: { name: string; percent: number }[];
+}
+
+export async function getWeeklySummaryData(
+  db: Client,
+  weekStart: string,
+  weekEnd: string,
+  accountId?: number
+): Promise<Omit<WeeklySummaryData, "currency">> {
+  const accountFilter = accountId ? "AND t.account_id = ?" : "";
+  const accountArgs: number[] = accountId ? [accountId] : [];
+
+  // Totaux revenus + dépenses sur la semaine
+  const totalsResult = await db.execute({
+    sql: `SELECT
+            COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as total_income,
+            COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as total_expenses
+          FROM transactions t
+          WHERE t.date >= ? AND t.date <= ? ${accountFilter}`,
+    args: [weekStart, weekEnd, ...accountArgs],
+  });
+
+  const totalsRow = totalsResult.rows[0];
+  const totalIncome = totalsRow ? Number(totalsRow.total_income) : 0;
+  const totalExpenses = totalsRow ? Number(totalsRow.total_expenses) : 0;
+
+  // Top 3 catégories de dépenses
+  const categoriesResult = await db.execute({
+    sql: `SELECT t.category, COALESCE(SUM(t.amount), 0) as amount
+          FROM transactions t
+          WHERE t.date >= ? AND t.date <= ? AND t.type = 'expense' ${accountFilter}
+          GROUP BY t.category
+          ORDER BY amount DESC
+          LIMIT 3`,
+    args: [weekStart, weekEnd, ...accountArgs],
+  });
+
+  const topCategories = categoriesResult.rows.map((row) => ({
+    category: String(row.category),
+    amount: Number(row.amount),
+  }));
+
+  // Budgets dépassés (utilise les budgets mensuels en cours)
+  const budgetsOverResult = await db.execute({
+    sql: `SELECT b.category, b.amount_limit,
+                 COALESCE(SUM(t.amount), 0) as spent
+          FROM budgets b
+          LEFT JOIN transactions t ON t.account_id = b.account_id
+            AND t.category = b.category
+            AND t.type = 'expense'
+            AND t.date >= date('now', 'start of month')
+          GROUP BY b.id
+          HAVING spent > b.amount_limit`,
+    args: [],
+  });
+
+  const budgetsOver = budgetsOverResult.rows.map((row) => ({
+    category: String(row.category),
+    spent: Number(row.spent),
+    limit: Number(row.amount_limit),
+  }));
+
+  // Progression des objectifs (top 3)
+  const goalsResult = await db.execute({
+    sql: `SELECT name, target_amount, current_amount
+          FROM goals
+          ORDER BY created_at DESC
+          LIMIT 3`,
+    args: [],
+  });
+
+  const goalsProgress = goalsResult.rows.map((row) => ({
+    name: String(row.name),
+    percent:
+      Number(row.target_amount) > 0
+        ? Math.min(100, Math.round((Number(row.current_amount) / Number(row.target_amount)) * 100))
+        : 0,
+  }));
+
+  return {
+    weekStart,
+    weekEnd,
+    totalExpenses,
+    totalIncome,
+    topCategories,
+    budgetsOver,
+    goalsProgress,
+  };
+}

@@ -12,13 +12,14 @@ import { MonthlySummaryEmailButton } from "@/components/monthly-summary-email-bu
 import { MonthlyReportButton } from "@/components/monthly-report-button";
 import { AnnualReportButton } from "@/components/annual-report-button";
 import { AutoCategorizeToggle } from "@/components/auto-categorize-toggle";
+import { WeeklyEmailToggle } from "@/components/weekly-email-toggle";
 import { getCategorizationRules, getSetting, getAllAccounts, getBudgets } from "@/lib/queries";
 import { getUserDb, getDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { getAiUsageCount } from "@/lib/ai-usage";
 import { getExchangeRate } from "@/lib/currency";
 import { getTagsAction } from "@/app/actions/tag-actions";
-import { saveExchangeRateAction, toggleAutoCategorizationAction } from "@/app/actions/settings-actions";
+import { saveExchangeRateAction, toggleAutoCategorizationAction, toggleWeeklyEmailAction } from "@/app/actions/settings-actions";
 import { getUserSubscription } from "@/app/actions/billing-actions";
 import { getPlan } from "@/lib/stripe-plans";
 import { getTranslations } from "next-intl/server";
@@ -33,7 +34,7 @@ export default async function ParametresPage() {
 
   const aiAccess = await (await import("@/lib/subscription-utils")).canUseAI(userId);
 
-  const [rules, tags, liveRate, fallbackRateStr, subscription, t, accounts, autoCategorizeSetting, aiUsageCount] = await Promise.all([
+  const [rules, tags, liveRate, fallbackRateStr, subscription, t, accounts, autoCategorizeSetting, aiUsageCount, weeklyEmailSetting] = await Promise.all([
     getCategorizationRules(db),
     getTagsAction(),
     getExchangeRate(db),
@@ -43,6 +44,7 @@ export default async function ParametresPage() {
     getAllAccounts(db),
     getSetting(db, "auto_categorize_on_import"),
     getAiUsageCount(mainDb, userId, currentMonth),
+    getSetting(db, "weekly_summary_email"),
   ]);
 
   // Budgets pour le premier compte (si présent)
@@ -136,6 +138,11 @@ export default async function ParametresPage() {
             enabled={autoCategorizeSetting === "true"}
             isPro={aiAccess.allowed}
             onToggle={toggleAutoCategorizationAction}
+          />
+          <WeeklyEmailToggle
+            enabled={weeklyEmailSetting !== "false"}
+            isPro={aiAccess.allowed}
+            onToggle={toggleWeeklyEmailAction}
           />
         </CardContent>
       </Card>
