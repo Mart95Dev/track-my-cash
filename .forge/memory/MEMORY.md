@@ -133,6 +133,18 @@ QA : 156 tests, 0 fail, couverture 90.54% lignes, TypeScript 0 erreur.
 **STORY-038**:
 - 2026-02-21 21:44:48 [qa] — QA PASS STORY-038 : computeForecast() 10 tests (5 gaps couverts), 258 tests total, sprint Objectifs & Intelligence certifié
 
+## Sprint Engagement & Analyse Avancée (v9) — EN COURS 🚧 (2026-02-22)
+
+7 stories, 17 points. PRD v9 rédigé.
+
+- STORY-061 : Email récapitulatif hebdomadaire IA (cron lundi 8h, Pro/Premium)
+- STORY-062 : Récurrents via tool calling chat IA (createRecurringSchema)
+- STORY-063 : Vue agrégée "Tous les comptes" dans le dashboard
+- STORY-064 : Comparaison YoY (computeYoYComparison + widget)
+- STORY-065 : Export données personnelles RGPD (JSON complet)
+- STORY-066 : Notes sur les transactions (migration + UI)
+- STORY-067 : Parsers ING Direct + Boursorama (FR)
+
 ## Sprint Production SaaS & Croissance (v8) — EN COURS 🚧 (2026-02-22)
 
 8 stories, 18 points. 3/8 complétées (8/18 pts), 392 tests, 0 échec.

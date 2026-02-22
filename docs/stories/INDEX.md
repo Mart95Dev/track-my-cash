@@ -116,22 +116,43 @@
 
 ---
 
-## Sprint Production SaaS & Croissance (v8) — EN COURS 🚧
+## Sprint Production SaaS & Croissance (v8) — TERMINÉ ✅
 
 | ID | Titre | Priorité | Complexité | Statut | QA |
 |----|-------|----------|------------|--------|-------|
-| STORY-053 | Suivi utilisation IA (ai_usage + décompte UI) | P1 | S | ⏳ pending | — |
-| STORY-054 | Période d'essai 14j Pro à l'inscription | P1 | M | ⏳ pending | — |
-| STORY-055 | RGPD — Suppression automatique des comptes (J+25 + J+30) | P1 | M | ⏳ pending | — |
-| STORY-056 | Skeleton screens (loading states) | P2 | XS | ⏳ pending | — |
-| STORY-057 | Pages d'erreur 404/500 personnalisées | P2 | S | ⏳ pending | — |
-| STORY-058 | Parsers bancaires UK (HSBC + Monzo) | P2 | S | ⏳ pending | — |
-| STORY-059 | Conseiller IA multi-modèles parallèles (3 modèles + synthèse) | P2 | M | ⏳ pending | — |
-| STORY-060 | Bannière upgrade freemium + page tarifs enrichie | P1 | S | ⏳ pending | — |
+| STORY-053 | Suivi utilisation IA (ai_usage + décompte UI) | P1 | S | ✅ completed | PASS |
+| STORY-054 | Période d'essai 14j Pro à l'inscription | P1 | M | ✅ completed | PASS |
+| STORY-055 | RGPD — Suppression automatique des comptes (J+25 + J+30) | P1 | M | ✅ completed | PASS |
+| STORY-056 | Skeleton screens (loading states) | P2 | XS | ✅ completed | PASS |
+| STORY-057 | Pages d'erreur 404/500 personnalisées | P2 | S | ✅ completed | PASS |
+| STORY-058 | Parsers bancaires UK (HSBC + Monzo) | P2 | S | ✅ completed | PASS |
+| STORY-059 | Conseiller IA multi-modèles parallèles (3 modèles + synthèse) | P2 | M | ✅ completed | PASS |
+| STORY-060 | Bannière upgrade freemium + page tarifs enrichie | P1 | S | ✅ completed | PASS |
 
 ### Métriques Sprint Production SaaS & Croissance
 
-- **Stories complétées :** 0/8
-- **Points total :** 0/18
-- **Tests sprint :** 0 (objectif ~40 nouveaux tests)
+- **Stories complétées :** 8/8 ✅
+- **Points total :** 18/18 ✅
+- **Tests sprint :** 54 nouveaux tests (429 total, 0 échec)
+- **TypeScript :** 0 erreur — commit `cec9051`
+
+---
+
+## Sprint Engagement & Analyse Avancée (v9) — EN COURS 🚧
+
+| ID | Titre | Priorité | Complexité | Statut | QA |
+|----|-------|----------|------------|--------|-------|
+| STORY-061 | Email récapitulatif hebdomadaire IA (Pro/Premium) | P1 | M | ⏳ pending | — |
+| STORY-062 | Création de récurrents via tool calling chat IA | P2 | S | ⏳ pending | — |
+| STORY-063 | Vue agrégée "Tous les comptes" (dashboard global) | P1 | M | ⏳ pending | — |
+| STORY-064 | Comparaison Année/Année (YoY) dans le dashboard | P2 | S | ⏳ pending | — |
+| STORY-065 | Export données personnelles (portabilité RGPD) | P1 | S | ⏳ pending | — |
+| STORY-066 | Notes et mémos sur les transactions | P2 | S | ⏳ pending | — |
+| STORY-067 | Parsers ING Direct + Boursorama (marché FR) | P3 | S | ⏳ pending | — |
+
+### Métriques Sprint Engagement & Analyse Avancée
+
+- **Stories complétées :** 0/7
+- **Points total :** 0/17
+- **Tests sprint :** 0 (objectif ~45 nouveaux tests)
 - **TypeScript :** objectif 0 erreur

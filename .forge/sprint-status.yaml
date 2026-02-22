@@ -1,124 +1,112 @@
 sprint:
-  id: sprint-production-saas-croissance
-  goal: "Tracking IA (ai_usage), période d'essai 14j Pro, RGPD crons suppression J+25/J+30, skeleton screens, pages 404/500, parsers HSBC + Monzo, IA multi-modèles parallèles Premium, bannière upgrade freemium + page tarifs enrichie"
+  id: sprint-engagement-analyse-avancee-v9
+  goal: "Email hebdomadaire IA, récurrents via chat, vue multi-comptes, comparaison YoY, export RGPD, notes transactions, parsers ING/Boursorama"
   start_date: "2026-02-22"
-  end_date: "2026-02-22"
-  status: completed
+  end_date: ""
+  status: in_progress
 
 stories:
-  # === SPRINT PRODUCTION SAAS & CROISSANCE (v8) ===
+  # === SPRINT ENGAGEMENT & ANALYSE AVANCÉE (v9) ===
 
-  - id: STORY-053
-    title: "Suivi utilisation IA (ai_usage + décompte UI)"
-    epic: monetization
-    complexity: S
-    priority: P1
-    status: completed
-    blockedBy: []
-    points: 2
-    tests: 5
-    qa_verdict: "PASS"
-    notes: "ai_usage table + incrementAiUsage + getAiUsageCount + checkAiLimit + canUseAI quota Pro + UI /parametres"
-
-  - id: STORY-054
-    title: "Période d'essai 14j Pro à l'inscription"
-    epic: monetization
+  - id: STORY-061
+    title: "Email récapitulatif hebdomadaire IA (Pro/Premium)"
+    epic: engagement
     complexity: M
     priority: P1
-    status: completed
-    blockedBy: [STORY-053]
+    status: pending
+    blockedBy: []
     points: 3
-    tests: 6
-    qa_verdict: "PASS"
-    notes: "trial-utils.ts + TrialBanner + layout + cron check-trials + inscription fire-and-forget + getUserPlanId trialing fix"
+    tests: 0
+    qa_verdict: ""
+    notes: "Cron lundi 8h, getWeeklySummaryData(), weeklyEmailTemplate(), toggle /parametres"
 
-  - id: STORY-055
-    title: "RGPD — Suppression automatique des comptes (J+25 + J+30)"
+  - id: STORY-062
+    title: "Création de récurrents via tool calling chat IA"
+    epic: intelligence
+    complexity: S
+    priority: P2
+    status: pending
+    blockedBy: []
+    points: 2
+    tests: 0
+    qa_verdict: ""
+    notes: "createRecurringSchema + createRecurring tool + ToolResultCard variant recurring"
+
+  - id: STORY-063
+    title: "Vue agrégée Tous les comptes (dashboard global)"
+    epic: ux
+    complexity: M
+    priority: P1
+    status: pending
+    blockedBy: []
+    points: 3
+    tests: 0
+    qa_verdict: ""
+    notes: "Option all dans account-filter + getAggregatedSummary() + health score global"
+
+  - id: STORY-064
+    title: "Comparaison Année/Année (YoY) dans le dashboard"
+    epic: analytics
+    complexity: S
+    priority: P2
+    status: pending
+    blockedBy: []
+    points: 2
+    tests: 0
+    qa_verdict: ""
+    notes: "computeYoYComparison() + getMonthlyExpensesByCategory() + YoYComparisonWidget"
+
+  - id: STORY-065
+    title: "Export données personnelles (portabilité RGPD)"
     epic: compliance
-    complexity: M
-    priority: P1
-    status: completed
-    blockedBy: []
-    points: 3
-    tests: 6
-    qa_verdict: "PASS"
-    notes: "deletion-utils.ts + deletion_requests table + requestAccountDeletionAction + cancelDeletionAction + cron deletion-reminder (J+25) + cron delete-accounts (J+30) + email template + DeleteUserAccountDialog + /compte-suspendu"
-
-  - id: STORY-056
-    title: "Skeleton screens (loading states)"
-    epic: ux-polish
-    complexity: XS
-    priority: P2
-    status: completed
-    blockedBy: []
-    points: 1
-    tests: 4
-    qa_verdict: "PASS"
-    notes: "SkeletonCard + dashboard/loading.tsx + comptes/loading.tsx + transactions/loading.tsx — tous présents et testés"
-
-  - id: STORY-057
-    title: "Pages d'erreur 404/500 personnalisées"
-    epic: ux-polish
     complexity: S
-    priority: P2
-    status: completed
+    priority: P1
+    status: pending
     blockedBy: []
     points: 2
-    tests: 4
-    qa_verdict: "PASS"
-    notes: "[locale]/not-found.tsx + [locale]/error.tsx + app/not-found.tsx + messages errors fr+en — 4 tests rendu+comportement"
+    tests: 0
+    qa_verdict: ""
+    notes: "exportUserDataAction() + bouton /parametres + JSON avec tous les modèles"
 
-  - id: STORY-058
-    title: "Parsers bancaires UK (HSBC + Monzo)"
+  - id: STORY-066
+    title: "Notes et mémos sur les transactions"
+    epic: ux
+    complexity: S
+    priority: P2
+    status: pending
+    blockedBy: []
+    points: 2
+    tests: 0
+    qa_verdict: ""
+    notes: "ALTER TABLE transactions ADD note TEXT + updateTransactionNote() + textarea + icône + CSV"
+
+  - id: STORY-067
+    title: "Parsers ING Direct + Boursorama (marché FR)"
     epic: parsers
     complexity: S
-    priority: P2
-    status: completed
+    priority: P3
+    status: pending
     blockedBy: []
-    points: 2
-    tests: 14
-    qa_verdict: "PASS"
-    notes: "hsbcParser (Date,Description,Amount + DD/MM/YYYY) + monzoParser (Transaction ID + YYYY-MM-DD + Currency) — registry avant genericCsv"
-
-  - id: STORY-059
-    title: "Conseiller IA multi-modèles parallèles (3 modèles + synthèse)"
-    epic: intelligence
-    complexity: M
-    priority: P2
-    status: completed
-    blockedBy: [STORY-053]
     points: 3
-    tests: 13
-    qa_verdict: "PASS"
-    notes: "ai-consensus.ts (synthesizeResponses+buildSynthesisPrompt) + route.ts consensus Premium (Promise.allSettled 3 modèles + Haiku JSON) + AiChat isPremium toggle + details/summary accordéon sources"
-
-  - id: STORY-060
-    title: "Bannière upgrade freemium + page tarifs enrichie"
-    epic: monetization
-    complexity: S
-    priority: P1
-    status: completed
-    blockedBy: [STORY-054]
-    points: 2
-    tests: 6
-    qa_verdict: "PASS"
-    notes: "PlanBanner (orangé trialing / bleu free / null pro+premium) + layout.tsx migration TrialBanner→PlanBanner + tarifs/page.tsx tableau comparatif 12 lignes + boutons Stripe checkout"
+    tests: 0
+    qa_verdict: ""
+    notes: "ingParser (CSV tabulé) + boursoramaParser (CSV ; UTF-8) + registry avant genericCsv"
 
 metrics:
-  total: 8
-  completed: 8
+  total: 7
+  completed: 0
   in_progress: 0
-  pending: 0
-  total_points: 18
-  points_completed: 18
+  pending: 7
+  total_points: 17
+  points_completed: 0
   tests_total: 429
-  tests_sprint: 54
-  qa_verdict: "PASS"
+  tests_sprint: 0
+  qa_verdict: ""
 
 previous_sprint:
-  id: sprint-intelligence-ux-ia
-  stories: 6
-  completed: 6
+  id: sprint-production-saas-croissance
+  stories: 8
+  completed: 8
   qa_verdict: PASS
-  tests: 375
-  commit: "dc214d6"
+  tests: 429
+  commit: "cec9051"
