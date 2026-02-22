@@ -1,6 +1,13 @@
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, RefreshCw } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { ToolCallResult } from "@/lib/ai-tools";
+
+const FREQUENCY_LABELS: Record<string, string> = {
+  weekly: "semaine",
+  monthly: "mois",
+  quarterly: "trimestre",
+  yearly: "an",
+};
 
 interface ToolResultCardProps {
   result: ToolCallResult;
@@ -16,6 +23,23 @@ export function ToolResultCard({ result }: ToolResultCardProps) {
             <p className="text-sm font-medium">Budget créé</p>
             <p className="text-xs text-muted-foreground">
               {result.category} — {result.amount_limit}€/mois
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (result.type === "recurring") {
+    const freqLabel = FREQUENCY_LABELS[result.frequency] ?? result.frequency;
+    return (
+      <Card className="border-income/30 bg-income/5 my-2">
+        <CardContent className="py-3 px-4 flex items-start gap-3">
+          <RefreshCw className="h-4 w-4 text-income mt-0.5 shrink-0" />
+          <div className="space-y-0.5">
+            <p className="text-sm font-medium">Récurrent créé</p>
+            <p className="text-xs text-muted-foreground">
+              {result.name} — {result.amount}€/{freqLabel}
             </p>
           </div>
         </CardContent>

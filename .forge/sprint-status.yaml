@@ -25,12 +25,12 @@ stories:
     epic: intelligence
     complexity: S
     priority: P2
-    status: pending
+    status: completed
     blockedBy: []
     points: 2
-    tests: 0
-    qa_verdict: ""
-    notes: "createRecurringSchema + createRecurring tool + ToolResultCard variant recurring"
+    tests: 12
+    qa_verdict: "PASS"
+    notes: "createRecurringSchema (z.regex YYYY-MM-DD) + createRecurring tool + ToolResultCard variant recurring + RefreshCw icon"
 
   - id: STORY-063
     title: "Vue agrégée Tous les comptes (dashboard global)"
@@ -94,13 +94,13 @@ stories:
 
 metrics:
   total: 7
-  completed: 1
+  completed: 2
   in_progress: 0
-  pending: 6
+  pending: 5
   total_points: 17
-  points_completed: 3
-  tests_total: 443
-  tests_sprint: 14
+  points_completed: 5
+  tests_total: 455
+  tests_sprint: 26
   qa_verdict: ""
 
 previous_sprint:
