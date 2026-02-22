@@ -1,116 +1,94 @@
 sprint:
-  id: sprint-compatibilite-ia-analyse
-  goal: "Compatibilité bancaire élargie (BNP/SG/CE/N26/Wise), parser CSV générique, enrichissement IA (objectifs+budgets+anomalies), comparaisons MoM, détection récurrents, bilan annuel IA"
+  id: sprint-intelligence-ux-ia
+  goal: "Score de santé financière, questions suggérées dans le chat, catégorisation IA auto à l'import, tool calling (créer budgets/objectifs depuis le chat), simulateur de scénarios Et si..., suggestions de budgets basées sur l'historique"
   start_date: "2026-02-22"
   end_date: "2026-02-22"
   status: in_progress
 
 stories:
-  # === SPRINT COMPATIBILITÉ, IA & ANALYSE AVANCÉE (v6) ===
+  # === SPRINT INTELLIGENCE & UX IA (v7) ===
 
-  - id: STORY-039
-    title: "Parsers BNP Paribas, Société Générale, Caisse d'Épargne"
-    epic: parsers
+  - id: STORY-047
+    title: "Score de santé financière (widget dashboard)"
+    epic: intelligence
     complexity: M
     priority: P1
     status: completed
     blockedBy: []
     points: 3
-    tests: 16
-    notes: "BNP (5 tests), SG (5 tests), CE (6 tests) — satisfies BankParser, parse(_buffer) ajouté"
+    tests: 9
+    notes: "computeHealthScore() (9 tests) — 4 dimensions (épargne, budgets, objectifs, stabilité) — HealthScoreWidget (jauge SVG + sous-scores) — intégré dashboard"
 
-  - id: STORY-040
-    title: "Parser CSV générique avec mapping colonnes (catch-all)"
-    epic: parsers
-    complexity: M
+  - id: STORY-048
+    title: "Questions suggérées dans le chat conseiller"
+    epic: intelligence
+    complexity: S
     priority: P1
-    status: completed
+    status: pending
+    blockedBy: []
+    points: 2
+    tests: 0
+    notes: "generateChatSuggestions() — chips cliquables contextuelles — disparaissent après premier envoi"
+
+  - id: STORY-049
+    title: "Catégorisation IA automatique à l'import (option)"
+    epic: intelligence
+    complexity: S
+    priority: P1
+    status: pending
+    blockedBy: []
+    points: 2
+    tests: 0
+    notes: "Setting auto_categorize_on_import — fire-and-forget dans confirmImportAction — Pro/Premium uniquement"
+
+  - id: STORY-050
+    title: "Tool calling — créer budgets et objectifs depuis le chat"
+    epic: intelligence
+    complexity: M
+    priority: P2
+    status: pending
     blockedBy: []
     points: 3
-    tests: 6
-    notes: "genericCsvParser (canHandle, detectHeaders, parseWithMapping) + CsvMappingDialog + importWithMappingAction + mapping sauvegardé en DB — QA: 15 tests (6 Dev + 9 QA gaps couverts)"
+    tests: 0
+    notes: "Vercel AI SDK tool() — createBudgetTool + createGoalTool — schemas Zod — ToolResultCard — Pro/Premium"
 
-  - id: STORY-041
-    title: "Comparaisons Mois/Mois (MoM) dans le Dashboard"
+  - id: STORY-051
+    title: "Simulateur de scénarios 'Et si...' dans les prévisions"
     epic: analytics
-    complexity: S
-    priority: P1
-    status: completed
-    blockedBy: []
-    points: 2
-    tests: 5
-    notes: "computeMoMVariation (5 tests) + VariationBadge composant + intégration dashboard"
-
-  - id: STORY-042
-    title: "Détection automatique des paiements récurrents"
-    epic: automatisation
     complexity: M
     priority: P2
-    status: completed
+    status: pending
     blockedBy: []
     points: 3
-    tests: 6
-    notes: "detectRecurringPatterns (6 tests) + RecurringSuggestions UI + server actions"
+    tests: 0
+    notes: "simulateScenario() pure — 3 types (extra savings, cut expense, income increase) — client-side useMemo"
 
-  - id: STORY-043
-    title: "Parsers N26 + Wise (marché EU)"
-    epic: parsers
-    complexity: S
-    priority: P2
-    status: completed
-    blockedBy: []
-    points: 2
-    tests: 8
-    notes: "N26 (4 tests), Wise (4 tests) — devise multi-currency, montants avec espace"
-
-  - id: STORY-044
-    title: "Enrichissement contexte conseiller IA (objectifs + budgets)"
+  - id: STORY-052
+    title: "Suggestions de budgets basées sur l'historique"
     epic: intelligence
     complexity: S
-    priority: P1
-    status: completed
-    blockedBy: []
-    points: 2
-    tests: 5
-    notes: "buildFinancialContext enrichi goals+budgets, SYSTEM_PROMPT amélioré"
-
-  - id: STORY-045
-    title: "Détection d'anomalies financières (push automatique post-import)"
-    epic: intelligence
-    complexity: M
-    priority: P2
-    status: completed
-    blockedBy: []
-    points: 3
-    tests: 6
-    notes: "detectAnomalies (6 tests) + anomaly-service fire-and-forget dans confirmImportAction"
-
-  - id: STORY-046
-    title: "Bilan annuel IA + export PDF (Pro/Premium)"
-    epic: intelligence
-    complexity: M
     priority: P3
-    status: completed
+    status: pending
     blockedBy: []
-    points: 4
-    tests: 6
-    notes: "computeAnnualReport (6 tests) + annual-report-actions + AnnualReportButton"
+    points: 2
+    tests: 0
+    notes: "suggestBudgets() pure — arrondi dizaine supérieure — confiance high/medium/low — /budgets page"
 
 metrics:
-  total: 8
-  completed: 8
+  total: 6
+  completed: 1
   in_progress: 0
-  pending: 0
-  total_points: 22
-  points_completed: 22
-  tests_total: 325
-  tests_sprint: 67
-  qa_verdict: PASS
+  pending: 5
+  total_points: 15
+  points_completed: 3
+  tests_total: 334
+  tests_sprint: 9
+  qa_verdict: pending
 
 previous_sprint:
-  id: sprint-objectifs-intelligence
-  stories: 6
-  completed: 6
+  id: sprint-compatibilite-ia-analyse
+  stories: 8
+  completed: 8
   qa_verdict: PASS
-  tests: 258
-  commit: "dc214d6"
+  tests: 325
+  commit: "afdca69"

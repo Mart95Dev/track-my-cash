@@ -29,6 +29,8 @@ import { LayoutDashboard } from "lucide-react";
 import { OnboardingWizard } from "@/components/onboarding-wizard";
 import { VariationBadge } from "@/components/variation-badge";
 import { computeMoMVariation } from "@/lib/mom-calculator";
+import { computeHealthScore } from "@/lib/health-score";
+import { HealthScoreWidget } from "@/components/health-score-widget";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +76,13 @@ export default async function DashboardPage({
   const incomeVariation = computeMoMVariation(data.monthlyIncome, prevSummary?.income ?? null);
   const expensesVariation = computeMoMVariation(data.monthlyExpenses, prevSummary?.expenses ?? null);
   const hasMultiCurrency = data.accounts.some((a) => a.currency !== refCurrency);
+
+  // Score de santé financière — 3 derniers mois de données
+  const healthScore = computeHealthScore({
+    monthlySummaries: monthlySummary.slice(0, 3).map((m) => ({ income: m.income, expenses: m.expenses })),
+    budgets: budgetStatuses.map((b) => ({ category: b.category, amount_limit: b.limit, spent: b.spent })),
+    goals: goals.map((g) => ({ target_amount: g.target_amount, current_amount: g.current_amount })),
+  });
 
   const totalInRef = (accountId && selectedAccount)
     ? convertToReference(
@@ -155,6 +164,9 @@ export default async function DashboardPage({
           </CardContent>
         </Card>
       </div>
+
+      {/* Score de santé financière */}
+      <HealthScoreWidget score={healthScore} />
 
       {data.accounts.length > 1 && hasMultiCurrency && (
         <Card>
