@@ -3,6 +3,8 @@ export { detectAndParseFile, parsers } from "./registry";
 export { banquePopulaireParser } from "./banque-populaire";
 export { bnpParser } from "./bnp-paribas";
 export { caisseEpargneParser } from "./caisse-epargne";
+export { genericCsvParser } from "./generic-csv";
+export type { ColumnMapping, GenericParseResult } from "./generic-csv";
 export { mcbCsvParser } from "./mcb-csv";
 export { mcbPdfParser } from "./mcb-pdf";
 export { n26Parser } from "./n26";

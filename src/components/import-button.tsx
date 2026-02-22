@@ -2,6 +2,7 @@
 
 import { useState, useRef, useTransition } from "react";
 import { importFileAction, confirmImportAction } from "@/app/actions/import-actions";
+import { CsvMappingDialog } from "@/components/csv-mapping-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -59,6 +60,12 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
+  const [mappingInfo, setMappingInfo] = useState<{
+    headers: string[];
+    preview: string[][];
+    fingerprint: string;
+    content: string;
+  } | null>(null);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -72,6 +79,13 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
       const result = await importFileAction(formData);
       if ("error" in result) {
         toast.error(result.error);
+      } else if ("needsMapping" in result && result.needsMapping) {
+        setMappingInfo({
+          headers: result.headers,
+          preview: result.preview,
+          fingerprint: result.fingerprint,
+          content: result.content,
+        });
       } else if (result.preview) {
         setPreview(result.preview);
         setCategoryOverrides({});
@@ -121,6 +135,24 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
 
   return (
     <>
+      {mappingInfo && (
+        <CsvMappingDialog
+          open={!!mappingInfo}
+          onClose={() => setMappingInfo(null)}
+          headers={mappingInfo.headers}
+          preview={mappingInfo.preview}
+          fingerprint={mappingInfo.fingerprint}
+          content={mappingInfo.content}
+          accountId={selectedAccountId}
+          onImported={(previewData) => {
+            setPreview(previewData);
+            setCategoryOverrides({});
+            setSubcategoryOverrides({});
+            setIsOpen(true);
+          }}
+        />
+      )}
+
       <div className="flex items-center gap-2">
         <select
           className="flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"

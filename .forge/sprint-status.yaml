@@ -24,9 +24,11 @@ stories:
     epic: parsers
     complexity: M
     priority: P1
-    status: pending
+    status: completed
     blockedBy: []
     points: 3
+    tests: 6
+    notes: "genericCsvParser (canHandle, detectHeaders, parseWithMapping) + CsvMappingDialog + importWithMappingAction + mapping sauvegardé en DB"
 
   - id: STORY-041
     title: "Comparaisons Mois/Mois (MoM) dans le Dashboard"
@@ -96,13 +98,13 @@ stories:
 
 metrics:
   total: 8
-  completed: 7
+  completed: 8
   in_progress: 0
-  pending: 1
+  pending: 0
   total_points: 22
-  points_completed: 19
-  tests_total: 310
-  tests_sprint: 52
+  points_completed: 22
+  tests_total: 316
+  tests_sprint: 58
   qa_verdict: ""
 
 previous_sprint:

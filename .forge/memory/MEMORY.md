@@ -133,9 +133,9 @@ QA : 156 tests, 0 fail, couverture 90.54% lignes, TypeScript 0 erreur.
 **STORY-038**:
 - 2026-02-21 21:44:48 [qa] — QA PASS STORY-038 : computeForecast() 10 tests (5 gaps couverts), 258 tests total, sprint Objectifs & Intelligence certifié
 
-## Sprint Compatibilité, IA & Analyse Avancée (v6) — 7/8 stories ✅ (2026-02-22)
+## Sprint Compatibilité, IA & Analyse Avancée (v6) — TERMINÉ ✅ (2026-02-22)
 
-310 tests, 0 échec, TypeScript 0 erreur. STORY-040 (parser CSV générique) reste pending.
+316 tests, 0 échec, TypeScript 0 erreur. Sprint 100% complété (8/8 stories, 22/22 points).
 
 **Fichiers créés ce sprint :**
 - `src/lib/parsers/bnp-paribas.ts`, `societe-generale.ts`, `caisse-epargne.ts` (STORY-039)
@@ -148,7 +148,9 @@ QA : 156 tests, 0 fail, couverture 90.54% lignes, TypeScript 0 erreur.
 **Architecture parsers (IMPORTANT) :**
 - `BankParser` interface avec `parse(content: string | null, _buffer: Buffer | null): ParseResult` (2 params)
 - Nouveaux parsers utilisent `export const parser = { ... } satisfies BankParser` (préserve le type retour concret)
-- Registry order : mcbPdf, revolut, mcbCsv, n26, wise, caisseEpargne, societeGenerale, creditAgricole, bnp, banquePopulaire
+- Registry order : mcbPdf, revolut, mcbCsv, n26, wise, caisseEpargne, societeGenerale, creditAgricole, bnp, banquePopulaire, **genericCsv (DERNIER — catch-all)**
+- STORY-040 : `genericCsvParser` avec `detectHeaders()` + `parseWithMapping()` + `CsvMappingDialog` + `importWithMappingAction()` + mapping sauvegardé via `setSetting(db, "csv_mapping_[fingerprint]", JSON)`
+- `detectAndParseFile()` retourne `ParseResult | GenericParseResult` — narrowing par `"needsMapping" in result`
 - fixMojibake : NE PAS appliquer si le contenu est déjà UTF-8 valide (corrompt les chaînes)
 
 **Patterns nouveaux :**

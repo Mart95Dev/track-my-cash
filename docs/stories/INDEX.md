@@ -73,12 +73,12 @@
 
 ---
 
-## Sprint Compatibilité, IA & Analyse Avancée (v6) — EN COURS 🔄
+## Sprint Compatibilité, IA & Analyse Avancée (v6) — TERMINÉ ✅
 
 | ID | Titre | Priorité | Complexité | Statut | QA |
 |----|-------|----------|------------|--------|----|
 | STORY-039 | Parsers BNP Paribas + Société Générale + Caisse d'Épargne | P1 | M | ✅ completed | — |
-| STORY-040 | Parser CSV générique avec mapping colonnes | P1 | M | pending | — |
+| STORY-040 | Parser CSV générique avec mapping colonnes | P1 | M | ✅ completed | — |
 | STORY-041 | Comparaisons Mois/Mois (MoM) dans le Dashboard | P1 | S | ✅ completed | — |
 | STORY-042 | Détection automatique des paiements récurrents | P2 | M | ✅ completed | — |
 | STORY-043 | Parsers N26 + Wise (marché EU) | P2 | S | ✅ completed | — |
@@ -88,8 +88,8 @@
 
 ### Métriques Sprint Compatibilité & IA
 
-- **Stories complétées :** 7/8 (STORY-040 en attente)
-- **Points total :** 22 — **Points complétés :** 19/22
-- **Tests sprint :** 52 nouveaux tests (310 total, 0 échec)
-- **Fichiers créés :** 15 nouveaux fichiers (lib + actions + components)
+- **Stories complétées :** 8/8 ✅
+- **Points total :** 22/22 ✅
+- **Tests sprint :** 58 nouveaux tests (316 total, 0 échec)
+- **Fichiers créés :** 17 nouveaux fichiers (lib + actions + components)
 - **TypeScript :** 0 erreur (`npx tsc --noEmit`)
