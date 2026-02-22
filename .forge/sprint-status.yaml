@@ -85,23 +85,23 @@ stories:
     epic: parsers
     complexity: S
     priority: P3
-    status: pending
+    status: completed
     blockedBy: []
     points: 3
-    tests: 0
-    qa_verdict: ""
-    notes: "ingParser (CSV tabulé) + boursoramaParser (CSV ; UTF-8) + registry avant genericCsv"
+    tests: 16
+    qa_verdict: "PASS"
+    notes: "ingParser (CSV tabulé Date\\tLibellé) + boursoramaParser (CSV ; dateOp;dateVal;label) + registry avant genericCsv"
 
 metrics:
   total: 7
-  completed: 6
+  completed: 7
   in_progress: 0
-  pending: 1
+  pending: 0
   total_points: 17
-  points_completed: 14
-  tests_total: 479
-  tests_sprint: 50
-  qa_verdict: ""
+  points_completed: 17
+  tests_total: 495
+  tests_sprint: 66
+  qa_verdict: "PASS"
 
 previous_sprint:
   id: sprint-production-saas-croissance

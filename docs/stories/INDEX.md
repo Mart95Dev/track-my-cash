@@ -148,11 +148,11 @@
 | STORY-064 | Comparaison Année/Année (YoY) dans le dashboard | P2 | S | ✅ completed | PASS |
 | STORY-065 | Export données personnelles (portabilité RGPD) | P1 | S | ✅ completed | PASS |
 | STORY-066 | Notes et mémos sur les transactions | P2 | S | ✅ completed | PASS |
-| STORY-067 | Parsers ING Direct + Boursorama (marché FR) | P3 | S | ⏳ pending | — |
+| STORY-067 | Parsers ING Direct + Boursorama (marché FR) | P3 | S | ✅ completed | PASS |
 
 ### Métriques Sprint Engagement & Analyse Avancée
 
-- **Stories complétées :** 3/7
-- **Points total :** 8/17
-- **Tests sprint :** 35 (STORY-061+062+063) — 464 total, 0 échec
+- **Stories complétées :** 7/7 ✅
+- **Points total :** 17/17 ✅
+- **Tests sprint :** 66 nouveaux tests — 495 total, 0 échec
 - **TypeScript :** 0 erreur

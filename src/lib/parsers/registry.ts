@@ -1,10 +1,12 @@
 import { banquePopulaireParser } from "./banque-populaire";
 import { bnpParser } from "./bnp-paribas";
+import { boursoramaParser } from "./boursorama";
 import { caisseEpargneParser } from "./caisse-epargne";
 import { creditAgricoleParser } from "./credit-agricole";
 import { genericCsvParser } from "./generic-csv";
 import type { GenericParseResult } from "./generic-csv";
 import { hsbcParser } from "./hsbc";
+import { ingParser } from "./ing";
 import { mcbCsvParser } from "./mcb-csv";
 import { mcbPdfParser } from "./mcb-pdf";
 import { monzoParser } from "./monzo";
@@ -22,6 +24,8 @@ const parsers: BankParser[] = [
   wiseParser,                // Wise : "TransferWise ID"
   hsbcParser,                // HSBC UK : "Date,Description,Amount"
   monzoParser,               // Monzo : "Transaction ID" + "Amount" + "Currency"
+  boursoramaParser,          // Boursorama : "dateOp;dateVal;label"
+  ingParser,                 // ING Direct : CSV tabulé "Date\tLibellé"
   caisseEpargneParser,       // Caisse d'Épargne : "Numéro" + "Date opération"
   societeGeneraleParser,     // Société Générale : "Référence" + "Débit euros" (avant CA)
   creditAgricoleParser,      // Crédit Agricole : "Débit euros" (plus générique, après SG)
