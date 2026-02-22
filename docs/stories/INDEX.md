@@ -96,20 +96,42 @@
 
 ---
 
-## Sprint Intelligence & UX IA (v7) — EN COURS 🚧
+## Sprint Intelligence & UX IA (v7) — TERMINÉ ✅
 
 | ID | Titre | Priorité | Complexité | Statut | QA |
 |----|-------|----------|------------|--------|-------|
-| STORY-047 | Score de santé financière (widget dashboard) | P1 | M | ⏳ pending | — |
-| STORY-048 | Questions suggérées dans le chat conseiller | P1 | S | ⏳ pending | — |
-| STORY-049 | Catégorisation IA automatique à l'import (option) | P1 | S | ⏳ pending | — |
-| STORY-050 | Tool calling — créer budgets/objectifs depuis le chat | P2 | M | ⏳ pending | — |
-| STORY-051 | Simulateur de scénarios "Et si..." dans les prévisions | P2 | M | ⏳ pending | — |
-| STORY-052 | Suggestions de budgets basées sur l'historique | P3 | S | ⏳ pending | — |
+| STORY-047 | Score de santé financière (widget dashboard) | P1 | M | ✅ completed | PASS |
+| STORY-048 | Questions suggérées dans le chat conseiller | P1 | S | ✅ completed | PASS |
+| STORY-049 | Catégorisation IA automatique à l'import (option) | P1 | S | ✅ completed | PASS |
+| STORY-050 | Tool calling — créer budgets/objectifs depuis le chat | P2 | M | ✅ completed | PASS |
+| STORY-051 | Simulateur de scénarios "Et si..." dans les prévisions | P2 | M | ✅ completed | PASS |
+| STORY-052 | Suggestions de budgets basées sur l'historique | P3 | S | ✅ completed | PASS |
 
 ### Métriques Sprint Intelligence & UX IA
 
-- **Stories complétées :** 0/6
-- **Points total :** 0/15
-- **Tests sprint :** 0 (objectif ~35 nouveaux tests)
+- **Stories complétées :** 6/6 ✅
+- **Points total :** 15/15 ✅
+- **Tests sprint :** 50 nouveaux tests (375 total, 0 échec)
+- **TypeScript :** 0 erreur
+
+---
+
+## Sprint Production SaaS & Croissance (v8) — EN COURS 🚧
+
+| ID | Titre | Priorité | Complexité | Statut | QA |
+|----|-------|----------|------------|--------|-------|
+| STORY-053 | Suivi utilisation IA (ai_usage + décompte UI) | P1 | S | ⏳ pending | — |
+| STORY-054 | Période d'essai 14j Pro à l'inscription | P1 | M | ⏳ pending | — |
+| STORY-055 | RGPD — Suppression automatique des comptes (J+25 + J+30) | P1 | M | ⏳ pending | — |
+| STORY-056 | Skeleton screens (loading states) | P2 | XS | ⏳ pending | — |
+| STORY-057 | Pages d'erreur 404/500 personnalisées | P2 | S | ⏳ pending | — |
+| STORY-058 | Parsers bancaires UK (HSBC + Monzo) | P2 | S | ⏳ pending | — |
+| STORY-059 | Conseiller IA multi-modèles parallèles (3 modèles + synthèse) | P2 | M | ⏳ pending | — |
+| STORY-060 | Bannière upgrade freemium + page tarifs enrichie | P1 | S | ⏳ pending | — |
+
+### Métriques Sprint Production SaaS & Croissance
+
+- **Stories complétées :** 0/8
+- **Points total :** 0/18
+- **Tests sprint :** 0 (objectif ~40 nouveaux tests)
 - **TypeScript :** objectif 0 erreur

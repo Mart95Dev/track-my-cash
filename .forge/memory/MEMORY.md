@@ -133,6 +133,28 @@ QA : 156 tests, 0 fail, couverture 90.54% lignes, TypeScript 0 erreur.
 **STORY-038**:
 - 2026-02-21 21:44:48 [qa] — QA PASS STORY-038 : computeForecast() 10 tests (5 gaps couverts), 258 tests total, sprint Objectifs & Intelligence certifié
 
+## Sprint Production SaaS & Croissance (v8) — EN COURS 🚧 (2026-02-22)
+
+8 stories, 18 points. 3/8 complétées (8/18 pts), 392 tests, 0 échec.
+
+- STORY-053 ✅ : Suivi IA — table `ai_usage` + `incrementAiUsage()` + décompte dans /parametres
+- STORY-054 ✅ : Trial 14j — `createTrialSubscription()` + `<TrialBanner />` + cron `check-trials`
+- STORY-055 ✅ : RGPD — `deletion_requests` + crons J+25 (rappel) + J+30 (suppression) + page `/compte-suspendu`
+- STORY-056 ✅ : Skeletons — `loading.tsx` dashboard/transactions/comptes + `<SkeletonCard />`
+- STORY-057 ✅ : Erreurs — `not-found.tsx` + `error.tsx` (boundary reset)
+- STORY-058 ✅ : Parsers UK — `HsbcParser` + `MonzoParser` (registry)
+- STORY-059 ✅ : IA parallèle — `ai-consensus.ts` + route consensus Premium (Promise.allSettled 3 modèles + Haiku JSON) + AiChat `isPremium` toggle + `<details>` accordéon sources
+- STORY-060 ✅ : Freemium — `<PlanBanner />` (orangé trialing / bleu free / null pro+premium) + layout migration + tableau comparatif /tarifs 12 lignes + boutons Stripe
+
+**Sprint v8 terminé — 8/8 stories, 18/18 pts, 429 tests, QA PASS.**
+
+**Patterns Sprint v8 (STORY-059) :**
+- `vi.hoisted()` pour pré-définir constantes dans `vi.mock()` factories (évite "Cannot access before init")
+- Mock classe/constructeur : `vi.fn()` seul (sans `mockImplementation(() => ({}))`) pour que `new Class()` fonctionne
+- `flatMap((s) => s.text !== null ? [s.text] : [])` → string[] bien typé sans predicate complexe
+- Consensus route : `Promise.allSettled` + `generateText` × 3 + Haiku JSON, `NextResponse.json({ mode: "consensus", ... })`
+- `<details>/<summary>` HTML natif pour accordéon (alternative à shadcn Accordion non installé)
+
 ## Sprint Intelligence & UX IA (v7) — TERMINÉ ✅ (2026-02-22)
 
 6/6 stories, 15/15 points, 375 tests, QA PASS.

@@ -4,8 +4,10 @@ import { caisseEpargneParser } from "./caisse-epargne";
 import { creditAgricoleParser } from "./credit-agricole";
 import { genericCsvParser } from "./generic-csv";
 import type { GenericParseResult } from "./generic-csv";
+import { hsbcParser } from "./hsbc";
 import { mcbCsvParser } from "./mcb-csv";
 import { mcbPdfParser } from "./mcb-pdf";
+import { monzoParser } from "./monzo";
 import { n26Parser } from "./n26";
 import { revolutParser } from "./revolut";
 import { societeGeneraleParser } from "./societe-generale";
@@ -18,6 +20,8 @@ const parsers: BankParser[] = [
   mcbCsvParser,              // MCB CSV
   n26Parser,                 // N26 : "Payee" + "Transaction type" + "Amount"
   wiseParser,                // Wise : "TransferWise ID"
+  hsbcParser,                // HSBC UK : "Date,Description,Amount"
+  monzoParser,               // Monzo : "Transaction ID" + "Amount" + "Currency"
   caisseEpargneParser,       // Caisse d'Épargne : "Numéro" + "Date opération"
   societeGeneraleParser,     // Société Générale : "Référence" + "Débit euros" (avant CA)
   creditAgricoleParser,      // Crédit Agricole : "Débit euros" (plus générique, après SG)

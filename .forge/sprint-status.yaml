@@ -1,100 +1,124 @@
 sprint:
-  id: sprint-intelligence-ux-ia
-  goal: "Score de santé financière, questions suggérées dans le chat, catégorisation IA auto à l'import, tool calling (créer budgets/objectifs depuis le chat), simulateur de scénarios Et si..., suggestions de budgets basées sur l'historique"
+  id: sprint-production-saas-croissance
+  goal: "Tracking IA (ai_usage), période d'essai 14j Pro, RGPD crons suppression J+25/J+30, skeleton screens, pages 404/500, parsers HSBC + Monzo, IA multi-modèles parallèles Premium, bannière upgrade freemium + page tarifs enrichie"
   start_date: "2026-02-22"
-  end_date: "2026-02-22"
+  end_date: ""
   status: in_progress
 
 stories:
-  # === SPRINT INTELLIGENCE & UX IA (v7) ===
+  # === SPRINT PRODUCTION SAAS & CROISSANCE (v8) ===
 
-  - id: STORY-047
-    title: "Score de santé financière (widget dashboard)"
-    epic: intelligence
-    complexity: M
-    priority: P1
-    status: completed
-    blockedBy: []
-    points: 3
-    tests: 11
-    qa_verdict: PASS
-    notes: "computeHealthScore() (11 tests, 2 QA gap tests ajoutés) — 4 dimensions (épargne, budgets, objectifs, stabilité) — HealthScoreWidget (jauge SVG + sous-scores) — intégré dashboard"
-
-  - id: STORY-048
-    title: "Questions suggérées dans le chat conseiller"
-    epic: intelligence
+  - id: STORY-053
+    title: "Suivi utilisation IA (ai_usage + décompte UI)"
+    epic: monetization
     complexity: S
     priority: P1
     status: completed
     blockedBy: []
     points: 2
-    tests: 7
-    qa_verdict: PASS
-    notes: "generateChatSuggestions() (7 tests, 2 QA gap tests ajoutés) — 3 niveaux de priorité (budgets > objectifs > épargne) — ChatSuggestions (chips Badge, état local visible) — auto-send via sendMessage — intégré page conseiller"
+    tests: 5
+    qa_verdict: "PASS"
+    notes: "ai_usage table + incrementAiUsage + getAiUsageCount + checkAiLimit + canUseAI quota Pro + UI /parametres"
 
-  - id: STORY-049
-    title: "Catégorisation IA automatique à l'import (option)"
-    epic: intelligence
-    complexity: S
+  - id: STORY-054
+    title: "Période d'essai 14j Pro à l'inscription"
+    epic: monetization
+    complexity: M
+    priority: P1
+    status: completed
+    blockedBy: [STORY-053]
+    points: 3
+    tests: 6
+    qa_verdict: "PASS"
+    notes: "trial-utils.ts + TrialBanner + layout + cron check-trials + inscription fire-and-forget + getUserPlanId trialing fix"
+
+  - id: STORY-055
+    title: "RGPD — Suppression automatique des comptes (J+25 + J+30)"
+    epic: compliance
+    complexity: M
     priority: P1
     status: completed
     blockedBy: []
+    points: 3
+    tests: 6
+    qa_verdict: "PASS"
+    notes: "deletion-utils.ts + deletion_requests table + requestAccountDeletionAction + cancelDeletionAction + cron deletion-reminder (J+25) + cron delete-accounts (J+30) + email template + DeleteUserAccountDialog + /compte-suspendu"
+
+  - id: STORY-056
+    title: "Skeleton screens (loading states)"
+    epic: ux-polish
+    complexity: XS
+    priority: P2
+    status: completed
+    blockedBy: []
+    points: 1
+    tests: 4
+    qa_verdict: "PASS"
+    notes: "SkeletonCard + dashboard/loading.tsx + comptes/loading.tsx + transactions/loading.tsx — tous présents et testés"
+
+  - id: STORY-057
+    title: "Pages d'erreur 404/500 personnalisées"
+    epic: ux-polish
+    complexity: S
+    priority: P2
+    status: completed
+    blockedBy: []
+    points: 2
+    tests: 4
+    qa_verdict: "PASS"
+    notes: "[locale]/not-found.tsx + [locale]/error.tsx + app/not-found.tsx + messages errors fr+en — 4 tests rendu+comportement"
+
+  - id: STORY-058
+    title: "Parsers bancaires UK (HSBC + Monzo)"
+    epic: parsers
+    complexity: S
+    priority: P2
+    status: completed
+    blockedBy: []
+    points: 2
+    tests: 14
+    qa_verdict: "PASS"
+    notes: "hsbcParser (Date,Description,Amount + DD/MM/YYYY) + monzoParser (Transaction ID + YYYY-MM-DD + Currency) — registry avant genericCsv"
+
+  - id: STORY-059
+    title: "Conseiller IA multi-modèles parallèles (3 modèles + synthèse)"
+    epic: intelligence
+    complexity: M
+    priority: P2
+    status: completed
+    blockedBy: [STORY-053]
+    points: 3
+    tests: 13
+    qa_verdict: "PASS"
+    notes: "ai-consensus.ts (synthesizeResponses+buildSynthesisPrompt) + route.ts consensus Premium (Promise.allSettled 3 modèles + Haiku JSON) + AiChat isPremium toggle + details/summary accordéon sources"
+
+  - id: STORY-060
+    title: "Bannière upgrade freemium + page tarifs enrichie"
+    epic: monetization
+    complexity: S
+    priority: P1
+    status: completed
+    blockedBy: [STORY-054]
     points: 2
     tests: 6
-    qa_verdict: PASS
-    notes: "Setting auto_categorize_on_import (6 tests, 2 QA gap ajoutés) — fire-and-forget dans confirmImportAction — double-guard canUseAI — AutoCategorizeToggle (Checkbox) — section IA dans /parametres (Pro/Premium)"
-
-  - id: STORY-050
-    title: "Tool calling — créer budgets et objectifs depuis le chat"
-    epic: intelligence
-    complexity: M
-    priority: P2
-    status: completed
-    blockedBy: []
-    points: 3
-    tests: 8
-    qa_verdict: PASS
-    notes: "createBudgetSchema + createGoalSchema (Zod, 8 tests, 2 QA gaps ajoutés) — createAiTools() factory — inputSchema (AI SDK v6) — stopWhen: stepCountIs(3) — DynamicToolUIPart detection (state: output-available) — ToolResultCard — Pro/Premium via canUseAI guard"
-
-  - id: STORY-051
-    title: "Simulateur de scénarios 'Et si...' dans les prévisions"
-    epic: analytics
-    complexity: M
-    priority: P2
-    status: completed
-    blockedBy: []
-    points: 3
-    tests: 9
-    qa_verdict: PASS
-    notes: "simulateScenario() pure (9 tests, 2 QA gap tests ajoutés) — 3 types (extra savings, cut expense, income increase) — plafonnement 100% — monthsToGoal — ScenarioSimulator client (3 onglets, slider, tableau Avant/Après, useMemo) — intégré /previsions"
-
-  - id: STORY-052
-    title: "Suggestions de budgets basées sur l'historique"
-    epic: intelligence
-    complexity: S
-    priority: P3
-    status: completed
-    blockedBy: []
-    points: 2
-    tests: 9
-    qa_verdict: PASS
-    notes: "suggestBudgets() pure (9 tests, 2 QA gap tests ajoutés) — arrondi dizaine supérieure — confiance high/medium/low — CV (coefficient de variation) — getBudgetSuggestionsAction() — BudgetSuggestions (client) — page /budgets dédiée créée"
+    qa_verdict: "PASS"
+    notes: "PlanBanner (orangé trialing / bleu free / null pro+premium) + layout.tsx migration TrialBanner→PlanBanner + tarifs/page.tsx tableau comparatif 12 lignes + boutons Stripe checkout"
 
 metrics:
-  total: 6
-  completed: 6
+  total: 8
+  completed: 8
   in_progress: 0
   pending: 0
-  total_points: 15
-  points_completed: 15
-  tests_total: 375
-  tests_sprint: 50
-  qa_verdict: PASS
+  total_points: 18
+  points_completed: 18
+  tests_total: 429
+  tests_sprint: 54
+  qa_verdict: "PASS"
 
 previous_sprint:
-  id: sprint-compatibilite-ia-analyse
-  stories: 8
-  completed: 8
+  id: sprint-intelligence-ux-ia
+  stories: 6
+  completed: 6
   qa_verdict: PASS
-  tests: 325
-  commit: "afdca69"
+  tests: 375
+  commit: "dc214d6"

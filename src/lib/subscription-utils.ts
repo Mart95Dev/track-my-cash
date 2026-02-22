@@ -1,16 +1,24 @@
 import { getPlan } from "./stripe-plans";
 import { getDb } from "./db";
+import { getAiUsageCount, checkAiLimit } from "./ai-usage";
 
 export async function getUserPlanId(userId: string): Promise<string> {
   try {
     const db = getDb();
     const result = await db.execute({
-      sql: "SELECT plan_id, status FROM subscriptions WHERE user_id = ?",
+      sql: "SELECT plan_id, status, trial_ends_at FROM subscriptions WHERE user_id = ?",
       args: [userId],
     });
     if (result.rows.length === 0) return "free";
     const row = result.rows[0];
-    // Si l'abonnement n'est pas actif, retourner free
+    // Essai actif : plan Pro accessible jusqu'à expiration
+    if (row.status === "trialing") {
+      const trialEndsAt = row.trial_ends_at ? String(row.trial_ends_at) : null;
+      if (trialEndsAt && new Date(trialEndsAt) > new Date()) {
+        return String(row.plan_id ?? "free");
+      }
+      return "free";
+    }
     if (row.status !== "active") return "free";
     return String(row.plan_id ?? "free");
   } catch {
@@ -47,6 +55,16 @@ export async function canUseAI(
       reason: "Le conseiller IA est disponible à partir du plan Pro (4,90€/mois).",
     };
   }
+
+  // Pour le plan Pro, vérifier le quota mensuel
+  if (planId === "pro") {
+    const month = new Date().toISOString().slice(0, 7);
+    const mainDb = getDb();
+    const count = await getAiUsageCount(mainDb, userId, month);
+    const limitCheck = checkAiLimit("pro", count);
+    if (!limitCheck.allowed) return limitCheck;
+  }
+
   return { allowed: true };
 }
 

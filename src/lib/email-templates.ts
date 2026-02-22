@@ -195,3 +195,37 @@ export function renderWelcomeEmail(userEmail: string, appUrl: string): string {
 
   return renderEmailBase("Bienvenue sur TrackMyCash", body);
 }
+
+export function renderDeletionReminderEmail(
+  userEmail: string,
+  deleteAt: string,
+  cancelUrl: string
+): string {
+  const deleteDate = new Date(deleteAt).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const body = `
+    <p style="margin: 0 0 16px; font-size: 16px; font-weight: 600;">Rappel : suppression de votre compte</p>
+    <p style="margin: 0 0 16px; color: #555; line-height: 1.6;">
+      Bonjour,<br/><br/>
+      Vous avez demandé la suppression de votre compte TrackMyCash associé à <strong>${userEmail}</strong>.
+    </p>
+    <p style="margin: 0 0 24px; color: #555; line-height: 1.6;">
+      La suppression définitive de toutes vos données aura lieu le <strong>${deleteDate}</strong> (dans 5 jours).
+      Si vous avez changé d'avis, vous pouvez annuler votre demande en cliquant ci-dessous.
+    </p>
+    <div style="text-align: center; margin: 0 0 24px;">
+      <a href="${cancelUrl}" style="display: inline-block; background-color: #1a1a1a; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">
+        Annuler la suppression
+      </a>
+    </div>
+    <p style="margin: 0; color: #888; font-size: 13px; line-height: 1.5;">
+      Si vous n'avez pas fait cette demande, contactez-nous à contact@trackmycash.fr.
+    </p>
+  `;
+
+  return renderEmailBase("Rappel : suppression de votre compte", body);
+}

@@ -1,12 +1,15 @@
-import { streamText, convertToModelMessages, stepCountIs, type UIMessage } from "ai";
+import { streamText, generateText, convertToModelMessages, stepCountIs, type UIMessage } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
-import { getSetting, getAllAccounts } from "@/lib/queries";
-import { getUserDb } from "@/lib/db";
+import { NextResponse } from "next/server";
+import { getAllAccounts } from "@/lib/queries";
+import { getUserDb, getDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
-import { canUseAI } from "@/lib/subscription-utils";
+import { canUseAI, getUserPlanId } from "@/lib/subscription-utils";
+import { incrementAiUsage } from "@/lib/ai-usage";
 import { buildFinancialContext, SYSTEM_PROMPT } from "@/lib/ai-context";
 import { checkRateLimit } from "@/lib/rate-limiter";
 import { createAiTools } from "@/lib/ai-tools";
+import { buildSynthesisPrompt, synthesizeResponses, type ConsensusSynthesis } from "@/lib/ai-consensus";
 
 const RATE_LIMIT = 30;
 const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 heure
@@ -20,6 +23,14 @@ const ALLOWED_MODELS = [
   "meta-llama/llama-3.1-8b-instruct:free",
 ] as const;
 
+const CONSENSUS_MODELS = [
+  "anthropic/claude-sonnet-4-6",
+  "google/gemini-2.0-flash",
+  "openai/gpt-4o-mini",
+] as const;
+
+const HAIKU_MODEL = "anthropic/claude-haiku-4-5-20251001";
+
 type AllowedModel = (typeof ALLOWED_MODELS)[number];
 
 export async function POST(req: Request) {
@@ -27,10 +38,12 @@ export async function POST(req: Request) {
     messages,
     accountIds,
     modelId,
+    consensusMode,
   }: {
     messages: UIMessage[];
     accountIds: number[];
     modelId?: string;
+    consensusMode?: boolean;
   } = await req.json();
 
   const selectedModel: AllowedModel = ALLOWED_MODELS.includes(
@@ -68,9 +81,7 @@ export async function POST(req: Request) {
     });
   }
 
-  const db = await getUserDb(userId);
-
-  const apiKey = await getSetting(db, "openrouter_api_key");
+  const apiKey = process.env.API_KEY_OPENROUTER;
   if (!apiKey) {
     return new Response(
       JSON.stringify({ error: "Clé API OpenRouter non configurée" }),
@@ -80,6 +91,8 @@ export async function POST(req: Request) {
       }
     );
   }
+
+  const db = await getUserDb(userId);
 
   const openrouter = createOpenAI({
     baseURL: "https://openrouter.ai/api/v1",
@@ -107,6 +120,63 @@ ${
 }`;
 
   const accountId = accountIds[0] ?? 0;
+
+  // Fire-and-forget : incrémenter le compteur d'utilisation IA (1 seul incrément même en consensus)
+  const mainDb = getDb();
+  const month = new Date().toISOString().slice(0, 7);
+  incrementAiUsage(mainDb, userId, month).catch(() => {});
+
+  // Mode consensus Premium : 3 modèles en parallèle + synthèse Haiku
+  const planId = await getUserPlanId(userId);
+  const isPremium = planId === "premium";
+
+  if (isPremium && consensusMode) {
+    const coreMessages = await convertToModelMessages(messages);
+
+    // AC-1 : lancer 3 modèles en parallèle via Promise.allSettled
+    const results = await Promise.allSettled(
+      CONSENSUS_MODELS.map((model) =>
+        generateText({
+          model: openrouter(model),
+          system: systemMessage,
+          messages: coreMessages,
+        })
+      )
+    );
+
+    const sources = results.map((result, i) => ({
+      model: CONSENSUS_MODELS[i]!,
+      text: result.status === "fulfilled" ? result.value.text : null,
+    }));
+
+    // flatMap pour filtrer les null et obtenir string[] bien typé
+    const successfulTexts: string[] = sources.flatMap((s) =>
+      s.text !== null ? [s.text] : []
+    );
+
+    let synthesis: ConsensusSynthesis;
+
+    if (successfulTexts.length < 2) {
+      // AC-6 : fallback heuristique si < 2 réponses disponibles
+      synthesis = await synthesizeResponses(successfulTexts);
+    } else {
+      // AC-2 : synthèse via Claude Haiku
+      const synthesisPrompt = buildSynthesisPrompt(successfulTexts);
+      try {
+        const haikuResult = await generateText({
+          model: openrouter(HAIKU_MODEL),
+          messages: [{ role: "user", content: synthesisPrompt }],
+        });
+        synthesis = JSON.parse(haikuResult.text) as ConsensusSynthesis;
+      } catch {
+        // Fallback heuristique si JSON invalide
+        synthesis = await synthesizeResponses(successfulTexts);
+      }
+    }
+
+    // AC-3 : réponse JSON { mode: "consensus", synthesis, sources }
+    return NextResponse.json({ mode: "consensus", synthesis, sources });
+  }
 
   const result = streamText({
     model: openrouter(selectedModel),

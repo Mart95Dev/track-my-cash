@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
-import { sendWelcomeEmailAction } from "@/app/actions/auth-actions";
+import { sendWelcomeEmailAction, createTrialSubscriptionAction } from "@/app/actions/auth-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,8 +32,9 @@ export default function InscriptionPage() {
       return;
     }
 
-    // Fire-and-forget : l'échec de l'email ne bloque pas l'inscription
+    // Fire-and-forget : ne bloquent jamais l'inscription
     sendWelcomeEmailAction(email).catch(() => {});
+    createTrialSubscriptionAction().catch(() => {});
 
     router.push("/dashboard");
     router.refresh();

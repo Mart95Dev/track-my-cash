@@ -5,7 +5,6 @@ import { ResetButton } from "@/components/reset-button";
 import { CategorizationRules } from "@/components/categorization-rules";
 import { TagManager } from "@/components/tag-manager";
 import { CurrencySettings } from "@/components/currency-settings";
-import { OpenRouterKeySettings } from "@/components/openrouter-key-settings";
 import { BillingPortalButton } from "@/components/billing-portal-button";
 import { DeleteUserAccountDialog } from "@/components/delete-user-account-dialog";
 import { BudgetForm } from "@/components/budget-form";
@@ -14,11 +13,12 @@ import { MonthlyReportButton } from "@/components/monthly-report-button";
 import { AnnualReportButton } from "@/components/annual-report-button";
 import { AutoCategorizeToggle } from "@/components/auto-categorize-toggle";
 import { getCategorizationRules, getSetting, getAllAccounts, getBudgets } from "@/lib/queries";
-import { getUserDb } from "@/lib/db";
+import { getUserDb, getDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
+import { getAiUsageCount } from "@/lib/ai-usage";
 import { getExchangeRate } from "@/lib/currency";
 import { getTagsAction } from "@/app/actions/tag-actions";
-import { saveExchangeRateAction, saveOpenRouterKeyAction, toggleAutoCategorizationAction } from "@/app/actions/settings-actions";
+import { saveExchangeRateAction, toggleAutoCategorizationAction } from "@/app/actions/settings-actions";
 import { getUserSubscription } from "@/app/actions/billing-actions";
 import { getPlan } from "@/lib/stripe-plans";
 import { getTranslations } from "next-intl/server";
@@ -28,19 +28,21 @@ export const dynamic = "force-dynamic";
 export default async function ParametresPage() {
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
+  const mainDb = getDb();
+  const currentMonth = new Date().toISOString().slice(0, 7);
 
   const aiAccess = await (await import("@/lib/subscription-utils")).canUseAI(userId);
 
-  const [rules, tags, liveRate, fallbackRateStr, openrouterKey, subscription, t, accounts, autoCategorizeSetting] = await Promise.all([
+  const [rules, tags, liveRate, fallbackRateStr, subscription, t, accounts, autoCategorizeSetting, aiUsageCount] = await Promise.all([
     getCategorizationRules(db),
     getTagsAction(),
     getExchangeRate(db),
     getSetting(db, "exchange_rate_eur_mga"),
-    getSetting(db, "openrouter_api_key"),
     getUserSubscription(),
     getTranslations("settings"),
     getAllAccounts(db),
     getSetting(db, "auto_categorize_on_import"),
+    getAiUsageCount(mainDb, userId, currentMonth),
   ]);
 
   // Budgets pour le premier compte (si présent)
@@ -112,24 +114,24 @@ export default async function ParametresPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{t("openrouter.title")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <OpenRouterKeySettings
-            hasKey={!!openrouterKey}
-            onSave={saveOpenRouterKeyAction}
-          />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
           <CardTitle>Intelligence artificielle</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
             Paramètres liés aux fonctionnalités IA de TrackMyCash.
           </p>
+          {subscription.planId === "pro" && (
+            <p className="text-sm">
+              Utilisation ce mois :{" "}
+              <span className="font-semibold">{aiUsageCount}/10 conversations</span>
+            </p>
+          )}
+          {subscription.planId === "premium" && (
+            <p className="text-sm text-muted-foreground">
+              Conversations IA :{" "}
+              <span className="font-semibold">Illimitées</span>
+            </p>
+          )}
           <AutoCategorizeToggle
             enabled={autoCategorizeSetting === "true"}
             isPro={aiAccess.allowed}

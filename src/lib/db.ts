@@ -158,6 +158,21 @@ export async function initSchema() {
       created_at TEXT DEFAULT (datetime('now'))
     )`,
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_budget_history_month ON budget_history(account_id, category, month)",
+    `CREATE TABLE IF NOT EXISTS ai_usage (
+      user_id TEXT NOT NULL,
+      month TEXT NOT NULL,
+      count INTEGER NOT NULL DEFAULT 0,
+      PRIMARY KEY (user_id, month)
+    )`,
+    "ALTER TABLE subscriptions ADD COLUMN trial_ends_at TEXT",
+    "ALTER TABLE subscriptions ADD COLUMN suspended INTEGER DEFAULT 0",
+    `CREATE TABLE IF NOT EXISTS deletion_requests (
+      user_id TEXT PRIMARY KEY,
+      requested_at TEXT NOT NULL DEFAULT (datetime('now')),
+      scheduled_delete_at TEXT NOT NULL,
+      reason TEXT,
+      notified_at TEXT
+    )`,
   ];
   for (const sql of migrations) {
     try {

@@ -1,6 +1,7 @@
-import { getAllAccounts, getSetting, getMonthlySummary, getGoals, getBudgetStatus } from "@/lib/queries";
+import { getAllAccounts, getMonthlySummary, getGoals, getBudgetStatus } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
+import { getUserPlanId } from "@/lib/subscription-utils";
 import { AiChat } from "@/components/ai-chat";
 import { generateChatSuggestions } from "@/lib/chat-suggestions";
 import { getTranslations } from "next-intl/server";
@@ -10,12 +11,12 @@ export const dynamic = "force-dynamic";
 export default async function ConseillerPage() {
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
-  const [accounts, apiKey, t, monthlySummary, goals] = await Promise.all([
+  const [accounts, t, monthlySummary, goals, planId] = await Promise.all([
     getAllAccounts(db),
-    getSetting(db, "openrouter_api_key"),
     getTranslations("advisor"),
     getMonthlySummary(db),
     getGoals(db),
+    getUserPlanId(userId),
   ]);
 
   // Budget statuses — nécessite les IDs des comptes (chargés en phase 1)
@@ -63,7 +64,12 @@ export default async function ConseillerPage() {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">{t("title")}</h2>
-      <AiChat accounts={accounts} hasApiKey={!!apiKey} suggestions={suggestions} />
+      <AiChat
+        accounts={accounts}
+        hasApiKey={!!process.env.API_KEY_OPENROUTER}
+        suggestions={suggestions}
+        isPremium={planId === "premium"}
+      />
     </div>
   );
 }
