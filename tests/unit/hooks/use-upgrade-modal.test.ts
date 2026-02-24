@@ -29,14 +29,16 @@ describe("useUpgradeModal (STORY-082)", () => {
     expect(result.current.upgradeReason).toBeNull();
   });
 
-  it("TU-82-8 : UPGRADE_CONFIGS contient les 6 reasons (AC-4)", () => {
-    expect(Object.keys(UPGRADE_CONFIGS).length).toBe(6);
+  it("TU-82-8 : UPGRADE_CONFIGS contient les 8 reasons (AC-4 + couple_pro + couple_premium)", () => {
+    expect(Object.keys(UPGRADE_CONFIGS).length).toBe(8);
     expect(UPGRADE_CONFIGS).toHaveProperty("ai");
     expect(UPGRADE_CONFIGS).toHaveProperty("accounts_limit");
     expect(UPGRADE_CONFIGS).toHaveProperty("import_pdf");
     expect(UPGRADE_CONFIGS).toHaveProperty("import_xlsx");
     expect(UPGRADE_CONFIGS).toHaveProperty("export_pdf");
     expect(UPGRADE_CONFIGS).toHaveProperty("history");
+    expect(UPGRADE_CONFIGS).toHaveProperty("couple_pro");
+    expect(UPGRADE_CONFIGS).toHaveProperty("couple_premium");
   });
 
   it("TU-82-9 : chaque config a ≥ 3 features (AC-4)", () => {

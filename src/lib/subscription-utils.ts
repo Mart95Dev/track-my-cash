@@ -68,6 +68,36 @@ export async function canUseAI(
   return { allowed: true };
 }
 
+export async function canUseCoupleFeature(
+  userId: string
+): Promise<{ allowed: boolean; reason?: string }> {
+  const planId = await getUserPlanId(userId);
+
+  // Les fonctionnalités couple nécessitent un plan Pro minimum
+  if (planId === "free") {
+    return {
+      allowed: false,
+      reason: "Les fonctionnalités couple sont disponibles à partir du plan Pro (4,90€/mois). Créez ou rejoignez un espace couple partagé en passant à Pro.",
+    };
+  }
+  return { allowed: true };
+}
+
+export async function canUsePremiumCoupleFeature(
+  userId: string
+): Promise<{ allowed: boolean; reason?: string }> {
+  const planId = await getUserPlanId(userId);
+
+  // Les objectifs couple et l'IA couple nécessitent un plan Premium
+  if (planId !== "premium") {
+    return {
+      allowed: false,
+      reason: "Cette fonctionnalité couple avancée (objectifs partagés, IA couple) est réservée au plan Premium (7,90€/mois).",
+    };
+  }
+  return { allowed: true };
+}
+
 export async function canImportFormat(
   userId: string,
   filename: string

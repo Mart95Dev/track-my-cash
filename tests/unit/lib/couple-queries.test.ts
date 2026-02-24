@@ -155,6 +155,86 @@ describe("couple-queries — joinCouple", () => {
   });
 });
 
+// ─── TU-85-2c : getCoupleMembers ─────────────────────────────────────────────
+
+describe("couple-queries — getCoupleMembers", () => {
+  let mockDb: Client;
+
+  beforeEach(() => {
+    vi.resetModules();
+    mockDb = { execute: vi.fn() } as unknown as Client;
+  });
+
+  it("TU-85-2c : getCoupleMembers retourne tableau vide si aucun membre actif", async () => {
+    (mockDb.execute as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ rows: [] });
+
+    const { getCoupleMembers } = await import("@/lib/couple-queries");
+    const result = await getCoupleMembers(mockDb, "couple-inexistant");
+
+    expect(result).toEqual([]);
+    expect(mockDb.execute).toHaveBeenCalledTimes(1);
+  });
+
+  it("TU-85-2d : getCoupleMembers retourne les membres actifs avec leurs rôles", async () => {
+    (mockDb.execute as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      rows: [
+        {
+          id: "cm-1",
+          couple_id: "couple-1",
+          user_id: "user1",
+          role: "owner",
+          status: "active",
+          joined_at: 1700000000,
+        },
+        {
+          id: "cm-2",
+          couple_id: "couple-1",
+          user_id: "user2",
+          role: "member",
+          status: "active",
+          joined_at: 1700000100,
+        },
+      ],
+    });
+
+    const { getCoupleMembers } = await import("@/lib/couple-queries");
+    const result = await getCoupleMembers(mockDb, "couple-1");
+
+    expect(result).toHaveLength(2);
+    expect(result[0].user_id).toBe("user1");
+    expect(result[0].role).toBe("owner");
+    expect(result[1].user_id).toBe("user2");
+    expect(result[1].role).toBe("member");
+  });
+
+  it("TU-85-2e : getCoupleMembers mappe correctement les champs du type CoupleMember", async () => {
+    (mockDb.execute as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      rows: [
+        {
+          id: "cm-42",
+          couple_id: "couple-abc",
+          user_id: "user-xyz",
+          role: "owner",
+          status: "active",
+          joined_at: 1700999999,
+        },
+      ],
+    });
+
+    const { getCoupleMembers } = await import("@/lib/couple-queries");
+    const result = await getCoupleMembers(mockDb, "couple-abc");
+
+    expect(result[0]).toEqual({
+      id: "cm-42",
+      couple_id: "couple-abc",
+      user_id: "user-xyz",
+      role: "owner",
+      status: "active",
+      joined_at: 1700999999,
+    });
+  });
+});
+
 // ─── TU-85-5 : leaveCouple ───────────────────────────────────────────────────
 
 describe("couple-queries — leaveCouple", () => {

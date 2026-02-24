@@ -24,9 +24,11 @@ stories:
     status: completed
     blockedBy: []
     points: 1
-    tests: 13
-    qa_verdict: ""
-    notes: "3 tables Main DB (couples, couple_members, couple_balances) + 8 ALTER TABLE per-user — 13 tests TU-85-x"
+    tests: 16
+    qa_verdict: "PASS"
+    qa_date: "2026-02-24"
+    qa_notes: "16 tests TU-85-x (3 ajoutés par QA pour getCoupleMembers — AC-6 non couverte initialement). 580 tests totaux, 0 régression. tsc --noEmit OK."
+    notes: "3 tables Main DB (couples, couple_members, couple_balances) + 8 ALTER TABLE per-user — 16 tests TU-85-x"
 
   - id: STORY-086
     title: "Système d'invitation couple"
@@ -69,12 +71,14 @@ stories:
     epic: monetisation
     complexity: S
     priority: P2
-    status: pending
+    status: completed
     blockedBy: [STORY-085]
     points: 2
-    tests: 0
-    qa_verdict: ""
-    notes: "canUseCoupleFeature + canUsePremiumCoupleFeature + UpgradeReason couple_pro/couple_premium"
+    tests: 9
+    qa_verdict: "PASS"
+    qa_date: "2026-02-24"
+    qa_notes: "9 tests TU-89-x (TU-89-1 à 9). canUseCoupleFeature (Pro+), canUsePremiumCoupleFeature (Premium only), UpgradeReason couple_pro/couple_premium + UPGRADE_CONFIGS. 589 tests totaux, 0 régression. tsc --noEmit OK."
+    notes: "canUseCoupleFeature (plan Pro minimum) + canUsePremiumCoupleFeature (plan Premium) + UpgradeReason couple_pro/couple_premium + UPGRADE_CONFIGS entries — 9 tests TU-89-x"
 
   - id: STORY-090
     title: "Budgets & objectifs couple"
@@ -417,13 +421,13 @@ metrics_v10:
 
 metrics_v12:
   total: 8
-  completed: 1
+  completed: 2
   in_progress: 0
-  pending: 7
+  pending: 6
   total_points: 20
-  points_completed: 1
-  tests_total: 577
-  tests_sprint: 13
+  points_completed: 3
+  tests_total: 589
+  tests_sprint: 22
   qa_verdict: ""
 
 metrics_v11:

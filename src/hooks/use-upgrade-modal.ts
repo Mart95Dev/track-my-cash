@@ -8,7 +8,9 @@ export type UpgradeReason =
   | "import_pdf"
   | "import_xlsx"
   | "export_pdf"
-  | "history";
+  | "history"
+  | "couple_pro"
+  | "couple_premium";
 
 export type UpgradeConfig = {
   targetPlan: "pro" | "premium";
@@ -53,6 +55,27 @@ export const UPGRADE_CONFIGS: Record<UpgradeReason, UpgradeConfig> = {
     title: "Accédez à tout votre historique",
     description: "Le plan Gratuit limite l'historique à 3 mois.",
     features: ["Historique illimité", "Comparaisons YoY", "Tendances long terme"],
+  },
+  couple_pro: {
+    targetPlan: "pro",
+    title: "Fonctionnalité couple",
+    description: "Créez un espace partagé avec votre partenaire et gérez vos finances à deux.",
+    features: [
+      "Créer un espace couple partagé",
+      "Transactions partagées",
+      "Balance qui doit quoi",
+      "Budgets couple",
+    ],
+  },
+  couple_premium: {
+    targetPlan: "premium",
+    title: "IA couple Premium",
+    description: "Profitez d'une IA spécialisée pour analyser et optimiser vos finances communes.",
+    features: [
+      "Conseiller IA couple",
+      "Objectifs couple partagés",
+      "Analyse IA des dépenses communes",
+    ],
   },
 };
 
