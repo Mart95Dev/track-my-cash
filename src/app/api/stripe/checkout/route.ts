@@ -39,7 +39,9 @@ export async function POST(req: Request) {
     line_items: [{ price: plan.stripePriceId, quantity: 1 }],
     customer_email: userEmail,
     metadata: { userId, planId },
-    success_url: `${baseUrl}/${locale}/parametres?tab=billing&success=true`,
+    automatic_tax: { enabled: true },
+    tax_id_collection: { enabled: true },
+    success_url: `${baseUrl}/${locale}/bienvenue?plan=${planId}`,
     cancel_url: `${baseUrl}/${locale}/tarifs`,
     subscription_data: {
       metadata: { userId, planId },

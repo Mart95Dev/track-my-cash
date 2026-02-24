@@ -11,6 +11,8 @@ import { useTranslations } from "next-intl";
 import type { ToolCallResult } from "@/lib/ai-tools";
 import type { DynamicToolUIPart } from "ai";
 import type { ConsensusSynthesis } from "@/lib/ai-consensus";
+import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
+import { UpgradeModal } from "@/components/upgrade-modal";
 
 interface Account {
   id: number;
@@ -70,11 +72,13 @@ export function AiChat({
   hasApiKey,
   suggestions = [],
   isPremium = false,
+  canAI = true,
 }: {
   accounts: Account[];
   hasApiKey: boolean;
   suggestions?: string[];
   isPremium?: boolean;
+  canAI?: boolean;
 }) {
   const t = useTranslations("advisor");
   const [selectedIds, setSelectedIds] = useState<number[]>(
@@ -90,6 +94,7 @@ export function AiChat({
   >([]);
   const [isConsensusLoading, setIsConsensusLoading] = useState(false);
   const [showAccountSelector, setShowAccountSelector] = useState(false);
+  const { upgradeReason, showUpgradeModal, closeUpgradeModal } = useUpgradeModal();
 
   const transport = useMemo(
     () =>
@@ -164,6 +169,10 @@ export function AiChat({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
+    if (!canAI) {
+      showUpgradeModal("ai");
+      return;
+    }
     const text = input.trim();
     setInput("");
     if (consensusMode && isPremium) {
@@ -221,7 +230,9 @@ export function AiChat({
   const hasMessages = currentMessages.length > 0;
 
   return (
-    <div className="flex flex-col">
+    <>
+      <UpgradeModal reason={upgradeReason} onClose={closeUpgradeModal} />
+      <div className="flex flex-col">
       {/* Toolbar : sélecteur modèle / comptes / consensus */}
       <div className="px-4 py-2 flex items-center gap-2 border-b border-gray-100 bg-background-light">
         {isPremium && (
@@ -510,5 +521,6 @@ export function AiChat({
         </form>
       </div>
     </div>
+    </>
   );
 }

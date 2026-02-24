@@ -582,3 +582,320 @@ STORY-077  STORY-078   (Chat IA + Paramètres — parallèles)
 ---
 
 *PRD généré par FORGE PM Agent — 2026-02-24*
+
+---
+
+---
+
+# PRD — Sprint Conversion & Monétisation (v11)
+
+**Version :** 11.0
+**Date :** 2026-02-24
+**Statut :** Prêt pour décomposition en stories
+**Périmètre :** Amélioration du funnel de conversion — Stripe Tax, modales urgence/upgrade, page succès, features sur les cards tarifs
+
+---
+
+## Contexte
+
+Le Sprint Design Stitch (v10) est **entièrement livré** :
+- ✅ 11/11 stories PASS (495 tests, QA PASS)
+- ✅ Design system Manrope + tokens Stitch + Material Symbols + BottomNav + reskin complet 14 pages
+- ✅ 78 stories livrées sur 10 sprints
+
+**Opportunité identifiée :**
+
+L'application est visuellement complète et fonctionnellement mature, mais le **funnel de conversion trial → payant est sous-optimisé** :
+
+1. **TVA non configurée** — `automatic_tax` absent du checkout Stripe → risque de non-conformité fiscale
+2. **Urgence visuelle insuffisante** — le `PlanBanner` exist déjà mais aucune modale ne frappe l'utilisateur à J-3/J-1
+3. **Mur de feature silencieux** — les guards retournent des toast/erreurs texte ; aucune modale d'upgrade contextuelle ne propose le plan au bon moment
+4. **Pas de page de succès** — après paiement, redirection vers `/parametres?tab=billing&success=true` (peu engageant)
+5. **Cards /tarifs sans features** — les cards plans sur la page tarifs et la landing page n'affichent pas les bullets de features incluses
+
+---
+
+## Objectifs business
+
+| Métrique | Baseline | Cible sprint |
+|----------|----------|--------------|
+| Taux trial → payant | ~10% (estimé) | +5 pts grâce à urgence + contextuel |
+| Conformité TVA | ❌ non configuré | ✅ Stripe Tax activé |
+| NPS post-achat | N/A | Page succès avec onboarding |
+
+---
+
+## Architecture existante (contexte technique)
+
+- **`src/app/api/stripe/checkout/route.ts`** — crée la session Stripe ; `success_url` → `/parametres?tab=billing&success=true`
+- **`src/lib/stripe-plans.ts`** — `PLANS` object (free/pro/premium) avec `features[]` et `limits`
+- **`src/lib/subscription-utils.ts`** — `getUserPlanId()`, `canCreateAccount()`, `canUseAI()`, `canImportFormat()`
+- **`src/components/plan-banner.tsx`** — bannière orange trialing / bleue free
+- **`src/app/api/cron/check-trials/route.ts`** — cron qui expire les trials
+- **`src/app/[locale]/(marketing)/tarifs/page.tsx`** — page Tarifs, COMPARISON_FEATURES[], SubscribeButton
+
+---
+
+## Stories
+
+### 🔴 MUST HAVE
+
+#### STORY-079 : Stripe Tax — TVA automatique
+
+**Description :** Activer Stripe Tax sur toutes les sessions de checkout pour calculer et collecter automatiquement la TVA selon la localisation du client. Prérequis légal pour les marchés EU.
+
+**Modifications :**
+- `src/app/api/stripe/checkout/route.ts` : ajouter `automatic_tax: { enabled: true }` dans `stripe.checkout.sessions.create()`
+- `src/app/api/stripe/checkout/route.ts` : activer `customer_update` ou utiliser `tax_id_collection: { enabled: true }` pour permettre la saisie du numéro de TVA professionnel
+
+**Prérequis Stripe Dashboard :**
+- Stripe Tax activé dans le Dashboard Stripe (hors code — documenté dans la story)
+- Registrations TVA configurées pour les pays cibles (FR minimum)
+
+**Acceptance Criteria :**
+- AC-1 : Le paramètre `automatic_tax: { enabled: true }` est présent dans `stripe.checkout.sessions.create()`
+- AC-2 : `tax_id_collection: { enabled: true }` est présent pour permettre saisie N° TVA pro
+- AC-3 : `npm run build` passe sans erreur TypeScript
+- AC-4 : La session checkout est créée sans erreur Stripe (test avec clé test)
+- AC-5 : Les tests unitaires de la route checkout passent
+
+**Tests (TU-79-x) :**
+- TU-79-1 : Le body de la session Stripe contient `automatic_tax.enabled = true`
+- TU-79-2 : Le body contient `tax_id_collection.enabled = true`
+- TU-79-3 : La route retourne 400 si `planId` invalide (existant, non-regression)
+- TU-79-4 : La route retourne l'URL Stripe si plan valide (existant, non-regression)
+
+---
+
+#### STORY-080 : Emails de rappel trial J-3 et J-1
+
+**Description :** Envoyer un email de rappel automatique à J-3 et J-1 avant l'expiration du trial Pro pour inciter à souscrire. Les emails sont envoyés par le cron existant (ou un nouveau cron dédié).
+
+**Nouvelles colonnes DB :**
+- `subscriptions.reminder_3d_sent` (INTEGER DEFAULT 0) — 1 si email J-3 envoyé
+- `subscriptions.reminder_1d_sent` (INTEGER DEFAULT 0) — 1 si email J-1 envoyé
+
+**Nouveau cron :**
+- `src/app/api/cron/trial-reminders/route.ts` — GET protégé par `CRON_SECRET`
+  - Cherche les subscriptions `status = 'trialing'` avec `trial_ends_at` dans 1 à 4 jours
+  - Envoie email J-3 si `daysLeft ≈ 3` et `reminder_3d_sent = 0`
+  - Envoie email J-1 si `daysLeft ≈ 1` et `reminder_1d_sent = 0`
+  - Marque les flags après envoi
+
+**Templates email :**
+- `renderTrialReminderEmail(daysLeft: 3 | 1, userName: string)` — HTML minimaliste
+- Sujet J-3 : "⏳ Votre essai Pro expire dans 3 jours"
+- Sujet J-1 : "⚠️ Dernière chance — votre essai Pro expire demain"
+- CTA : bouton "Continuer avec Pro →" → lien `/tarifs`
+
+**Acceptance Criteria :**
+- AC-1 : La migration DB ajoute `reminder_3d_sent` et `reminder_1d_sent` à la table `subscriptions`
+- AC-2 : Le cron `/api/cron/trial-reminders` est protégé par `CRON_SECRET`
+- AC-3 : Un utilisateur avec `daysLeft = 3` reçoit l'email J-3 (flag mis à 1)
+- AC-4 : Un utilisateur avec `daysLeft = 1` reçoit l'email J-1 (flag mis à 1)
+- AC-5 : L'email n'est pas renvoyé si le flag est déjà à 1 (idempotent)
+- AC-6 : Les emails contiennent le lien `/tarifs`
+
+**Tests (TU-80-x) :**
+- TU-80-1 : `renderTrialReminderEmail(3, "Alice")` contient "3 jours" et le CTA
+- TU-80-2 : `renderTrialReminderEmail(1, "Alice")` contient "demain" et le CTA
+- TU-80-3 : Le cron retourne 200 avec `{ sent: 0 }` si aucun trial proche
+- TU-80-4 : Le cron retourne 401 sans CRON_SECRET (non-regression)
+- TU-80-5 : La logique de filtre identifie correctement les trials à J-3 et J-1
+
+---
+
+#### STORY-081 : Modale urgence trial ≤ 3 jours
+
+**Description :** Afficher une modale d'urgence dans l'application quand l'essai Pro expire dans ≤ 3 jours. La modale s'affiche une seule fois par jour (localStorage). Elle est dismissable mais présente un CTA fort.
+
+**Nouveau composant :**
+- `src/components/trial-urgency-modal.tsx` — `"use client"`
+  - Props : `daysRemaining: number`, `planId: string`
+  - S'affiche si `daysRemaining <= 3 && status === "trialing"`
+  - Vérifie `localStorage.getItem("trial_modal_shown_date")` — ne s'affiche pas si déjà montré aujourd'hui
+  - Après dismiss/CTA : `localStorage.setItem("trial_modal_shown_date", today)`
+
+**Design (Stitch design system) :**
+- Overlay `fixed inset-0 bg-black/50 z-50 flex items-center justify-center`
+- Card `bg-white rounded-2xl p-6 max-w-sm mx-4 flex flex-col gap-4`
+- Icône `hourglass_empty` Material Symbols (FILL=1, 40px, couleur warning)
+- Titre : "Votre essai expire bientôt"
+- Sous-titre : `${daysRemaining} jour${daysRemaining > 1 ? "s" : ""} restant${daysRemaining > 1 ? "s" : ""}`
+- Bullet points des 3 features Pro les plus importantes
+- CTA principal : `bg-primary text-white` → `/tarifs`
+- Bouton secondaire : `text-text-muted text-sm` → "Plus tard"
+
+**Intégration :**
+- Dans `src/app/[locale]/(app)/layout.tsx` : récupérer `daysRemaining` depuis subscription et rendre `<TrialUrgencyModal />`
+
+**Acceptance Criteria :**
+- AC-1 : La modale s'affiche si `daysRemaining <= 3` et `status === "trialing"`
+- AC-2 : La modale ne s'affiche pas si déjà montrée aujourd'hui (localStorage)
+- AC-3 : Le CTA "Souscrire" redirige vers `/tarifs`
+- AC-4 : Le bouton "Plus tard" ferme la modale et enregistre la date
+- AC-5 : La modale ne s'affiche PAS si `daysRemaining > 3`
+- AC-6 : La modale ne s'affiche PAS si plan actif (status = "active") ou free
+
+**Tests (TU-81-x) :**
+- TU-81-1 : `<TrialUrgencyModal daysRemaining={3} />` rend la modale (visible)
+- TU-81-2 : `<TrialUrgencyModal daysRemaining={4} />` ne rend rien
+- TU-81-3 : Clic "Plus tard" cache la modale
+- TU-81-4 : localStorage contient `trial_modal_shown_date` après dismiss
+- TU-81-5 : Si `trial_modal_shown_date` = aujourd'hui, la modale ne s'affiche pas au montage
+
+---
+
+### 🟡 SHOULD HAVE
+
+#### STORY-082 : Modale upgrade contextuelle
+
+**Description :** Remplacer les messages d'erreur silencieux (toast texte) par une modale d'upgrade contextuelle quand un utilisateur tente d'utiliser une feature réservée à Pro/Premium. La modale présente le plan cible, les features débloquées, et un CTA direct vers le checkout.
+
+**Nouveau hook :**
+- `src/hooks/use-upgrade-modal.ts` — `"use client"`
+  - `showUpgradeModal(reason: UpgradeReason)` — ouvre la modale
+  - `UpgradeReason` : `"ai" | "accounts_limit" | "import_pdf" | "import_xlsx" | "history" | "export_pdf"`
+  - Chaque reason mappe vers : titre, description, features débloquées, plan cible (pro/premium)
+
+**Nouveau composant :**
+- `src/components/upgrade-modal.tsx` — `"use client"`
+  - Props : `reason: UpgradeReason | null`, `onClose: () => void`
+  - Design cohérent Stitch : rounded-2xl, bg-white, icône Material Symbols, CTA bg-primary
+  - Affiche le plan cible (Pro ou Premium), le prix, la liste des features
+  - CTA : "Passer au plan [X]" → déclenche le checkout Stripe directement
+  - Lien secondaire : "Voir tous les tarifs →"
+
+**Intégration :**
+- Remplacer les `toast.error()` dans les composants client par `showUpgradeModal(reason)`
+- Composants concernés : `import-dialog.tsx`, `ai-chat.tsx`, composants d'ajout de compte
+
+**Acceptance Criteria :**
+- AC-1 : Tentative d'import PDF sur plan free → modale upgrade (raison "import_pdf") au lieu de toast
+- AC-2 : Tentative d'utiliser l'IA sur plan free → modale upgrade (raison "ai")
+- AC-3 : Tentative d'ajout compte au-delà de la limite → modale upgrade (raison "accounts_limit")
+- AC-4 : La modale affiche le nom du plan cible, le prix et ≥ 3 features
+- AC-5 : Le CTA "Passer au plan X" lance le checkout Stripe (appel `/api/stripe/checkout`)
+- AC-6 : Le bouton "Fermer" ferme la modale sans redirection
+
+**Tests (TU-82-x) :**
+- TU-82-1 : `<UpgradeModal reason="ai" onClose={fn} />` affiche le plan Pro
+- TU-82-2 : `<UpgradeModal reason="import_pdf" onClose={fn} />` affiche le plan Pro
+- TU-82-3 : `<UpgradeModal reason={null} />` ne rend rien
+- TU-82-4 : Clic "Fermer" appelle `onClose`
+- TU-82-5 : `useUpgradeModal()` expose `showUpgradeModal` et `upgradeReason`
+
+---
+
+#### STORY-083 : Page succès post-paiement
+
+**Description :** Remplacer la redirection post-paiement vers `/parametres?tab=billing&success=true` par une vraie page de succès `/bienvenue` qui confirme l'achat, récapitule les features débloquées, et guide l'utilisateur vers sa première action.
+
+**Nouvelle page :**
+- `src/app/[locale]/(app)/bienvenue/page.tsx` — Server Component
+  - Lit le param `?plan=pro` ou `?plan=premium` depuis `searchParams`
+  - Récupère la session et affiche le prénom de l'utilisateur
+
+**Design :**
+- Icône `check_circle` (Material Symbols FILL=1, 64px, couleur success)
+- Titre : "Bienvenue dans le plan [Pro/Premium] !"
+- Sous-titre : "Votre abonnement est actif."
+- Section "Ce que vous venez de débloquer" : liste des features du plan avec icônes
+- 3 boutons d'action : "Importer mes transactions" (→ `/transactions`), "Explorer l'IA" (→ `/ia`), "Voir mon dashboard" (→ `/dashboard`)
+- Lien discret : "Gérer mon abonnement" (→ `/parametres?tab=billing`)
+
+**Modification checkout :**
+- `src/app/api/stripe/checkout/route.ts` : `success_url` → `${baseUrl}/${locale}/bienvenue?plan=${planId}`
+
+**Acceptance Criteria :**
+- AC-1 : La page `/bienvenue` affiche l'icône check_circle + titre de confirmation
+- AC-2 : Le nom du plan souscrit est affiché (depuis `searchParams.plan`)
+- AC-3 : Les features du plan sont listées (depuis `PLANS[planId].features`)
+- AC-4 : Les 3 boutons d'action sont présents et pointent vers les bonnes routes
+- AC-5 : La page est accessible sans être connecté (si redirection Stripe directe) — affiche version générique
+- AC-6 : `success_url` dans checkout route pointe vers `/bienvenue?plan=...`
+
+**Tests (TU-83-x) :**
+- TU-83-1 : La page `/bienvenue?plan=pro` rend sans erreur
+- TU-83-2 : La page affiche les features du plan Pro
+- TU-83-3 : La page `/bienvenue?plan=premium` affiche les features Premium
+- TU-83-4 : `success_url` dans checkout route contient `/bienvenue`
+
+---
+
+### 🟢 NICE TO HAVE
+
+#### STORY-084 : Features bullets sur les cards /tarifs et landing page
+
+**Description :** Afficher les bullets de features incluses directement dans les cards des plans sur la page `/tarifs` et sur la section pricing de la landing page. Actuellement les cards affichent uniquement le prix — les features sont seulement dans le tableau comparatif en dessous.
+
+**Modifications :**
+- `src/app/[locale]/(marketing)/tarifs/page.tsx` : dans chaque plan card, ajouter une liste `<ul>` avec les items de `PLANS[planId].features`
+  - Chaque item : icône `check` (Material Symbols, text-success) + texte feature
+  - Maximum 5 bullets par card (les plus importantes)
+
+- `src/app/[locale]/(marketing)/page.tsx` : même ajout dans la section pricing de la landing page
+  - Les features du plan Pro sont mises en avant (fond primary/10 ou border-primary)
+
+**Enrichissement des features dans stripe-plans.ts :**
+- Enrichir l'array `features[]` pour chaque plan avec des descriptions concises et percutantes
+- Free : ["2 comptes bancaires", "Import CSV", "Transactions illimitées", "Budgets & objectifs", "Résumé mensuel"]
+- Pro : ["5 comptes bancaires", "Import PDF & Excel", "Conseiller IA (10 req/mois)", "Multi-devises", "Export CSV & rapports"]
+- Premium : ["Comptes illimités", "IA prioritaire illimitée", "Export PDF mensuel", "Rapport annuel IA", "Support prioritaire"]
+
+**Acceptance Criteria :**
+- AC-1 : Chaque card plan sur `/tarifs` affiche ≥ 3 bullets de features
+- AC-2 : Chaque bullet utilise une icône check Material Symbols en text-success
+- AC-3 : Les cards de la landing page section pricing affichent également les features
+- AC-4 : Le plan Pro est toujours visuellement mis en avant (bordure primary)
+- AC-5 : Les tests existants sur `/tarifs` passent (non-regression)
+- AC-6 : `npm run build` passe sans erreur
+
+**Tests (TU-84-x) :**
+- TU-84-1 : La page `/tarifs` contient au moins 9 éléments de features (3 plans × 3 min)
+- TU-84-2 : Les features du plan Free sont différentes de celles du plan Pro
+- TU-84-3 : `PLANS.pro.features` contient ≥ 4 items après enrichissement
+- TU-84-4 : `PLANS.premium.features` contient ≥ 4 items
+
+---
+
+## Récapitulatif MoSCoW
+
+| ID | Titre | Priorité | Points | Dépend de |
+|----|-------|----------|--------|-----------|
+| STORY-079 | Stripe Tax — TVA automatique | MUST | 1 | Aucune |
+| STORY-080 | Emails de rappel trial J-3 et J-1 | MUST | 3 | Aucune |
+| STORY-081 | Modale urgence trial ≤ 3 jours | MUST | 2 | Aucune |
+| STORY-082 | Modale upgrade contextuelle | SHOULD | 3 | Aucune |
+| STORY-083 | Page succès post-paiement | SHOULD | 2 | STORY-079 |
+| STORY-084 | Features bullets sur cards tarifs | NICE | 1 | Aucune |
+
+**Total :** 6 stories · 12 points
+
+---
+
+## Contraintes techniques
+
+- Pas de type `any` en TypeScript
+- Couleurs unies uniquement (pas de dégradés)
+- Design system Stitch (primary #4848e5, tokens couleurs existants, Manrope, Material Symbols)
+- `"use client"` uniquement sur les composants interactifs (modales, hooks)
+- Les Server Actions existantes (`createTrialSubscriptionAction`, etc.) ne sont pas modifiées
+- La migration DB (STORY-080) doit être additive (nouvelles colonnes nullable/default)
+
+---
+
+## Dépendances techniques v11
+
+| Story | Dépend de |
+|-------|-----------|
+| STORY-079 | Aucune (modification checkout route) |
+| STORY-080 | Aucune (nouveau cron + migration DB) |
+| STORY-081 | Aucune (nouveau composant client) |
+| STORY-082 | Aucune (nouveau hook + composant) |
+| STORY-083 | STORY-079 (success_url modifiée) |
+| STORY-084 | Aucune (enrichissement features + UI) |
+
+---
+
+*PRD généré par FORGE PM Agent — 2026-02-24*

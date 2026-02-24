@@ -81,6 +81,7 @@ export default async function ConseillerPage() {
         hasApiKey={!!process.env.API_KEY_OPENROUTER}
         suggestions={suggestions}
         isPremium={isPremium}
+        canAI={planId === "pro" || planId === "premium"}
       />
     </div>
   );

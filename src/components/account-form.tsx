@@ -7,10 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useUpgradeModal, detectUpgradeReason } from "@/hooks/use-upgrade-modal";
+import { UpgradeModal } from "@/components/upgrade-modal";
 
 export function AccountForm() {
   const t = useTranslations("accounts");
   const formRef = useRef<HTMLFormElement>(null);
+  const { upgradeReason, showUpgradeModal, closeUpgradeModal } = useUpgradeModal();
   const [state, formAction, isPending] = useActionState(
     async (prev: unknown, formData: FormData) => {
       return await createAccountAction(prev, formData);
@@ -23,12 +26,20 @@ export function AccountForm() {
       toast.success(t("form.success"));
       formRef.current?.reset();
     } else if (state && "error" in state) {
-      toast.error(String(state.error));
+      const errorMsg = String(state.error);
+      const upgradeNeeded = detectUpgradeReason(errorMsg);
+      if (upgradeNeeded) {
+        showUpgradeModal(upgradeNeeded);
+      } else {
+        toast.error(errorMsg);
+      }
     }
-  }, [state, t]);
+  }, [state, t]); // eslint-disable-line
 
   return (
-    <form ref={formRef} action={formAction} className="space-y-4">
+    <>
+      <UpgradeModal reason={upgradeReason} onClose={closeUpgradeModal} />
+      <form ref={formRef} action={formAction} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="name">{t("form.name")}</Label>
@@ -80,5 +91,6 @@ export function AccountForm() {
         {isPending ? t("form.creating") : t("form.submit")}
       </Button>
     </form>
+    </>
   );
 }

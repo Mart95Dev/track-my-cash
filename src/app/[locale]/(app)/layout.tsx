@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BottomNav } from "@/components/bottom-nav";
 import { PwaInstallBanner } from "@/components/pwa-install-banner";
 import { PlanBanner } from "@/components/plan-banner";
+import { TrialUrgencyModal } from "@/components/trial-urgency-modal";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -56,6 +57,10 @@ export default async function AppLayout({ children, params }: Props) {
       </main>
       <BottomNav />
       <PwaInstallBanner />
+      <TrialUrgencyModal
+        daysRemaining={bannerDaysRemaining ?? 0}
+        status={bannerStatus ?? "active"}
+      />
     </div>
   );
 }

@@ -114,6 +114,19 @@ function PlanCard({ planId, isHighlighted, isCurrentPlan }: PlanCardProps) {
           <span className="text-text-muted">/mois</span>
         </div>
         {cardButton}
+        <ul className="flex flex-col gap-2 mt-4">
+          {plan.features.map((feature) => (
+            <li key={feature} className="flex items-center gap-2 text-sm text-text-main">
+              <span
+                className="material-symbols-outlined text-success text-[16px] shrink-0"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                check
+              </span>
+              {feature}
+            </li>
+          ))}
+        </ul>
       </div>
     );
   }
@@ -133,6 +146,19 @@ function PlanCard({ planId, isHighlighted, isCurrentPlan }: PlanCardProps) {
         <span className="text-text-muted">/mois</span>
       </div>
       {cardButton}
+      <ul className="flex flex-col gap-2 mt-4">
+        {plan.features.map((feature) => (
+          <li key={feature} className="flex items-center gap-2 text-sm text-text-main">
+            <span
+              className="material-symbols-outlined text-success text-[16px] shrink-0"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              check
+            </span>
+            {feature}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

@@ -231,6 +231,60 @@ export function renderDeletionReminderEmail(
   return renderEmailBase("Rappel : suppression de votre compte", body);
 }
 
+export function renderTrialReminderEmail(
+  daysLeft: 3 | 1,
+  userName: string,
+  baseUrl: string
+): string {
+  const isUrgent = daysLeft === 1;
+  const title = isUrgent
+    ? "⚠️ Dernière chance — votre essai Pro expire demain"
+    : "⏳ Votre essai Pro expire dans 3 jours";
+
+  const headline = isUrgent
+    ? "Votre essai Pro expire demain"
+    : `Encore ${daysLeft} jours d'essai Pro`;
+
+  const intro = isUrgent
+    ? "C'est votre dernière chance de conserver toutes vos fonctionnalités Pro."
+    : "Votre période d'essai gratuite se termine bientôt. Continuez à profiter de toutes les fonctionnalités Pro.";
+
+  const features = [
+    "5 comptes bancaires",
+    "Import PDF & Excel",
+    "Conseiller IA (10 requêtes/mois)",
+    "Multi-devises",
+    "Export CSV & rapports",
+  ];
+
+  const featuresHtml = features
+    .map((f) => `<li style="padding: 4px 0; color: #555;">${f}</li>`)
+    .join("");
+
+  const body = `
+    <h2 style="margin: 0 0 16px; font-size: 22px; color: #1a1a1a;">${headline}</h2>
+    <p style="margin: 0 0 12px; color: #555; line-height: 1.6;">Bonjour ${userName},</p>
+    <p style="margin: 0 0 16px; color: #555; line-height: 1.6;">${intro}</p>
+    <p style="margin: 0 0 8px; color: #1a1a1a; font-weight: 600;">Ce que vous conservez avec Pro :</p>
+    <ul style="margin: 0 0 24px; padding-left: 20px;">
+      ${featuresHtml}
+    </ul>
+    <div style="text-align: center; margin: 0 0 24px;">
+      <a
+        href="${baseUrl}/tarifs"
+        style="display: inline-block; background-color: #4848e5; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 700; font-size: 15px;"
+      >
+        Continuer avec Pro
+      </a>
+    </div>
+    <p style="margin: 0; color: #888; font-size: 13px; line-height: 1.5;">
+      Si vous ne souhaitez pas souscrire, votre compte passera automatiquement en plan Gratuit.
+    </p>
+  `;
+
+  return renderEmailBase(title, body);
+}
+
 export type { WeeklySummaryData };
 
 export function renderWeeklyEmail(

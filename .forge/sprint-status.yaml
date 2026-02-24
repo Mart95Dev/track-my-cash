@@ -1,19 +1,93 @@
 sprint:
-  id: sprint-design-stitch-v10
-  goal: "Refonte visuelle complète des 14 pages selon les maquettes Google Stitch — design system Manrope + tokens couleurs + BottomNav + reskin pages"
+  id: sprint-conversion-monetisation-v11
+  goal: "Amélioration du funnel de conversion — Stripe Tax + emails rappel trial + modale urgence + modale upgrade contextuelle + page succès + features sur cards tarifs"
   start_date: "2026-02-24"
-  end_date: "2026-02-24"
-  status: completed
+  end_date: ""
+  status: in_progress
 
 previous_sprint:
-  id: sprint-engagement-analyse-avancee-v9
-  stories: 7
-  completed: 7
+  id: sprint-design-stitch-v10
+  stories: 11
+  completed: 11
   qa_verdict: PASS
   tests: 495
-  commit: "860d0fd"
+  commit: "fd7d5d6"
 
 stories:
+  # === SPRINT CONVERSION & MONÉTISATION (v11) — EN COURS ===
+
+  - id: STORY-079
+    title: "Stripe Tax — TVA automatique"
+    epic: monetisation
+    complexity: XS
+    priority: P1
+    status: completed
+    blockedBy: []
+    points: 1
+    tests: 6
+    qa_verdict: "PASS"
+    notes: "automatic_tax + tax_id_collection dans checkout/route.ts — 6 tests TU-79-x"
+
+  - id: STORY-080
+    title: "Emails de rappel trial J-3 et J-1"
+    epic: engagement
+    complexity: M
+    priority: P1
+    status: completed
+    blockedBy: []
+    points: 3
+    tests: 14
+    qa_verdict: "PASS"
+    notes: "renderTrialReminderEmail(daysLeft: 3|1) + migrations reminder_3d_sent/1d_sent + GET /api/cron/trial-reminders (CRON_SECRET) — 14 tests TU-80-x (QA +TU-80-13/14 envoi réel J-3/J-1)"
+
+  - id: STORY-081
+    title: "Modale urgence trial ≤ 3 jours"
+    epic: conversion
+    complexity: S
+    priority: P1
+    status: completed
+    blockedBy: []
+    points: 2
+    tests: 8
+    qa_verdict: "PASS"
+    notes: "TrialUrgencyModal (status=trialing, daysRemaining≤3) + localStorage MODAL_KEY + vi.stubGlobal localStorage mock — 8 tests TU-81-x intégrée dans (app)/layout.tsx"
+
+  - id: STORY-082
+    title: "Modale upgrade contextuelle"
+    epic: conversion
+    complexity: M
+    priority: P2
+    status: completed
+    blockedBy: []
+    points: 3
+    tests: 9
+    qa_verdict: "PASS"
+    notes: "useUpgradeModal hook + UpgradeModal component + detectUpgradeReason — intégré dans import-button, account-form, ai-chat (canAI prop) — fix TS string|undefined sur result.error — 9 tests TU-82-x"
+
+  - id: STORY-083
+    title: "Page succès post-paiement"
+    epic: conversion
+    complexity: S
+    priority: P2
+    status: completed
+    blockedBy: [STORY-079]
+    points: 2
+    tests: 9
+    qa_verdict: "PASS"
+    notes: "Page /bienvenue (Server Component) — plan depuis searchParams, features PLANS[planId], 3 liens action, session optionnelle try/catch — success_url checkout → /bienvenue?plan= — 9 tests TU-83-x"
+
+  - id: STORY-084
+    title: "Features bullets sur les cards /tarifs et landing page"
+    epic: marketing-ui
+    complexity: XS
+    priority: P3
+    status: completed
+    blockedBy: []
+    points: 1
+    tests: 6
+    qa_verdict: "PASS"
+    notes: "stripe-plans.ts enrichi (5 features/plan) — bullets inlinées dans tarifs/page.tsx (PlanCard) et landing page.tsx (section pricing) — 6 tests TU-84-x"
+
   # === SPRINT DESIGN STITCH (v10) — TERMINÉ ===
 
   - id: STORY-068
@@ -242,6 +316,18 @@ metrics_v10:
     7 régressions test corrigées (AccountFilter label/UI, Navbar logo, BudgetProgress classes).
     3 erreurs lint pré-existantes corrigées (unescaped entity, setState inline, require() import).
     Build prod OK, 495 tests verts, 0 erreur lint.
+
+metrics_v11:
+  total: 6
+  completed: 6
+  in_progress: 0
+  pending: 0
+  total_points: 12
+  points_completed: 12
+  tests_total: 564
+  tests_sprint: 52
+  qa_verdict: "PASS"
+  end_date: "2026-02-24"
 
 metrics_v9_archived:
   total: 7

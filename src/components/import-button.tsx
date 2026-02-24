@@ -22,6 +22,8 @@ import { formatCurrency, formatDate } from "@/lib/format";
 import { toast } from "sonner";
 import type { Account } from "@/lib/queries";
 import { useTranslations, useLocale } from "next-intl";
+import { useUpgradeModal, detectUpgradeReason } from "@/hooks/use-upgrade-modal";
+import { UpgradeModal } from "@/components/upgrade-modal";
 
 interface Rule {
   pattern: string;
@@ -53,6 +55,7 @@ interface PreviewData {
 export function ImportButton({ accounts, defaultAccountId }: { accounts: Account[]; defaultAccountId?: number }) {
   const t = useTranslations("import");
   const locale = useLocale();
+  const { upgradeReason, showUpgradeModal, closeUpgradeModal } = useUpgradeModal();
   const [preview, setPreview] = useState<PreviewData | null>(null);
   const [categoryOverrides, setCategoryOverrides] = useState<Record<number, string>>({});
   const [subcategoryOverrides, setSubcategoryOverrides] = useState<Record<number, string>>({});
@@ -78,7 +81,13 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
     startTransition(async () => {
       const result = await importFileAction(formData);
       if ("error" in result) {
-        toast.error(result.error);
+        const errorMsg = result.error ?? "";
+        const upgradeNeeded = detectUpgradeReason(errorMsg);
+        if (upgradeNeeded) {
+          showUpgradeModal(upgradeNeeded);
+        } else {
+          toast.error(errorMsg);
+        }
       } else if ("needsMapping" in result && result.needsMapping) {
         setMappingInfo({
           headers: result.headers,
@@ -135,6 +144,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
 
   return (
     <>
+      <UpgradeModal reason={upgradeReason} onClose={closeUpgradeModal} />
       {mappingInfo && (
         <CsvMappingDialog
           open={!!mappingInfo}

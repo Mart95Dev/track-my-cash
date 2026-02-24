@@ -138,7 +138,46 @@
 
 ---
 
-## Sprint Engagement & Analyse Avancée (v9) — EN COURS 🚧
+## Sprint Conversion & Monétisation (v11) — EN COURS 🚧
+
+| ID | Titre | Priorité | Complexité | Statut | QA |
+|----|-------|----------|------------|--------|-------|
+| STORY-079 | Stripe Tax — TVA automatique | P1 | XS | 🔲 pending | — |
+| STORY-080 | Emails de rappel trial J-3 et J-1 | P1 | M | 🔲 pending | — |
+| STORY-081 | Modale urgence trial ≤ 3 jours | P1 | S | 🔲 pending | — |
+| STORY-082 | Modale upgrade contextuelle | P2 | M | 🔲 pending | — |
+| STORY-083 | Page succès post-paiement `/bienvenue` | P2 | S | 🔲 pending | — |
+| STORY-084 | Features bullets sur les cards /tarifs | P3 | XS | 🔲 pending | — |
+
+---
+
+## Sprint Design Stitch (v10) — TERMINÉ ✅
+
+| ID | Titre | Priorité | Complexité | Statut | QA |
+|----|-------|----------|------------|--------|-------|
+| STORY-068 | Foundation — Design tokens Tailwind v4, Manrope, Material Symbols | P1 | S | ✅ completed | PASS |
+| STORY-069 | BottomNav + Layout App refonte mobile-first | P1 | S | ✅ completed | PASS |
+| STORY-070 | Pages Auth — Connexion, Inscription, Compte suspendu | P1 | M | ✅ completed | PASS |
+| STORY-071 | Pages Marketing — Landing Page + Tarifs + Fonctionnalités | P1 | M | ✅ completed | PASS |
+| STORY-072 | Dashboard — Refonte complète | P1 | L | ✅ completed | PASS |
+| STORY-073 | Page Comptes — Refonte | P2 | M | ✅ completed | PASS |
+| STORY-074 | Page Transactions — Refonte | P2 | M | ✅ completed | PASS |
+| STORY-075 | Pages Récurrents + Prévisions — Refonte | P2 | M | ✅ completed | PASS |
+| STORY-076 | Pages Budgets + Objectifs — Refonte | P2 | M | ✅ completed | PASS |
+| STORY-077 | Page Conseiller IA — Refonte chat mobile | P3 | M | ✅ completed | PASS |
+| STORY-078 | Page Paramètres — Refonte sections cards | P3 | M | ✅ completed | PASS |
+
+### Métriques Sprint Design Stitch
+
+- **Stories complétées :** 11/11 ✅
+- **Points total :** 26/26 ✅
+- **Tests sprint :** 0 nouveaux tests (sprint design-only) — 495 total, 0 échec
+- **Régressions corrigées :** 7 tests + 3 lint errors
+
+---
+
+## Sprint Engagement & Analyse Avancée (v9) — TERMINÉ ✅
+
 
 | ID | Titre | Priorité | Complexité | Statut | QA |
 |----|-------|----------|------------|--------|-------|

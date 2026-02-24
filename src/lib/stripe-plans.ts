@@ -18,7 +18,13 @@ export const PLANS: Record<PlanId, Plan> = {
     name: "Gratuit",
     price: 0,
     stripePriceId: null,
-    features: ["2 comptes bancaires", "Import CSV", "Transactions illimitées"],
+    features: [
+      "2 comptes bancaires",
+      "Import CSV uniquement",
+      "Transactions illimitées",
+      "Budgets & objectifs",
+      "Résumé mensuel basique",
+    ],
     limits: { maxAccounts: 2, ai: false },
   },
   pro: {
@@ -26,7 +32,13 @@ export const PLANS: Record<PlanId, Plan> = {
     name: "Pro",
     price: 4.9,
     stripePriceId: process.env.STRIPE_PRICE_ID_PRO ?? "",
-    features: ["5 comptes bancaires", "Toutes les banques (PDF, Excel)", "Conseiller IA", "Multi-devises"],
+    features: [
+      "5 comptes bancaires",
+      "Import PDF, Excel & CSV",
+      "Conseiller IA (10 req/mois)",
+      "Multi-devises",
+      "Export CSV & rapports mensuels",
+    ],
     limits: { maxAccounts: 5, ai: true },
   },
   premium: {
@@ -34,7 +46,13 @@ export const PLANS: Record<PlanId, Plan> = {
     name: "Premium",
     price: 7.9,
     stripePriceId: process.env.STRIPE_PRICE_ID_PREMIUM ?? "",
-    features: ["Comptes illimités", "Toutes les banques", "Conseiller IA prioritaire", "Export avancé", "Support prioritaire"],
+    features: [
+      "Comptes illimités",
+      "Conseiller IA illimité & prioritaire",
+      "Export PDF rapport mensuel",
+      "Rapport annuel IA",
+      "Support prioritaire",
+    ],
     limits: { maxAccounts: -1, ai: true },
   },
 };

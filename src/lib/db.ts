@@ -174,6 +174,8 @@ export async function initSchema() {
       notified_at TEXT
     )`,
     "ALTER TABLE transactions ADD COLUMN note TEXT",
+    "ALTER TABLE subscriptions ADD COLUMN reminder_3d_sent INTEGER DEFAULT 0",
+    "ALTER TABLE subscriptions ADD COLUMN reminder_1d_sent INTEGER DEFAULT 0",
     `CREATE TABLE IF NOT EXISTS admin_logs (
       id         INTEGER PRIMARY KEY AUTOINCREMENT,
       type       TEXT    NOT NULL,
