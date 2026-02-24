@@ -177,7 +177,7 @@ export default function HomePage() {
       <div className="max-w-5xl mx-auto px-4">
 
         {/* ── FEATURES ALTERNÉES ── */}
-        <section className="py-12 border-t border-slate-100">
+        <section id="features" className="py-12 border-t border-slate-100">
           <div className="text-center mb-12">
             <h2 className="text-2xl font-bold text-text-main mb-2">Tout ce dont vous avez besoin</h2>
             <p className="text-text-muted">Gérez votre argent comme un pro.</p>
