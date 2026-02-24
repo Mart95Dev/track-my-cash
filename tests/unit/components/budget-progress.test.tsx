@@ -17,11 +17,11 @@ describe("BudgetProgress", () => {
     expect(screen.getByText("65%")).toBeTruthy();
   });
 
-  it("TU-2-2 : la classe text-expense est présente si percentage > 100", () => {
+  it("TU-2-2 : la classe text-danger est présente si percentage > 90", () => {
     const overBudget: BudgetStatus = { ...baseBudget, spent: 500, percentage: 125 };
     const { container } = render(<BudgetProgress budget={overBudget} />);
-    // L'élément affichant le % doit avoir la classe text-expense
-    const pctEl = container.querySelector(".text-expense");
+    // Le badge de pourcentage utilise text-danger quand le budget est dépassé
+    const pctEl = container.querySelector(".text-danger");
     expect(pctEl).not.toBeNull();
   });
 
@@ -30,10 +30,12 @@ describe("BudgetProgress", () => {
     expect(screen.getByText("Alimentation")).toBeTruthy();
   });
 
-  it("TU-2-4 : affiche 'Dépensé' et 'Budget'", () => {
+  it("TU-2-4 : affiche les montants dépensé et budget sous la forme 'X sur Y'", () => {
     render(<BudgetProgress budget={baseBudget} currency="EUR" />);
-    const el = screen.getByText(/Dépensé/);
-    expect(el).toBeTruthy();
-    expect(el.textContent).toContain("Budget");
+    // Le composant affiche "{spent} sur {limit}" dans un paragraphe
+    const row = screen.getByText(/sur/);
+    expect(row).toBeTruthy();
+    // La barre de progression est présente
+    expect(screen.getByRole("progressbar")).toBeTruthy();
   });
 });

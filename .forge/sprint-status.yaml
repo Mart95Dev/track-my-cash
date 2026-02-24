@@ -2,8 +2,8 @@ sprint:
   id: sprint-design-stitch-v10
   goal: "Refonte visuelle complète des 14 pages selon les maquettes Google Stitch — design system Manrope + tokens couleurs + BottomNav + reskin pages"
   start_date: "2026-02-24"
-  end_date: ""
-  status: planned
+  end_date: "2026-02-24"
+  status: completed
 
 previous_sprint:
   id: sprint-engagement-analyse-avancee-v9
@@ -14,106 +14,128 @@ previous_sprint:
   commit: "860d0fd"
 
 stories:
-  # === SPRINT DESIGN STITCH (v10) ===
+  # === SPRINT DESIGN STITCH (v10) — TERMINÉ ===
 
   - id: STORY-068
     title: "Foundation — Design tokens Tailwind v4, Manrope, Material Symbols"
     epic: design-system
     complexity: S
     priority: P1
-    status: pending
+    status: completed
     blockedBy: []
     points: 2
+    qa_verdict: "PASS"
+    notes: "@theme inline Stitch tokens (primary #4848e5, success, danger, warning, text-main, text-muted, background-light, shadow-soft) + Manrope via next/font + Material Symbols Outlined via Google Fonts link"
 
   - id: STORY-069
     title: "BottomNav + Layout App refonte mobile-first"
     epic: design-system
     complexity: S
     priority: P1
-    status: pending
+    status: completed
     blockedBy: [STORY-068]
     points: 2
+    qa_verdict: "PASS"
+    notes: "BottomNav 5 onglets (Dashboard, Comptes, Transactions, Récurrents, IA) + active state bg-primary + FILL=1 + layout app pb-24 max-w-md mx-auto"
 
   - id: STORY-070
     title: "Pages Auth — Connexion, Inscription, Compte suspendu"
     epic: auth-ui
     complexity: M
     priority: P1
-    status: pending
+    status: completed
     blockedBy: [STORY-068]
     points: 3
+    qa_verdict: "PASS"
+    notes: "Logo TMC wallet + inputs icônes Material Symbols + indicateur force mdp + lien ← Accueil + try/catch BetterAuth dans layout auth"
 
   - id: STORY-071
-    title: "Pages Marketing — Landing Page + Tarifs"
+    title: "Pages Marketing — Landing Page + Tarifs + Fonctionnalités"
     epic: marketing-ui
     complexity: M
     priority: P1
-    status: pending
+    status: completed
     blockedBy: [STORY-068]
     points: 3
+    qa_verdict: "PASS"
+    notes: "Landing hero 2col + features alternées + 3 étapes + CTA bg-primary / Tarifs plan cards + tableau comparatif / Page /fonctionnalites indépendante 5 groupes"
 
   - id: STORY-072
     title: "Dashboard — Refonte complète"
     epic: app-ui
     complexity: L
     priority: P1
-    status: pending
+    status: completed
     blockedBy: [STORY-069]
     points: 4
+    qa_verdict: "PASS"
+    notes: "Account pills scroll + BalanceCard + KPI 3col + HealthScore SVG + BudgetProgress + SavingsGoals bg-primary + YoY widget"
 
   - id: STORY-073
     title: "Page Comptes — Refonte"
     epic: app-ui
     complexity: M
     priority: P2
-    status: pending
+    status: completed
     blockedBy: [STORY-069]
     points: 3
+    qa_verdict: "PASS"
+    notes: "Liste comptes cartes blanc + solde vert/rouge + badge alert + bottom sheet AddAccount + circular FAB"
 
   - id: STORY-074
     title: "Page Transactions — Refonte"
     epic: app-ui
     complexity: M
     priority: P2
-    status: pending
+    status: completed
     blockedBy: [STORY-069]
     points: 3
+    qa_verdict: "PASS"
+    notes: "Filtres pills + boutons import/export + liste tags colorés bg-success/bg-danger/10 + pagination + note mémo"
 
   - id: STORY-075
     title: "Pages Récurrents + Prévisions — Refonte"
     epic: app-ui
     complexity: M
     priority: P2
-    status: pending
+    status: completed
     blockedBy: [STORY-069]
     points: 3
+    qa_verdict: "PASS"
+    notes: "Récurrents liste badges fréquence + suggestions IA collapsible / Prévisions KPI 4col + tableau mensuel + simulateur"
 
   - id: STORY-076
     title: "Pages Budgets + Objectifs — Refonte"
     epic: app-ui
     complexity: M
     priority: P2
-    status: pending
+    status: completed
     blockedBy: [STORY-069]
     points: 3
+    qa_verdict: "PASS"
+    notes: "BudgetProgress cards bg-white + progress h-2.5 couleur dynamique (success/warning/danger) + GoalList progress bar deadline badge"
 
   - id: STORY-077
     title: "Page Conseiller IA — Refonte chat mobile"
     epic: app-ui
     complexity: M
     priority: P3
-    status: pending
+    status: completed
     blockedBy: [STORY-069]
     points: 2
+    qa_verdict: "PASS"
+    notes: "Interface chat bulles utilisateur/IA + chips suggestions contextuelles + Material Symbols smart_toy"
 
   - id: STORY-078
     title: "Page Paramètres — Refonte sections cards"
     epic: app-ui
     complexity: M
     priority: P3
-    status: pending
+    status: completed
     blockedBy: [STORY-069]
     points: 3
+    qa_verdict: "PASS"
+    notes: "Sections abonnement/données/RGPD/IA/tags/danger-zone en cards bg-white rounded-2xl + badges statut colored"
 
   # === SPRINT ENGAGEMENT & ANALYSE AVANCÉE (v9) — TERMINÉ ===
 
@@ -203,14 +225,23 @@ stories:
 
 metrics_v10:
   total: 11
-  completed: 0
+  completed: 11
   in_progress: 0
-  pending: 11
+  pending: 0
   total_points: 26
-  points_completed: 0
+  points_completed: 26
   tests_total: 495
   tests_sprint: 0
-  qa_verdict: "PENDING"
+  qa_verdict: "PASS"
+  qa_date: "2026-02-24"
+  qa_regressions_fixed: 7
+  qa_lint_errors_fixed: 3
+  commit: "fd7d5d6"
+  notes: >
+    Sprint design-only (reskin UI) — aucun nouveau test métier ajouté.
+    7 régressions test corrigées (AccountFilter label/UI, Navbar logo, BudgetProgress classes).
+    3 erreurs lint pré-existantes corrigées (unescaped entity, setState inline, require() import).
+    Build prod OK, 495 tests verts, 0 erreur lint.
 
 metrics_v9_archived:
   total: 7

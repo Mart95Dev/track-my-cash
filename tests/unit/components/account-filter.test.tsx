@@ -49,13 +49,13 @@ describe("AccountFilter — option 'Tous les comptes' (STORY-063, AC-1/AC-5)", (
     expect(screen.getByText("Tous les comptes")).toBeDefined();
   });
 
-  it("TU-63-7 : option 'Tous les comptes' est la première option (AC-1)", () => {
+  it("TU-63-7 : 'Tous les comptes' est le premier bouton (AC-1)", () => {
     render(<AccountFilter accounts={ACCOUNTS} basePath="/dashboard" />);
-    const options = screen.getAllByRole("option");
-    expect(options[0].textContent).toBe("Tous les comptes");
+    const buttons = screen.getAllByRole("button");
+    expect(buttons[0].textContent).toBe("Tous les comptes");
   });
 
-  it("TU-63-8 : currentAccountId='all' sélectionne 'Tous les comptes' (AC-5)", () => {
+  it("TU-63-8 : currentAccountId='all' active le bouton 'Tous les comptes' (AC-5)", () => {
     render(
       <AccountFilter
         accounts={ACCOUNTS}
@@ -63,14 +63,14 @@ describe("AccountFilter — option 'Tous les comptes' (STORY-063, AC-1/AC-5)", (
         basePath="/dashboard"
       />
     );
-    const select = screen.getByRole("combobox") as HTMLSelectElement;
-    expect(select.value).toBe("all");
+    const allBtn = screen.getByText("Tous les comptes");
+    expect(allBtn.className).toContain("bg-primary");
   });
 
-  it("TU-63-9 : sélection de 'all' navigue avec accountId=all dans l'URL (AC-5)", () => {
+  it("TU-63-9 : clic sur 'Tous les comptes' navigue avec accountId=all (AC-5)", () => {
     render(<AccountFilter accounts={ACCOUNTS} basePath="/dashboard" />);
-    const select = screen.getByRole("combobox");
-    fireEvent.change(select, { target: { value: "all" } });
+    const allBtn = screen.getByText("Tous les comptes");
+    fireEvent.click(allBtn);
     expect(mockPush).toHaveBeenCalledWith(
       expect.stringContaining("accountId=all")
     );

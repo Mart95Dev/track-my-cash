@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { resolve } from "path";
 
 const SRC = resolve(__dirname, "../../../src");
@@ -13,7 +13,7 @@ describe("Pages d'erreur — structure", () => {
   it("TU-1-2 : error.tsx existe dans app/[locale]/ et contient 'use client'", () => {
     const path = resolve(SRC, "app/[locale]/error.tsx");
     expect(existsSync(path)).toBe(true);
-    const content = require("fs").readFileSync(path, "utf-8");
+    const content = readFileSync(path, "utf-8");
     expect(content).toContain('"use client"');
   });
 

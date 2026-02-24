@@ -326,7 +326,7 @@ export function CsvMappingDialog({
             <Label>Aperçu des premières transactions</Label>
             {parsedPreview.length === 0 ? (
               <p className="text-sm text-muted-foreground py-2">
-                Sélectionnez les colonnes pour voir l'aperçu.
+                Sélectionnez les colonnes pour voir l&apos;aperçu.
               </p>
             ) : (
               <div className="border rounded-md overflow-hidden">

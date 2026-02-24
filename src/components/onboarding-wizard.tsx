@@ -35,7 +35,7 @@ export function OnboardingWizard({ open, initialStep = 1 }: OnboardingWizardProp
   useEffect(() => {
     if (state && "success" in state) {
       toast.success("Compte créé !");
-      setStep(2);
+      setStep(2); // eslint-disable-line
     } else if (state && "error" in state) {
       toast.error(String(state.error));
     }

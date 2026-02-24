@@ -26,7 +26,7 @@ export function AccountFilter({
   }
 
   const items = [
-    { value: "all", label: "Tous" },
+    { value: "all", label: "Tous les comptes" },
     ...accounts.map((a) => ({ value: String(a.id), label: a.name })),
   ];
 

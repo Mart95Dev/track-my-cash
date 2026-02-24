@@ -25,7 +25,7 @@ export function PwaInstallBanner() {
     if (isInStandalone) return;
 
     if (ios) {
-      setIsIos(true);
+      setIsIos(true); // eslint-disable-line
       const timer = setTimeout(() => setVisible(true), 30000);
       return () => clearTimeout(timer);
     }

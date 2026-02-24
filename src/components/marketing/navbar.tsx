@@ -28,7 +28,7 @@ export function Navbar() {
           <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary">
             <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>account_balance_wallet</span>
           </div>
-          <span className="text-base font-bold text-text-main tracking-tight">Track My Cash</span>
+          <span className="text-base font-bold text-text-main tracking-tight">TrackMyCash</span>
         </Link>
 
         {/* Navigation desktop */}
