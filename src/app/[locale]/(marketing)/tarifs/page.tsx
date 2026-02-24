@@ -138,10 +138,15 @@ function PlanCard({ planId, isHighlighted, isCurrentPlan }: PlanCardProps) {
 }
 
 export default async function TarifsPage() {
-  const session = await getSession();
-  const currentPlanId: string | null = session
-    ? await getUserPlanId(session.user.id)
-    : null;
+  let currentPlanId: string | null = null;
+  try {
+    const session = await getSession();
+    if (session) {
+      currentPlanId = await getUserPlanId(session.user.id);
+    }
+  } catch {
+    // BetterAuth non disponible (env non configuré) — page reste accessible sans plan actuel
+  }
 
   const planIds: PlanId[] = ["free", "pro", "premium"];
 
