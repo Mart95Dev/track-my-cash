@@ -45,18 +45,18 @@ function FeatureCell({ value }: { value: string | boolean }) {
     return (
       <span
         className="material-symbols-outlined text-slate-300"
-        style={{ fontSize: "20px" }}
+        style={{ fontSize: "20px", fontVariationSettings: "'FILL' 0" }}
         aria-label="Non inclus"
       >
-        cancel
+        remove
       </span>
     );
   }
   if (value === true) {
     return (
       <span
-        className="material-symbols-outlined text-primary"
-        style={{ fontSize: "20px" }}
+        className="material-symbols-outlined text-success"
+        style={{ fontSize: "20px", fontVariationSettings: "'FILL' 1" }}
         aria-label="Inclus"
       >
         check_circle
@@ -146,7 +146,7 @@ export default async function TarifsPage() {
   const planIds: PlanId[] = ["free", "pro", "premium"];
 
   return (
-    <div className="min-h-screen bg-background-light">
+    <div className="bg-background-light min-h-screen">
       <div className="max-w-3xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-extrabold text-text-main mb-3">

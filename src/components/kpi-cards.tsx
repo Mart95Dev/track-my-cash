@@ -14,24 +14,26 @@ function KpiCard({
   iconColor,
   label,
   value,
+  valueColor,
 }: {
   icon: string;
   iconBg: string;
   iconColor: string;
   label: string;
   value: string;
+  valueColor: string;
 }) {
   return (
-    <div className="flex flex-col gap-1 rounded-2xl p-4 bg-white shadow-soft border border-gray-100">
+    <div className="flex flex-col gap-1.5 rounded-2xl p-3.5 bg-white shadow-soft border border-gray-100">
       <div
-        className={`w-8 h-8 rounded-full ${iconBg} flex items-center justify-center ${iconColor} mb-1`}
+        className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center ${iconColor} shrink-0`}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+        <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
           {icon}
         </span>
       </div>
-      <p className="text-text-muted text-xs font-medium">{label}</p>
-      <p className="text-text-main text-sm font-bold tracking-tight">{value}</p>
+      <p className="text-text-muted text-[11px] font-medium mt-0.5">{label}</p>
+      <p className={`text-sm font-extrabold tracking-tight leading-none ${valueColor}`}>{value}</p>
     </div>
   );
 }
@@ -41,18 +43,20 @@ export function KpiCards({ revenue, expenses, recurring, currency, locale }: Kpi
   return (
     <div className="grid grid-cols-3 gap-3 px-4 mb-4">
       <KpiCard
-        icon="arrow_downward"
-        iconBg="bg-green-100"
+        icon="arrow_circle_down"
+        iconBg="bg-success/10"
         iconColor="text-success"
         label="Revenus"
         value={fmt(revenue)}
+        valueColor="text-success"
       />
       <KpiCard
-        icon="arrow_upward"
-        iconBg="bg-red-100"
+        icon="arrow_circle_up"
+        iconBg="bg-danger/10"
         iconColor="text-danger"
         label="Dépenses"
         value={fmt(expenses)}
+        valueColor="text-danger"
       />
       <KpiCard
         icon="autorenew"
@@ -60,6 +64,7 @@ export function KpiCards({ revenue, expenses, recurring, currency, locale }: Kpi
         iconColor="text-primary"
         label="Récurrents"
         value={fmt(recurring)}
+        valueColor="text-text-main"
       />
     </div>
   );

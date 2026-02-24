@@ -62,7 +62,7 @@ export default async function ConseillerPage() {
   const isPremium = planId === "premium";
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col">
       <header className="flex items-center justify-between px-4 pt-6 pb-4">
         <div className="flex items-center gap-3">
           <span className="material-symbols-outlined text-primary text-[28px]">smart_toy</span>

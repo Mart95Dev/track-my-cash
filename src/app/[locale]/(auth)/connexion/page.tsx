@@ -77,7 +77,12 @@ export default function ConnexionPage() {
 
           {/* Input Password avec icône + toggle visibility */}
           <div className="space-y-2 group">
-            <label className="text-sm font-semibold text-text-main ml-1">Mot de passe</label>
+            <div className="flex items-center justify-between ml-1">
+              <label className="text-sm font-semibold text-text-main">Mot de passe</label>
+              <Link href={`/${locale}/mot-de-passe-oublie`} className="text-xs font-medium text-primary hover:text-primary/80">
+                Mot de passe oublié ?
+              </Link>
+            </div>
             <div className="relative flex items-center">
               <span className="absolute left-4 material-symbols-outlined text-text-muted group-focus-within:text-primary transition-colors text-[20px]">lock</span>
               <input

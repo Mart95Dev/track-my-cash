@@ -96,11 +96,11 @@ const PRICING_PLANS: Array<{
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-background-light">
+    <div className="bg-background-light">
       <div className="max-w-5xl mx-auto px-4">
         {/* Hero */}
         <header className="py-16 text-center sm:text-left">
-          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 text-primary px-3 py-1 text-xs font-bold mb-6">
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-bold mb-6">
             ✨ Nouvelle version 2.0 disponible
           </div>
           <h1 className="text-4xl font-extrabold text-text-main tracking-tight leading-tight mb-4">
@@ -115,7 +115,7 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
               href="/inscription"
-              className="flex items-center justify-center h-12 px-6 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20"
+              className="flex items-center justify-center h-12 px-6 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors"
             >
               Commencer gratuitement
             </Link>
@@ -142,7 +142,7 @@ export default function HomePage() {
                 key={f.icon}
                 className="flex flex-col gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-soft hover:shadow-md transition-shadow"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-primary">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <span
                     className="material-symbols-outlined"
                     style={{ fontSize: "28px" }}
@@ -231,25 +231,21 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Footer simple */}
-        <footer className="py-8 border-t border-slate-200 text-center text-text-muted text-sm mb-20">
-          <p>© 2025 TrackMyCash — Gérez vos finances simplement</p>
-        </footer>
-      </div>
-
-      {/* Sticky CTA bottom */}
-      <div className="sticky bottom-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
-        <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
-          <p className="hidden sm:block font-bold text-text-main">
-            Prêt à reprendre le contrôle ?
+        {/* CTA final */}
+        <section className="py-16 text-center">
+          <h2 className="text-2xl font-bold text-text-main mb-3">
+            Rejoignez des milliers d&apos;utilisateurs satisfaits
+          </h2>
+          <p className="text-text-muted mb-8">
+            Essai gratuit de 14 jours · Aucune carte requise
           </p>
           <Link
             href="/inscription"
-            className="w-full sm:w-auto h-12 px-8 rounded-xl bg-primary text-white font-bold shadow-xl shadow-primary/20 flex items-center justify-center"
+            className="inline-flex items-center justify-center h-12 px-8 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors"
           >
             Créer mon compte gratuitement
           </Link>
-        </div>
+        </section>
       </div>
     </div>
   );

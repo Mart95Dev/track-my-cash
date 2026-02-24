@@ -201,9 +201,9 @@ export function AiChat({
 
   if (!hasApiKey) {
     return (
-      <div className="px-4 py-8 text-center space-y-3">
-        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mx-auto mb-4">
-          <span className="material-symbols-outlined" style={{ fontSize: "32px" }}>smart_toy</span>
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 text-center space-y-3">
+        <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary mx-auto mb-4">
+          <span className="material-symbols-outlined" style={{ fontSize: "40px" }}>smart_toy</span>
         </div>
         <p className="text-base font-semibold text-text-main">{t("noApiKey")}</p>
         <p className="text-sm text-text-muted">
@@ -221,9 +221,9 @@ export function AiChat({
   const hasMessages = currentMessages.length > 0;
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col">
       {/* Toolbar : sélecteur modèle / comptes / consensus */}
-      <div className="px-4 py-2 flex items-center gap-2 border-b border-gray-100 bg-background-light/60">
+      <div className="px-4 py-2 flex items-center gap-2 border-b border-gray-100 bg-background-light">
         {isPremium && (
           <button
             type="button"
@@ -279,12 +279,12 @@ export function AiChat({
       )}
 
       {/* Zone de messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto pb-36">
+      <div ref={scrollRef} className="overflow-y-auto pb-40">
         {/* Mode consensus */}
         {consensusMode ? (
           <>
             {consensusMessages.length === 0 && (
-              <div className="flex flex-col items-center justify-center flex-1 px-6 py-12 text-center">
+              <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
                 <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6">
                   <span className="material-symbols-outlined" style={{ fontSize: "40px" }}>smart_toy</span>
                 </div>
@@ -464,12 +464,12 @@ export function AiChat({
       {/* Chips suggestions (scroll horizontal) — visibles quand des messages existent */}
       {hasMessages && suggestions.length > 0 && (
         <div className="fixed bottom-28 left-0 right-0 z-30 pointer-events-none">
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 px-4 pointer-events-auto">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 px-4 pointer-events-auto max-w-md mx-auto">
             {suggestions.map((suggestion, i) => (
               <button
                 key={i}
                 onClick={() => handleSuggestionClick(suggestion)}
-                className="shrink-0 bg-indigo-50 text-primary rounded-full px-4 py-2 text-sm font-medium hover:bg-primary hover:text-white transition-colors whitespace-nowrap"
+                className="shrink-0 bg-white border border-gray-200 text-primary rounded-full px-4 py-2 text-sm font-medium hover:bg-indigo-50 hover:border-primary transition-colors whitespace-nowrap shadow-soft"
               >
                 {suggestion}
               </button>
@@ -479,7 +479,7 @@ export function AiChat({
       )}
 
       {/* Input fixe en bas */}
-      <div className="fixed bottom-16 left-0 right-0 z-40 bg-background-light/80 backdrop-blur-md border-t border-gray-100 p-3">
+      <div className="fixed bottom-16 left-0 right-0 z-40 bg-background-light border-t border-gray-100 p-3">
         <form
           onSubmit={handleSubmit}
           className="max-w-md mx-auto flex items-center gap-2"
@@ -503,7 +503,7 @@ export function AiChat({
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 disabled:opacity-50 transition-all shrink-0"
+            className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center shadow-soft disabled:opacity-50 transition-all shrink-0"
           >
             <span className="material-symbols-outlined text-[20px]">send</span>
           </button>

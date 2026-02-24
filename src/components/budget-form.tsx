@@ -88,32 +88,37 @@ export function BudgetForm({ accountId, budgets }: Props) {
             </Select>
           </div>
         </div>
-        {error && <p className="text-sm text-destructive">{error}</p>}
-        <Button type="submit" size="sm" disabled={loading}>
+        {error && <p className="text-sm text-danger">{error}</p>}
+        <Button type="submit" size="sm" disabled={loading} className="bg-primary text-white font-bold rounded-full px-5">
           {loading ? "Enregistrement…" : "Enregistrer le budget"}
         </Button>
       </form>
 
       {budgets.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm font-medium text-muted-foreground">Budgets configurés</p>
-          <div className="divide-y">
+          <p className="text-xs font-bold text-text-muted uppercase tracking-wide">Budgets configurés</p>
+          <div className="flex flex-col gap-2">
             {budgets.map((b) => (
-              <div key={b.id} className="flex items-center justify-between py-2">
-                <span className="text-sm">
-                  <strong>{b.category}</strong> — {b.amount_limit.toLocaleString("fr-FR")} €
-                  <span className="text-muted-foreground ml-1 text-xs">
-                    ({b.period === "monthly" ? "mensuel" : "annuel"})
+              <div key={b.id} className="flex items-center justify-between rounded-xl bg-background-light px-3 py-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-text-main">{b.category}</span>
+                  <span className="text-xs font-bold rounded-full px-2 py-0.5 bg-primary/10 text-primary">
+                    {b.period === "monthly" ? "mensuel" : "annuel"}
                   </span>
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-destructive hover:text-destructive h-7 px-2 text-xs"
-                  onClick={() => deleteBudgetAction(b.id)}
-                >
-                  Supprimer
-                </Button>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-text-main">
+                    {b.amount_limit.toLocaleString("fr-FR")} €
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-text-muted hover:text-danger"
+                    onClick={() => deleteBudgetAction(b.id)}
+                  >
+                    <span className="material-symbols-outlined text-[16px]">delete</span>
+                  </Button>
+                </div>
               </div>
             ))}
           </div>

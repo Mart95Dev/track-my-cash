@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
@@ -16,6 +16,13 @@ export default function InscriptionPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const passwordStrength = useMemo(() => {
+    if (password.length === 0) return null;
+    if (password.length < 8) return { label: "Faible", color: "text-danger", bars: 1 };
+    if (password.length < 12 && !/[^a-zA-Z0-9]/.test(password)) return { label: "Moyen", color: "text-warning", bars: 2 };
+    return { label: "Fort", color: "text-success", bars: 3 };
+  }, [password]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -52,8 +59,8 @@ export default function InscriptionPage() {
 
         {/* Titre */}
         <div className="text-center">
-          <h1 className="text-3xl font-extrabold text-text-main tracking-tight">Rejoignez TrackMyCash</h1>
-          <p className="text-text-muted text-base mt-1">Créez votre compte gratuitement</p>
+          <h1 className="text-3xl font-extrabold text-text-main tracking-tight">Créez votre compte</h1>
+          <p className="text-text-muted text-base mt-1">Essai gratuit de 14 jours · Aucune carte requise</p>
         </div>
 
         {/* Erreur */}
@@ -124,6 +131,31 @@ export default function InscriptionPage() {
                 </span>
               </button>
             </div>
+            {/* Indicateur de force du mot de passe */}
+            {passwordStrength && (
+              <div className="flex items-center gap-2 mt-1 ml-1">
+                <div className="flex gap-1">
+                  {[1, 2, 3].map((bar) => (
+                    <div
+                      key={bar}
+                      className={`h-1 w-8 rounded-full transition-colors ${
+                        bar <= passwordStrength.bars
+                          ? passwordStrength.bars === 1
+                            ? "bg-danger"
+                            : passwordStrength.bars === 2
+                            ? "bg-warning"
+                            : "bg-success"
+                          : "bg-slate-200"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className={`text-xs font-medium ${passwordStrength.color}`}>
+                  {passwordStrength.label}
+                  {passwordStrength.bars === 1 && " · 8 caractères min."}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Submit */}

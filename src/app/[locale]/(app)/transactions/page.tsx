@@ -53,15 +53,12 @@ export default async function TransactionsPage({
     <div className="flex flex-col pb-2">
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-6 pb-4">
-        <div className="flex items-center gap-3">
-          <span className="material-symbols-outlined text-primary text-[28px]">receipt_long</span>
-          <h1 className="text-2xl font-bold text-text-main">Transactions</h1>
-        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-text-main">Transactions</h1>
         <ImportButton accounts={accounts} defaultAccountId={accountId} />
       </div>
 
       {/* Formulaire ajout */}
-      <div className="mx-4 mb-4 bg-white rounded-2xl border border-gray-100 shadow-soft p-4">
+      <div className="mx-4 mb-4 bg-white rounded-2xl border border-slate-100 shadow-soft p-4">
         <div className="flex items-center gap-2 mb-3">
           <span className="material-symbols-outlined text-primary text-[20px]">add_circle</span>
           <h2 className="font-bold text-text-main text-sm">Nouvelle transaction</h2>
@@ -69,7 +66,7 @@ export default async function TransactionsPage({
         <TransactionForm accounts={accounts} rules={rules} defaultAccountId={accountId} />
       </div>
 
-      {/* Barre recherche */}
+      {/* Barre recherche + filtres */}
       <TransactionSearch
         accounts={accounts}
         currentAccountId={accountId}
@@ -106,69 +103,70 @@ export default async function TransactionsPage({
               .map((tagId: number) => allTags.find((t) => t.id === tagId))
               .filter((t): t is Tag => t !== undefined);
 
+            // Extraire mois et jour pour le bloc date Stitch
+            const dateObj = new Date(tx.date);
+            const dayNum = dateObj.getDate();
+            const monthShort = dateObj.toLocaleDateString(locale, { month: "short" });
+
             return (
               <div
                 key={tx.id}
-                className="bg-white rounded-2xl border border-gray-100 shadow-soft p-4"
+                className="bg-white rounded-2xl border border-slate-100 shadow-soft p-4 flex items-center justify-between gap-4"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-text-muted text-xs mb-0.5">{formatDate(tx.date, locale)}</p>
-                    <p className="font-medium text-text-main truncate">
-                      {tx.description || tx.category || "—"}
-                    </p>
+                {/* Bloc date style Stitch */}
+                <div className="flex flex-col items-center justify-center h-12 w-12 rounded-xl bg-slate-100 shrink-0 text-slate-500">
+                  <span className="text-[10px] uppercase font-bold tracking-wider">{monthShort}</span>
+                  <span className="text-lg font-bold leading-none">{dayNum}</span>
+                </div>
 
+                {/* Infos transaction */}
+                <div className="flex flex-col gap-1 min-w-0 flex-1">
+                  <p className="font-bold text-text-main truncate">
+                    {tx.description || tx.category || "—"}
+                  </p>
+
+                  <div className="flex items-center gap-2 flex-wrap">
                     {tx.category && (
-                      <span className="inline-block mt-1 bg-indigo-50 text-primary text-xs font-medium rounded-md px-2 py-0.5">
+                      <span className="inline-flex items-center rounded-md bg-indigo-50 text-primary px-2 py-0.5 text-xs font-medium ring-1 ring-inset ring-primary/10">
                         {tx.category}{tx.subcategory ? ` · ${tx.subcategory}` : ""}
                       </span>
                     )}
-
-                    {txTags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {txTags.map((tag) => (
-                          <span
-                            key={tag.id}
-                            className="text-xs font-medium rounded-full px-2 py-0.5"
-                            style={{
-                              backgroundColor: tag.color + "20",
-                              color: tag.color,
-                            }}
-                          >
-                            {tag.name}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    {txTags.map((tag) => (
+                      <span
+                        key={tag.id}
+                        className="text-xs font-medium rounded-full px-2 py-0.5"
+                        style={{
+                          backgroundColor: tag.color + "20",
+                          color: tag.color,
+                        }}
+                      >
+                        {tag.name}
+                      </span>
+                    ))}
                   </div>
+                </div>
 
-                  <div className="flex flex-col items-end gap-2 shrink-0">
-                    <p
-                      className={`font-bold text-lg ${
-                        isIncome ? "text-success" : "text-danger"
-                      }`}
-                    >
-                      {isIncome ? "+" : "-"}
-                      {formatCurrency(Math.abs(tx.amount), "EUR", locale)}
-                    </p>
-
-                    <div className="flex items-center gap-1">
-                      {tx.note && (
-                        <span
-                          className="material-symbols-outlined text-text-muted text-[18px]"
-                          title={tx.note}
-                        >
-                          sticky_note
-                        </span>
-                      )}
-                      <TransactionTagPopover
-                        transactionId={tx.id}
-                        allTags={allTags}
-                        initialTagIds={txTagsMap[tx.id] ?? []}
-                      />
-                      <EditTransactionDialog transaction={tx} accounts={accounts} rules={rules} />
-                      <DeleteTransactionButton id={tx.id} />
-                    </div>
+                {/* Montant + actions */}
+                <div className="shrink-0 text-right flex flex-col items-end gap-1">
+                  <p className={`font-bold text-lg ${isIncome ? "text-success" : "text-danger"}`}>
+                    {isIncome ? "+" : "-"}{formatCurrency(Math.abs(tx.amount), "EUR", locale)}
+                  </p>
+                  <div className="flex items-center gap-1">
+                    {tx.note && (
+                      <span
+                        className="material-symbols-outlined text-text-muted text-[18px]"
+                        title={tx.note}
+                      >
+                        sticky_note
+                      </span>
+                    )}
+                    <TransactionTagPopover
+                      transactionId={tx.id}
+                      allTags={allTags}
+                      initialTagIds={txTagsMap[tx.id] ?? []}
+                    />
+                    <EditTransactionDialog transaction={tx} accounts={accounts} rules={rules} />
+                    <DeleteTransactionButton id={tx.id} />
                   </div>
                 </div>
               </div>

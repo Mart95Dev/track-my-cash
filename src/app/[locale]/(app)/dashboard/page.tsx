@@ -153,14 +153,21 @@ export default async function DashboardPage({
       {/* Header */}
       <header className="flex items-center justify-between px-4 pt-6 pb-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg">
+          <div className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white font-bold text-base shrink-0">
             {initials}
           </div>
           <div>
-            <p className="text-text-muted text-sm">Bonjour,</p>
-            <h2 className="text-text-main text-xl font-bold">{firstName}</h2>
+            <p className="text-text-muted text-xs font-medium">Bonjour,</p>
+            <h2 className="text-text-main text-lg font-bold leading-tight">{firstName}</h2>
           </div>
         </div>
+        <Link
+          href={`/${locale}/parametres`}
+          className="w-10 h-10 rounded-full bg-white border border-gray-100 shadow-soft flex items-center justify-center text-text-muted hover:text-primary transition-colors"
+          aria-label="Paramètres"
+        >
+          <span className="material-symbols-outlined text-[20px]">notifications</span>
+        </Link>
       </header>
 
       {/* Account pills */}
@@ -190,22 +197,25 @@ export default async function DashboardPage({
 
       {/* Balance Evolution */}
       {balanceHistory.length > 0 && (
-        <div className="px-4 mb-4 bg-white rounded-2xl mx-4 shadow-soft border border-gray-100 p-4">
-          <h3 className="text-sm font-bold text-text-main mb-3">Évolution du solde</h3>
+        <div className="mx-4 mb-4 bg-white rounded-2xl shadow-soft border border-gray-100 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold text-text-main">Historique du solde</h3>
+            <span className="text-xs text-text-muted">12 mois</span>
+          </div>
           <BalanceEvolutionChart data={balanceHistory} />
         </div>
       )}
 
       {/* Spending donut */}
       {expensesByBroad.length > 0 && (
-        <div className="px-4 mb-4">
+        <div className="mx-4 mb-4">
           <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-4">
             <h3 className="text-sm font-bold text-text-main mb-3">Dépenses par catégorie</h3>
             <div className="flex flex-wrap gap-2">
               {expensesByBroad.slice(0, 6).map((cat) => (
-                <div key={cat.category} className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-primary inline-block" />
-                  <span className="text-xs text-text-muted">{cat.category}</span>
+                <div key={cat.category} className="flex items-center gap-1.5 bg-background-light rounded-full px-2.5 py-1">
+                  <span className="w-2 h-2 rounded-full bg-primary inline-block shrink-0" />
+                  <span className="text-xs text-text-muted font-medium">{cat.category}</span>
                 </div>
               ))}
             </div>
@@ -217,8 +227,8 @@ export default async function DashboardPage({
       {budgetStatuses.length > 0 && (
         <section className="px-4 mb-4">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="text-base font-bold text-text-main">Budgets</h3>
-            <Link href={`/${locale}/budgets`} className="text-primary text-sm font-bold">
+            <h3 className="text-sm font-bold text-text-main">Budgets</h3>
+            <Link href={`/${locale}/budgets`} className="text-primary text-xs font-bold">
               Voir tout
             </Link>
           </div>
@@ -234,8 +244,8 @@ export default async function DashboardPage({
       {goals.length > 0 && (
         <section className="px-4 mb-4">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="text-base font-bold text-text-main">Objectifs d&apos;épargne</h3>
-            <Link href={`/${locale}/objectifs`} className="text-primary text-sm font-bold">
+            <h3 className="text-sm font-bold text-text-main">Objectifs d&apos;épargne</h3>
+            <Link href={`/${locale}/objectifs`} className="text-primary text-xs font-bold">
               Voir tout
             </Link>
           </div>

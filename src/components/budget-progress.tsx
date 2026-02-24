@@ -33,10 +33,11 @@ export function BudgetProgress({ budget, currency = "EUR", accountId }: Props) {
   const clampedPct = Math.min(Math.round(percentage), 100);
   const barColor = getBudgetColor(clampedPct);
   const badgeColor = getBudgetBadgeColor(clampedPct);
+  const remaining = limit - spent;
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-soft p-4" data-testid="budget-progress">
-      <div className="flex items-center justify-between mb-3">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-soft p-4" data-testid="budget-progress">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="text-sm font-bold text-text-main">{category}</span>
           {accountId && (
@@ -47,14 +48,19 @@ export function BudgetProgress({ budget, currency = "EUR", accountId }: Props) {
             />
           )}
         </div>
-        <span className={`text-xs font-bold rounded-md px-2 py-1 ${badgeColor}`}>
+        <span className={`text-xs font-bold rounded-full px-2.5 py-1 ${badgeColor}`}>
           {clampedPct}%
         </span>
       </div>
-      <p className="text-text-muted text-xs mb-2">
-        {formatAmount(spent, currency)} sur {formatAmount(limit, currency)}
-      </p>
-      <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+      <div className="flex items-center justify-between mb-2.5">
+        <p className="text-text-muted text-xs">
+          {formatAmount(spent, currency)} sur {formatAmount(limit, currency)}
+        </p>
+        <p className="text-text-muted text-xs">
+          Reste&nbsp;: {formatAmount(Math.max(remaining, 0), currency)}
+        </p>
+      </div>
+      <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full transition-all ${barColor}`}
           style={{ width: `${clampedPct}%` }}

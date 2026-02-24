@@ -38,15 +38,15 @@ export function AccountFilter({
       : "all";
 
   return (
-    <div className="flex gap-2 overflow-x-auto no-scrollbar px-4 pb-3">
+    <div className="flex gap-2 overflow-x-auto no-scrollbar px-4 pb-4">
       {items.map((item) => (
         <button
           key={item.value}
           onClick={() => onChange(item.value)}
-          className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+          className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold transition-all ${
             activeValue === item.value
-              ? "bg-primary text-white"
-              : "bg-white text-text-muted border border-gray-200 hover:border-primary hover:text-primary"
+              ? "bg-primary text-white shadow-sm"
+              : "bg-white text-text-muted border border-gray-200 hover:border-primary/40 hover:text-primary"
           }`}
         >
           {item.label}

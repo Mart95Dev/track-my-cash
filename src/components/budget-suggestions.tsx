@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lightbulb } from "lucide-react";
 import { upsertBudgetAction } from "@/app/actions/budget-actions";
 import type { BudgetSuggestion } from "@/lib/budget-suggester";
 
@@ -15,11 +12,11 @@ interface BudgetSuggestionsProps {
 
 const CONFIDENCE_CONFIG: Record<
   BudgetSuggestion["confidence"],
-  { label: string; className: string }
+  { label: string; badgeClass: string }
 > = {
-  high: { label: "Fiable", className: "border-income/40 text-income" },
-  medium: { label: "Modéré", className: "border-warning/40 text-warning" },
-  low: { label: "Variable", className: "border-muted-foreground/40 text-muted-foreground" },
+  high: { label: "Fiable", badgeClass: "bg-success/10 text-success" },
+  medium: { label: "Modéré", badgeClass: "bg-warning/10 text-warning" },
+  low: { label: "Variable", badgeClass: "bg-gray-100 text-text-muted" },
 };
 
 const fmt = (n: number) =>
@@ -43,54 +40,44 @@ export function BudgetSuggestions({ suggestions, accountId }: BudgetSuggestionsP
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Lightbulb className="h-5 w-5 text-warning" />
-          Suggestions de budgets
-          <Badge variant="secondary">{suggestions.length}</Badge>
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Basées sur vos dépenses des 3 derniers mois. Cliquez sur &quot;Créer&quot; pour adopter une suggestion.
-        </p>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          {suggestions.map((s) => {
-            const conf = CONFIDENCE_CONFIG[s.confidence];
-            const isDone = created.has(s.category);
-            return (
-              <div
-                key={s.category}
-                className="flex items-center justify-between gap-3 rounded-lg border p-3"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="min-w-0">
-                    <p className="font-medium text-sm">{s.category}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Moy. {fmt(s.avgAmount)}/mois
-                    </p>
-                  </div>
-                  <Badge variant="outline" className={conf.className}>
-                    {conf.label}
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className="font-semibold text-sm">{fmt(s.suggestedLimit)}</span>
-                  <Button
-                    size="sm"
-                    variant={isDone ? "secondary" : "default"}
-                    disabled={isDone || loading === s.category}
-                    onClick={() => handleCreate(s)}
-                  >
-                    {isDone ? "Créé ✓" : loading === s.category ? "…" : "Créer"}
-                  </Button>
-                </div>
+    <div className="flex flex-col gap-2">
+      <p className="text-xs text-text-muted mb-1">
+        Basées sur vos dépenses des 3 derniers mois.
+      </p>
+      {suggestions.map((s) => {
+        const conf = CONFIDENCE_CONFIG[s.confidence];
+        const isDone = created.has(s.category);
+        return (
+          <div
+            key={s.category}
+            className="flex items-center justify-between gap-3 rounded-xl border border-gray-100 bg-background-light p-3"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="min-w-0">
+                <p className="font-semibold text-sm text-text-main">{s.category}</p>
+                <p className="text-xs text-text-muted">
+                  Moy. {fmt(s.avgAmount)}/mois
+                </p>
               </div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
+              <span className={`text-xs font-bold rounded-full px-2.5 py-0.5 ${conf.badgeClass}`}>
+                {conf.label}
+              </span>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="font-bold text-sm text-text-main">{fmt(s.suggestedLimit)}</span>
+              <Button
+                size="sm"
+                variant={isDone ? "secondary" : "default"}
+                disabled={isDone || loading === s.category}
+                onClick={() => handleCreate(s)}
+                className={isDone ? "" : "bg-primary text-white text-xs font-bold rounded-full px-3 h-7"}
+              >
+                {isDone ? "Créé ✓" : loading === s.category ? "…" : "Créer"}
+              </Button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }

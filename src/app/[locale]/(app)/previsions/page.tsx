@@ -148,15 +148,17 @@ export default async function PrevisionsPage({
       {/* 4 KPIs en scroll horizontal */}
       <div className="flex gap-3 px-4 overflow-x-auto no-scrollbar pb-2">
         {[
-          { label: t("currentBalance"), value: currentBalance, icon: "account_balance", color: currentBalance >= 0 ? "text-success" : "text-danger" },
-          { label: t("incomeOver", { months }), value: monthlyRevenue, icon: "arrow_downward", color: "text-success" },
-          { label: t("expensesOver", { months }), value: monthlyExpenses, icon: "arrow_upward", color: "text-danger" },
-          { label: t("balanceIn", { months }), value: projectedBalance, icon: "trending_up", color: projectedBalance >= 0 ? "text-success" : "text-danger" },
+          { label: t("currentBalance"), value: currentBalance, icon: "account_balance", color: currentBalance >= 0 ? "text-success" : "text-danger", iconBg: currentBalance >= 0 ? "bg-success/10" : "bg-danger/10" },
+          { label: t("incomeOver", { months }), value: monthlyRevenue, icon: "arrow_downward", color: "text-success", iconBg: "bg-success/10" },
+          { label: t("expensesOver", { months }), value: monthlyExpenses, icon: "arrow_upward", color: "text-danger", iconBg: "bg-danger/10" },
+          { label: t("balanceIn", { months }), value: projectedBalance, icon: "trending_up", color: projectedBalance >= 0 ? "text-success" : "text-danger", iconBg: projectedBalance >= 0 ? "bg-success/10" : "bg-danger/10" },
         ].map((kpi) => (
-          <div key={kpi.label} className="flex-shrink-0 w-36 bg-white rounded-2xl border border-gray-100 shadow-soft p-4">
-            <span className={`material-symbols-outlined ${kpi.color} text-[20px]`}>{kpi.icon}</span>
-            <p className="text-text-muted text-xs font-medium mt-2">{kpi.label}</p>
-            <p className="text-text-main font-bold mt-0.5">{formatCurrency(kpi.value, currency, locale)}</p>
+          <div key={kpi.label} className="flex-shrink-0 w-40 bg-white rounded-2xl border border-gray-100 shadow-soft p-4">
+            <div className={`w-8 h-8 rounded-full ${kpi.iconBg} flex items-center justify-center mb-2`}>
+              <span className={`material-symbols-outlined ${kpi.color} text-[18px]`}>{kpi.icon}</span>
+            </div>
+            <p className="text-text-muted text-xs font-medium leading-tight">{kpi.label}</p>
+            <p className={`font-bold text-sm mt-0.5 ${kpi.color}`}>{formatCurrency(kpi.value, currency, locale)}</p>
           </div>
         ))}
       </div>
@@ -326,12 +328,19 @@ export default async function PrevisionsPage({
       <div className="mx-4 bg-white rounded-2xl border border-gray-100 shadow-soft p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-[20px]">calculate</span>
-            <p className="font-medium text-text-main">Net sur {months} mois</p>
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <span className="material-symbols-outlined text-primary text-[18px]">calculate</span>
+            </div>
+            <p className="font-bold text-text-main">Net sur {months} mois</p>
           </div>
-          <p className={`font-bold text-lg ${totalNet >= 0 ? "text-success" : "text-danger"}`}>
-            {totalNet >= 0 ? "+" : ""}{formatCurrency(totalNet, currency, locale)}
-          </p>
+          <div className="text-right">
+            <p className={`font-bold text-lg ${totalNet >= 0 ? "text-success" : "text-danger"}`}>
+              {totalNet >= 0 ? "+" : ""}{formatCurrency(totalNet, currency, locale)}
+            </p>
+            <p className="text-xs text-text-muted">
+              {totalNet >= 0 ? "Solde positif" : "Déficit prévu"}
+            </p>
+          </div>
         </div>
       </div>
 

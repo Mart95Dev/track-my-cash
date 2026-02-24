@@ -15,7 +15,7 @@ export default function CompteSuspenduPage() {
 
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-extrabold text-text-main">Compte suspendu</h1>
-          <p className="text-text-muted">Votre compte a été marqué pour suppression suite à votre demande.</p>
+          <p className="text-text-muted">L&apos;accès à votre compte a été temporairement restreint. Votre compte sera définitivement supprimé si aucune action n&apos;est entreprise.</p>
         </div>
 
         {/* Card alerte 30j */}

@@ -2,7 +2,7 @@ import { getAllAccounts } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { AccountForm } from "@/components/account-form";
+import { AddAccountSheet } from "@/components/add-account-sheet";
 import { DeleteAccountButton } from "@/components/delete-account-button";
 import { EditAccountDialog } from "@/components/edit-account-dialog";
 import { ReconciliationDialog } from "@/components/reconciliation-dialog";
@@ -17,27 +17,22 @@ export default async function ComptesPage() {
   const locale = await getLocale();
 
   return (
-    <div className="flex flex-col gap-4 px-4 pt-6 pb-4">
+    <div className="flex flex-col px-4 pt-6 pb-4">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-2">
-        <span className="material-symbols-outlined text-primary text-[28px]">account_balance_wallet</span>
-        <h1 className="text-2xl font-bold text-text-main">Comptes</h1>
-      </div>
-
-      {/* Formulaire ajout compte */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-soft p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="material-symbols-outlined text-primary text-[20px]">add_circle</span>
-          <h2 className="font-bold text-text-main">Ajouter un compte</h2>
-        </div>
-        <AccountForm />
+      <div className="flex items-center justify-between mb-5">
+        <h1 className="text-2xl font-bold text-text-main">Mes comptes</h1>
+        <AddAccountSheet />
       </div>
 
       {/* Liste des comptes */}
       {accounts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <span className="material-symbols-outlined text-text-muted text-[48px] mb-3">account_balance</span>
-          <p className="text-text-muted text-sm">Aucun compte configuré</p>
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+            <span className="material-symbols-outlined text-primary text-[32px]">account_balance</span>
+          </div>
+          <p className="text-text-main font-bold mb-1">Aucun compte configuré</p>
+          <p className="text-text-muted text-sm mb-6">Commencez par ajouter votre premier compte bancaire.</p>
+          <AddAccountSheet />
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -55,17 +50,17 @@ export default async function ComptesPage() {
                 <div className="flex items-start justify-between gap-3">
                   {/* Infos compte */}
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                      <span className="material-symbols-outlined text-[20px]">account_balance</span>
+                    <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                      <span className="material-symbols-outlined text-[22px]">account_balance</span>
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-bold text-text-main">{account.name}</p>
-                        <span className="text-xs font-bold bg-indigo-50 text-primary rounded-full px-2 py-0.5">
+                        <p className="font-bold text-text-main text-base">{account.name}</p>
+                        <span className="text-[11px] font-bold bg-primary/8 text-primary rounded-full px-2 py-0.5">
                           {account.currency}
                         </span>
                         {isAlert && (
-                          <span className="text-xs font-bold bg-warning/10 text-warning rounded-full px-2 py-0.5">
+                          <span className="text-[11px] font-bold bg-warning/10 text-warning rounded-full px-2 py-0.5">
                             Solde bas
                           </span>
                         )}
@@ -79,17 +74,18 @@ export default async function ComptesPage() {
                   {/* Solde */}
                   <div className="text-right shrink-0">
                     <p
-                      className={`text-xl font-bold ${
+                      className={`text-xl font-extrabold tracking-tight ${
                         isPositive ? "text-success" : "text-danger"
                       }`}
                     >
+                      {isPositive ? "+" : ""}
                       {formatCurrency(balance, account.currency, locale)}
                     </p>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-50">
+                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-50">
                   <ReconciliationDialog account={account} />
                   <EditAccountDialog account={account} />
                   <DeleteAccountButton accountId={account.id} accountName={account.name} />

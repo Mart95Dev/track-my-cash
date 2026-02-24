@@ -164,7 +164,7 @@ export function GoalForm({ goal, accounts = [], onSuccess }: Props) {
         </div>
       )}
 
-      <Button type="submit" disabled={isPending} className="w-full">
+      <Button type="submit" disabled={isPending} className="w-full bg-primary text-white font-bold rounded-full">
         {isPending ? "Enregistrement..." : goal ? "Modifier" : "Créer l'objectif"}
       </Button>
     </form>

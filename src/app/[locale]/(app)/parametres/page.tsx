@@ -93,7 +93,7 @@ export default async function ParametresPage() {
       : "Inactif";
 
   return (
-    <div className="flex flex-col gap-4 px-4 pt-6 pb-4">
+    <div className="flex flex-col gap-4 px-4 pt-6 pb-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-2">
         <span className="material-symbols-outlined text-primary text-[28px]">settings</span>
@@ -122,25 +122,53 @@ export default async function ParametresPage() {
         )}
       </SettingsCard>
 
-      {/* 2. Données */}
+      {/* 2. Intelligence artificielle */}
+      <SettingsCard icon="auto_awesome" title="Intelligence artificielle">
+        {isProOrPremium ? (
+          <>
+            {aiUsageCount !== undefined && aiLimit !== undefined && (
+              <div className="mb-4">
+                <div className="flex justify-between text-sm mb-1.5">
+                  <span className="text-text-muted">Conversations ce mois</span>
+                  <span className="font-bold text-text-main">
+                    {aiUsageCount} / {aiLimit === Infinity ? "∞" : aiLimit}
+                  </span>
+                </div>
+                {aiLimit !== Infinity && (
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${
+                        aiUsageCount / aiLimit >= 0.9
+                          ? "bg-danger"
+                          : aiUsageCount / aiLimit >= 0.6
+                          ? "bg-warning"
+                          : "bg-primary"
+                      }`}
+                      style={{ width: `${Math.min((aiUsageCount / aiLimit) * 100, 100)}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+            <AutoCategorizeToggle
+              enabled={autoCategorizeSetting === "true"}
+              isPro={aiAccess.allowed}
+              onToggle={toggleAutoCategorizationAction}
+            />
+          </>
+        ) : (
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-text-muted">Disponible avec un abonnement Pro ou Premium</p>
+            <span className="text-xs font-bold rounded-full px-3 py-1 bg-gray-100 text-text-muted">Free</span>
+          </div>
+        )}
+      </SettingsCard>
+
+      {/* 3. Données */}
       <SettingsCard icon="database" title="Mes données">
         <div className="flex flex-col gap-3">
           <ExportImportButtons />
           <ExportDataButton />
-        </div>
-      </SettingsCard>
-
-      {/* 3. Rapports */}
-      <SettingsCard icon="summarize" title="Rapports">
-        <div className="flex flex-col gap-3">
-          {aiAccess.allowed && <MonthlyReportButton />}
-          {aiAccess.allowed && accounts.length > 0 && <AnnualReportButton accounts={accounts} />}
-          <MonthlySummaryEmailButton />
-          <WeeklyEmailToggle
-            enabled={weeklyEmailSetting !== "false"}
-            isPro={aiAccess.allowed}
-            onToggle={toggleWeeklyEmailAction}
-          />
         </div>
       </SettingsCard>
 
@@ -153,40 +181,19 @@ export default async function ParametresPage() {
         />
       </SettingsCard>
 
-      {/* 5. Intelligence artificielle (Pro/Premium seulement) */}
-      {isProOrPremium && (
-        <SettingsCard icon="auto_awesome" title="Intelligence artificielle">
-          {aiUsageCount !== undefined && aiLimit !== undefined && (
-            <div className="mb-4">
-              <div className="flex justify-between text-sm mb-1.5">
-                <span className="text-text-muted">Conversations ce mois</span>
-                <span className="font-bold text-text-main">
-                  {aiUsageCount} / {aiLimit === Infinity ? "∞" : aiLimit}
-                </span>
-              </div>
-              {aiLimit !== Infinity && (
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${
-                      aiUsageCount / aiLimit >= 0.9
-                        ? "bg-danger"
-                        : aiUsageCount / aiLimit >= 0.6
-                        ? "bg-warning"
-                        : "bg-primary"
-                    }`}
-                    style={{ width: `${Math.min((aiUsageCount / aiLimit) * 100, 100)}%` }}
-                  />
-                </div>
-              )}
-            </div>
-          )}
-          <AutoCategorizeToggle
-            enabled={autoCategorizeSetting === "true"}
+      {/* 5. Rapports */}
+      <SettingsCard icon="summarize" title="Rapports">
+        <div className="flex flex-col gap-3">
+          {aiAccess.allowed && <MonthlyReportButton />}
+          {aiAccess.allowed && accounts.length > 0 && <AnnualReportButton accounts={accounts} />}
+          <MonthlySummaryEmailButton />
+          <WeeklyEmailToggle
+            enabled={weeklyEmailSetting !== "false"}
             isPro={aiAccess.allowed}
-            onToggle={toggleAutoCategorizationAction}
+            onToggle={toggleWeeklyEmailAction}
           />
-        </SettingsCard>
-      )}
+        </div>
+      </SettingsCard>
 
       {/* 6. Tags */}
       <SettingsCard icon="label" title="Tags">

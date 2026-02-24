@@ -22,34 +22,58 @@ export function Pagination({
     router.push(`?${params.toString()}`);
   }
 
+  // Calcul des pages à afficher (max 3 autour de la page courante)
+  const getVisiblePages = (): (number | "ellipsis")[] => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    const pages: (number | "ellipsis")[] = [];
+    pages.push(1);
+    if (currentPage > 3) pages.push("ellipsis");
+    for (let p = Math.max(2, currentPage - 1); p <= Math.min(totalPages - 1, currentPage + 1); p++) {
+      pages.push(p);
+    }
+    if (currentPage < totalPages - 2) pages.push("ellipsis");
+    pages.push(totalPages);
+    return pages;
+  };
+
+  const visiblePages = getVisiblePages();
+
   return (
-    <div className="flex items-center justify-between px-4 py-4">
+    <div className="flex items-center justify-center gap-2 py-6 px-4">
       <button
         disabled={currentPage <= 1}
         onClick={() => goToPage(currentPage - 1)}
-        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-          currentPage <= 1
-            ? "text-text-muted cursor-not-allowed opacity-50"
-            : "bg-white border border-gray-200 text-text-main hover:border-primary hover:text-primary"
-        }`}
+        className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
       >
-        <span className="material-symbols-outlined text-[18px]">chevron_left</span>
-        {t("previous")}
+        <span className="material-symbols-outlined text-[20px]">chevron_left</span>
       </button>
-      <span className="text-text-muted text-sm">
-        {currentPage} / {totalPages}
-      </span>
+
+      {visiblePages.map((p, idx) =>
+        p === "ellipsis" ? (
+          <span key={`ellipsis-${idx}`} className="text-slate-400 text-sm px-1">...</span>
+        ) : (
+          <button
+            key={p}
+            onClick={() => goToPage(p)}
+            className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+              p === currentPage
+                ? "bg-primary text-white font-bold shadow-md"
+                : "border border-slate-200 bg-white text-text-main hover:border-primary hover:text-primary"
+            }`}
+          >
+            {p}
+          </button>
+        )
+      )}
+
       <button
         disabled={currentPage >= totalPages}
         onClick={() => goToPage(currentPage + 1)}
-        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-          currentPage >= totalPages
-            ? "text-text-muted cursor-not-allowed opacity-50"
-            : "bg-white border border-gray-200 text-text-main hover:border-primary hover:text-primary"
-        }`}
+        className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
       >
-        {t("next")}
-        <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+        <span className="material-symbols-outlined text-[20px]">chevron_right</span>
       </button>
     </div>
   );

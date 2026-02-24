@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -13,11 +12,11 @@ type Props = {
   forecasts: CategoryForecast[];
 };
 
-const STATUS_BADGE: Record<CategoryForecast["status"], { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  on_track: { label: "OK", variant: "default" },
-  at_risk: { label: "Risque", variant: "secondary" },
-  exceeded: { label: "Dépassé", variant: "destructive" },
-  no_budget: { label: "—", variant: "outline" },
+const STATUS_BADGE: Record<CategoryForecast["status"], { label: string; className: string }> = {
+  on_track: { label: "OK", className: "bg-success/10 text-success" },
+  at_risk: { label: "Risque", className: "bg-warning/10 text-warning" },
+  exceeded: { label: "Dépassé", className: "bg-danger/10 text-danger" },
+  no_budget: { label: "—", className: "bg-gray-100 text-text-muted" },
 };
 
 const TREND_ICON: Record<CategoryForecast["trend"], string> = {
@@ -27,9 +26,9 @@ const TREND_ICON: Record<CategoryForecast["trend"], string> = {
 };
 
 const TREND_CLASS: Record<CategoryForecast["trend"], string> = {
-  up: "text-expense",
-  down: "text-income",
-  stable: "text-muted-foreground",
+  up: "text-danger",
+  down: "text-success",
+  stable: "text-text-muted",
 };
 
 export function ForecastTable({ forecasts }: Props) {
@@ -49,18 +48,20 @@ export function ForecastTable({ forecasts }: Props) {
           const badge = STATUS_BADGE[f.status];
           return (
             <TableRow key={f.category}>
-              <TableCell className="font-medium">{f.category}</TableCell>
-              <TableCell className="text-right">
+              <TableCell className="font-bold text-text-main">{f.category}</TableCell>
+              <TableCell className="text-right font-medium text-text-main">
                 {f.avgAmount.toFixed(2)} €
               </TableCell>
-              <TableCell className="text-right text-muted-foreground">
+              <TableCell className="text-right text-text-muted">
                 {f.budgetLimit !== null ? `${f.budgetLimit.toFixed(2)} €` : "—"}
               </TableCell>
               <TableCell className={`text-center font-bold ${TREND_CLASS[f.trend]}`}>
                 {TREND_ICON[f.trend]}
               </TableCell>
               <TableCell className="text-center">
-                <Badge variant={badge.variant}>{badge.label}</Badge>
+                <span className={`text-xs font-bold rounded-full px-2.5 py-1 ${badge.className}`}>
+                  {badge.label}
+                </span>
               </TableCell>
             </TableRow>
           );

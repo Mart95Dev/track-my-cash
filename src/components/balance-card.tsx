@@ -9,16 +9,22 @@ type BalanceCardProps = {
 
 export function BalanceCard({ totalBalance, currency, locale, momVariation }: BalanceCardProps) {
   const isPositive = (momVariation ?? 0) >= 0;
+  const now = new Date();
+  const monthLabel = now.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+
   return (
-    <div className="mx-4 mb-4 p-6 rounded-2xl bg-white shadow-soft border border-gray-100">
-      <p className="text-text-muted text-sm font-medium mb-1">Solde total</p>
-      <div className="flex items-end gap-2 mb-1">
-        <h1 className="text-3xl font-extrabold text-text-main tracking-tight">
+    <div className="mx-4 mb-4 p-5 rounded-2xl bg-white shadow-soft border border-gray-100">
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-text-muted text-xs font-medium uppercase tracking-wider">Solde total</p>
+        <span className="text-text-muted text-xs capitalize">{monthLabel}</span>
+      </div>
+      <div className="flex items-end gap-2 mt-1">
+        <h1 className="text-[28px] font-extrabold text-text-main tracking-tight leading-none">
           {formatCurrency(totalBalance, currency, locale)}
         </h1>
         {momVariation !== undefined && (
           <span
-            className={`mb-1 px-2 py-0.5 text-xs font-bold rounded-md ${
+            className={`mb-0.5 px-2 py-0.5 text-xs font-bold rounded-full ${
               isPositive ? "bg-success/10 text-success" : "bg-danger/10 text-danger"
             }`}
           >
