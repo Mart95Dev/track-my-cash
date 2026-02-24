@@ -50,7 +50,7 @@ export default function InscriptionPage() {
       <div className="w-full max-w-[400px] flex flex-col gap-8">
 
         {/* Retour accueil */}
-        <Link href={`/${locale}`} className="flex items-center gap-1.5 text-text-muted hover:text-text-main text-sm font-medium self-start transition-colors">
+        <Link href="/" className="flex items-center gap-1.5 text-text-muted hover:text-text-main text-sm font-medium self-start transition-colors">
           <span className="material-symbols-outlined text-[18px]">arrow_back</span>
           Accueil
         </Link>
