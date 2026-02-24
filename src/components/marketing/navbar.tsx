@@ -13,7 +13,7 @@ import {
 import { Menu } from "lucide-react";
 
 const NAV_LINKS = [
-  { label: "Fonctionnalités", href: "/#features" as const },
+  { label: "Fonctionnalités", href: "/fonctionnalites" as const },
   { label: "Tarifs", href: "/tarifs" as const },
 ];
 
