@@ -2,15 +2,11 @@ import { getAllAccounts } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { AccountForm } from "@/components/account-form";
 import { DeleteAccountButton } from "@/components/delete-account-button";
 import { EditAccountDialog } from "@/components/edit-account-dialog";
 import { ReconciliationDialog } from "@/components/reconciliation-dialog";
-import { getTranslations, getLocale } from "next-intl/server";
-import { EmptyState } from "@/components/ui/empty-state";
-import { Landmark } from "lucide-react";
+import { getLocale } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
 
@@ -18,66 +14,87 @@ export default async function ComptesPage() {
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
   const accounts = await getAllAccounts(db);
-  const t = await getTranslations("accounts");
   const locale = await getLocale();
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">{t("title")}</h2>
+    <div className="flex flex-col gap-4 px-4 pt-6 pb-4">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-2">
+        <span className="material-symbols-outlined text-primary text-[28px]">account_balance_wallet</span>
+        <h1 className="text-2xl font-bold text-text-main">Comptes</h1>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("createNew")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <AccountForm />
-        </CardContent>
-      </Card>
+      {/* Formulaire ajout compte */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-soft p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="material-symbols-outlined text-primary text-[20px]">add_circle</span>
+          <h2 className="font-bold text-text-main">Ajouter un compte</h2>
+        </div>
+        <AccountForm />
+      </div>
 
-      <h3 className="text-lg font-semibold">{t("existing")}</h3>
-
+      {/* Liste des comptes */}
       {accounts.length === 0 ? (
-        <EmptyState
-          icon={<Landmark className="h-12 w-12" />}
-          title={t("emptyTitle")}
-          description={t("emptyDescription")}
-        />
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <span className="material-symbols-outlined text-text-muted text-[48px] mb-3">account_balance</span>
+          <p className="text-text-muted text-sm">Aucun compte configuré</p>
+        </div>
       ) : (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {accounts.map((account) => {
             const balance = account.calculated_balance ?? account.initial_balance;
+            const isPositive = balance >= 0;
+            const isAlert =
+              account.alert_threshold != null && balance < account.alert_threshold;
+
             return (
-              <Card key={account.id}>
-                <CardContent className="py-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium">{account.name}</p>
-                        <Badge variant="outline">{account.currency}</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {t("initialBalance", { date: formatDate(account.balance_date, locale) })}{" "}
-                        {formatCurrency(account.initial_balance, account.currency, locale)}
-                      </p>
+              <div
+                key={account.id}
+                className="bg-white rounded-2xl border border-gray-100 shadow-soft p-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  {/* Infos compte */}
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                      <span className="material-symbols-outlined text-[20px]">account_balance</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <p
-                        className={`text-xl font-bold ${
-                          balance >= 0 ? "text-income" : "text-expense"
-                        }`}
-                      >
-                        {formatCurrency(balance, account.currency, locale)}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-bold text-text-main">{account.name}</p>
+                        <span className="text-xs font-bold bg-indigo-50 text-primary rounded-full px-2 py-0.5">
+                          {account.currency}
+                        </span>
+                        {isAlert && (
+                          <span className="text-xs font-bold bg-warning/10 text-warning rounded-full px-2 py-0.5">
+                            Solde bas
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-text-muted text-xs mt-0.5">
+                        Depuis le {formatDate(account.balance_date, locale)}
                       </p>
-                      {account.alert_threshold != null && balance < account.alert_threshold && (
-                        <Badge variant="destructive">{t("lowBalance")}</Badge>
-                      )}
-                      <ReconciliationDialog account={account} />
-                      <EditAccountDialog account={account} />
-                      <DeleteAccountButton accountId={account.id} accountName={account.name} />
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+
+                  {/* Solde */}
+                  <div className="text-right shrink-0">
+                    <p
+                      className={`text-xl font-bold ${
+                        isPositive ? "text-success" : "text-danger"
+                      }`}
+                    >
+                      {formatCurrency(balance, account.currency, locale)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-50">
+                  <ReconciliationDialog account={account} />
+                  <EditAccountDialog account={account} />
+                  <DeleteAccountButton accountId={account.id} accountName={account.name} />
+                </div>
+              </div>
             );
           })}
         </div>

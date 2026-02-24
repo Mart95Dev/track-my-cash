@@ -4,11 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { useState, useRef, useEffect, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
 import { AiAccountSelector } from "@/components/ai-account-selector";
-import { ChatSuggestions } from "@/components/chat-suggestions";
 import { ToolResultCard } from "@/components/tool-result-card";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -64,10 +60,9 @@ const MODEL_LABELS: Record<string, string> = {
 };
 
 const CONFIDENCE_STYLES: Record<ConsensusSynthesis["confidence"], string> = {
-  haute: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  moyenne:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-  faible: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+  haute: "bg-green-100 text-green-800",
+  moyenne: "bg-yellow-100 text-yellow-800",
+  faible: "bg-red-100 text-red-800",
 };
 
 export function AiChat({
@@ -94,6 +89,7 @@ export function AiChat({
     ConsensusChatItem[]
   >([]);
   const [isConsensusLoading, setIsConsensusLoading] = useState(false);
+  const [showAccountSelector, setShowAccountSelector] = useState(false);
 
   const transport = useMemo(
     () =>
@@ -177,6 +173,10 @@ export function AiChat({
     }
   };
 
+  const handleSuggestionClick = (suggestion: string) => {
+    setInput(suggestion);
+  };
+
   const getMessageText = (message: (typeof messages)[0]): string => {
     return message.parts
       .filter((p): p is { type: "text"; text: string } => p.type === "text")
@@ -201,132 +201,153 @@ export function AiChat({
 
   if (!hasApiKey) {
     return (
-      <Card>
-        <CardContent className="py-8 text-center space-y-2">
-          <p className="text-lg font-medium">{t("noApiKey")}</p>
-          <p className="text-sm text-muted-foreground">
-            {t("noApiKeyDescPre")}{" "}
-            <Link href="/parametres" className="underline text-primary">
-              Paramètres
-            </Link>{" "}
-            {t("noApiKeyDescPost")}
-          </p>
-        </CardContent>
-      </Card>
+      <div className="px-4 py-8 text-center space-y-3">
+        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mx-auto mb-4">
+          <span className="material-symbols-outlined" style={{ fontSize: "32px" }}>smart_toy</span>
+        </div>
+        <p className="text-base font-semibold text-text-main">{t("noApiKey")}</p>
+        <p className="text-sm text-text-muted">
+          {t("noApiKeyDescPre")}{" "}
+          <Link href="/parametres" className="underline text-primary">
+            Paramètres
+          </Link>{" "}
+          {t("noApiKeyDescPost")}
+        </p>
+      </div>
     );
   }
 
+  const currentMessages = consensusMode ? consensusMessages : messages;
+  const hasMessages = currentMessages.length > 0;
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4">
-      <Card className="h-fit">
-        <CardContent className="pt-4">
+    <div className="flex flex-col min-h-screen">
+      {/* Toolbar : sélecteur modèle / comptes / consensus */}
+      <div className="px-4 py-2 flex items-center gap-2 border-b border-gray-100 bg-background-light/60">
+        {isPremium && (
+          <button
+            type="button"
+            onClick={() => setConsensusMode((prev) => !prev)}
+            className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
+              consensusMode
+                ? "bg-primary text-white border-primary"
+                : "bg-white text-text-muted border-gray-200 hover:border-primary"
+            }`}
+          >
+            {consensusMode ? "✦ Multi-modèles" : "Multi-modèles"}
+          </button>
+        )}
+        {!consensusMode && (
+          <select
+            id="model-select"
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value as ModelId)}
+            disabled={isLoading}
+            className="flex-1 text-xs rounded-full border border-gray-200 bg-white px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 text-text-main"
+          >
+            {MODELS.map((model) => (
+              <option key={model.id} value={model.id}>
+                {model.label} — {model.description}
+              </option>
+            ))}
+          </select>
+        )}
+        {consensusMode && (
+          <span className="text-xs text-text-muted flex-1">
+            Claude Sonnet · Gemini Flash · GPT-4o mini
+          </span>
+        )}
+        <button
+          type="button"
+          onClick={() => setShowAccountSelector((prev) => !prev)}
+          className="w-8 h-8 rounded-full bg-indigo-50 text-primary flex items-center justify-center shrink-0"
+          title="Sélectionner les comptes"
+        >
+          <span className="material-symbols-outlined text-[18px]">account_balance</span>
+        </button>
+      </div>
+
+      {/* Sélecteur de comptes — accordéon */}
+      {showAccountSelector && (
+        <div className="px-4 py-3 border-b border-gray-100 bg-white">
           <AiAccountSelector
             accounts={accounts}
             selectedIds={selectedIds}
             onToggle={toggleAccount}
           />
-        </CardContent>
-      </Card>
-
-      <Card className="flex flex-col" style={{ minHeight: "500px" }}>
-        <div className="border-b px-4 py-3 flex items-center gap-3 flex-wrap">
-          {isPremium && (
-            <button
-              type="button"
-              onClick={() => setConsensusMode((prev) => !prev)}
-              className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
-                consensusMode
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-background text-muted-foreground border-input hover:border-primary"
-              }`}
-            >
-              {consensusMode ? "✦ Multi-modèles" : "Multi-modèles"}
-            </button>
-          )}
-          {!consensusMode && (
-            <>
-              <label
-                htmlFor="model-select"
-                className="text-sm font-medium text-muted-foreground whitespace-nowrap"
-              >
-                Modèle IA
-              </label>
-              <select
-                id="model-select"
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value as ModelId)}
-                disabled={isLoading}
-                className="flex-1 text-sm rounded-md border border-input bg-background px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
-              >
-                {MODELS.map((model) => (
-                  <option key={model.id} value={model.id}>
-                    {model.label} — {model.description}
-                  </option>
-                ))}
-              </select>
-            </>
-          )}
-          {consensusMode && (
-            <span className="text-xs text-muted-foreground">
-              Claude Sonnet · Gemini Flash · GPT-4o mini
-            </span>
-          )}
         </div>
+      )}
 
-        <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
-          {/* AC-4 : Mode consensus — affichage synthèse + accordéon sources */}
-          {consensusMode ? (
-            <>
-              {consensusMessages.length === 0 && (
-                <div className="text-center text-muted-foreground py-12 space-y-2">
-                  <p className="text-lg font-medium">{t("heading")}</p>
-                  <p className="text-sm">
-                    3 modèles répondent en parallèle et synthétisent leurs
-                    réponses.
-                  </p>
-                  <ChatSuggestions
-                    suggestions={suggestions}
-                    onSelect={(text) => void handleConsensusSubmit(text)}
-                  />
+      {/* Zone de messages */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto pb-36">
+        {/* Mode consensus */}
+        {consensusMode ? (
+          <>
+            {consensusMessages.length === 0 && (
+              <div className="flex flex-col items-center justify-center flex-1 px-6 py-12 text-center">
+                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6">
+                  <span className="material-symbols-outlined" style={{ fontSize: "40px" }}>smart_toy</span>
                 </div>
-              )}
+                <h2 className="text-xl font-bold text-text-main mb-2">Conseiller IA</h2>
+                <p className="text-text-muted text-sm mb-6">
+                  3 modèles répondent en parallèle et synthétisent leurs réponses.
+                </p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {suggestions.slice(0, 3).map((s, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSuggestionClick(s)}
+                      className="bg-indigo-50 text-primary rounded-full px-4 py-2 text-sm font-medium"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
+            <div className="px-4 pt-4 space-y-4">
               {consensusMessages.map((msg, i) => (
                 <div
                   key={i}
-                  className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}
+                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start gap-2"}`}
                 >
+                  {msg.role === "assistant" && (
+                    <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-1">
+                      <span className="material-symbols-outlined text-[16px]">smart_toy</span>
+                    </div>
+                  )}
                   {msg.role === "user" ? (
-                    <div className="max-w-[85%] rounded-lg px-4 py-2 bg-primary text-primary-foreground">
+                    <div className="max-w-[80%] px-4 py-3 bg-primary text-white rounded-2xl rounded-tr-sm shadow-lg shadow-primary/20">
                       <p className="text-sm">{msg.text}</p>
                     </div>
                   ) : (
-                    <div className="max-w-[85%] rounded-lg px-4 py-3 bg-muted space-y-2">
+                    <div className="max-w-[80%] px-4 py-3 bg-white text-text-main rounded-2xl rounded-tl-sm shadow-soft border border-gray-100 space-y-2">
                       <span
                         className={`text-xs font-medium px-2 py-0.5 rounded-full ${CONFIDENCE_STYLES[msg.synthesis.confidence]}`}
                       >
                         Consensus {msg.synthesis.confidence}
                       </span>
-                      <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <div className="prose prose-sm max-w-none">
                         <ReactMarkdown>{msg.synthesis.finalAnswer}</ReactMarkdown>
                       </div>
                       <details>
-                        <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground select-none">
+                        <summary className="cursor-pointer text-xs text-text-muted hover:text-text-main select-none">
                           Voir les{" "}
                           {msg.sources.filter((s) => s.text).length} sources
                         </summary>
-                        <div className="mt-2 space-y-3 pl-3 border-l border-border">
+                        <div className="mt-2 space-y-3 pl-3 border-l border-gray-200">
                           {msg.sources.map((source) =>
                             source.text ? (
                               <div key={source.model}>
-                                <p className="text-xs font-semibold text-muted-foreground mb-1">
+                                <p className="text-xs font-semibold text-text-muted mb-1">
                                   {MODEL_LABELS[source.model] ?? source.model}
                                 </p>
-                                <p className="text-sm">{source.text}</p>
+                                <p className="text-sm text-text-main">{source.text}</p>
                               </div>
                             ) : (
                               <div key={source.model}>
-                                <p className="text-xs text-muted-foreground italic">
+                                <p className="text-xs text-text-muted italic">
                                   {MODEL_LABELS[source.model] ?? source.model}{" "}
                                   — non disponible
                                 </p>
@@ -341,29 +362,46 @@ export function AiChat({
               ))}
 
               {isConsensusLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-muted rounded-lg px-4 py-2">
-                    <p className="text-sm text-muted-foreground">
+                <div className="flex justify-start gap-2">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-1">
+                    <span className="material-symbols-outlined text-[16px]">smart_toy</span>
+                  </div>
+                  <div className="max-w-[80%] px-4 py-3 bg-white text-text-main rounded-2xl rounded-tl-sm shadow-soft border border-gray-100">
+                    <p className="text-sm text-text-muted">
                       Analyse en cours (3 modèles)…
                     </p>
                   </div>
                 </div>
               )}
-            </>
-          ) : (
-            /* Mode streaming standard */
-            <>
-              {messages.length === 0 && (
-                <div className="text-center text-muted-foreground py-12 space-y-2">
-                  <p className="text-lg font-medium">{t("heading")}</p>
-                  <p className="text-sm">{t("description")}</p>
-                  <ChatSuggestions
-                    suggestions={suggestions}
-                    onSelect={(text) => sendMessage({ text })}
-                  />
+            </div>
+          </>
+        ) : (
+          /* Mode streaming standard */
+          <>
+            {messages.length === 0 && (
+              <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
+                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6">
+                  <span className="material-symbols-outlined" style={{ fontSize: "40px" }}>smart_toy</span>
                 </div>
-              )}
+                <h2 className="text-xl font-bold text-text-main mb-2">Conseiller IA</h2>
+                <p className="text-text-muted text-sm mb-6">
+                  {t("description")}
+                </p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {suggestions.slice(0, 3).map((s, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSuggestionClick(s)}
+                      className="bg-indigo-50 text-primary rounded-full px-4 py-2 text-sm font-medium"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
+            <div className="px-4 pt-4 space-y-4">
               {messages.map((message) => {
                 const text = getMessageText(message);
                 const toolResults = getToolResults(message);
@@ -371,30 +409,37 @@ export function AiChat({
                 return (
                   <div
                     key={message.id}
-                    className={`flex flex-col ${
-                      message.role === "user" ? "items-end" : "items-start"
+                    className={`flex ${
+                      message.role === "user" ? "justify-end" : "justify-start gap-2"
                     }`}
                   >
-                    {toolResults.map((result, i) => (
-                      <ToolResultCard key={i} result={result} />
-                    ))}
-                    {text && (
-                      <div
-                        className={`max-w-[85%] rounded-lg px-4 py-2 ${
-                          message.role === "user"
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
-                        }`}
-                      >
-                        {message.role === "user" ? (
-                          <p className="text-sm">{text}</p>
-                        ) : (
-                          <div className="prose prose-sm dark:prose-invert max-w-none">
-                            <ReactMarkdown>{text}</ReactMarkdown>
-                          </div>
-                        )}
+                    {message.role === "assistant" && (
+                      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-1">
+                        <span className="material-symbols-outlined text-[16px]">smart_toy</span>
                       </div>
                     )}
+                    <div className="flex flex-col gap-2 max-w-[80%]">
+                      {toolResults.map((result, i) => (
+                        <ToolResultCard key={i} result={result} />
+                      ))}
+                      {text && (
+                        <div
+                          className={`px-4 py-3 ${
+                            message.role === "user"
+                              ? "bg-primary text-white rounded-2xl rounded-tr-sm shadow-lg shadow-primary/20"
+                              : "bg-white text-text-main rounded-2xl rounded-tl-sm shadow-soft border border-gray-100"
+                          }`}
+                        >
+                          {message.role === "user" ? (
+                            <p className="text-sm">{text}</p>
+                          ) : (
+                            <div className="prose prose-sm max-w-none">
+                              <ReactMarkdown>{text}</ReactMarkdown>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -402,31 +447,68 @@ export function AiChat({
               {isLoading &&
                 messages.length > 0 &&
                 messages[messages.length - 1]?.role !== "assistant" && (
-                  <div className="flex justify-start">
-                    <div className="bg-muted rounded-lg px-4 py-2">
-                      <p className="text-sm text-muted-foreground">
-                        {t("thinking")}
-                      </p>
+                  <div className="flex justify-start gap-2">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-1">
+                      <span className="material-symbols-outlined text-[16px]">smart_toy</span>
+                    </div>
+                    <div className="px-4 py-3 bg-white text-text-main rounded-2xl rounded-tl-sm shadow-soft border border-gray-100">
+                      <p className="text-sm text-text-muted">{t("thinking")}</p>
                     </div>
                   </div>
                 )}
-            </>
-          )}
-        </div>
+            </div>
+          </>
+        )}
+      </div>
 
-        <form onSubmit={handleSubmit} className="border-t p-4 flex gap-2">
-          <Input
+      {/* Chips suggestions (scroll horizontal) — visibles quand des messages existent */}
+      {hasMessages && suggestions.length > 0 && (
+        <div className="fixed bottom-28 left-0 right-0 z-30 pointer-events-none">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 px-4 pointer-events-auto">
+            {suggestions.map((suggestion, i) => (
+              <button
+                key={i}
+                onClick={() => handleSuggestionClick(suggestion)}
+                className="shrink-0 bg-indigo-50 text-primary rounded-full px-4 py-2 text-sm font-medium hover:bg-primary hover:text-white transition-colors whitespace-nowrap"
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Input fixe en bas */}
+      <div className="fixed bottom-16 left-0 right-0 z-40 bg-background-light/80 backdrop-blur-md border-t border-gray-100 p-3">
+        <form
+          onSubmit={handleSubmit}
+          className="max-w-md mx-auto flex items-center gap-2"
+        >
+          <input
+            type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={t("placeholder")}
             disabled={isLoading}
-            className="flex-1"
+            className="flex-1 rounded-full bg-white border border-gray-200 py-3 px-5 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none disabled:opacity-50"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                if (!isLoading && input.trim()) {
+                  handleSubmit(e as unknown as React.FormEvent);
+                }
+              }
+            }}
           />
-          <Button type="submit" disabled={isLoading || !input.trim()}>
-            {t("send")}
-          </Button>
+          <button
+            type="submit"
+            disabled={isLoading || !input.trim()}
+            className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 disabled:opacity-50 transition-all shrink-0"
+          >
+            <span className="material-symbols-outlined text-[20px]">send</span>
+          </button>
         </form>
-      </Card>
+      </div>
     </div>
   );
 }

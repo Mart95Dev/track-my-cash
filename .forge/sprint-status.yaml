@@ -1,12 +1,121 @@
 sprint:
-  id: sprint-engagement-analyse-avancee-v9
-  goal: "Email hebdomadaire IA, récurrents via chat, vue multi-comptes, comparaison YoY, export RGPD, notes transactions, parsers ING/Boursorama"
-  start_date: "2026-02-22"
+  id: sprint-design-stitch-v10
+  goal: "Refonte visuelle complète des 14 pages selon les maquettes Google Stitch — design system Manrope + tokens couleurs + BottomNav + reskin pages"
+  start_date: "2026-02-24"
   end_date: ""
-  status: in_progress
+  status: planned
+
+previous_sprint:
+  id: sprint-engagement-analyse-avancee-v9
+  stories: 7
+  completed: 7
+  qa_verdict: PASS
+  tests: 495
+  commit: "860d0fd"
 
 stories:
-  # === SPRINT ENGAGEMENT & ANALYSE AVANCÉE (v9) ===
+  # === SPRINT DESIGN STITCH (v10) ===
+
+  - id: STORY-068
+    title: "Foundation — Design tokens Tailwind v4, Manrope, Material Symbols"
+    epic: design-system
+    complexity: S
+    priority: P1
+    status: pending
+    blockedBy: []
+    points: 2
+
+  - id: STORY-069
+    title: "BottomNav + Layout App refonte mobile-first"
+    epic: design-system
+    complexity: S
+    priority: P1
+    status: pending
+    blockedBy: [STORY-068]
+    points: 2
+
+  - id: STORY-070
+    title: "Pages Auth — Connexion, Inscription, Compte suspendu"
+    epic: auth-ui
+    complexity: M
+    priority: P1
+    status: pending
+    blockedBy: [STORY-068]
+    points: 3
+
+  - id: STORY-071
+    title: "Pages Marketing — Landing Page + Tarifs"
+    epic: marketing-ui
+    complexity: M
+    priority: P1
+    status: pending
+    blockedBy: [STORY-068]
+    points: 3
+
+  - id: STORY-072
+    title: "Dashboard — Refonte complète"
+    epic: app-ui
+    complexity: L
+    priority: P1
+    status: pending
+    blockedBy: [STORY-069]
+    points: 4
+
+  - id: STORY-073
+    title: "Page Comptes — Refonte"
+    epic: app-ui
+    complexity: M
+    priority: P2
+    status: pending
+    blockedBy: [STORY-069]
+    points: 3
+
+  - id: STORY-074
+    title: "Page Transactions — Refonte"
+    epic: app-ui
+    complexity: M
+    priority: P2
+    status: pending
+    blockedBy: [STORY-069]
+    points: 3
+
+  - id: STORY-075
+    title: "Pages Récurrents + Prévisions — Refonte"
+    epic: app-ui
+    complexity: M
+    priority: P2
+    status: pending
+    blockedBy: [STORY-069]
+    points: 3
+
+  - id: STORY-076
+    title: "Pages Budgets + Objectifs — Refonte"
+    epic: app-ui
+    complexity: M
+    priority: P2
+    status: pending
+    blockedBy: [STORY-069]
+    points: 3
+
+  - id: STORY-077
+    title: "Page Conseiller IA — Refonte chat mobile"
+    epic: app-ui
+    complexity: M
+    priority: P3
+    status: pending
+    blockedBy: [STORY-069]
+    points: 2
+
+  - id: STORY-078
+    title: "Page Paramètres — Refonte sections cards"
+    epic: app-ui
+    complexity: M
+    priority: P3
+    status: pending
+    blockedBy: [STORY-069]
+    points: 3
+
+  # === SPRINT ENGAGEMENT & ANALYSE AVANCÉE (v9) — TERMINÉ ===
 
   - id: STORY-061
     title: "Email récapitulatif hebdomadaire IA (Pro/Premium)"
@@ -92,7 +201,18 @@ stories:
     qa_verdict: "PASS"
     notes: "ingParser (CSV tabulé Date\\tLibellé) + boursoramaParser (CSV ; dateOp;dateVal;label) + registry avant genericCsv"
 
-metrics:
+metrics_v10:
+  total: 11
+  completed: 0
+  in_progress: 0
+  pending: 11
+  total_points: 26
+  points_completed: 0
+  tests_total: 495
+  tests_sprint: 0
+  qa_verdict: "PENDING"
+
+metrics_v9_archived:
   total: 7
   completed: 7
   in_progress: 0
@@ -102,11 +222,3 @@ metrics:
   tests_total: 495
   tests_sprint: 66
   qa_verdict: "PASS"
-
-previous_sprint:
-  id: sprint-production-saas-croissance
-  stories: 8
-  completed: 8
-  qa_verdict: PASS
-  tests: 429
-  commit: "cec9051"

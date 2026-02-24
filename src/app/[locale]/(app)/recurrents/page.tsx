@@ -2,19 +2,22 @@ import { getRecurringPayments, getAllAccounts, getCategorizationRules } from "@/
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { RecurringForm } from "@/components/recurring-form";
 import { DeleteRecurringButton } from "@/components/delete-recurring-button";
 import { EditRecurringDialog } from "@/components/edit-recurring-dialog";
 import { AccountFilter } from "@/components/account-filter";
-import { getTranslations, getLocale } from "next-intl/server";
-import { EmptyState } from "@/components/ui/empty-state";
-import { RefreshCw } from "lucide-react";
+import { getLocale } from "next-intl/server";
 import { detectRecurringSuggestionsAction } from "@/app/actions/recurring-actions";
 import { RecurringSuggestions } from "@/components/recurring-suggestions";
 
 export const dynamic = "force-dynamic";
+
+const FREQUENCY_LABELS: Record<string, string> = {
+  weekly: "Hebdo",
+  monthly: "Mensuel",
+  quarterly: "Trimestriel",
+  yearly: "Annuel",
+};
 
 export default async function RecurrentsPage({
   searchParams,
@@ -23,7 +26,6 @@ export default async function RecurrentsPage({
 }) {
   const params = await searchParams;
   const accountId = params.accountId ? parseInt(params.accountId) : undefined;
-  const t = await getTranslations("recurring");
   const locale = await getLocale();
 
   const userId = await getRequiredUserId();
@@ -40,85 +42,98 @@ export default async function RecurrentsPage({
   ]);
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">{t("title")}</h2>
+    <div className="flex flex-col gap-4 px-4 pt-6 pb-4">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-2">
+        <span className="material-symbols-outlined text-primary text-[28px]">autorenew</span>
+        <h1 className="text-2xl font-bold text-text-main">Récurrents</h1>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("newPayment")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <RecurringForm accounts={accounts} rules={rules} />
-        </CardContent>
-      </Card>
+      {/* Formulaire ajout */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-soft p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="material-symbols-outlined text-primary text-[20px]">add_circle</span>
+          <h2 className="font-bold text-text-main">Nouveau paiement récurrent</h2>
+        </div>
+        <RecurringForm accounts={accounts} rules={rules} />
+      </div>
 
-      {suggestions.length > 0 && accountId && (
-        <RecurringSuggestions suggestions={suggestions} accountId={accountId} />
-      )}
-
+      {/* Sélecteur de compte */}
       <div className="flex items-center gap-3">
-        <h3 className="text-lg font-semibold">{t("list")}</h3>
+        <h3 className="font-bold text-text-main">Mes récurrents</h3>
         <AccountFilter
           accounts={accounts}
           currentAccountId={accountId}
-          basePath="/recurrents"
+          basePath={`/recurrents`}
         />
       </div>
 
+      {/* Suggestions IA (collapsible) */}
+      {suggestions.length > 0 && accountId && (
+        <details className="bg-white rounded-2xl border border-gray-100 shadow-soft p-4">
+          <summary className="cursor-pointer font-semibold text-text-main flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary text-[18px]">auto_awesome</span>
+            Suggestions IA ({suggestions.length})
+          </summary>
+          <div className="mt-3">
+            <RecurringSuggestions suggestions={suggestions} accountId={accountId} />
+          </div>
+        </details>
+      )}
+
+      {/* Liste des paiements */}
       {!accountId ? (
-        <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
-            {t("selectAccount")}
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <span className="material-symbols-outlined text-text-muted text-[48px] mb-3">filter_list</span>
+          <p className="text-text-muted text-sm">Sélectionnez un compte pour voir les paiements récurrents</p>
+        </div>
       ) : payments.length === 0 ? (
-        <EmptyState
-          icon={<RefreshCw className="h-12 w-12" />}
-          title={t("emptyTitle")}
-          description={t("emptyDescription")}
-        />
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <span className="material-symbols-outlined text-text-muted text-[48px] mb-3">autorenew</span>
+          <p className="text-text-muted text-sm">Aucun paiement récurrent configuré</p>
+        </div>
       ) : (
-        <div className="space-y-3">
-          {payments.map((p) => (
-            <Card key={p.id}>
-              <CardContent className="py-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-medium">{p.name}</p>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      <Badge variant="secondary">{p.frequency}</Badge>
-                      <Badge variant="outline">{p.category}</Badge>
-                      {p.subcategory && (
-                        <span className="text-xs text-muted-foreground self-center">{p.subcategory}</span>
-                      )}
-                      <span className="text-sm text-muted-foreground">
-                        {t("nextDate", { date: formatDate(p.next_date, locale) })}
-                      </span>
-                      {p.end_date && (
-                        <Badge variant="outline" className="text-warning border-warning/50">
-                          {t("untilDate", { date: formatDate(p.end_date, locale) })}
-                        </Badge>
-                      )}
+        <div className="flex flex-col gap-3">
+          {payments.map((p) => {
+            const isIncome = p.type === "income";
+            const freqLabel = FREQUENCY_LABELS[p.frequency] ?? p.frequency;
+
+            return (
+              <div
+                key={p.id}
+                className="bg-white rounded-2xl border border-gray-100 shadow-soft p-4"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                      <span className="material-symbols-outlined text-[20px]">autorenew</span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-text-main truncate">{p.name}</p>
+                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                        <span className="bg-indigo-50 text-primary text-xs font-medium rounded-full px-2 py-0.5">
+                          {freqLabel}
+                        </span>
+                        {p.next_date && (
+                          <span className="text-text-muted text-xs">
+                            Prochain : {formatDate(p.next_date, locale)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 shrink-0">
-                    <p
-                      className={`text-lg font-bold ${
-                        p.type === "income"
-                          ? "text-income"
-                          : "text-expense"
-                      }`}
-                    >
-                      {p.type === "income" ? "+" : "-"}
-                      {formatCurrency(p.amount, "EUR", locale)}
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <p className={`font-bold text-lg ${isIncome ? "text-success" : "text-danger"}`}>
+                      {isIncome ? "+" : "-"}{formatCurrency(p.amount, "EUR", locale)}
                     </p>
                     <EditRecurringDialog payment={p} accounts={accounts} rules={rules} />
                     <DeleteRecurringButton id={p.id} />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

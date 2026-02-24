@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button";
 import { createBillingPortalSession } from "@/app/actions/billing-actions";
 import { useLocale } from "next-intl";
 
-export function BillingPortalButton() {
+interface BillingPortalButtonProps {
+  className?: string;
+}
+
+export function BillingPortalButton({ className }: BillingPortalButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const locale = useLocale();
@@ -24,7 +28,7 @@ export function BillingPortalButton() {
 
   return (
     <div className="flex flex-col gap-2">
-      <Button onClick={handleClick} disabled={isPending}>
+      <Button onClick={handleClick} disabled={isPending} className={className}>
         {isPending ? "Redirection…" : "Gérer mon abonnement"}
       </Button>
       {error && <p className="text-sm text-destructive">{error}</p>}

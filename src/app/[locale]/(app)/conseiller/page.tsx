@@ -4,16 +4,14 @@ import { getRequiredUserId } from "@/lib/auth-utils";
 import { getUserPlanId } from "@/lib/subscription-utils";
 import { AiChat } from "@/components/ai-chat";
 import { generateChatSuggestions } from "@/lib/chat-suggestions";
-import { getTranslations } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function ConseillerPage() {
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
-  const [accounts, t, monthlySummary, goals, planId] = await Promise.all([
+  const [accounts, monthlySummary, goals, planId] = await Promise.all([
     getAllAccounts(db),
-    getTranslations("advisor"),
     getMonthlySummary(db),
     getGoals(db),
     getUserPlanId(userId),
@@ -61,14 +59,28 @@ export default async function ConseillerPage() {
     savingsRate: avgSavingsRate,
   });
 
+  const isPremium = planId === "premium";
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">{t("title")}</h2>
+    <div className="flex flex-col min-h-screen">
+      <header className="flex items-center justify-between px-4 pt-6 pb-4">
+        <div className="flex items-center gap-3">
+          <span className="material-symbols-outlined text-primary text-[28px]">smart_toy</span>
+          <h1 className="text-xl font-bold text-text-main">Conseiller IA</h1>
+        </div>
+        <span
+          className={`text-xs font-bold rounded-full px-3 py-1 ${
+            isPremium ? "bg-primary text-white" : "bg-indigo-50 text-primary"
+          }`}
+        >
+          {isPremium ? "Premium" : "Pro"}
+        </span>
+      </header>
       <AiChat
         accounts={accounts}
         hasApiKey={!!process.env.API_KEY_OPENROUTER}
         suggestions={suggestions}
-        isPremium={planId === "premium"}
+        isPremium={isPremium}
       />
     </div>
   );

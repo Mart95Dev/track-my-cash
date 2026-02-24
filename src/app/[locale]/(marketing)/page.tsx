@@ -1,18 +1,6 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FeatureCard } from "@/components/marketing/feature-card";
 import { PLANS } from "@/lib/stripe-plans";
-import {
-  Wallet,
-  FileUp,
-  RefreshCw,
-  TrendingUp,
-  Bot,
-  Globe,
-} from "lucide-react";
 
 const DESCRIPTIONS: Record<string, string> = {
   fr: "Centralisez vos comptes bancaires, suivez vos dépenses et prenez de meilleures décisions financières. Gratuit, sécurisé, sans publicité.",
@@ -43,128 +31,226 @@ export async function generateMetadata({
   };
 }
 
-export default async function HomePage() {
-  const t = await getTranslations("landing");
+const FEATURES = [
+  {
+    icon: "account_balance_wallet",
+    title: "Multi-comptes",
+    desc: "Centralisez tous vos comptes bancaires en un seul endroit.",
+  },
+  {
+    icon: "file_download",
+    title: "Import CSV/Excel",
+    desc: "Importez votre historique depuis n'importe quelle banque.",
+  },
+  {
+    icon: "autorenew",
+    title: "Paiements récurrents",
+    desc: "Suivez vos abonnements et échéances automatiquement.",
+  },
+  {
+    icon: "trending_up",
+    title: "Tendances",
+    desc: "Visualisez l'évolution de vos dépenses dans le temps.",
+  },
+  {
+    icon: "auto_awesome",
+    title: "IA intégrée",
+    desc: "Recevez des conseils financiers personnalisés par l'IA.",
+  },
+  {
+    icon: "language",
+    title: "Multilingue",
+    desc: "5 langues disponibles : FR, EN, ES, DE, IT.",
+  },
+];
 
-  const features = [
-    { icon: Wallet, title: t("feature1Title"), description: t("feature1Desc") },
-    { icon: FileUp, title: t("feature2Title"), description: t("feature2Desc") },
-    { icon: RefreshCw, title: t("feature3Title"), description: t("feature3Desc") },
-    { icon: TrendingUp, title: t("feature4Title"), description: t("feature4Desc") },
-    { icon: Bot, title: t("feature5Title"), description: t("feature5Desc") },
-    { icon: Globe, title: t("feature6Title"), description: t("feature6Desc") },
-  ];
+type PlanId = "free" | "pro" | "premium";
 
-  const pricingCtas = {
-    free: t("pricingCtaFree"),
-    pro: t("pricingCtaPro"),
-    premium: t("pricingCtaPremium"),
-  };
+const PRICING_PLANS: Array<{
+  id: PlanId;
+  highlighted: boolean;
+  badge?: string;
+  cta: string;
+  href: string;
+}> = [
+  {
+    id: "free",
+    highlighted: false,
+    cta: "Démarrer",
+    href: "/inscription",
+  },
+  {
+    id: "pro",
+    highlighted: true,
+    badge: "Populaire",
+    cta: "Choisir Pro",
+    href: "/tarifs",
+  },
+  {
+    id: "premium",
+    highlighted: false,
+    cta: "Choisir Premium",
+    href: "/tarifs",
+  },
+];
 
+export default function HomePage() {
   return (
-    <div className="flex flex-col">
-      {/* HERO */}
-      <section className="bg-primary/5 px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-            {t("heroTitle")}
+    <div className="min-h-screen bg-background-light">
+      <div className="max-w-5xl mx-auto px-4">
+        {/* Hero */}
+        <header className="py-16 text-center sm:text-left">
+          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 text-primary px-3 py-1 text-xs font-bold mb-6">
+            ✨ Nouvelle version 2.0 disponible
+          </div>
+          <h1 className="text-4xl font-extrabold text-text-main tracking-tight leading-tight mb-4">
+            Prenez le contrôle de
+            <br />
+            vos finances
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground sm:text-xl">
-            {t("heroSubtitle")}
+          <p className="text-text-muted text-lg font-medium mb-8 leading-relaxed max-w-2xl">
+            Suivez vos dépenses, planifiez votre budget et atteignez vos
+            objectifs financiers avec intelligence.
           </p>
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Button size="lg" asChild>
-              <Link href="/inscription">{t("heroCta")}</Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/tarifs">{t("heroCtaSecondary")}</Link>
-            </Button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link
+              href="/inscription"
+              className="flex items-center justify-center h-12 px-6 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20"
+            >
+              Commencer gratuitement
+            </Link>
+            <Link
+              href="/tarifs"
+              className="flex items-center justify-center h-12 px-6 border-2 border-slate-200 text-text-main font-bold rounded-xl hover:border-primary hover:text-primary transition-colors"
+            >
+              En savoir plus
+            </Link>
           </div>
-        </div>
-      </section>
+        </header>
 
-      {/* FONCTIONNALITÉS */}
-      <section id="features" className="px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold tracking-tight">{t("featuresTitle")}</h2>
-            <p className="mt-4 text-muted-foreground">{t("featuresSubtitle")}</p>
-          </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature) => (
-              <FeatureCard
-                key={feature.title}
-                icon={feature.icon}
-                title={feature.title}
-                description={feature.description}
-              />
+        {/* Feature cards */}
+        <section className="py-10">
+          <h2 className="text-2xl font-bold text-text-main mb-2">
+            Tout ce dont vous avez besoin
+          </h2>
+          <p className="text-text-muted mb-8">
+            Gérez votre argent comme un pro.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {FEATURES.map((f) => (
+              <div
+                key={f.icon}
+                className="flex flex-col gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-soft hover:shadow-md transition-shadow"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-primary">
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: "28px" }}
+                  >
+                    {f.icon}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-text-main font-bold">{f.title}</h3>
+                  <p className="text-text-muted text-sm mt-1">{f.desc}</p>
+                </div>
+              </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* TARIFS COMPACTS */}
-      <section className="bg-muted/40 px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold tracking-tight">{t("pricingTitle")}</h2>
-            <p className="mt-4 text-muted-foreground">{t("pricingSubtitle")}</p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {(["free", "pro", "premium"] as const).map((planId) => {
-              const plan = PLANS[planId];
-              const isHighlighted = planId === "pro";
-              return (
-                <Card
-                  key={planId}
-                  className={isHighlighted ? "border-primary shadow-lg" : ""}
-                >
-                  <CardHeader>
-                    <CardTitle>{plan.name}</CardTitle>
-                    <div className="mt-2 text-3xl font-bold">
-                      {plan.price === 0 ? "0€" : `${plan.price.toString().replace(".", ",")}€`}
-                      <span className="text-base font-normal text-muted-foreground">
-                        {t("pricingPerMonth")}
+        {/* Pricing section */}
+        <section className="py-10">
+          <h2 className="text-2xl font-bold text-text-main mb-2">
+            Tarifs transparents
+          </h2>
+          <p className="text-text-muted mb-8">
+            Commencez gratuitement, évoluez selon vos besoins.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
+            {PRICING_PLANS.map((planDef) => {
+              const plan = PLANS[planDef.id];
+              const priceStr =
+                plan.price === 0
+                  ? "0€"
+                  : `${plan.price.toString().replace(".", ",")}€`;
+
+              if (planDef.highlighted) {
+                return (
+                  <div
+                    key={planDef.id}
+                    className="relative p-6 bg-white rounded-2xl border-2 border-primary shadow-xl shadow-primary/10"
+                  >
+                    {planDef.badge && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full uppercase">
+                        {planDef.badge}
+                      </div>
+                    )}
+                    <h3 className="font-bold text-primary text-lg mb-1">
+                      {plan.name}
+                    </h3>
+                    <div className="flex items-baseline gap-1 mb-4">
+                      <span className="text-3xl font-extrabold text-text-main">
+                        {priceStr}
                       </span>
+                      <span className="text-text-muted">/mois</span>
                     </div>
-                    <ul className="mt-3 space-y-1">
-                      {plan.features.slice(0, 3).map((f) => (
-                        <li key={f} className="text-sm text-muted-foreground">
-                          ✓ {f}
-                        </li>
-                      ))}
-                    </ul>
-                  </CardHeader>
-                  <CardContent>
-                    <Button
-                      variant={isHighlighted ? "default" : "outline"}
-                      className="w-full"
-                      asChild
+                    <Link
+                      href={planDef.href}
+                      className="w-full flex items-center justify-center h-10 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 text-sm"
                     >
-                      <Link href={planId === "free" ? "/inscription" : "/tarifs"}>
-                        {pricingCtas[planId]}
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
+                      {planDef.cta}
+                    </Link>
+                  </div>
+                );
+              }
+
+              return (
+                <div
+                  key={planDef.id}
+                  className="p-6 bg-white rounded-2xl border border-slate-100 shadow-soft"
+                >
+                  <h3 className="font-bold text-text-main text-lg mb-1">
+                    {plan.name}
+                  </h3>
+                  <div className="flex items-baseline gap-1 mb-4">
+                    <span className="text-3xl font-extrabold text-text-main">
+                      {priceStr}
+                    </span>
+                    <span className="text-text-muted">/mois</span>
+                  </div>
+                  <Link
+                    href={planDef.href}
+                    className="w-full flex items-center justify-center h-10 border-2 border-slate-200 text-text-main font-bold rounded-xl hover:border-primary hover:text-primary transition-colors text-sm"
+                  >
+                    {planDef.cta}
+                  </Link>
+                </div>
               );
             })}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CTA FINAL */}
-      <section className="px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight">{t("ctaTitle")}</h2>
-          <p className="mt-4 text-muted-foreground">{t("ctaSubtitle")}</p>
-          <div className="mt-8">
-            <Button size="lg" asChild>
-              <Link href="/inscription">{t("ctaButton")}</Link>
-            </Button>
-          </div>
+        {/* Footer simple */}
+        <footer className="py-8 border-t border-slate-200 text-center text-text-muted text-sm mb-20">
+          <p>© 2025 TrackMyCash — Gérez vos finances simplement</p>
+        </footer>
+      </div>
+
+      {/* Sticky CTA bottom */}
+      <div className="sticky bottom-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
+        <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
+          <p className="hidden sm:block font-bold text-text-main">
+            Prêt à reprendre le contrôle ?
+          </p>
+          <Link
+            href="/inscription"
+            className="w-full sm:w-auto h-12 px-8 rounded-xl bg-primary text-white font-bold shadow-xl shadow-primary/20 flex items-center justify-center"
+          >
+            Créer mon compte gratuitement
+          </Link>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

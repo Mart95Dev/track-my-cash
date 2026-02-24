@@ -1,5 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { ExportImportButtons } from "@/components/export-import-buttons";
 import { ResetButton } from "@/components/reset-button";
 import { CategorizationRules } from "@/components/categorization-rules";
@@ -7,14 +5,13 @@ import { TagManager } from "@/components/tag-manager";
 import { CurrencySettings } from "@/components/currency-settings";
 import { BillingPortalButton } from "@/components/billing-portal-button";
 import { DeleteUserAccountDialog } from "@/components/delete-user-account-dialog";
-import { BudgetForm } from "@/components/budget-form";
 import { MonthlySummaryEmailButton } from "@/components/monthly-summary-email-button";
 import { MonthlyReportButton } from "@/components/monthly-report-button";
 import { AnnualReportButton } from "@/components/annual-report-button";
 import { AutoCategorizeToggle } from "@/components/auto-categorize-toggle";
 import { WeeklyEmailToggle } from "@/components/weekly-email-toggle";
 import { ExportDataButton } from "@/components/export-data-button";
-import { getCategorizationRules, getSetting, getAllAccounts, getBudgets } from "@/lib/queries";
+import { getCategorizationRules, getSetting, getAllAccounts } from "@/lib/queries";
 import { getUserDb, getDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { getAiUsageCount } from "@/lib/ai-usage";
@@ -23,9 +20,29 @@ import { getTagsAction } from "@/app/actions/tag-actions";
 import { saveExchangeRateAction, toggleAutoCategorizationAction, toggleWeeklyEmailAction } from "@/app/actions/settings-actions";
 import { getUserSubscription } from "@/app/actions/billing-actions";
 import { getPlan } from "@/lib/stripe-plans";
-import { getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 
 export const dynamic = "force-dynamic";
+
+function SettingsCard({
+  icon,
+  title,
+  children,
+}: {
+  icon: string;
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-soft p-5">
+      <div className="flex items-center gap-2 mb-4">
+        <span className="material-symbols-outlined text-primary text-[20px]">{icon}</span>
+        <h2 className="font-bold text-text-main">{title}</h2>
+      </div>
+      {children}
+    </div>
+  );
+}
 
 export default async function ParametresPage() {
   const userId = await getRequiredUserId();
@@ -35,189 +52,163 @@ export default async function ParametresPage() {
 
   const aiAccess = await (await import("@/lib/subscription-utils")).canUseAI(userId);
 
-  const [rules, tags, liveRate, fallbackRateStr, subscription, t, accounts, autoCategorizeSetting, aiUsageCount, weeklyEmailSetting] = await Promise.all([
+  const [rules, tags, liveRate, fallbackRateStr, subscription, accounts, autoCategorizeSetting, aiUsageCount, weeklyEmailSetting] = await Promise.all([
     getCategorizationRules(db),
     getTagsAction(),
     getExchangeRate(db),
     getSetting(db, "exchange_rate_eur_mga"),
     getUserSubscription(),
-    getTranslations("settings"),
     getAllAccounts(db),
     getSetting(db, "auto_categorize_on_import"),
     getAiUsageCount(mainDb, userId, currentMonth),
     getSetting(db, "weekly_summary_email"),
   ]);
 
-  // Budgets pour le premier compte (si présent)
-  const firstAccount = accounts[0];
-  const budgets = firstAccount ? await getBudgets(db, firstAccount.id) : [];
-
   const plan = getPlan(subscription.planId);
   const renewalDate = subscription.currentPeriodEnd
-    ? new Date(subscription.currentPeriodEnd * 1000).toLocaleDateString()
+    ? new Date(subscription.currentPeriodEnd * 1000).toLocaleDateString("fr-FR")
     : null;
 
   const fallbackRate = fallbackRateStr ? parseFloat(fallbackRateStr) : 5000;
 
+  const isPro = subscription.planId === "pro";
+  const isPremium = subscription.planId === "premium";
+  const isProOrPremium = isPro || isPremium;
+
+  const aiLimit = isPremium ? Infinity : isPro ? 10 : 0;
+
+  const planBadgeColor = isPremium
+    ? "bg-primary text-white"
+    : isPro
+    ? "bg-indigo-50 text-primary"
+    : "bg-gray-100 text-text-muted";
+
+  const statusLabel =
+    subscription.status === "trialing"
+      ? "Période d'essai"
+      : subscription.status === "active"
+      ? "Actif"
+      : subscription.status === "canceled"
+      ? "Annulé"
+      : "Inactif";
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">{t("title")}</h2>
+    <div className="flex flex-col gap-4 px-4 pt-6 pb-4">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-2">
+        <span className="material-symbols-outlined text-primary text-[28px]">settings</span>
+        <h1 className="text-2xl font-bold text-text-main">Paramètres</h1>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Abonnement</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-3">
-            <p className="font-medium">{plan.name}</p>
-            <Badge variant={plan.id === "free" ? "secondary" : "default"}>
-              {plan.id === "free" ? "Gratuit" : `${plan.price}€/mois`}
-            </Badge>
-            {subscription.status === "active" && plan.id !== "free" && (
-              <Badge variant="outline" className="text-income border-income/50">Actif</Badge>
-            )}
+      {/* 1. Abonnement */}
+      <SettingsCard icon="workspace_premium" title="Abonnement">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="font-bold text-text-main">{plan.name}</p>
+            <p className="text-text-muted text-sm">{statusLabel}</p>
           </div>
-          {renewalDate && !subscription.cancelAtPeriodEnd && (
-            <p className="text-sm text-muted-foreground">Renouvellement le {renewalDate}</p>
-          )}
-          {renewalDate && subscription.cancelAtPeriodEnd && (
-            <p className="text-sm text-warning">Annulation en cours — actif jusqu&apos;au {renewalDate}</p>
-          )}
-          {subscription.stripeCustomerId && <BillingPortalButton />}
-        </CardContent>
-      </Card>
+          <span className={`text-xs font-bold rounded-full px-3 py-1 ${planBadgeColor}`}>
+            {plan.name}
+          </span>
+        </div>
+        {renewalDate && !subscription.cancelAtPeriodEnd && (
+          <p className="text-text-muted text-sm mb-4">Renouvellement : {renewalDate}</p>
+        )}
+        {renewalDate && subscription.cancelAtPeriodEnd && (
+          <p className="text-warning text-sm mb-4">Annulation en cours — actif jusqu&apos;au {renewalDate}</p>
+        )}
+        {subscription.stripeCustomerId && (
+          <BillingPortalButton />
+        )}
+      </SettingsCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("backup.title")}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      {/* 2. Données */}
+      <SettingsCard icon="database" title="Mes données">
+        <div className="flex flex-col gap-3">
           <ExportImportButtons />
-          <MonthlySummaryEmailButton />
+          <ExportDataButton />
+        </div>
+      </SettingsCard>
+
+      {/* 3. Rapports */}
+      <SettingsCard icon="summarize" title="Rapports">
+        <div className="flex flex-col gap-3">
           {aiAccess.allowed && <MonthlyReportButton />}
           {aiAccess.allowed && accounts.length > 0 && <AnnualReportButton accounts={accounts} />}
-          <p className="text-sm text-muted-foreground">
-            {t("backup.description")}
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Mes données (RGPD)</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-sm text-muted-foreground">
-            Téléchargez une copie complète de vos données personnelles (comptes, transactions, récurrents, budgets, objectifs) conformément à l&apos;article 20 du RGPD (droit à la portabilité).
-          </p>
-          <ExportDataButton />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("currency.title")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CurrencySettings
-            liveRate={liveRate}
-            fallbackRate={fallbackRate}
-            onSaveFallback={saveExchangeRateAction}
+          <MonthlySummaryEmailButton />
+          <WeeklyEmailToggle
+            enabled={weeklyEmailSetting !== "false"}
+            isPro={aiAccess.allowed}
+            onToggle={toggleWeeklyEmailAction}
           />
-        </CardContent>
-      </Card>
+        </div>
+      </SettingsCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Intelligence artificielle</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Paramètres liés aux fonctionnalités IA de TrackMyCash.
-          </p>
-          {subscription.planId === "pro" && (
-            <p className="text-sm">
-              Utilisation ce mois :{" "}
-              <span className="font-semibold">{aiUsageCount}/10 conversations</span>
-            </p>
-          )}
-          {subscription.planId === "premium" && (
-            <p className="text-sm text-muted-foreground">
-              Conversations IA :{" "}
-              <span className="font-semibold">Illimitées</span>
-            </p>
+      {/* 4. Devises */}
+      <SettingsCard icon="currency_exchange" title="Devises">
+        <CurrencySettings
+          liveRate={liveRate}
+          fallbackRate={fallbackRate}
+          onSaveFallback={saveExchangeRateAction}
+        />
+      </SettingsCard>
+
+      {/* 5. Intelligence artificielle (Pro/Premium seulement) */}
+      {isProOrPremium && (
+        <SettingsCard icon="auto_awesome" title="Intelligence artificielle">
+          {aiUsageCount !== undefined && aiLimit !== undefined && (
+            <div className="mb-4">
+              <div className="flex justify-between text-sm mb-1.5">
+                <span className="text-text-muted">Conversations ce mois</span>
+                <span className="font-bold text-text-main">
+                  {aiUsageCount} / {aiLimit === Infinity ? "∞" : aiLimit}
+                </span>
+              </div>
+              {aiLimit !== Infinity && (
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${
+                      aiUsageCount / aiLimit >= 0.9
+                        ? "bg-danger"
+                        : aiUsageCount / aiLimit >= 0.6
+                        ? "bg-warning"
+                        : "bg-primary"
+                    }`}
+                    style={{ width: `${Math.min((aiUsageCount / aiLimit) * 100, 100)}%` }}
+                  />
+                </div>
+              )}
+            </div>
           )}
           <AutoCategorizeToggle
             enabled={autoCategorizeSetting === "true"}
             isPro={aiAccess.allowed}
             onToggle={toggleAutoCategorizationAction}
           />
-          <WeeklyEmailToggle
-            enabled={weeklyEmailSetting !== "false"}
-            isPro={aiAccess.allowed}
-            onToggle={toggleWeeklyEmailAction}
-          />
-        </CardContent>
-      </Card>
-
-      {firstAccount && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Budgets mensuels</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Définissez des budgets par catégorie pour {firstAccount.name}. Une barre de progression apparaîtra
-              sur le tableau de bord.
-            </p>
-            <BudgetForm accountId={firstAccount.id} budgets={budgets} />
-          </CardContent>
-        </Card>
+        </SettingsCard>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("tags.title")}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            {t("tags.description")}
-          </p>
-          <TagManager tags={tags} />
-        </CardContent>
-      </Card>
+      {/* 6. Tags */}
+      <SettingsCard icon="label" title="Tags">
+        <TagManager tags={tags} />
+      </SettingsCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("categorization.title")}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            {t("categorization.description")}
-          </p>
-          <CategorizationRules rules={rules} />
-        </CardContent>
-      </Card>
+      {/* 7. Catégorisation */}
+      <SettingsCard icon="category" title="Règles de catégorisation">
+        <CategorizationRules rules={rules} />
+      </SettingsCard>
 
-      <Card className="border-destructive/20">
-        <CardHeader>
-          <CardTitle className="text-destructive">{t("danger.title")}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      {/* 8. Zone danger */}
+      <div className="bg-danger/5 border border-danger/20 rounded-2xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="material-symbols-outlined text-danger text-[20px]">warning</span>
+          <h2 className="font-bold text-danger">Zone de danger</h2>
+        </div>
+        <div className="flex flex-col gap-3">
           <ResetButton />
-          <p className="text-sm text-muted-foreground">
-            {t("danger.description")}
-          </p>
-          <div className="pt-4 border-t border-destructive/20">
-            <p className="text-sm font-medium text-destructive mb-2">Suppression du compte (RGPD)</p>
-            <p className="text-sm text-muted-foreground mb-4">
-              Supprime définitivement votre compte, toutes vos données et annule votre abonnement actif.
-              Cette action est irréversible.
-            </p>
-            <DeleteUserAccountDialog />
-          </div>
-        </CardContent>
-      </Card>
+          <DeleteUserAccountDialog />
+        </div>
+      </div>
     </div>
   );
 }

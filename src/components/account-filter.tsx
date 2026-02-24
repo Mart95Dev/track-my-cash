@@ -2,7 +2,6 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Account } from "@/lib/queries";
-import { useTranslations } from "next-intl";
 
 export function AccountFilter({
   accounts,
@@ -13,7 +12,6 @@ export function AccountFilter({
   currentAccountId?: number | "all";
   basePath: string;
 }) {
-  const t = useTranslations("search");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -27,19 +25,33 @@ export function AccountFilter({
     router.push(`${basePath}?${params.toString()}`);
   }
 
+  const items = [
+    { value: "all", label: "Tous" },
+    ...accounts.map((a) => ({ value: String(a.id), label: a.name })),
+  ];
+
+  const activeValue =
+    currentAccountId === "all"
+      ? "all"
+      : currentAccountId
+      ? String(currentAccountId)
+      : "all";
+
   return (
-    <select
-      className="flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-      value={currentAccountId ?? ""}
-      onChange={(e) => onChange(e.target.value)}
-    >
-      <option value="all">{t("allAccounts")}</option>
-      <option value="">{t("selectAccount")}</option>
-      {accounts.map((a) => (
-        <option key={a.id} value={a.id}>
-          {a.name}
-        </option>
+    <div className="flex gap-2 overflow-x-auto no-scrollbar px-4 pb-3">
+      {items.map((item) => (
+        <button
+          key={item.value}
+          onClick={() => onChange(item.value)}
+          className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+            activeValue === item.value
+              ? "bg-primary text-white"
+              : "bg-white text-text-muted border border-gray-200 hover:border-primary hover:text-primary"
+          }`}
+        >
+          {item.label}
+        </button>
       ))}
-    </select>
+    </div>
   );
 }

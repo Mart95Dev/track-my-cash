@@ -2,16 +2,6 @@ import { searchTransactions, getAllAccounts, getCategorizationRules, getUncatego
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { TransactionForm } from "@/components/transaction-form";
 import { DeleteTransactionButton } from "@/components/delete-transaction-button";
 import { EditTransactionDialog } from "@/components/edit-transaction-dialog";
@@ -23,9 +13,8 @@ import { ExportTransactions } from "@/components/export-transactions";
 import { AutoCategorizeButton } from "@/components/auto-categorize-button";
 import { canUseAI } from "@/lib/subscription-utils";
 import { getTagsAction, getTransactionTagsBatchAction } from "@/app/actions/tag-actions";
-import { getTranslations, getLocale } from "next-intl/server";
-import { EmptyState } from "@/components/ui/empty-state";
-import { ArrowDownUp, StickyNote } from "lucide-react";
+import type { Tag } from "@/app/actions/tag-actions";
+import { getLocale } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +30,6 @@ export default async function TransactionsPage({
   const page = params.page ? parseInt(params.page) : 1;
   const tagId = params.tagId ? parseInt(params.tagId) : undefined;
   const perPage = 20;
-  const t = await getTranslations("transactions");
   const locale = await getLocale();
 
   const userId = await getRequiredUserId();
@@ -62,171 +50,132 @@ export default async function TransactionsPage({
   const totalPages = Math.ceil(total / perPage);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold">{t("title")}</h2>
+    <div className="flex flex-col pb-2">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 pt-6 pb-4">
+        <div className="flex items-center gap-3">
+          <span className="material-symbols-outlined text-primary text-[28px]">receipt_long</span>
+          <h1 className="text-2xl font-bold text-text-main">Transactions</h1>
+        </div>
         <ImportButton accounts={accounts} defaultAccountId={accountId} />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("newTransaction")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TransactionForm accounts={accounts} rules={rules} defaultAccountId={accountId} />
-        </CardContent>
-      </Card>
-
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <TransactionSearch
-          accounts={accounts}
-          currentAccountId={accountId}
-          currentSearch={search}
-          currentSort={sort}
-          tags={allTags}
-          currentTagId={tagId}
-        />
-        <div className="flex items-center gap-2">
-          {aiAccess.allowed && (
-            <AutoCategorizeButton uncategorizedCount={uncategorized.length} />
-          )}
-          <ExportTransactions transactions={transactions} accounts={accounts} />
+      {/* Formulaire ajout */}
+      <div className="mx-4 mb-4 bg-white rounded-2xl border border-gray-100 shadow-soft p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="material-symbols-outlined text-primary text-[20px]">add_circle</span>
+          <h2 className="font-bold text-text-main text-sm">Nouvelle transaction</h2>
         </div>
+        <TransactionForm accounts={accounts} rules={rules} defaultAccountId={accountId} />
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          {!accountId ? (
-            <p className="py-8 text-center text-muted-foreground">
-              {t("selectAccount")}
-            </p>
-          ) : transactions.length === 0 ? (
-            <EmptyState
-              icon={<ArrowDownUp className="h-12 w-12" />}
-              title={t("emptyTitle")}
-              description={t("emptyDescription")}
-            />
-          ) : (
-            <>
-              {/* Desktop table */}
-              <div className="hidden md:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Catégorie</TableHead>
-                      <TableHead>Tags</TableHead>
-                      <TableHead className="text-right">Montant</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {transactions.map((tx) => (
-                      <TableRow key={tx.id}>
-                        <TableCell className="whitespace-nowrap">
-                          {formatDate(tx.date, locale)}
-                        </TableCell>
-                        <TableCell>
-                          <span className="flex items-center gap-1.5">
-                            {tx.description || "—"}
-                            {tx.note && (
-                              <span title={tx.note}>
-                                <StickyNote className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                              </span>
-                            )}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-sm">{tx.category}</span>
-                          {tx.subcategory && (
-                            <span className="block text-xs text-muted-foreground">{tx.subcategory}</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <TransactionTagPopover
-                            transactionId={tx.id}
-                            allTags={allTags}
-                            initialTagIds={txTagsMap[tx.id] ?? []}
-                          />
-                        </TableCell>
-                        <TableCell
-                          className={`text-right font-medium whitespace-nowrap ${
-                            tx.type === "income"
-                              ? "text-income"
-                              : "text-expense"
-                          }`}
-                        >
-                          {tx.type === "income" ? "+" : "-"}
-                          {formatCurrency(tx.amount, "EUR", locale)}
-                        </TableCell>
-                        <TableCell className="flex gap-1">
-                          <EditTransactionDialog transaction={tx} accounts={accounts} rules={rules} />
-                          <DeleteTransactionButton id={tx.id} />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+      {/* Barre recherche */}
+      <TransactionSearch
+        accounts={accounts}
+        currentAccountId={accountId}
+        currentSearch={search}
+        currentSort={sort}
+        tags={allTags}
+        currentTagId={tagId}
+      />
 
-              {/* Mobile cards */}
-              <div className="md:hidden divide-y">
-                {transactions.map((tx) => (
-                  <div key={tx.id} className="p-4 space-y-2">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium truncate flex items-center gap-1.5">
-                          {tx.description || tx.category}
-                          {tx.note && (
-                            <span title={tx.note}>
-                              <StickyNote className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDate(tx.date, locale)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span
-                          className={`font-medium ${
-                            tx.type === "income"
-                              ? "text-income"
-                              : "text-expense"
-                          }`}
-                        >
-                          {tx.type === "income" ? "+" : "-"}
-                          {formatCurrency(tx.amount, "EUR", locale)}
-                        </span>
-                        <EditTransactionDialog transaction={tx} accounts={accounts} rules={rules} />
-                        <DeleteTransactionButton id={tx.id} />
-                      </div>
-                    </div>
-                    {(txTagsMap[tx.id]?.length ?? 0) > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {(txTagsMap[tx.id] ?? []).map((tagIdVal) => {
-                          const tag = allTags.find((tg) => tg.id === tagIdVal);
-                          if (!tag) return null;
-                          return (
-                            <Badge
-                              key={tag.id}
-                              style={{ backgroundColor: tag.color, color: "#fff" }}
-                              className="text-xs"
-                            >
-                              {tag.name}
-                            </Badge>
-                          );
-                        })}
+      {/* Boutons action */}
+      <div className="flex items-center gap-2 px-4 mb-4 overflow-x-auto no-scrollbar">
+        <ExportTransactions transactions={transactions} accounts={accounts} />
+        {aiAccess.allowed && (
+          <AutoCategorizeButton uncategorizedCount={uncategorized.length} />
+        )}
+      </div>
+
+      {/* Liste transactions */}
+      {!accountId ? (
+        <div className="flex flex-col items-center justify-center py-12 text-center px-4">
+          <span className="material-symbols-outlined text-text-muted text-[48px] mb-3">filter_list</span>
+          <p className="text-text-muted text-sm">Sélectionnez un compte pour voir les transactions</p>
+        </div>
+      ) : transactions.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 text-center px-4">
+          <span className="material-symbols-outlined text-text-muted text-[48px] mb-3">receipt_long</span>
+          <p className="text-text-muted text-sm">Aucune transaction trouvée</p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3 px-4">
+          {transactions.map((tx) => {
+            const isIncome = tx.type === "income";
+            const txTags: Tag[] = (txTagsMap[tx.id] ?? [])
+              .map((tagId: number) => allTags.find((t) => t.id === tagId))
+              .filter((t): t is Tag => t !== undefined);
+
+            return (
+              <div
+                key={tx.id}
+                className="bg-white rounded-2xl border border-gray-100 shadow-soft p-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-text-muted text-xs mb-0.5">{formatDate(tx.date, locale)}</p>
+                    <p className="font-medium text-text-main truncate">
+                      {tx.description || tx.category || "—"}
+                    </p>
+
+                    {tx.category && (
+                      <span className="inline-block mt-1 bg-indigo-50 text-primary text-xs font-medium rounded-md px-2 py-0.5">
+                        {tx.category}{tx.subcategory ? ` · ${tx.subcategory}` : ""}
+                      </span>
+                    )}
+
+                    {txTags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {txTags.map((tag) => (
+                          <span
+                            key={tag.id}
+                            className="text-xs font-medium rounded-full px-2 py-0.5"
+                            style={{
+                              backgroundColor: tag.color + "20",
+                              color: tag.color,
+                            }}
+                          >
+                            {tag.name}
+                          </span>
+                        ))}
                       </div>
                     )}
                   </div>
-                ))}
+
+                  <div className="flex flex-col items-end gap-2 shrink-0">
+                    <p
+                      className={`font-bold text-lg ${
+                        isIncome ? "text-success" : "text-danger"
+                      }`}
+                    >
+                      {isIncome ? "+" : "-"}
+                      {formatCurrency(Math.abs(tx.amount), "EUR", locale)}
+                    </p>
+
+                    <div className="flex items-center gap-1">
+                      {tx.note && (
+                        <span
+                          className="material-symbols-outlined text-text-muted text-[18px]"
+                          title={tx.note}
+                        >
+                          sticky_note
+                        </span>
+                      )}
+                      <TransactionTagPopover
+                        transactionId={tx.id}
+                        allTags={allTags}
+                        initialTagIds={txTagsMap[tx.id] ?? []}
+                      />
+                      <EditTransactionDialog transaction={tx} accounts={accounts} rules={rules} />
+                      <DeleteTransactionButton id={tx.id} />
+                    </div>
+                  </div>
+                </div>
               </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+            );
+          })}
+        </div>
+      )}
 
       <Pagination currentPage={page} totalPages={totalPages} />
     </div>

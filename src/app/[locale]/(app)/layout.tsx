@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
-import { Navigation } from "@/components/navigation";
+import { BottomNav } from "@/components/bottom-nav";
 import { PwaInstallBanner } from "@/components/pwa-install-banner";
-import { NotificationsBell } from "@/components/notifications-bell";
 import { PlanBanner } from "@/components/plan-banner";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getUserDb, getDb } from "@/lib/db";
-import { getNotifications, getUnreadNotificationsCount } from "@/lib/queries";
+import { getDb } from "@/lib/db";
 import { getDaysRemaining } from "@/lib/trial-utils";
 
 export const metadata: Metadata = {
@@ -29,12 +27,9 @@ export default async function AppLayout({ children, params }: Props) {
     redirect(`/${locale}/connexion`);
   }
 
-  const db = await getUserDb(session.user.id);
   const mainDb = getDb();
 
-  const [notifications, unreadCount, subResult] = await Promise.all([
-    getNotifications(db, 10),
-    getUnreadNotificationsCount(db),
+  const [subResult] = await Promise.all([
     mainDb.execute({
       sql: "SELECT plan_id, status, trial_ends_at FROM subscriptions WHERE user_id = ?",
       args: [session.user.id],
@@ -54,17 +49,12 @@ export default async function AppLayout({ children, params }: Props) {
       : undefined;
 
   return (
-    <div className="min-h-screen">
-      <Navigation
-        rightSlot={
-          <NotificationsBell
-            initialNotifications={notifications}
-            unreadCount={unreadCount}
-          />
-        }
-      />
+    <div className="min-h-screen bg-background-light">
       <PlanBanner plan={bannerPlan} status={bannerStatus} daysRemaining={bannerDaysRemaining} />
-      <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+      <main className="max-w-md mx-auto pb-24 min-h-screen">
+        {children}
+      </main>
+      <BottomNav />
       <PwaInstallBanner />
     </div>
   );

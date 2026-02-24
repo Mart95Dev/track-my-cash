@@ -5,9 +5,9 @@ import { getBudgetSuggestionsAction } from "@/app/actions/budget-suggestion-acti
 import { BudgetForm } from "@/components/budget-form";
 import { BudgetProgress } from "@/components/budget-progress";
 import { BudgetSuggestions } from "@/components/budget-suggestions";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { EmptyState } from "@/components/ui/empty-state";
-import { Wallet } from "lucide-react";
+import { AccountFilter } from "@/components/account-filter";
+import { getLocale } from "next-intl/server";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +17,7 @@ export default async function BudgetsPage({
   searchParams: Promise<{ accountId?: string }>;
 }) {
   const params = await searchParams;
+  const locale = await getLocale();
 
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
@@ -24,14 +25,16 @@ export default async function BudgetsPage({
 
   if (accounts.length === 0) {
     return (
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Budgets</h2>
-        <EmptyState
-          icon={<Wallet className="h-12 w-12" />}
-          title="Aucun compte"
-          description="Créez un compte pour configurer des budgets."
-          action={{ label: "Créer un compte", href: "/comptes" }}
-        />
+      <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
+        <span className="material-symbols-outlined text-primary text-[64px] mb-4">savings</span>
+        <h2 className="text-xl font-bold text-text-main mb-2">Aucun compte</h2>
+        <p className="text-text-muted text-sm mb-6">Créez un compte pour configurer des budgets.</p>
+        <Link
+          href={`/${locale}/comptes`}
+          className="bg-primary text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-primary/20"
+        >
+          Créer un compte
+        </Link>
       </div>
     );
   }
@@ -47,26 +50,32 @@ export default async function BudgetsPage({
   ]);
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">
-        Budgets
-        {selectedAccount && (
-          <span className="ml-2 text-lg font-normal text-muted-foreground">
-            — {selectedAccount.name}
-          </span>
-        )}
-      </h2>
+    <div className="flex flex-col gap-4 px-4 pt-6 pb-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <span className="material-symbols-outlined text-primary text-[28px]">savings</span>
+          <h1 className="text-2xl font-bold text-text-main">Budgets</h1>
+        </div>
+        <AccountFilter accounts={accounts} currentAccountId={accountId} basePath={`/${locale}/budgets`} />
+      </div>
 
       {/* Suggestions IA */}
-      <BudgetSuggestions suggestions={suggestions} accountId={accountId} />
+      {suggestions.length > 0 && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-soft p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="material-symbols-outlined text-primary text-[20px]">auto_awesome</span>
+            <h2 className="font-bold text-text-main">Suggestions IA</h2>
+          </div>
+          <BudgetSuggestions suggestions={suggestions} accountId={accountId} />
+        </div>
+      )}
 
-      {/* Statut des budgets en cours */}
+      {/* Budgets du mois */}
       {budgetStatus.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Budgets du mois en cours</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div>
+          <h2 className="font-bold text-text-main mb-3">Budgets du mois en cours</h2>
+          <div className="flex flex-col gap-3">
             {budgetStatus.map((b) => (
               <BudgetProgress
                 key={b.category}
@@ -75,19 +84,18 @@ export default async function BudgetsPage({
                 accountId={accountId}
               />
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
-      {/* Formulaire d'ajout / liste */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Gérer les budgets</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <BudgetForm accountId={accountId} budgets={budgets} />
-        </CardContent>
-      </Card>
+      {/* Gérer les budgets */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-soft p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="material-symbols-outlined text-primary text-[20px]">tune</span>
+          <h2 className="font-bold text-text-main">Gérer les budgets</h2>
+        </div>
+        <BudgetForm accountId={accountId} budgets={budgets} />
+      </div>
     </div>
   );
 }

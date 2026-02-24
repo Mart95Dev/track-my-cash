@@ -133,7 +133,32 @@ QA : 156 tests, 0 fail, couverture 90.54% lignes, TypeScript 0 erreur.
 **STORY-038**:
 - 2026-02-21 21:44:48 [qa] — QA PASS STORY-038 : computeForecast() 10 tests (5 gaps couverts), 258 tests total, sprint Objectifs & Intelligence certifié
 
-## Sprint Engagement & Analyse Avancée (v9) — EN COURS 🚧 (2026-02-22)
+## Sprint Design Stitch (v10) — PLANIFIÉ 📋 (2026-02-24)
+
+11 stories (STORY-068 à STORY-078), 26 points. PRD v10 rédigé.
+**Objectif :** Reskin complet des 14 pages selon maquettes Google Stitch.
+
+**Design system :**
+- Primary: #4848e5 | Background: #f6f6f8 | Card: #ffffff | Text: #0e0e1b | Muted: #505095
+- Success: #078841 | Warning: #e7a008 | Danger: #e74008
+- Font: Manrope (Google Fonts) | Icônes: Material Symbols Outlined
+- Radius: 0.5/1/1.5/2rem | Shadow-soft: 0 4px 20px -2px rgba(0,0,0,0.05)
+
+**Patterns clés maquettes :**
+- Mobile-first : max-w-md mx-auto pb-24 (BottomNav)
+- BottomNav : 5 onglets (Dashboard/Comptes/Transactions/Récurrents/Conseiller)
+- Cards : bg-white rounded-2xl border border-gray-100 shadow-soft p-5
+- Inputs : rounded-xl ring-1 ring-slate-200 py-4 pl-12 (icône Material Symbol gauche)
+- KPI 3col : icône dans cercle coloré + label xs + montant bold
+- Progress budgets : h-2 rounded-full, couleur dynamique (success/warning/danger)
+- Health Score : SVG circle progress
+
+**Contraintes :** Ne pas modifier Server Actions, queries.ts, db.ts, parsers, types.
+Tests existants (495) doivent rester PASS.
+
+**Ordre :** 068 (foundation) → 069 (layout+nav) → [070+071 auth+marketing] → 072 (dashboard) → [073-076 core app] → [077-078 IA+settings]
+
+## Sprint Engagement & Analyse Avancée (v9) — TERMINÉ ✅ (2026-02-24)
 
 7 stories, 17 points. PRD v9 rédigé.
 

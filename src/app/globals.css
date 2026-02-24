@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-manrope);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -59,6 +59,16 @@
   --color-income-subtle: var(--income-subtle);
   --color-warning-subtle: var(--warning-subtle);
   --color-info-subtle: var(--info-subtle);
+  /* ── Stitch Design System ──────────────────────────────────────────── */
+  --color-background-light: var(--background-light);
+  --color-background-dark: var(--background-dark);
+  --color-card-light: var(--card-light);
+  --color-card-dark: var(--card-dark);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
 }
 
 :root {
@@ -67,18 +77,27 @@
   /* Tokens sémantiques métier — mode clair */
   --income: oklch(0.527 0.154 150.069);         /* vert-600 : couleur revenus */
   --expense: oklch(0.577 0.245 27.325);          /* rouge-600 : couleur dépenses */
-  --warning: oklch(0.646 0.222 41.116);          /* orange-600 : avertissements */
   --info: oklch(0.546 0.245 262.881);            /* bleu-600 : informations */
   --income-subtle: oklch(0.982 0.018 155.826);   /* vert-50 : fond revenu clair */
   --warning-subtle: oklch(0.98 0.016 73.684);    /* orange-50 : fond warning clair */
   --info-subtle: oklch(0.97 0.013 236.62);       /* bleu-50 : fond info clair */
+  /* ── Stitch Design System ──────────────────────────────────────────── */
+  --primary: #4848e5;                            /* Stitch primary */
+  --primary-foreground: #ffffff;
+  --success: #078841;                            /* Stitch success */
+  --danger: #e74008;                             /* Stitch danger */
+  --warning: #e7a008;                            /* Stitch warning (override) */
+  --background-light: #f6f6f8;
+  --background-dark: #111121;
+  --text-main: #0e0e1b;
+  --text-muted: #505095;
+  --card-light: #ffffff;
+  --card-dark: #1a1a2e;
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -149,10 +168,36 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
-    @apply bg-background text-foreground;
+  }
+  .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer utilities {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }

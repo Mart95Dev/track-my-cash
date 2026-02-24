@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 
 export function Pagination({
@@ -20,30 +19,38 @@ export function Pagination({
   function goToPage(page: number) {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", String(page));
-    router.push(`/transactions?${params.toString()}`);
+    router.push(`?${params.toString()}`);
   }
 
   return (
-    <div className="flex items-center justify-center gap-2">
-      <Button
-        variant="outline"
-        size="sm"
+    <div className="flex items-center justify-between px-4 py-4">
+      <button
         disabled={currentPage <= 1}
         onClick={() => goToPage(currentPage - 1)}
+        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+          currentPage <= 1
+            ? "text-text-muted cursor-not-allowed opacity-50"
+            : "bg-white border border-gray-200 text-text-main hover:border-primary hover:text-primary"
+        }`}
       >
+        <span className="material-symbols-outlined text-[18px]">chevron_left</span>
         {t("previous")}
-      </Button>
-      <span className="text-sm text-muted-foreground">
-        {t("page", { current: currentPage, total: totalPages })}
+      </button>
+      <span className="text-text-muted text-sm">
+        {currentPage} / {totalPages}
       </span>
-      <Button
-        variant="outline"
-        size="sm"
+      <button
         disabled={currentPage >= totalPages}
         onClick={() => goToPage(currentPage + 1)}
+        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+          currentPage >= totalPages
+            ? "text-text-muted cursor-not-allowed opacity-50"
+            : "bg-white border border-gray-200 text-text-main hover:border-primary hover:text-primary"
+        }`}
       >
         {t("next")}
-      </Button>
+        <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+      </button>
     </div>
   );
 }
