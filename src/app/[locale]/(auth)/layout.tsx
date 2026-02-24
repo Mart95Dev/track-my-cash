@@ -9,10 +9,14 @@ type Props = {
 
 export default async function AuthLayout({ children, params }: Props) {
   const { locale } = await params;
-  const session = await auth.api.getSession({ headers: await headers() });
 
-  if (session) {
-    redirect(`/${locale}`);
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (session) {
+      redirect(`/${locale}`);
+    }
+  } catch {
+    // BetterAuth non disponible — laisser passer vers la page auth
   }
 
   return <>{children}</>;
