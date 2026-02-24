@@ -311,6 +311,66 @@ describe("db — migrations couple idempotentes", () => {
   });
 });
 
+// ─── TU-87-1 + TU-87-2 : computeCoupleBalanceForPeriod ──────────────────────
+
+describe("couple-queries — computeCoupleBalanceForPeriod", () => {
+  let mockDb1: Client;
+  let mockDb2: Client;
+
+  beforeEach(() => {
+    vi.resetModules();
+    mockDb1 = { execute: vi.fn() } as unknown as Client;
+    mockDb2 = { execute: vi.fn() } as unknown as Client;
+  });
+
+  it("TU-87-1 : user1=100€, user2=60€ → diff=40, owes=userId2", async () => {
+    (mockDb1.execute as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      rows: [{ total: 100 }],
+    });
+    (mockDb2.execute as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      rows: [{ total: 60 }],
+    });
+
+    const { computeCoupleBalanceForPeriod } = await import("@/lib/couple-queries");
+    const result = await computeCoupleBalanceForPeriod(
+      mockDb1,
+      mockDb2,
+      "user-1",
+      "user-2"
+    );
+
+    expect(result.user1Paid).toBe(100);
+    expect(result.user2Paid).toBe(60);
+    expect(result.diff).toBe(40);
+    expect(result.owes).toBe("user-2");
+    expect(result.amount).toBe(40);
+  });
+
+  it("TU-87-2 : user1=0€, user2=0€ → diff=0", async () => {
+    (mockDb1.execute as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      rows: [{ total: null }],
+    });
+    (mockDb2.execute as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      rows: [{ total: null }],
+    });
+
+    const { computeCoupleBalanceForPeriod } = await import("@/lib/couple-queries");
+    const result = await computeCoupleBalanceForPeriod(
+      mockDb1,
+      mockDb2,
+      "user-1",
+      "user-2"
+    );
+
+    expect(result.user1Paid).toBe(0);
+    expect(result.user2Paid).toBe(0);
+    expect(result.diff).toBe(0);
+    expect(result.amount).toBe(0);
+    // owes peut être user-2 car diff >= 0
+    expect(result.owes).toBe("user-2");
+  });
+});
+
 // ─── TU-85-7 : computeCoupleBalance ─────────────────────────────────────────
 
 describe("couple-queries — computeCoupleBalance", () => {

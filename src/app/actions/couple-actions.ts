@@ -1,7 +1,7 @@
 "use server";
 
 import { getRequiredUserId } from "@/lib/auth-utils";
-import { getDb } from "@/lib/db";
+import { getDb, getUserDb } from "@/lib/db";
 import {
   getCoupleByUserId,
   createCouple,
@@ -81,6 +81,32 @@ export async function leaveCoupleAction(): Promise<{ success: true }> {
   const userId = await getRequiredUserId();
   await leaveCouple(getDb(), userId);
   revalidatePath("/couple");
+  return { success: true };
+}
+
+/**
+ * Marque ou démarque une transaction comme partagée avec le partenaire.
+ */
+export async function updateTransactionCoupleAction(
+  txId: number,
+  isShared: boolean,
+  paidBy?: string,
+  splitType?: string
+): Promise<{ success: true } | { error: string }> {
+  const userId = await getRequiredUserId();
+
+  const guard = await canUseCoupleFeature(userId);
+  if (!guard.allowed) {
+    return { error: guard.reason ?? "couple_pro" };
+  }
+
+  const db = await getUserDb(userId);
+  await db.execute({
+    sql: "UPDATE transactions SET is_couple_shared=?, paid_by=?, split_type=? WHERE id=?",
+    args: [isShared ? 1 : 0, paidBy ?? null, splitType ?? "50/50", txId],
+  });
+
+  revalidatePath("/transactions");
   return { success: true };
 }
 

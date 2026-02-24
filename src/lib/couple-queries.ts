@@ -1,4 +1,5 @@
 import type { Client } from "@libsql/client";
+import type { Transaction } from "@/lib/queries";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -199,6 +200,105 @@ export async function leaveCouple(db: Client, userId: string): Promise<void> {
       args: [coupleId],
     });
   }
+}
+
+// ─── Types STORY-087 ──────────────────────────────────────────────────────────
+
+export interface CoupleBalanceResult {
+  user1Paid: number;
+  user2Paid: number;
+  diff: number;
+  owes: string;
+  amount: number;
+}
+
+// ─── STORY-087 Queries ────────────────────────────────────────────────────────
+
+/**
+ * Retourne les transactions partagées des deux utilisateurs fusionnées et triées par date DESC.
+ */
+export async function getSharedTransactionsForCouple(
+  userDb1: Client,
+  userDb2: Client,
+  period?: string
+): Promise<Transaction[]> {
+  const periodFilter = period ? ` AND date LIKE ?` : "";
+  const args1: (string | number)[] = period ? [period + "%"] : [];
+  const args2: (string | number)[] = period ? [period + "%"] : [];
+
+  const [result1, result2] = await Promise.all([
+    userDb1.execute({
+      sql: `SELECT id, account_id, type, amount, date, category, COALESCE(subcategory, '') as subcategory, description, import_hash, created_at, NULL as account_name, note, is_couple_shared, paid_by, split_type FROM transactions WHERE is_couple_shared = 1${periodFilter} ORDER BY date DESC`,
+      args: args1,
+    }),
+    userDb2.execute({
+      sql: `SELECT id, account_id, type, amount, date, category, COALESCE(subcategory, '') as subcategory, description, import_hash, created_at, NULL as account_name, note, is_couple_shared, paid_by, split_type FROM transactions WHERE is_couple_shared = 1${periodFilter} ORDER BY date DESC`,
+      args: args2,
+    }),
+  ]);
+
+  const mapRow = (row: (typeof result1.rows)[0]): Transaction => ({
+    id: Number(row.id),
+    account_id: Number(row.account_id),
+    type: String(row.type) as "income" | "expense",
+    amount: Number(row.amount),
+    date: String(row.date),
+    category: String(row.category),
+    subcategory: row.subcategory ? String(row.subcategory) : null,
+    description: String(row.description),
+    import_hash: row.import_hash ? String(row.import_hash) : null,
+    created_at: String(row.created_at),
+    account_name: undefined,
+    note: row.note != null ? String(row.note) : null,
+  });
+
+  const transactions = [
+    ...result1.rows.map(mapRow),
+    ...result2.rows.map(mapRow),
+  ];
+
+  transactions.sort((a, b) => b.date.localeCompare(a.date));
+
+  return transactions;
+}
+
+/**
+ * Calcule la balance couple pour une période donnée.
+ * Prend les userDb des deux utilisateurs en paramètre.
+ */
+export async function computeCoupleBalanceForPeriod(
+  userDb1: Client,
+  userDb2: Client,
+  userId1: string,
+  userId2: string,
+  period?: string
+): Promise<CoupleBalanceResult> {
+  const periodFilter = period ? ` AND date LIKE ?` : "";
+  const args1: (string | number)[] = [userId1, ...(period ? [period + "%"] : [])];
+  const args2: (string | number)[] = [userId2, ...(period ? [period + "%"] : [])];
+
+  const [result1, result2] = await Promise.all([
+    userDb1.execute({
+      sql: `SELECT SUM(amount) as total FROM transactions WHERE is_couple_shared = 1 AND paid_by = ?${periodFilter}`,
+      args: args1,
+    }),
+    userDb2.execute({
+      sql: `SELECT SUM(amount) as total FROM transactions WHERE is_couple_shared = 1 AND paid_by = ?${periodFilter}`,
+      args: args2,
+    }),
+  ]);
+
+  const user1Paid = result1.rows[0]?.total != null ? Number(result1.rows[0].total) : 0;
+  const user2Paid = result2.rows[0]?.total != null ? Number(result2.rows[0].total) : 0;
+  const diff = user1Paid - user2Paid;
+
+  return {
+    user1Paid,
+    user2Paid,
+    diff,
+    owes: diff >= 0 ? userId2 : userId1,
+    amount: Math.abs(diff),
+  };
 }
 
 /**

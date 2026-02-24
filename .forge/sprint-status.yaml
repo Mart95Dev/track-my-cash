@@ -49,12 +49,14 @@ stories:
     epic: couple-core
     complexity: M
     priority: P2
-    status: pending
+    status: completed
     blockedBy: [STORY-085, STORY-089]
     points: 3
-    tests: 0
-    qa_verdict: ""
-    notes: "updateTransactionCoupleAction + computeCoupleBalanceForPeriod + CoupleBalanceCard"
+    tests: 8
+    qa_verdict: "PASS"
+    qa_date: "2026-02-24"
+    qa_notes: "8 tests TU-87-x (TU-87-1 à TU-87-6 + 2 extra). updateTransactionCoupleAction + computeCoupleBalanceForPeriod + getSharedTransactionsForCouple + CoupleBalanceCard + TransactionCoupleToggle. 605 tests totaux, 0 régression. tsc --noEmit OK. 0 erreur lint."
+    notes: "updateTransactionCoupleAction + computeCoupleBalanceForPeriod + getSharedTransactionsForCouple + CoupleBalanceCard + TransactionCoupleToggle + intégration toggle dans /transactions — 8 tests TU-87-x"
 
   - id: STORY-088
     title: "Dashboard toggle Ma vue / Vue couple"
@@ -423,13 +425,13 @@ metrics_v10:
 
 metrics_v12:
   total: 8
-  completed: 3
+  completed: 4
   in_progress: 0
-  pending: 5
+  pending: 4
   total_points: 20
-  points_completed: 6
-  tests_total: 597
-  tests_sprint: 30
+  points_completed: 9
+  tests_total: 605
+  tests_sprint: 38
   qa_verdict: ""
 
 metrics_v11:

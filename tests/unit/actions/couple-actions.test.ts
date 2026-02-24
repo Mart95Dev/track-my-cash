@@ -11,6 +11,7 @@ vi.mock("next/cache", () => ({
 
 vi.mock("@/lib/db", () => ({
   getDb: vi.fn().mockReturnValue({ execute: vi.fn() }),
+  getUserDb: vi.fn().mockResolvedValue({ execute: vi.fn() }),
 }));
 
 vi.mock("@/lib/couple-queries", () => ({
@@ -143,6 +144,37 @@ describe("couple-actions", () => {
 
     expect(result).toEqual({ success: true });
     expect(vi.mocked(leaveCouple)).toHaveBeenCalledWith(expect.anything(), "user-123");
+  });
+
+  it("TU-87-5 : updateTransactionCoupleAction autorisé → { success: true }, DB.execute appelé avec is_couple_shared=1", async () => {
+    const { getUserDb } = await import("@/lib/db");
+    const mockExecute = vi.fn().mockResolvedValueOnce({ rows: [] });
+    vi.mocked(getUserDb).mockResolvedValueOnce({ execute: mockExecute } as unknown as Awaited<ReturnType<typeof getUserDb>>);
+
+    const { canUseCoupleFeature } = await import("@/lib/subscription-utils");
+    vi.mocked(canUseCoupleFeature).mockResolvedValueOnce({ allowed: true });
+
+    const { updateTransactionCoupleAction } = await import("@/app/actions/couple-actions");
+    const result = await updateTransactionCoupleAction(1, true, "user-123");
+
+    expect((result as { success: boolean }).success).toBe(true);
+    expect(mockExecute).toHaveBeenCalledTimes(1);
+    const callArgs = mockExecute.mock.calls[0][0] as { sql: string; args: (number | string | null)[] };
+    expect(callArgs.args).toContain(1); // is_couple_shared=1
+    expect(callArgs.args).toContain("user-123"); // paid_by
+  });
+
+  it("TU-87-6 : updateTransactionCoupleAction plan free (canUseCoupleFeature blocked) → { error: 'couple_pro' }", async () => {
+    const { canUseCoupleFeature } = await import("@/lib/subscription-utils");
+    vi.mocked(canUseCoupleFeature).mockResolvedValueOnce({
+      allowed: false,
+      reason: undefined,
+    });
+
+    const { updateTransactionCoupleAction } = await import("@/app/actions/couple-actions");
+    const result = await updateTransactionCoupleAction(1, true, "user-123");
+
+    expect((result as { error: string }).error).toBe("couple_pro");
   });
 
   it("TU-86-8 : inviteCode généré par createCoupleAction est bien 6 chars uppercase alphanumériques", async () => {

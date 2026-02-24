@@ -1,5 +1,5 @@
 import { searchTransactions, getAllAccounts, getCategorizationRules, getUncategorizedTransactions } from "@/lib/queries";
-import { getUserDb } from "@/lib/db";
+import { getUserDb, getDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { TransactionForm } from "@/components/transaction-form";
@@ -15,6 +15,8 @@ import { canUseAI } from "@/lib/subscription-utils";
 import { getTagsAction, getTransactionTagsBatchAction } from "@/app/actions/tag-actions";
 import type { Tag } from "@/app/actions/tag-actions";
 import { getLocale } from "next-intl/server";
+import { getCoupleByUserId } from "@/lib/couple-queries";
+import { TransactionCoupleToggle } from "@/components/transaction-couple-toggle";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +45,13 @@ export default async function TransactionsPage({
     getUncategorizedTransactions(db, 50),
     canUseAI(userId),
   ]);
+
+  let couple: Awaited<ReturnType<typeof getCoupleByUserId>> = null;
+  try {
+    couple = await getCoupleByUserId(getDb(), userId);
+  } catch {
+    couple = null;
+  }
 
   const txIds = transactions.map((tx) => tx.id);
   const txTagsMap = await getTransactionTagsBatchAction(txIds);
@@ -165,6 +174,13 @@ export default async function TransactionsPage({
                       allTags={allTags}
                       initialTagIds={txTagsMap[tx.id] ?? []}
                     />
+                    {couple !== null && (
+                      <TransactionCoupleToggle
+                        txId={tx.id}
+                        isShared={(tx as unknown as Record<string, unknown>).is_couple_shared === 1}
+                        userId={userId}
+                      />
+                    )}
                     <EditTransactionDialog transaction={tx} accounts={accounts} rules={rules} />
                     <DeleteTransactionButton id={tx.id} />
                   </div>
