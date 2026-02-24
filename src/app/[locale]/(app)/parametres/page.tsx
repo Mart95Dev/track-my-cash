@@ -1,3 +1,4 @@
+import { Link } from "@/i18n/navigation";
 import { ExportImportButtons } from "@/components/export-import-buttons";
 import { ResetButton } from "@/components/reset-button";
 import { CategorizationRules } from "@/components/categorization-rules";
@@ -205,7 +206,16 @@ export default async function ParametresPage() {
         <CategorizationRules rules={rules} />
       </SettingsCard>
 
-      {/* 8. Zone danger */}
+      {/* 8. Couple */}
+      <SettingsCard icon="favorite" title="Couple">
+        <Link href="/couple" className="flex items-center gap-2 text-sm text-primary font-medium hover:underline">
+          <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+          Gérer votre espace couple
+        </Link>
+        <p className="text-xs text-text-muted mt-1">Partagez vos finances avec votre partenaire (Pro)</p>
+      </SettingsCard>
+
+      {/* 9. Zone danger */}
       <div className="bg-danger/5 border border-danger/20 rounded-2xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <span className="material-symbols-outlined text-danger text-[20px]">warning</span>

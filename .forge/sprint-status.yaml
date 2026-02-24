@@ -35,12 +35,14 @@ stories:
     epic: couple-foundation
     complexity: M
     priority: P1
-    status: pending
+    status: completed
     blockedBy: [STORY-085, STORY-089]
     points: 3
-    tests: 0
-    qa_verdict: ""
-    notes: "createCoupleAction + joinCoupleAction + leaveCoupleAction + page /couple + section parametres"
+    tests: 8
+    qa_verdict: "PASS"
+    qa_date: "2026-02-24"
+    qa_notes: "8 tests TU-86-1 à TU-86-8 (createCoupleAction, joinCoupleAction, leaveCoupleAction). 597 tests totaux, 0 régression. tsc --noEmit OK. 0 erreur lint."
+    notes: "createCoupleAction + joinCoupleAction + leaveCoupleAction + leaveCoupleFormAction + page /couple (Server Component + CoupleCreateForm/CoupleJoinForm client) + section Couple dans /parametres + messages/fr.json bloc couple + CopyInviteCodeButton client — 8 tests TU-86-x"
 
   - id: STORY-087
     title: "Transactions partagées + balance couple"
@@ -421,13 +423,13 @@ metrics_v10:
 
 metrics_v12:
   total: 8
-  completed: 2
+  completed: 3
   in_progress: 0
-  pending: 6
+  pending: 5
   total_points: 20
-  points_completed: 3
-  tests_total: 589
-  tests_sprint: 22
+  points_completed: 6
+  tests_total: 597
+  tests_sprint: 30
   qa_verdict: ""
 
 metrics_v11:
