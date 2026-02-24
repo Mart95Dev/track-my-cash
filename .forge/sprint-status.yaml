@@ -1,20 +1,118 @@
 sprint:
-  id: sprint-conversion-monetisation-v11
-  goal: "Amélioration du funnel de conversion — Stripe Tax + emails rappel trial + modale urgence + modale upgrade contextuelle + page succès + features sur cards tarifs"
+  id: sprint-niche-couple-v12
+  goal: "Pivot niche couple — DB migrations couple + invitation + transactions partagées + balance + dashboard toggle + gates freemium + budgets/objectifs couple + IA couple + landing page pivot"
   start_date: "2026-02-24"
   end_date: ""
   status: in_progress
 
 previous_sprint:
-  id: sprint-design-stitch-v10
-  stories: 11
-  completed: 11
+  id: sprint-conversion-monetisation-v11
+  stories: 6
+  completed: 6
   qa_verdict: PASS
-  tests: 495
-  commit: "fd7d5d6"
+  tests: 564
+  commit: "860d0fd"
 
 stories:
-  # === SPRINT CONVERSION & MONÉTISATION (v11) — EN COURS ===
+  # === SPRINT NICHE COUPLE (v12) — EN COURS ===
+
+  - id: STORY-085
+    title: "DB Migrations couple (Main DB + per-user ALTER TABLE)"
+    epic: couple-foundation
+    complexity: XS
+    priority: P1
+    status: completed
+    blockedBy: []
+    points: 1
+    tests: 13
+    qa_verdict: ""
+    notes: "3 tables Main DB (couples, couple_members, couple_balances) + 8 ALTER TABLE per-user — 13 tests TU-85-x"
+
+  - id: STORY-086
+    title: "Système d'invitation couple"
+    epic: couple-foundation
+    complexity: M
+    priority: P1
+    status: pending
+    blockedBy: [STORY-085, STORY-089]
+    points: 3
+    tests: 0
+    qa_verdict: ""
+    notes: "createCoupleAction + joinCoupleAction + leaveCoupleAction + page /couple + section parametres"
+
+  - id: STORY-087
+    title: "Transactions partagées + balance couple"
+    epic: couple-core
+    complexity: M
+    priority: P2
+    status: pending
+    blockedBy: [STORY-085, STORY-089]
+    points: 3
+    tests: 0
+    qa_verdict: ""
+    notes: "updateTransactionCoupleAction + computeCoupleBalanceForPeriod + CoupleBalanceCard"
+
+  - id: STORY-088
+    title: "Dashboard toggle Ma vue / Vue couple"
+    epic: couple-core
+    complexity: M
+    priority: P2
+    status: pending
+    blockedBy: [STORY-085, STORY-087]
+    points: 3
+    tests: 0
+    qa_verdict: ""
+    notes: "DashboardViewToggle (client) + CoupleDashboard (server) + searchParam ?view=couple"
+
+  - id: STORY-089
+    title: "Freemium gates couple (Pro/Premium)"
+    epic: monetisation
+    complexity: S
+    priority: P2
+    status: pending
+    blockedBy: [STORY-085]
+    points: 2
+    tests: 0
+    qa_verdict: ""
+    notes: "canUseCoupleFeature + canUsePremiumCoupleFeature + UpgradeReason couple_pro/couple_premium"
+
+  - id: STORY-090
+    title: "Budgets & objectifs couple"
+    epic: couple-features
+    complexity: M
+    priority: P3
+    status: pending
+    blockedBy: [STORY-085, STORY-089]
+    points: 3
+    tests: 0
+    qa_verdict: ""
+    notes: "AddBudgetForm scope + AddGoalForm scope + getCoupleSharedBudgets/Goals"
+
+  - id: STORY-091
+    title: "Conseiller IA couple"
+    epic: couple-ai
+    complexity: M
+    priority: P3
+    status: pending
+    blockedBy: [STORY-085, STORY-089]
+    points: 3
+    tests: 0
+    qa_verdict: ""
+    notes: "system prompt couple + 2 tools (getCoupleSummary, getCoupleBalance) + chips suggestions + gate Premium"
+
+  - id: STORY-092
+    title: "Landing page + tarifs — pivot marketing couple"
+    epic: marketing-ui
+    complexity: S
+    priority: P3
+    status: pending
+    blockedBy: []
+    points: 2
+    tests: 0
+    qa_verdict: ""
+    notes: "Hero couple + 3 features couple + témoignages + features Pro/Premium + badge Idéal en couple"
+
+  # === SPRINT CONVERSION & MONÉTISATION (v11) — TERMINÉ ===
 
   - id: STORY-079
     title: "Stripe Tax — TVA automatique"
@@ -316,6 +414,17 @@ metrics_v10:
     7 régressions test corrigées (AccountFilter label/UI, Navbar logo, BudgetProgress classes).
     3 erreurs lint pré-existantes corrigées (unescaped entity, setState inline, require() import).
     Build prod OK, 495 tests verts, 0 erreur lint.
+
+metrics_v12:
+  total: 8
+  completed: 1
+  in_progress: 0
+  pending: 7
+  total_points: 20
+  points_completed: 1
+  tests_total: 577
+  tests_sprint: 13
+  qa_verdict: ""
 
 metrics_v11:
   total: 6

@@ -138,16 +138,38 @@
 
 ---
 
-## Sprint Conversion & Monétisation (v11) — EN COURS 🚧
+## Sprint Niche Couple (v12) — EN COURS 🚧
 
 | ID | Titre | Priorité | Complexité | Statut | QA |
 |----|-------|----------|------------|--------|-------|
-| STORY-079 | Stripe Tax — TVA automatique | P1 | XS | 🔲 pending | — |
-| STORY-080 | Emails de rappel trial J-3 et J-1 | P1 | M | 🔲 pending | — |
-| STORY-081 | Modale urgence trial ≤ 3 jours | P1 | S | 🔲 pending | — |
-| STORY-082 | Modale upgrade contextuelle | P2 | M | 🔲 pending | — |
-| STORY-083 | Page succès post-paiement `/bienvenue` | P2 | S | 🔲 pending | — |
-| STORY-084 | Features bullets sur les cards /tarifs | P3 | XS | 🔲 pending | — |
+| STORY-085 | DB Migrations couple (Main DB + per-user ALTER TABLE) | P1 | XS | 🔲 pending | — |
+| STORY-086 | Système d'invitation couple (createCouple + joinCouple) | P1 | M | 🔲 pending | — |
+| STORY-087 | Transactions partagées + balance couple | P2 | M | 🔲 pending | — |
+| STORY-088 | Dashboard toggle Ma vue / Vue couple | P2 | M | 🔲 pending | — |
+| STORY-089 | Freemium gates couple (Pro/Premium) | P2 | S | 🔲 pending | — |
+| STORY-090 | Budgets & objectifs couple | P3 | M | 🔲 pending | — |
+| STORY-091 | Conseiller IA couple (system prompt + tools + chips) | P3 | M | 🔲 pending | — |
+| STORY-092 | Landing page + tarifs — pivot marketing couple | P3 | S | 🔲 pending | — |
+
+---
+
+## Sprint Conversion & Monétisation (v11) — TERMINÉ ✅
+
+| ID | Titre | Priorité | Complexité | Statut | QA |
+|----|-------|----------|------------|--------|-------|
+| STORY-079 | Stripe Tax — TVA automatique | P1 | XS | ✅ completed | PASS |
+| STORY-080 | Emails de rappel trial J-3 et J-1 | P1 | M | ✅ completed | PASS |
+| STORY-081 | Modale urgence trial ≤ 3 jours | P1 | S | ✅ completed | PASS |
+| STORY-082 | Modale upgrade contextuelle | P2 | M | ✅ completed | PASS |
+| STORY-083 | Page succès post-paiement `/bienvenue` | P2 | S | ✅ completed | PASS |
+| STORY-084 | Features bullets sur les cards /tarifs | P3 | XS | ✅ completed | PASS |
+
+### Métriques Sprint Conversion & Monétisation
+
+- **Stories complétées :** 6/6 ✅
+- **Points total :** 12/12 ✅
+- **Tests sprint :** 52 nouveaux tests (564 total, 0 échec)
+- **TypeScript :** 0 erreur — commit `860d0fd`
 
 ---
 

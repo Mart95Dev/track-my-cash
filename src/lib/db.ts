@@ -100,6 +100,34 @@ export async function initSchema() {
       cancel_at_period_end INTEGER NOT NULL DEFAULT 0,
       created_at INTEGER NOT NULL DEFAULT (unixepoch())
     );
+
+    CREATE TABLE IF NOT EXISTS couples (
+      id TEXT PRIMARY KEY,
+      invite_code TEXT NOT NULL UNIQUE,
+      name TEXT,
+      created_by TEXT NOT NULL,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch())
+    );
+
+    CREATE TABLE IF NOT EXISTS couple_members (
+      id TEXT PRIMARY KEY,
+      couple_id TEXT NOT NULL REFERENCES couples(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'member',
+      status TEXT NOT NULL DEFAULT 'active',
+      joined_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      UNIQUE(couple_id, user_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS couple_balances (
+      id TEXT PRIMARY KEY,
+      couple_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      period_month TEXT NOT NULL,
+      total_paid REAL NOT NULL DEFAULT 0,
+      computed_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      UNIQUE(couple_id, user_id, period_month)
+    );
   `);
 
   // Add columns if they don't exist (safe ALTER TABLE)
@@ -184,6 +212,15 @@ export async function initSchema() {
       payload    TEXT,
       created_at TEXT    DEFAULT (datetime('now'))
     )`,
+    // STORY-085 : colonnes couple dans les tables per-user
+    "ALTER TABLE accounts ADD COLUMN visibility TEXT DEFAULT 'personal'",
+    "ALTER TABLE transactions ADD COLUMN is_couple_shared INTEGER DEFAULT 0",
+    "ALTER TABLE transactions ADD COLUMN paid_by TEXT",
+    "ALTER TABLE transactions ADD COLUMN split_type TEXT DEFAULT '50/50'",
+    "ALTER TABLE budgets ADD COLUMN scope TEXT DEFAULT 'personal'",
+    "ALTER TABLE budgets ADD COLUMN couple_id TEXT",
+    "ALTER TABLE goals ADD COLUMN scope TEXT DEFAULT 'personal'",
+    "ALTER TABLE goals ADD COLUMN couple_id TEXT",
   ];
   for (const sql of migrations) {
     try {

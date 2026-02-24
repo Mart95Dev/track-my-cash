@@ -581,7 +581,7 @@ STORY-077  STORY-078   (Chat IA + Paramètres — parallèles)
 
 ---
 
-*PRD généré par FORGE PM Agent — 2026-02-24*
+*PRD généré par FORGE PM Agent — 2026-02-24 [v10]*
 
 ---
 
@@ -898,4 +898,702 @@ L'application est visuellement complète et fonctionnellement mature, mais le **
 
 ---
 
-*PRD généré par FORGE PM Agent — 2026-02-24*
+*PRD généré par FORGE PM Agent — 2026-02-24 [v11]*
+
+---
+
+---
+
+# PRD — Sprint Niche Couple (v12)
+
+**Version :** 12.0
+**Date :** 2026-02-24
+**Statut :** Prêt pour décomposition en stories
+**Périmètre :** Pivot de la proposition de valeur vers la niche couple — gestion budgétaire partagée, balance qui-doit-quoi, objectifs communs, IA couple.
+
+---
+
+## Contexte
+
+Le Sprint Conversion & Monétisation (v11) est **entièrement livré** :
+- ✅ 6/6 stories PASS (564 tests, QA PASS)
+- ✅ Stripe Tax, emails rappel trial, modales urgence/upgrade, page succès, features sur cards tarifs
+- ✅ 84 stories livrées sur 11 sprints
+
+**Pivot stratégique :**
+
+Après analyse de marché, le segment "gestion de comptes personnels" généraliste est saturé au niveau de prix de TrackMyCash (4,90 € / 7,90 €). Décision : pivoter vers la niche **couple** — outil de gestion budgétaire commune pour couples. Différenciation :
+1. **Comptes partagés** — chaque partenaire voit les transactions marquées "couple"
+2. **Balance équitable** — qui a payé quoi ce mois ? Solde automatique
+3. **Objectifs communs** — vacances, achat immobilier, épargne d'urgence partagée
+4. **IA couple** — conseiller financier personnalisé pour le duo
+
+Périmètre : Prompts 1 à 8 inclus (hors P9 admin dashboard, P10 logs couple).
+
+---
+
+## Décision architecturale critique
+
+**Architecture actuelle :**
+- Main DB (`getDb()`) : `users_databases`, `subscriptions`, `ai_usage`, `admin_logs`, `deletion_requests`
+- Per-user DB (`getUserDb(userId)`) : `accounts`, `transactions`, `budgets`, `goals`, `notifications`, etc.
+
+**Décision couple :**
+
+Les tables couple couvrent deux utilisateurs distincts (chacun avec sa propre DB Turso). Elles doivent donc résider dans la **Main DB** accessible via `getDb()`.
+
+| Tables | DB cible | Motif |
+|--------|----------|-------|
+| `couples`, `couple_members`, `couple_balances` | **Main DB** (`getDb()`) | Cross-user, span 2 per-user DBs |
+| ALTER TABLE sur `accounts`, `transactions`, `budgets`, `goals` | Per-user DB (migrations dans `initSchema()`) | Données locales de chaque user |
+
+---
+
+## Architecture existante (contexte technique)
+
+- **`src/lib/db.ts`** — `getDb()` (main DB) + `getUserDb(userId)` (per-user DB via turso-manager) + `initSchema()` (migrations additives try/catch dans array `migrations[]`)
+- **`src/lib/subscription-utils.ts`** — `getUserPlanId()`, `canCreateAccount()`, `canUseAI()`, `canImportFormat()` — pattern `{allowed: boolean, reason?: string}`
+- **`src/hooks/use-upgrade-modal.ts`** — `UpgradeReason` type union + `UPGRADE_CONFIGS` + `useUpgradeModal()` + `detectUpgradeReason()`
+- **`src/components/upgrade-modal.tsx`** — modale client `"use client"`, consomme `UpgradeReason`
+- **`src/lib/ai-tools.ts`** — factory `createAiTools(db, accountId)` retourne des `tool()` Vercel AI SDK
+- **`src/app/api/chat/route.ts`** — `streamText()` avec tools + system prompt
+- **`src/components/bottom-nav.tsx`** — 5 onglets fixes (Dashboard, Comptes, Transactions, Récurrents, Conseiller) — **non modifié**
+
+---
+
+## Périmètre — Stories MoSCoW
+
+---
+
+### 🔴 MUST HAVE
+
+#### STORY-085 : DB Migrations couple
+
+**Description :** Créer les 3 tables couple dans la Main DB et ajouter les nouvelles colonnes dans les tables per-user via migrations additives. Prérequis bloquant pour toutes les autres stories couple.
+
+**Tables Main DB** (ajouter à `src/lib/db.ts` dans `initSchema()`) :
+```sql
+CREATE TABLE IF NOT EXISTS couples (
+  id TEXT PRIMARY KEY,
+  invite_code TEXT NOT NULL UNIQUE,
+  name TEXT,
+  created_by TEXT NOT NULL,
+  created_at INTEGER NOT NULL DEFAULT (unixepoch())
+);
+
+CREATE TABLE IF NOT EXISTS couple_members (
+  id TEXT PRIMARY KEY,
+  couple_id TEXT NOT NULL REFERENCES couples(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'member',
+  status TEXT NOT NULL DEFAULT 'active',
+  joined_at INTEGER NOT NULL DEFAULT (unixepoch()),
+  UNIQUE(couple_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS couple_balances (
+  id TEXT PRIMARY KEY,
+  couple_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  period_month TEXT NOT NULL,
+  total_paid REAL NOT NULL DEFAULT 0,
+  computed_at INTEGER NOT NULL DEFAULT (unixepoch()),
+  UNIQUE(couple_id, user_id, period_month)
+);
+```
+
+**Migrations per-user DB** (ajouter à l'array `migrations[]` dans `initSchema()`) :
+```sql
+ALTER TABLE accounts ADD COLUMN visibility TEXT DEFAULT 'personal';
+ALTER TABLE transactions ADD COLUMN is_couple_shared INTEGER DEFAULT 0;
+ALTER TABLE transactions ADD COLUMN paid_by TEXT;
+ALTER TABLE transactions ADD COLUMN split_type TEXT DEFAULT '50/50';
+ALTER TABLE budgets ADD COLUMN scope TEXT DEFAULT 'personal';
+ALTER TABLE budgets ADD COLUMN couple_id TEXT;
+ALTER TABLE goals ADD COLUMN scope TEXT DEFAULT 'personal';
+ALTER TABLE goals ADD COLUMN couple_id TEXT;
+```
+
+**Nouveau fichier `src/lib/couple-queries.ts`** :
+```typescript
+export interface Couple {
+  id: string; invite_code: string; name: string | null;
+  created_by: string; created_at: number;
+}
+export interface CoupleMember {
+  id: string; couple_id: string; user_id: string;
+  role: "owner" | "member"; status: string; joined_at: number;
+}
+export interface CoupleBalance {
+  id: string; couple_id: string; user_id: string;
+  period_month: string; total_paid: number; computed_at: number;
+}
+// Fonctions : getCoupleByUserId, getCoupleMembers, createCouple,
+//             joinCouple, leaveCouple, computeCoupleBalance
+```
+
+**Fichiers modifiés :**
+- `src/lib/db.ts` — 3 CREATE TABLE + 8 ALTER TABLE dans `migrations[]`
+- `src/lib/couple-queries.ts` — **nouveau** (queries Main DB + helpers)
+- `src/lib/types.ts` — re-export `Couple`, `CoupleMember`, `CoupleBalance`
+
+**Acceptance Criteria :**
+- AC-1 : Les 3 tables `couples`, `couple_members`, `couple_balances` sont créées dans la Main DB sans erreur
+- AC-2 : Les 8 colonnes sont ajoutées dans les tables per-user via `initSchema()` (idempotentes)
+- AC-3 : `getCoupleByUserId(userId)` retourne `null` si l'utilisateur n'a pas de couple
+- AC-4 : `createCouple(userId, name?, inviteCode)` insère une ligne dans `couples` + `couple_members` (role=owner)
+- AC-5 : `joinCouple(userId, inviteCode)` retourne `null` si le code est invalide
+- AC-6 : `computeCoupleBalance(coupleId, period)` retourne un tableau de 0 à N `CoupleBalance`
+- AC-7 : `npm run build` passe sans erreur TypeScript
+
+**Tests (TU-85-x) :**
+- TU-85-1 : `getCoupleByUserId("unknown")` retourne `null`
+- TU-85-2 : `createCouple("user1", "Notre budget", "ABC123")` insère couple + membre owner
+- TU-85-3 : `joinCouple("user2", "ABC123")` insère membre avec role="member"
+- TU-85-4 : `joinCouple("user2", "INVALID")` retourne `null`
+- TU-85-5 : `leaveCouple("user1")` supprime le membre (et le couple si orphelin)
+- TU-85-6 : Migrations additives idempotentes (2e appel ne lève pas d'erreur)
+- TU-85-7 : `computeCoupleBalance("coupleId", "2026-02")` retourne tableau (vide si pas de données)
+
+---
+
+#### STORY-086 : Système d'invitation couple
+
+**Description :** Permettre à deux utilisateurs de créer un espace couple partagé via un code d'invitation. Inclut les Server Actions et la page de gestion.
+
+**Server Actions** (`src/app/actions/couple-actions.ts` — nouveau) :
+```typescript
+// createCoupleAction(_prev, formData) :
+//   1. getRequiredUserId()
+//   2. Guard : canUseCoupleFeature(userId) → UpgradeModal "couple_pro" si non autorisé
+//   3. Vérifie que l'user n'a pas déjà un couple
+//   4. Génère invite_code (nanoid 6 chars uppercase)
+//   5. getDb() → createCouple(userId, name, inviteCode)
+//   6. revalidatePath("/couple")
+//   7. return { success: true, inviteCode }
+//
+// joinCoupleAction(_prev, formData) :
+//   1. getRequiredUserId()
+//   2. Guard : canUseCoupleFeature(userId)
+//   3. Vérifie que l'user n'a pas déjà un couple
+//   4. getDb() → joinCouple(userId, inviteCode)
+//   5. Si null → return { error: "Code invalide" }
+//   6. revalidatePath("/couple")
+//
+// leaveCoupleAction() :
+//   1. getRequiredUserId()
+//   2. getDb() → getCoupleByUserId(userId)
+//   3. Si membre owner et 1 seul membre → supprime le couple
+//   4. Sinon → supprime le membre uniquement
+//   5. revalidatePath("/couple")
+```
+
+**Page** (`src/app/[locale]/(app)/couple/page.tsx` — nouveau, Server Component) :
+- **État "pas de couple"** :
+  - Formulaire "Créer un espace couple" (champ nom optionnel + submit)
+  - Séparateur "ou"
+  - Formulaire "Rejoindre avec un code" (champ 6 chars + submit)
+- **État "couple actif"** :
+  - Avatar partenaire (initiales dans cercle) + nom/email
+  - Bloc "Code d'invitation" : code dans un badge + bouton Copier
+  - Bouton "Quitter le couple" (danger, avec confirmation)
+
+**Navigation** : Section "Couple" dans `src/app/[locale]/(app)/parametres/page.tsx` avec lien vers `/couple`.
+
+**i18n** : bloc `"couple"` dans `messages/fr.json` :
+```json
+"couple": {
+  "title": "Espace couple",
+  "create": "Créer un espace couple",
+  "join": "Rejoindre avec un code",
+  "leave": "Quitter le couple",
+  "inviteCode": "Code d'invitation",
+  "partner": "Partenaire"
+}
+```
+
+**Fichiers modifiés :**
+- `src/app/actions/couple-actions.ts` — **nouveau**
+- `src/app/[locale]/(app)/couple/page.tsx` — **nouveau**
+- `src/app/[locale]/(app)/parametres/page.tsx` — section Couple avec lien
+- `messages/fr.json` — bloc couple
+
+**Acceptance Criteria :**
+- AC-1 : `createCoupleAction` crée le couple et retourne le code à 6 chars
+- AC-2 : `joinCoupleAction` avec code valide lie les deux utilisateurs
+- AC-3 : `joinCoupleAction` avec code invalide retourne `{ error: "Code invalide" }`
+- AC-4 : Un user déjà en couple ne peut pas créer ni rejoindre un second couple
+- AC-5 : La page `/couple` affiche les 2 formulaires si l'user n'a pas de couple
+- AC-6 : La page `/couple` affiche les infos partenaire et le code si couple actif
+- AC-7 : `leaveCoupleAction` supprime le membre et le couple si orphelin
+
+**Tests (TU-86-x) :**
+- TU-86-1 : `createCoupleAction` retourne `{ success: true, inviteCode }` quand autorisé
+- TU-86-2 : `createCoupleAction` retourne `{ error: "..." }` si déjà en couple
+- TU-86-3 : `joinCoupleAction` avec code valide retourne `{ success: true }`
+- TU-86-4 : `joinCoupleAction` avec code invalide retourne `{ error: "Code invalide" }`
+- TU-86-5 : `leaveCoupleAction` supprime le couple si dernier membre
+- TU-86-6 : La page `/couple` (état pas de couple) rend sans erreur
+- TU-86-7 : La page `/couple` (état couple actif) affiche le code d'invitation
+- TU-86-8 : La section Couple dans `/parametres` contient un lien vers `/couple`
+
+---
+
+### 🟡 SHOULD HAVE
+
+#### STORY-087 : Transactions partagées + balance couple
+
+**Description :** Permettre de marquer une transaction comme "partagée avec mon partenaire" et calculer automatiquement la balance (qui doit quoi). Affichage d'un widget balance dans le dashboard couple.
+
+**Server Action** (ajout dans `src/app/actions/couple-actions.ts`) :
+```typescript
+// updateTransactionCoupleAction(txId, isShared, paidBy?, splitType?) :
+//   1. getRequiredUserId()
+//   2. Guard : canUseCoupleFeature(userId) → UpgradeModal si non autorisé
+//   3. getUserDb(userId) → UPDATE transactions SET is_couple_shared=?, paid_by=?, split_type=? WHERE id=?
+//   4. revalidatePath("/transactions")
+```
+
+**Queries** (dans `src/lib/couple-queries.ts`) :
+```typescript
+// getSharedTransactionsForCouple(coupleId, userDb1, userDb2, period?) :
+//   - SELECT is_couple_shared=1 transactions de userDb1 et userDb2
+//   - Fusionne et trie par date DESC
+//
+// computeCoupleBalanceForPeriod(coupleId, userDb1, userDb2, userId1, userId2, period) :
+//   - SUM amounts WHERE is_couple_shared=1 AND paid_by=userId1 → user1Paid
+//   - SUM amounts WHERE is_couple_shared=1 AND paid_by=userId2 → user2Paid
+//   - diff = user1Paid - user2Paid
+//   - return { user1Paid, user2Paid, diff, owes: diff > 0 ? userId2 : userId1, amount: |diff| }
+```
+
+**Nouveau composant** `src/components/couple-balance-card.tsx` :
+- Props : `user1Paid`, `user2Paid`, `partnerName`, `diff`
+- Affiche : "Vous avez payé X€ · Partenaire Y€"
+- Badge : "Balance : +Z€ (Partenaire vous doit)" ou "Balance : −Z€ (Vous devez)"
+- Couleur badge : text-success si vous avez payé plus, text-danger si vous devez
+
+**Intégration** : Toggle `is_couple_shared` sur chaque transaction dans `/transactions` (bouton icône `people` → active/désactive le partage).
+
+**Fichiers modifiés :**
+- `src/app/actions/couple-actions.ts` — `updateTransactionCoupleAction`
+- `src/lib/couple-queries.ts` — `getSharedTransactionsForCouple`, `computeCoupleBalanceForPeriod`
+- `src/components/couple-balance-card.tsx` — **nouveau**
+- `src/app/[locale]/(app)/transactions/page.tsx` — bouton toggle partage
+
+**Acceptance Criteria :**
+- AC-1 : Le bouton "Partager" sur une transaction met à jour `is_couple_shared` et `paid_by`
+- AC-2 : `computeCoupleBalanceForPeriod` retourne le bon diff (user1 a payé 100€, user2 a payé 60€ → diff=+40€, user2 doit 40€ à user1)
+- AC-3 : `CoupleBalanceCard` affiche les montants corrects et la direction de la dette
+- AC-4 : La vue couple du dashboard affiche `CoupleBalanceCard` pour le mois en cours
+- AC-5 : Guard : le toggle partage est refusé (UpgradeModal) si plan < Pro
+
+**Tests (TU-87-x) :**
+- TU-87-1 : `computeCoupleBalanceForPeriod` avec user1=100€, user2=60€ retourne `{ diff: 40, owes: "user2" }`
+- TU-87-2 : `computeCoupleBalanceForPeriod` avec user1=0€, user2=0€ retourne `{ diff: 0 }`
+- TU-87-3 : `CoupleBalanceCard` affiche "Partenaire vous doit 40,00€" quand diff=40 en faveur de l'user
+- TU-87-4 : `CoupleBalanceCard` affiche "Vous devez 40,00€" quand diff=-40
+- TU-87-5 : `updateTransactionCoupleAction` met à jour `is_couple_shared=1` et `paid_by`
+- TU-87-6 : `updateTransactionCoupleAction` retourne `{ error }` si guard freemium bloque
+
+---
+
+#### STORY-088 : Dashboard toggle Ma vue / Vue couple
+
+**Description :** Ajouter un toggle "Ma vue / Vue couple" en haut du dashboard. La vue couple charge les données partagées des deux partenaires et le widget balance. La vue personnelle reste inchangée.
+
+**Nouveau composant** `src/components/dashboard-view-toggle.tsx` (`"use client"`) :
+```typescript
+// Props : hasCoupleActive: boolean
+// Lit searchParam "view" depuis useSearchParams()
+// Rend 2 pills : [Ma vue] [Vue couple]
+// Clic → router.push("?view=couple") ou router.push("?view=personal")
+// Si !hasCoupleActive : pill "Vue couple" → lien vers /couple avec banner invit
+```
+
+**Nouveau composant** `src/components/couple-dashboard.tsx` (Server Component) :
+- Reçoit `coupleId`, `userId`, `partnerUserId`
+- Charge : `computeCoupleBalanceForPeriod`, shared transactions (5 dernières), budgets scope='couple', goals scope='couple'
+- Rend : `CoupleBalanceCard` + liste transactions partagées + sections budgets/objectifs couple
+
+**Modification dashboard** `src/app/[locale]/(app)/dashboard/page.tsx` :
+- Lit `searchParams.view` (`"personal"` par défaut)
+- Si `view === "couple"` et couple actif → rend `<CoupleDashboard />`
+- Si `view === "couple"` et pas de couple → rend banner "Invitez votre partenaire"
+- Ajoute `<DashboardViewToggle />` en haut de page
+
+**Acceptance Criteria :**
+- AC-1 : Le toggle s'affiche en haut du dashboard pour tous les utilisateurs
+- AC-2 : Clic "Vue couple" avec couple actif → affiche `CoupleDashboard`
+- AC-3 : Clic "Vue couple" sans couple → banner avec lien vers `/couple`
+- AC-4 : Clic "Ma vue" → retour à la vue personnelle normale
+- AC-5 : La vue personnelle est identique à l'état actuel (non-régression)
+- AC-6 : `DashboardViewToggle` est un composant client (`"use client"`)
+
+**Tests (TU-88-x) :**
+- TU-88-1 : `<DashboardViewToggle hasCoupleActive={true} />` rend 2 pills
+- TU-88-2 : `<DashboardViewToggle hasCoupleActive={false} />` rend pill "Vue couple" désactivée
+- TU-88-3 : Dashboard page avec `?view=couple` et couple actif rend `CoupleDashboard`
+- TU-88-4 : Dashboard page avec `?view=couple` sans couple rend le banner invitation
+- TU-88-5 : Dashboard page sans searchParam `view` rend la vue personnelle normale
+- TU-88-6 : `<CoupleDashboard />` rend sans erreur avec données mockées
+
+---
+
+#### STORY-089 : Freemium gates couple
+
+**Description :** Définir les règles freemium pour les features couple et les intégrer comme guards dans les Server Actions + nouvelles entrées dans le système de modales d'upgrade.
+
+**Règles freemium :**
+| Feature | Plan minimum |
+|---------|-------------|
+| Créer / rejoindre un couple | Pro |
+| Transactions partagées | Pro |
+| Budgets couple | Pro |
+| Objectifs couple | Premium |
+| IA conseiller couple | Premium |
+
+**Nouvelles fonctions** dans `src/lib/subscription-utils.ts` :
+```typescript
+export async function canUseCoupleFeature(userId: string): Promise<{ allowed: boolean; reason?: string }> {
+  const planId = await getUserPlanId(userId);
+  if (planId === "free") {
+    return { allowed: false, reason: "Partagez vos finances en couple à partir du plan Pro (4,90€/mois)." };
+  }
+  return { allowed: true };
+}
+
+export async function canUsePremiumCoupleFeature(userId: string): Promise<{ allowed: boolean; reason?: string }> {
+  const planId = await getUserPlanId(userId);
+  if (planId !== "premium") {
+    return { allowed: false, reason: "Les objectifs couple et l'IA couple sont disponibles en plan Premium (7,90€/mois)." };
+  }
+  return { allowed: true };
+}
+```
+
+**Nouveaux `UpgradeReason`** dans `src/hooks/use-upgrade-modal.ts` :
+```typescript
+export type UpgradeReason =
+  | "ai" | "accounts_limit" | "import_pdf" | "import_xlsx" | "export_pdf" | "history"
+  | "couple_pro"     // Créer/rejoindre couple, transactions partagées, budgets couple
+  | "couple_premium"; // Objectifs couple, IA couple
+```
+
+**Nouvelles entrées `UPGRADE_CONFIGS`** :
+```typescript
+couple_pro: {
+  targetPlan: "pro",
+  title: "Gérez vos finances en couple",
+  description: "Partagez vos dépenses et suivez votre balance ensemble.",
+  features: ["Transactions partagées", "Balance qui-doit-quoi", "Budgets couple"],
+},
+couple_premium: {
+  targetPlan: "premium",
+  title: "IA et objectifs couple",
+  description: "Atteignez vos objectifs financiers ensemble avec l'IA.",
+  features: ["Objectifs d'épargne communs", "Conseiller IA couple illimité", "Rapport annuel couple"],
+},
+```
+
+**Intégration guards** :
+- `createCoupleAction`, `joinCoupleAction` → `canUseCoupleFeature`
+- `updateTransactionCoupleAction` → `canUseCoupleFeature`
+- Goals scope='couple' → `canUsePremiumCoupleFeature`
+
+**Fichiers modifiés :**
+- `src/lib/subscription-utils.ts` — 2 nouvelles fonctions
+- `src/hooks/use-upgrade-modal.ts` — 2 nouveaux `UpgradeReason` + configs
+- `src/app/actions/couple-actions.ts` — guards ajoutés
+
+**Acceptance Criteria :**
+- AC-1 : `canUseCoupleFeature` retourne `{allowed: false}` pour plan free
+- AC-2 : `canUseCoupleFeature` retourne `{allowed: true}` pour plan pro et premium
+- AC-3 : `canUsePremiumCoupleFeature` retourne `{allowed: false}` pour plan pro
+- AC-4 : `canUsePremiumCoupleFeature` retourne `{allowed: true}` pour plan premium
+- AC-5 : `createCoupleAction` sur plan free retourne `{error: "couple_pro"}`
+- AC-6 : `UpgradeModal` avec `reason="couple_pro"` affiche le plan Pro
+- AC-7 : `UpgradeModal` avec `reason="couple_premium"` affiche le plan Premium
+
+**Tests (TU-89-x) :**
+- TU-89-1 : `canUseCoupleFeature("free-user")` retourne `{allowed: false}`
+- TU-89-2 : `canUseCoupleFeature("pro-user")` retourne `{allowed: true}`
+- TU-89-3 : `canUsePremiumCoupleFeature("pro-user")` retourne `{allowed: false}`
+- TU-89-4 : `canUsePremiumCoupleFeature("premium-user")` retourne `{allowed: true}`
+- TU-89-5 : `<UpgradeModal reason="couple_pro" />` rend sans erreur et affiche "Pro"
+- TU-89-6 : `<UpgradeModal reason="couple_premium" />` affiche "Premium"
+- TU-89-7 : `detectUpgradeReason("Partagez vos finances en couple")` retourne `"couple_pro"`
+
+---
+
+### 🟢 COULD HAVE
+
+#### STORY-090 : Budgets & objectifs couple
+
+**Description :** Permettre de créer des budgets et objectifs d'épargne partagés entre les deux partenaires. Affichage dans la vue couple du dashboard.
+
+**Modifications formulaires :**
+
+`src/components/add-budget-form.tsx` :
+- Si couple actif + plan Pro : ajouter champ radio "Personnel / Couple" (scope)
+- Si scope='couple' : envoyer `couple_id` dans la form data
+- Guard dans `createBudgetAction` → `canUseCoupleFeature` si scope='couple'
+
+`src/components/add-goal-form.tsx` :
+- Si couple actif + plan Premium : ajouter champ radio "Personnel / Couple"
+- Si scope='couple' : afficher champ `contribution_split` (50/50 par défaut)
+- Guard dans `createGoalAction` → `canUsePremiumCoupleFeature` si scope='couple'
+
+**Queries couple** (dans `src/lib/couple-queries.ts`) :
+```typescript
+// getCoupleSharedBudgets(coupleId, userDb1, userDb2) :
+//   - Budgets scope='couple' de chaque membre
+//   - Fusionne et déduplique
+//
+// getCoupleSharedGoals(coupleId, userDb1, userDb2) :
+//   - Goals scope='couple' de chaque membre
+```
+
+**Intégration dashboard couple** :
+- `CoupleDashboard` affiche section "Budgets communs" + "Objectifs communs"
+
+**Fichiers modifiés :**
+- `src/components/add-budget-form.tsx` — champ scope
+- `src/components/add-goal-form.tsx` — champ scope + contribution_split
+- `src/lib/couple-queries.ts` — `getCoupleSharedBudgets`, `getCoupleSharedGoals`
+- `src/app/[locale]/(app)/budgets/page.tsx` — section budgets couple si couple actif + Pro
+- `src/app/[locale]/(app)/objectifs/page.tsx` — section objectifs couple si couple actif + Premium
+
+**Acceptance Criteria :**
+- AC-1 : Le formulaire d'ajout de budget propose scope "Couple" si couple actif + Pro
+- AC-2 : Créer un budget scope='couple' applique le guard Pro (UpgradeModal si plan free)
+- AC-3 : Le formulaire d'ajout d'objectif propose scope "Couple" si couple actif + Premium
+- AC-4 : `getCoupleSharedBudgets` retourne les budgets marqués scope='couple' des 2 membres
+- AC-5 : La section "Budgets communs" dans `/budgets` s'affiche si couple actif + Pro
+- AC-6 : La section "Objectifs communs" dans `/objectifs` s'affiche si couple actif + Premium
+
+**Tests (TU-90-x) :**
+- TU-90-1 : `getCoupleSharedBudgets("coupleId", db1, db2)` retourne les budgets couple
+- TU-90-2 : `getCoupleSharedGoals` retourne les objectifs scope='couple'
+- TU-90-3 : `<AddBudgetForm hasCoupleActive={true} isPro={true} />` rend le champ scope
+- TU-90-4 : `<AddBudgetForm hasCoupleActive={false} />` ne rend pas le champ scope
+- TU-90-5 : `<AddGoalForm hasCoupleActive={true} isPremium={true} />` rend scope + contribution_split
+- TU-90-6 : createBudgetAction avec scope='couple' sur plan free retourne `{ error }`
+
+---
+
+#### STORY-091 : Conseiller IA couple
+
+**Description :** Enrichir le conseiller IA pour comprendre le contexte couple : system prompt dédié, 2 nouveaux outils IA, suggestions chips contextuelles couple.
+
+**System prompt conditionnel** dans `src/app/api/chat/route.ts` :
+```typescript
+// Si coupleId présent dans body + Premium :
+const systemPrompt = coupleId
+  ? `Tu es le conseiller financier du couple "${coupleName}". Tu as accès aux dépenses partagées des deux partenaires. Aide-les à équilibrer leurs dépenses et à atteindre leurs objectifs communs.`
+  : systemPromptDefault;
+```
+
+**2 nouveaux outils** dans `src/lib/ai-tools.ts` :
+```typescript
+// getCoupleSummary : résumé du mois couple
+// Params : period (YYYY-MM), coupleId
+// Retourne : totalShared, user1Paid, user2Paid, balance, nbTransactions
+
+// getCoupleBalance : balance détaillée
+// Params : period (YYYY-MM)
+// Retourne : CoupleBalance enrichi + message humain
+```
+
+**Chips suggestions couple** dans `src/components/ai-chat.tsx` :
+```typescript
+// Si coupleId présent + Premium :
+const COUPLE_SUGGESTIONS = [
+  "Analyse nos dépenses communes ce mois",
+  "Qui a le plus dépensé ce mois ?",
+  "Suggère un budget commun pour ce mois",
+  "Quelles économies peut-on faire en couple ?",
+];
+```
+
+**Gate Premium** dans `/api/chat` :
+- Si `coupleId` présent dans le body → vérifier `canUsePremiumCoupleFeature(userId)` → retourner 403 si non Premium
+
+**Fichiers modifiés :**
+- `src/lib/ai-tools.ts` — 2 nouveaux tools
+- `src/app/api/chat/route.ts` — system prompt conditionnel + gate Premium couple
+- `src/components/ai-chat.tsx` — chips suggestions couple conditionnelles
+- `src/hooks/use-upgrade-modal.ts` — `detectUpgradeReason` étendu pour couple_premium
+
+**Acceptance Criteria :**
+- AC-1 : Si `coupleId` dans le body + Premium → system prompt couple activé
+- AC-2 : `getCoupleSummary` tool retourne les totaux partagés du mois
+- AC-3 : `getCoupleBalance` tool retourne la balance avec message lisible
+- AC-4 : Les chips couple s'affichent si couple actif + Premium
+- AC-5 : Gate : `coupleId` + plan Pro ou Free → 403 ou UpgradeModal "couple_premium"
+- AC-6 : Vue non-couple → comportement IA inchangé (non-régression)
+
+**Tests (TU-91-x) :**
+- TU-91-1 : `getCoupleSummary` retourne `{ totalShared, user1Paid, user2Paid, balance }` bien calculés
+- TU-91-2 : `getCoupleBalance` retourne un message humain
+- TU-91-3 : `/api/chat` avec `coupleId` + plan Pro → retourne 403
+- TU-91-4 : `/api/chat` avec `coupleId` + plan Premium → stream IA démarre
+- TU-91-5 : `<AiChat coupleId={undefined} />` — chips couple non affichées
+- TU-91-6 : `<AiChat coupleId="abc" isPremium={true} />` — chips couple affichées
+
+---
+
+#### STORY-092 : Landing page + tarifs — pivot marketing couple
+
+**Description :** Refonte du copywriting de la landing page et de la page tarifs pour adresser directement la niche couple. Le design (tokens, composants) reste intact — seul le contenu est modifié.
+
+**Landing page** (`src/app/[locale]/(marketing)/page.tsx`) :
+
+```
+Hero :
+  Badge pill  : "💑 Gérez vos finances en couple"
+  H1          : "Vos finances de couple, enfin maîtrisées"
+  Sous-titre  : "Suivez vos dépenses communes, équilibrez qui doit quoi, et atteignez vos objectifs ensemble."
+  CTA         : "Commencer ensemble" → /inscription | "Voir les tarifs" → /tarifs
+
+Stats :        "2 000+ couples" · "500k+ transactions suivies" · "5 langues" · "14j essai gratuit"
+
+Features (3 sections alternées) :
+  1. "Comptes partagés en un clin d'œil"
+     desc: "Centralisez vos dépenses communes. Chaque partenaire voit les transactions marquées 'couple' en temps réel."
+     bullets: ["Import depuis n'importe quelle banque", "Transactions partagées en un clic", "Vue couple sur le dashboard"]
+
+  2. "Qui a payé quoi ? Réponse en 1 seconde"
+     desc: "Fini les discussions sur les dépenses. TrackMyCash calcule automatiquement votre balance mensuelle."
+     bullets: ["Balance automatique mensuelle", "Historique des dépenses partagées", "Notifications si déséquilibre"]
+
+  3. "Vos objectifs, votre rythme"
+     desc: "Vacances, achat immobilier, fonds d'urgence commun — définissez vos objectifs et suivez-les ensemble."
+     bullets: ["Objectifs d'épargne communs (Premium)", "Suivi de progression partagé", "Conseiller IA couple (Premium)"]
+
+Comment ça marche (3 étapes) :
+  1. "Créez votre compte" — inscription en 30s
+  2. "Invitez votre partenaire" — code à 6 chiffres
+  3. "Gérez ensemble" — dashboard couple partagé
+
+Témoignages (2) :
+  - "Marie & Thomas, 3 ans ensemble" : "On n'a plus de disputes sur les dépenses depuis qu'on utilise TrackMyCash. La balance mensuelle est transparente pour les deux."
+  - "Sophie & Lucas, jeunes parents" : "On a enfin pu mettre en place un budget commun pour l'éducation de notre fils. L'IA nous donne des conseils adaptés à notre situation."
+
+CTA final : "Commencer ensemble — Essai gratuit 14 jours, sans carte bancaire"
+```
+
+**Stripe plans** (`src/lib/stripe-plans.ts`) — update features :
+- Pro : ajouter `"Partage avec votre partenaire"`
+- Premium : ajouter `"IA conseiller couple illimitée"` et `"Objectifs d'épargne communs"`
+
+**Tarifs** (`src/app/[locale]/(marketing)/tarifs/page.tsx`) :
+- Card Pro : badge supplémentaire `"Idéal en couple"` (pill bg-primary/10 text-primary)
+
+**Fichiers modifiés :**
+- `src/app/[locale]/(marketing)/page.tsx` — refonte copywriting (structure HTML inchangée autant que possible)
+- `src/lib/stripe-plans.ts` — update features Pro + Premium
+- `src/app/[locale]/(marketing)/tarifs/page.tsx` — badge "Idéal en couple" sur card Pro
+
+**Acceptance Criteria :**
+- AC-1 : Le H1 de la landing page mentionne "couple" (niche claire)
+- AC-2 : 3 sections features adressent les besoins couple (comptes partagés, balance, objectifs)
+- AC-3 : La section "Comment ça marche" mentionne l'invitation partenaire comme étape 2
+- AC-4 : Les témoignages utilisent des profils de couple
+- AC-5 : La card Pro sur `/tarifs` affiche le badge "Idéal en couple"
+- AC-6 : `PLANS.pro.features` contient "Partage avec votre partenaire"
+- AC-7 : `npm run build` passe sans erreur TypeScript
+- AC-8 : Tests existants tarifs (TU-84-x) restent PASS (non-régression)
+
+**Tests (TU-92-x) :**
+- TU-92-1 : La landing page rend sans erreur côté serveur
+- TU-92-2 : Le titre H1 contient le mot "couple" (ou "finances" avec niche claire)
+- TU-92-3 : `PLANS.pro.features` contient "Partage avec votre partenaire"
+- TU-92-4 : `PLANS.premium.features` contient "IA conseiller couple"
+- TU-92-5 : La page `/tarifs` rend sans erreur après la modification
+- TU-92-6 : La page `/tarifs` contient "Idéal en couple"
+
+---
+
+## Récapitulatif MoSCoW
+
+| ID | Titre | Priorité | Points | Dépend de |
+|----|-------|----------|--------|-----------|
+| STORY-085 | DB Migrations couple | MUST | 1 | Aucune |
+| STORY-086 | Système d'invitation couple | MUST | 3 | STORY-085, STORY-089 |
+| STORY-087 | Transactions partagées + balance | SHOULD | 3 | STORY-085, STORY-089 |
+| STORY-088 | Dashboard toggle Ma vue / Vue couple | SHOULD | 3 | STORY-085, STORY-087 |
+| STORY-089 | Freemium gates couple | SHOULD | 2 | STORY-085 |
+| STORY-090 | Budgets & objectifs couple | COULD | 3 | STORY-085, STORY-089 |
+| STORY-091 | Conseiller IA couple | COULD | 3 | STORY-085, STORY-089 |
+| STORY-092 | Landing page + tarifs pivot couple | COULD | 2 | Aucune |
+
+**Total :** 8 stories · 20 points · ~60 tests attendus
+
+---
+
+## Ordre d'implémentation recommandé
+
+```
+085 (DB fondation) → 089 (gates freemium) → 086 (invitation)
+→ 087 (transactions + balance) → 088 (dashboard toggle)
+→ 090 (budgets/objectifs) → 091 (IA couple) → 092 (marketing)
+```
+
+---
+
+## Contraintes techniques
+
+| Contrainte | Détail |
+|------------|--------|
+| Main DB | Tables couple via `getDb()` — jamais via `getUserDb()` |
+| Per-user migrations | Dans `migrations[]` de `initSchema()` — additive try/catch |
+| TypeScript | Pas de type `any`, types couple dans `src/lib/couple-queries.ts` |
+| "use client" | Uniquement sur les composants interactifs (toggle, forms couple) |
+| BottomNav | Inchangé (5 onglets) — couple accessible via dashboard toggle + paramètres |
+| Parsers | Aucune modification de `src/lib/parsers/` |
+| Format | Couleurs unies uniquement (pas de dégradés) |
+| Non-régression | Les 564 tests existants doivent rester PASS |
+
+---
+
+## Dépendances techniques v12
+
+| Story | Dépend de |
+|-------|-----------|
+| STORY-085 | Aucune (fondation DB) |
+| STORY-086 | STORY-085 (tables couple) + STORY-089 (guards) |
+| STORY-087 | STORY-085 (colonnes tx) + STORY-089 (guards) |
+| STORY-088 | STORY-085 + STORY-087 (CoupleBalanceCard) |
+| STORY-089 | STORY-085 (UpgradeReason couple_pro/couple_premium) |
+| STORY-090 | STORY-085 (colonnes budgets/goals) + STORY-089 (guards) |
+| STORY-091 | STORY-085 + STORY-089 (gate Premium couple) |
+| STORY-092 | Aucune (copywriting indépendant) |
+
+---
+
+## Métriques sprint v12
+
+| Métrique | Valeur |
+|----------|--------|
+| Total stories | 8 (STORY-085 à STORY-092) |
+| Points total | 20 |
+| MUST HAVE | 2 × P1 (085, 086) |
+| SHOULD HAVE | 3 × P2 (087, 088, 089) |
+| COULD HAVE | 3 × P3 (090, 091, 092) |
+| Tests nouveaux attendus | ~60 |
+| Tests existants | 564 — doivent rester PASS |
+
+---
+
+## Hors scope (sprints suivants)
+
+- Notifications push quand le partenaire ajoute une transaction partagée
+- Historique des activités couple (logs)
+- Dissolution du couple avec archivage des données partagées
+- Admin dashboard couple
+- Page dédiée `/couple/transactions` (vue fusionnée des deux partenaires)
+
+---
+
+*PRD généré par FORGE PM Agent — 2026-02-24 [v12]*
