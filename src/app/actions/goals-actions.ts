@@ -4,6 +4,8 @@ import { getGoals, createGoal, updateGoal, deleteGoal } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { revalidatePath } from "next/cache";
+import { canUsePremiumCoupleFeature } from "@/lib/subscription-utils";
+import { createCoupleGoal } from "@/lib/couple-queries";
 
 export async function getGoalsAction() {
   const userId = await getRequiredUserId();
@@ -50,6 +52,28 @@ export async function deleteGoalAction(id: number): Promise<{ success: true } | 
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
   await deleteGoal(db, id);
+  revalidatePath("/dashboard");
+  revalidatePath("/objectifs");
+  return { success: true };
+}
+
+export async function createCoupleGoalAction(
+  name: string,
+  targetAmount: number,
+  currency: string,
+  coupleId: string,
+  deadline?: string
+): Promise<{ success: true } | { error: string }> {
+  if (!name?.trim()) return { error: "Le nom est requis" };
+  if (!targetAmount || targetAmount <= 0) return { error: "Le montant cible doit être supérieur à 0" };
+  if (!coupleId) return { error: "Couple non trouvé" };
+
+  const userId = await getRequiredUserId();
+  const gate = await canUsePremiumCoupleFeature(userId);
+  if (!gate.allowed) return { error: gate.reason ?? "Fonctionnalité Premium requise" };
+
+  const db = await getUserDb(userId);
+  await createCoupleGoal(db, name.trim(), targetAmount, currency, coupleId, deadline);
   revalidatePath("/dashboard");
   revalidatePath("/objectifs");
   return { success: true };

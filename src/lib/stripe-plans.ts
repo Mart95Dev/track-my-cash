@@ -36,6 +36,7 @@ export const PLANS: Record<PlanId, Plan> = {
       "5 comptes bancaires",
       "Import PDF, Excel & CSV",
       "Conseiller IA (10 req/mois)",
+      "Partage couple (transactions partagées)",
       "Multi-devises",
       "Export CSV & rapports mensuels",
     ],
@@ -49,6 +50,7 @@ export const PLANS: Record<PlanId, Plan> = {
     features: [
       "Comptes illimités",
       "Conseiller IA illimité & prioritaire",
+      "IA conseiller couple illimitée",
       "Export PDF rapport mensuel",
       "Rapport annuel IA",
       "Support prioritaire",

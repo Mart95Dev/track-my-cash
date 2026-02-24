@@ -25,7 +25,7 @@ type FeatureRow = {
   premium: string | boolean;
 };
 
-const COMPARISON_FEATURES: FeatureRow[] = [
+export const COMPARISON_FEATURES: FeatureRow[] = [
   { label: "Comptes bancaires",      free: "1",       pro: "∞",          premium: "∞" },
   { label: "Historique",             free: "3 mois",  pro: "∞",          premium: "∞" },
   { label: "Import CSV/XLSX/PDF",    free: "Basique", pro: "Complet",    premium: "Complet" },
@@ -33,6 +33,8 @@ const COMPARISON_FEATURES: FeatureRow[] = [
   { label: "Export CSV",             free: false,     pro: true,         premium: true },
   { label: "Conseiller IA",          free: false,     pro: "10/mois",    premium: "Illimité" },
   { label: "IA multi-modèles",       free: false,     pro: false,        premium: true },
+  { label: "Partage couple",         free: false,     pro: true,         premium: true },
+  { label: "IA conseiller couple",   free: false,     pro: false,        premium: true },
   { label: "Export PDF mensuel",     free: false,     pro: true,         premium: true },
   { label: "Objectifs d'épargne",    free: false,     pro: true,         premium: true },
   { label: "Email récap hebdo",      free: false,     pro: true,         premium: true },
@@ -103,8 +105,12 @@ function PlanCard({ planId, isHighlighted, isCurrentPlan }: PlanCardProps) {
         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full uppercase">
           Populaire
         </div>
+        <div className="absolute -top-3 right-4 bg-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+          <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+          Idéal en couple
+        </div>
         {isCurrentPlan && (
-          <div className="absolute -top-3 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+          <div className="mt-2 text-xs font-bold text-primary text-center">
             Plan actuel
           </div>
         )}

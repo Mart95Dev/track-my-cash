@@ -1,9 +1,10 @@
 import { getAllAccounts, getMonthlySummary, getGoals, getBudgetStatus } from "@/lib/queries";
-import { getUserDb } from "@/lib/db";
+import { getUserDb, getDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { getUserPlanId } from "@/lib/subscription-utils";
 import { AiChat } from "@/components/ai-chat";
 import { generateChatSuggestions } from "@/lib/chat-suggestions";
+import { getCoupleByUserId } from "@/lib/couple-queries";
 
 export const dynamic = "force-dynamic";
 
@@ -53,13 +54,39 @@ export default async function ConseillerPage() {
       ? recentMonths.reduce((sum, m) => sum + (m.savingsRate ?? 0), 0) / recentMonths.length
       : 0;
 
-  const suggestions = generateChatSuggestions({
+  const personalSuggestions = generateChatSuggestions({
     exceededBudgets,
     lateGoals,
     savingsRate: avgSavingsRate,
   });
 
   const isPremium = planId === "premium";
+
+  // ─── Couple section ────────────────────────────────────────────────────────
+  let hasCoupleActive = false;
+  let coupleId: string | undefined;
+
+  try {
+    const mainDb = getDb();
+    const couple = await getCoupleByUserId(mainDb, userId);
+    if (couple) {
+      hasCoupleActive = true;
+      coupleId = couple.id;
+    }
+  } catch {
+    // Silencieux — couple non critique
+  }
+
+  const coupleSuggestions = [
+    "Analyse nos dépenses communes ce mois",
+    "Qui a le plus dépensé ce mois-ci ?",
+    "Quelle est notre balance couple ?",
+  ];
+
+  const suggestions =
+    hasCoupleActive && isPremium
+      ? [...coupleSuggestions, ...personalSuggestions].slice(0, 5)
+      : personalSuggestions;
 
   return (
     <div className="flex flex-col">
@@ -82,6 +109,8 @@ export default async function ConseillerPage() {
         suggestions={suggestions}
         isPremium={isPremium}
         canAI={planId === "pro" || planId === "premium"}
+        hasCoupleActive={hasCoupleActive}
+        coupleId={coupleId}
       />
     </div>
   );

@@ -73,12 +73,16 @@ export function AiChat({
   suggestions = [],
   isPremium = false,
   canAI = true,
+  hasCoupleActive = false,
+  coupleId,
 }: {
   accounts: Account[];
   hasApiKey: boolean;
   suggestions?: string[];
   isPremium?: boolean;
   canAI?: boolean;
+  hasCoupleActive?: boolean;
+  coupleId?: string;
 }) {
   const t = useTranslations("advisor");
   const [selectedIds, setSelectedIds] = useState<number[]>(
@@ -100,9 +104,13 @@ export function AiChat({
     () =>
       new DefaultChatTransport({
         api: "/api/chat",
-        body: { accountIds: selectedIds, modelId: selectedModel },
+        body: {
+          accountIds: selectedIds,
+          modelId: selectedModel,
+          coupleMode: hasCoupleActive && isPremium,
+        },
       }),
-    [selectedIds, selectedModel]
+    [selectedIds, selectedModel, hasCoupleActive, isPremium]
   );
 
   const { messages, sendMessage, status } = useChat({ transport });
@@ -235,6 +243,11 @@ export function AiChat({
       <div className="flex flex-col">
       {/* Toolbar : sélecteur modèle / comptes / consensus */}
       <div className="px-4 py-2 flex items-center gap-2 border-b border-gray-100 bg-background-light">
+        {hasCoupleActive && isPremium && coupleId && (
+          <span className="text-xs px-3 py-1 rounded-full bg-primary/10 text-primary font-medium shrink-0">
+            Mode couple
+          </span>
+        )}
         {isPremium && (
           <button
             type="button"

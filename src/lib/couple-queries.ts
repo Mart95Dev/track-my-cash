@@ -325,3 +325,134 @@ export async function computeCoupleBalance(
     computed_at: Number(row.computed_at),
   }));
 }
+
+// ─── Types STORY-090 ──────────────────────────────────────────────────────────
+
+export interface CoupleBudgetItem {
+  id: number;
+  account_id: number;
+  category: string;
+  amount_limit: number;
+  period: "monthly" | "yearly";
+  couple_id: string | null;
+}
+
+export interface CoupleGoalItem {
+  id: number;
+  name: string;
+  target_amount: number;
+  current_amount: number;
+  currency: string;
+  deadline: string | null;
+  couple_id: string | null;
+}
+
+// ─── STORY-090 Queries ────────────────────────────────────────────────────────
+
+/**
+ * Retourne les budgets couple (scope='couple') des deux utilisateurs fusionnés.
+ */
+export async function getCoupleSharedBudgets(
+  userDb1: Client,
+  userDb2: Client,
+  coupleId: string
+): Promise<CoupleBudgetItem[]> {
+  const [result1, result2] = await Promise.all([
+    userDb1.execute({
+      sql: `SELECT id, account_id, category, amount_limit, period, couple_id
+            FROM budgets WHERE scope = 'couple' AND couple_id = ?`,
+      args: [coupleId],
+    }),
+    userDb2.execute({
+      sql: `SELECT id, account_id, category, amount_limit, period, couple_id
+            FROM budgets WHERE scope = 'couple' AND couple_id = ?`,
+      args: [coupleId],
+    }),
+  ]);
+
+  const mapRow = (row: (typeof result1.rows)[0]): CoupleBudgetItem => ({
+    id: Number(row.id),
+    account_id: Number(row.account_id),
+    category: String(row.category),
+    amount_limit: Number(row.amount_limit),
+    period: String(row.period) as "monthly" | "yearly",
+    couple_id: row.couple_id ? String(row.couple_id) : null,
+  });
+
+  return [...result1.rows.map(mapRow), ...result2.rows.map(mapRow)];
+}
+
+/**
+ * Retourne les objectifs couple (scope='couple') des deux utilisateurs fusionnés.
+ */
+export async function getCoupleSharedGoals(
+  userDb1: Client,
+  userDb2: Client,
+  coupleId: string
+): Promise<CoupleGoalItem[]> {
+  const [result1, result2] = await Promise.all([
+    userDb1.execute({
+      sql: `SELECT id, name, target_amount, current_amount, currency, deadline, couple_id
+            FROM goals WHERE scope = 'couple' AND couple_id = ?`,
+      args: [coupleId],
+    }),
+    userDb2.execute({
+      sql: `SELECT id, name, target_amount, current_amount, currency, deadline, couple_id
+            FROM goals WHERE scope = 'couple' AND couple_id = ?`,
+      args: [coupleId],
+    }),
+  ]);
+
+  const mapRow = (row: (typeof result1.rows)[0]): CoupleGoalItem => ({
+    id: Number(row.id),
+    name: String(row.name),
+    target_amount: Number(row.target_amount),
+    current_amount: Number(row.current_amount),
+    currency: String(row.currency),
+    deadline: row.deadline ? String(row.deadline) : null,
+    couple_id: row.couple_id ? String(row.couple_id) : null,
+  });
+
+  return [...result1.rows.map(mapRow), ...result2.rows.map(mapRow)];
+}
+
+/**
+ * Insère ou met à jour un budget couple (scope='couple') dans la DB de l'utilisateur.
+ */
+export async function upsertCoupleBudget(
+  db: Client,
+  accountId: number,
+  category: string,
+  amountLimit: number,
+  period: "monthly" | "yearly",
+  coupleId: string
+): Promise<void> {
+  await db.execute({
+    sql: `INSERT INTO budgets (account_id, category, amount_limit, period, scope, couple_id)
+          VALUES (?, ?, ?, ?, 'couple', ?)
+          ON CONFLICT(account_id, category) DO UPDATE SET
+            amount_limit = excluded.amount_limit,
+            period = excluded.period,
+            scope = 'couple',
+            couple_id = excluded.couple_id`,
+    args: [accountId, category, amountLimit, period, coupleId],
+  });
+}
+
+/**
+ * Crée un objectif couple (scope='couple') dans la DB de l'utilisateur.
+ */
+export async function createCoupleGoal(
+  db: Client,
+  name: string,
+  targetAmount: number,
+  currency: string,
+  coupleId: string,
+  deadline?: string
+): Promise<void> {
+  await db.execute({
+    sql: `INSERT INTO goals (name, target_amount, current_amount, currency, deadline, scope, couple_id)
+          VALUES (?, ?, 0, ?, ?, 'couple', ?)`,
+    args: [name, targetAmount, currency, deadline ?? null, coupleId],
+  });
+}

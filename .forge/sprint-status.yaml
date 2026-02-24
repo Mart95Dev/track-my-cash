@@ -3,7 +3,7 @@ sprint:
   goal: "Pivot niche couple — DB migrations couple + invitation + transactions partagées + balance + dashboard toggle + gates freemium + budgets/objectifs couple + IA couple + landing page pivot"
   start_date: "2026-02-24"
   end_date: ""
-  status: in_progress
+  status: completed
 
 previous_sprint:
   id: sprint-conversion-monetisation-v11
@@ -91,36 +91,41 @@ stories:
     epic: couple-features
     complexity: M
     priority: P3
-    status: pending
+    status: completed
     blockedBy: [STORY-085, STORY-089]
     points: 3
-    tests: 0
-    qa_verdict: ""
-    notes: "AddBudgetForm scope + AddGoalForm scope + getCoupleSharedBudgets/Goals"
+    tests: 10
+    qa_verdict: "PASS"
+    qa_date: "2026-02-24"
+    qa_notes: "10 tests TU-90-1 à TU-90-6b. getCoupleSharedBudgets/Goals + upsertCoupleBudget + createCoupleGoal + upsertCoupleBudgetAction + createCoupleGoalAction + BudgetForm scope selector + GoalForm scope selector + budgets/page.tsx + objectifs/page.tsx. 621 tests totaux, 0 régression. tsc --noEmit OK."
+    notes: "getCoupleSharedBudgets + getCoupleSharedGoals (couple-queries.ts) + upsertCoupleBudgetAction (budget-actions.ts, gate Pro) + createCoupleGoalAction (goals-actions.ts, gate Premium) + BudgetForm portée Personnel/Couple + GoalForm portée + sections Budgets communs/Objectifs communs + banners upgrade — 10 tests TU-90-x"
 
   - id: STORY-091
     title: "Conseiller IA couple"
     epic: couple-ai
     complexity: M
     priority: P3
-    status: pending
+    status: completed
     blockedBy: [STORY-085, STORY-089]
     points: 3
-    tests: 0
-    qa_verdict: ""
-    notes: "system prompt couple + 2 tools (getCoupleSummary, getCoupleBalance) + chips suggestions + gate Premium"
+    tests: 9
+    qa_verdict: "PASS"
+    qa_date: "2026-02-24"
+    notes: "9 tests (TU-91-1 à TU-91-4b). createCoupleAiTools (getCoupleBalance + getCoupleSummary) dans ai-tools.ts. Badge Mode couple dans ai-chat.tsx. coupleMode dans route.ts avec gate Premium. Suggestions couple dans conseiller/page.tsx. tool-result-card.tsx étendu."
 
   - id: STORY-092
     title: "Landing page + tarifs — pivot marketing couple"
     epic: marketing-ui
     complexity: S
     priority: P3
-    status: pending
+    status: completed
     blockedBy: []
     points: 2
-    tests: 0
-    qa_verdict: ""
-    notes: "Hero couple + 3 features couple + témoignages + features Pro/Premium + badge Idéal en couple"
+    tests: 13
+    qa_verdict: "PASS"
+    qa_date: "2026-02-24"
+    qa_notes: "13 tests (TU-92-1 à TU-92-13). QA +5 : DESCRIPTIONS.fr contient 'couple' (TU-92-9), TESTIMONIALS.role non vide (TU-92-10), FEATURES.bullets ≥1 (TU-92-11), Partage couple pro=true/premium=true/free=false (TU-92-12), IA conseiller couple pro=false/premium=true/free=false (TU-92-13). Badge 'Idéal en couple' (AC-7) vérifié par inspection source (JSX non-exporté). 643 tests totaux, 0 régression."
+    notes: "8 tests dev + 5 tests QA. Hero couple 'Vos finances de couple, enfin maîtrisées'. 3 FEATURES couple exportées. STEPS couple (Inviter partenaire). TESTIMONIALS (2 couples, rôles définis). stripe-plans Pro+Premium features couple. Badge 'Idéal en couple' sur Pro. COMPARISON_FEATURES exporté avec lignes Partage couple / IA conseiller couple. DESCRIPTIONS exporté avec SEO couple."
 
   # === SPRINT CONVERSION & MONÉTISATION (v11) — TERMINÉ ===
 
@@ -427,14 +432,19 @@ metrics_v10:
 
 metrics_v12:
   total: 8
-  completed: 5
+  completed: 8
   in_progress: 0
-  pending: 3
+  pending: 0
   total_points: 20
-  points_completed: 12
-  tests_total: 611
-  tests_sprint: 44
-  qa_verdict: ""
+  points_completed: 20
+  tests_total: 643
+  tests_sprint: 76
+  qa_verdict: "PASS"
+  end_date: "2026-02-24"
+  notes: >
+    Sprint pivot niche couple — 8 stories, 20 points, 76 nouveaux tests.
+    643 tests totaux, 0 régression sur les 567 tests pré-sprint.
+    tsc --noEmit OK, 0 erreur lint sur tous les fichiers touchés.
 
 metrics_v11:
   total: 6

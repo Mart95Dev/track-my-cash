@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { createGoalAction, updateGoalAction } from "@/app/actions/goals-actions";
+import { createGoalAction, updateGoalAction, createCoupleGoalAction } from "@/app/actions/goals-actions";
 import type { Account, Goal } from "@/lib/queries";
 import { SUPPORTED_CURRENCIES } from "@/lib/currency";
 
@@ -20,9 +20,12 @@ type Props = {
   goal?: Goal;
   accounts?: Account[];
   onSuccess?: () => void;
+  hasCoupleActive?: boolean;
+  isPremium?: boolean;
+  coupleId?: string;
 };
 
-export function GoalForm({ goal, accounts = [], onSuccess }: Props) {
+export function GoalForm({ goal, accounts = [], onSuccess, hasCoupleActive, isPremium, coupleId }: Props) {
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState(goal?.name ?? "");
   const [targetAmount, setTargetAmount] = useState(goal ? String(goal.target_amount) : "");
@@ -33,6 +36,9 @@ export function GoalForm({ goal, accounts = [], onSuccess }: Props) {
   const [monthlyContribution, setMonthlyContribution] = useState(
     goal?.monthly_contribution ? String(goal.monthly_contribution) : ""
   );
+  const [scope, setScope] = useState<"personal" | "couple">("personal");
+
+  const showScopeSelector = !goal && hasCoupleActive && isPremium && !!coupleId;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,6 +49,29 @@ export function GoalForm({ goal, accounts = [], onSuccess }: Props) {
         toast.error("Le montant cible doit être supérieur à 0");
         return;
       }
+
+      if (scope === "couple" && coupleId) {
+        const result = await createCoupleGoalAction(
+          name,
+          target,
+          currency,
+          coupleId,
+          deadline || undefined
+        );
+        if ("error" in result) {
+          toast.error(result.error);
+        } else {
+          toast.success("Objectif couple créé");
+          setName("");
+          setTargetAmount("");
+          setCurrentAmount("0");
+          setDeadline("");
+          setScope("personal");
+          onSuccess?.();
+        }
+        return;
+      }
+
       const parsedAccountId = accountId ? parseInt(accountId) : undefined;
       const parsedContrib = monthlyContribution ? parseFloat(monthlyContribution) : undefined;
 
@@ -69,6 +98,36 @@ export function GoalForm({ goal, accounts = [], onSuccess }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {showScopeSelector && (
+        <div className="space-y-1.5">
+          <Label>Portée</Label>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setScope("personal")}
+              className={`px-3 py-1.5 text-sm rounded-full font-bold transition-colors ${
+                scope === "personal"
+                  ? "bg-primary text-white"
+                  : "bg-background-light text-text-muted hover:bg-primary/10"
+              }`}
+            >
+              Personnel
+            </button>
+            <button
+              type="button"
+              onClick={() => setScope("couple")}
+              className={`px-3 py-1.5 text-sm rounded-full font-bold transition-colors ${
+                scope === "couple"
+                  ? "bg-primary text-white"
+                  : "bg-background-light text-text-muted hover:bg-primary/10"
+              }`}
+            >
+              Couple
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-1.5">
         <Label htmlFor="goal-name">Nom de l&apos;objectif</Label>
         <Input
@@ -133,7 +192,7 @@ export function GoalForm({ goal, accounts = [], onSuccess }: Props) {
         </div>
       </div>
 
-      {accounts.length > 0 && (
+      {accounts.length > 0 && scope !== "couple" && (
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label htmlFor="goal-account">Compte associé (optionnel)</Label>

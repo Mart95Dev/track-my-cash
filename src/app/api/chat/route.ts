@@ -8,7 +8,8 @@ import { canUseAI, getUserPlanId } from "@/lib/subscription-utils";
 import { incrementAiUsage } from "@/lib/ai-usage";
 import { buildFinancialContext, SYSTEM_PROMPT } from "@/lib/ai-context";
 import { checkRateLimit } from "@/lib/rate-limiter";
-import { createAiTools } from "@/lib/ai-tools";
+import { createAiTools, createCoupleAiTools } from "@/lib/ai-tools";
+import { getCoupleByUserId, getCoupleMembers } from "@/lib/couple-queries";
 import { buildSynthesisPrompt, synthesizeResponses, type ConsensusSynthesis } from "@/lib/ai-consensus";
 
 const RATE_LIMIT = 30;
@@ -39,11 +40,13 @@ export async function POST(req: Request) {
     accountIds,
     modelId,
     consensusMode,
+    coupleMode,
   }: {
     messages: UIMessage[];
     accountIds: number[];
     modelId?: string;
     consensusMode?: boolean;
+    coupleMode?: boolean;
   } = await req.json();
 
   const selectedModel: AllowedModel = ALLOWED_MODELS.includes(
@@ -178,11 +181,35 @@ ${
     return NextResponse.json({ mode: "consensus", synthesis, sources });
   }
 
+  // Couple tools — gate Premium
+  let coupleSystemSuffix = "";
+  let coupleExtraTools: ReturnType<typeof createCoupleAiTools> | null = null;
+  if (coupleMode && isPremium) {
+    try {
+      const couple = await getCoupleByUserId(mainDb, userId);
+      if (couple) {
+        const members = await getCoupleMembers(mainDb, couple.id);
+        const partner = members.find((m) => m.user_id !== userId);
+        if (partner) {
+          const partnerDb = await getUserDb(partner.user_id);
+          coupleExtraTools = createCoupleAiTools(db, partnerDb, userId, partner.user_id);
+          coupleSystemSuffix = `\n\n# Mode conseiller couple\nTu es le conseiller financier de ce couple. Utilise les outils getCoupleBalance et getCoupleSummary pour répondre aux questions sur les finances partagées.`;
+        }
+      }
+    } catch {
+      // Silencieux — couple non critique
+    }
+  }
+
+  const allTools = coupleExtraTools
+    ? { ...createAiTools(db, accountId), ...coupleExtraTools }
+    : createAiTools(db, accountId);
+
   const result = streamText({
     model: openrouter(selectedModel),
-    system: systemMessage,
+    system: systemMessage + coupleSystemSuffix,
     messages: await convertToModelMessages(messages),
-    tools: createAiTools(db, accountId),
+    tools: allTools,
     stopWhen: stepCountIs(3),
   });
 

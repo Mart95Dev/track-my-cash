@@ -1,8 +1,15 @@
 import { getGoals, deleteGoal, getAllAccounts } from "@/lib/queries";
-import { getUserDb } from "@/lib/db";
+import { getUserDb, getDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { GoalForm } from "@/components/goal-form";
 import { GoalList } from "@/components/goal-list";
+import {
+  getCoupleByUserId,
+  getCoupleMembers,
+  getCoupleSharedGoals,
+  type CoupleGoalItem,
+} from "@/lib/couple-queries";
+import { canUsePremiumCoupleFeature } from "@/lib/subscription-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +21,34 @@ export default async function ObjectifsPage() {
   const [goals, accounts] = await Promise.all([getGoals(db), getAllAccounts(db)]);
 
   const totalSavings = goals.reduce((sum, g) => sum + g.current_amount, 0);
+
+  // ─── Couple section ────────────────────────────────────────────────────────
+  let hasCoupleActive = false;
+  let isPremium = false;
+  let coupleId: string | undefined;
+  let coupleSharedGoals: CoupleGoalItem[] = [];
+
+  try {
+    const mainDb = getDb();
+    const couple = await getCoupleByUserId(mainDb, userId);
+    if (couple) {
+      hasCoupleActive = true;
+      coupleId = couple.id;
+      const gate = await canUsePremiumCoupleFeature(userId);
+      isPremium = gate.allowed;
+
+      if (isPremium) {
+        const members = await getCoupleMembers(mainDb, couple.id);
+        const partner = members.find((m) => m.user_id !== userId);
+        if (partner) {
+          const partnerDb = await getUserDb(partner.user_id);
+          coupleSharedGoals = await getCoupleSharedGoals(db, partnerDb, couple.id);
+        }
+      }
+    }
+  } catch {
+    // Silently ignore — couple feature non critique
+  }
 
   return (
     <div className="flex flex-col gap-4 px-4 pt-6 pb-4">
@@ -33,11 +68,56 @@ export default async function ObjectifsPage() {
         )}
       </div>
 
-      {/* Liste objectifs */}
+      {/* Liste objectifs personnels */}
       {goals.length > 0 && (
         <div>
           <h2 className="font-bold text-text-main mb-3">Mes objectifs</h2>
           <GoalList goals={goals} />
+        </div>
+      )}
+
+      {/* Objectifs communs couple */}
+      {hasCoupleActive && isPremium && coupleSharedGoals.length > 0 && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-soft p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="material-symbols-outlined text-primary text-[20px]">favorite</span>
+            <h2 className="font-bold text-text-main">Objectifs communs</h2>
+          </div>
+          <div className="flex flex-col gap-3">
+            {coupleSharedGoals.map((g, i) => {
+              const pct = g.target_amount > 0
+                ? Math.min(100, Math.round((g.current_amount / g.target_amount) * 100))
+                : 0;
+              return (
+                <div key={`${g.id}-${i}`} className="rounded-xl bg-background-light px-3 py-2.5">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-sm font-bold text-text-main">{g.name}</span>
+                    <span className="text-xs font-bold text-primary">{pct}%</span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-full bg-gray-200">
+                    <div
+                      className="h-1.5 rounded-full bg-primary"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-text-muted mt-1">
+                    {g.current_amount.toLocaleString("fr-FR")} € sur {g.target_amount.toLocaleString("fr-FR")} €
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Banner upgrade couple si actif sans Premium */}
+      {hasCoupleActive && !isPremium && (
+        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-center gap-3">
+          <span className="material-symbols-outlined text-primary text-[24px]">favorite</span>
+          <div>
+            <p className="text-sm font-bold text-text-main">Objectifs couple disponibles avec Premium</p>
+            <p className="text-xs text-text-muted">Créez des objectifs d&apos;épargne partagés avec votre partenaire.</p>
+          </div>
         </div>
       )}
 
@@ -47,11 +127,16 @@ export default async function ObjectifsPage() {
           <span className="material-symbols-outlined text-primary text-[20px]">add_circle</span>
           <h2 className="font-bold text-text-main">Nouvel objectif</h2>
         </div>
-        <GoalForm accounts={accounts} />
+        <GoalForm
+          accounts={accounts}
+          hasCoupleActive={hasCoupleActive}
+          isPremium={isPremium}
+          coupleId={coupleId}
+        />
       </div>
 
       {/* Empty state si aucun objectif */}
-      {goals.length === 0 && (
+      {goals.length === 0 && coupleSharedGoals.length === 0 && (
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <span className="material-symbols-outlined text-text-muted text-[48px] mb-3">savings</span>
           <p className="text-text-muted text-sm">Créez votre premier objectif d&apos;épargne ci-dessus</p>

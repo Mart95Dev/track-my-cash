@@ -2,6 +2,7 @@ import { tool } from "ai";
 import { z } from "zod";
 import type { Client } from "@libsql/client";
 import { upsertBudget, createGoal, createRecurringPayment } from "@/lib/queries";
+import { computeCoupleBalanceForPeriod, getSharedTransactionsForCouple } from "@/lib/couple-queries";
 
 export const createBudgetSchema = z.object({
   category: z
@@ -76,7 +77,110 @@ export type ToolCallResult =
       amount: number;
       frequency: string;
       message: string;
+    }
+  | {
+      type: "couple_balance";
+      user1Paid: number;
+      user2Paid: number;
+      diff: number;
+      amount: number;
+      message: string;
+    }
+  | {
+      type: "couple_summary";
+      totalExpenses: number;
+      transactionCount: number;
+      topCategories: Array<{ category: string; total: number }>;
+      period?: string;
+      message: string;
     };
+
+export const getCoupleBalanceSchema = z.object({
+  period: z
+    .string()
+    .optional()
+    .describe("Période au format YYYY-MM (optionnel, défaut : mois courant)"),
+});
+
+export const getCoupleSummarySchema = z.object({
+  period: z
+    .string()
+    .optional()
+    .describe("Période au format YYYY-MM (optionnel, défaut : mois courant)"),
+});
+
+export function createCoupleAiTools(
+  userDb1: Client,
+  userDb2: Client,
+  userId1: string,
+  userId2: string
+) {
+  return {
+    getCoupleBalance: tool({
+      description:
+        "Calcule la balance financière du couple : qui a payé quoi et qui doit combien à l'autre. Utilise quand l'utilisateur demande la balance ou l'équilibre des dépenses couple.",
+      inputSchema: getCoupleBalanceSchema,
+      execute: async (input) => {
+        const balance = await computeCoupleBalanceForPeriod(
+          userDb1,
+          userDb2,
+          userId1,
+          userId2,
+          input.period
+        );
+        let message: string;
+        if (balance.diff > 0) {
+          message = `Votre partenaire vous doit ${balance.amount.toFixed(2)}€`;
+        } else if (balance.diff < 0) {
+          message = `Vous devez ${balance.amount.toFixed(2)}€ à votre partenaire`;
+        } else {
+          message = `Vos contributions sont égales`;
+        }
+        return {
+          type: "couple_balance" as const,
+          user1Paid: balance.user1Paid,
+          user2Paid: balance.user2Paid,
+          diff: balance.diff,
+          amount: balance.amount,
+          message,
+        };
+      },
+    }),
+
+    getCoupleSummary: tool({
+      description:
+        "Résume les dépenses partagées du couple pour une période : total, nombre de transactions, catégories principales. Utilise quand l'utilisateur demande une analyse des dépenses communes.",
+      inputSchema: getCoupleSummarySchema,
+      execute: async (input) => {
+        const transactions = await getSharedTransactionsForCouple(
+          userDb1,
+          userDb2,
+          input.period
+        );
+        const expenses = transactions.filter((t) => t.type === "expense");
+        const totalExpenses = expenses.reduce((sum, t) => sum + t.amount, 0);
+        const transactionCount = expenses.length;
+        const categoryMap = new Map<string, number>();
+        for (const t of expenses) {
+          categoryMap.set(t.category, (categoryMap.get(t.category) ?? 0) + t.amount);
+        }
+        const topCategories = Array.from(categoryMap.entries())
+          .map(([category, total]) => ({ category, total }))
+          .sort((a, b) => b.total - a.total)
+          .slice(0, 5);
+        const period = input.period ?? new Date().toISOString().slice(0, 7);
+        return {
+          type: "couple_summary" as const,
+          totalExpenses,
+          transactionCount,
+          topCategories,
+          period,
+          message: `Dépenses communes : ${totalExpenses.toFixed(2)}€ (${transactionCount} transactions)`,
+        };
+      },
+    }),
+  };
+}
 
 export function createAiTools(db: Client, accountId: number) {
   return {

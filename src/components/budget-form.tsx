@@ -11,21 +11,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { upsertBudgetAction, deleteBudgetAction } from "@/app/actions/budget-actions";
+import { upsertBudgetAction, deleteBudgetAction, upsertCoupleBudgetAction } from "@/app/actions/budget-actions";
 import { CATEGORIES } from "@/lib/format";
 import type { Budget } from "@/lib/queries";
 
 type Props = {
   accountId: number;
   budgets: Budget[];
+  hasCoupleActive?: boolean;
+  isPro?: boolean;
+  coupleId?: string;
 };
 
-export function BudgetForm({ accountId, budgets }: Props) {
+export function BudgetForm({ accountId, budgets, hasCoupleActive, isPro, coupleId }: Props) {
   const [category, setCategory] = useState("");
   const [amount, setAmount] = useState("");
   const [period, setPeriod] = useState<"monthly" | "yearly">("monthly");
+  const [scope, setScope] = useState<"personal" | "couple">("personal");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const showScopeSelector = hasCoupleActive && isPro && !!coupleId;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -36,13 +42,21 @@ export function BudgetForm({ accountId, budgets }: Props) {
       return;
     }
     setLoading(true);
-    const result = await upsertBudgetAction(accountId, category, amountNum, period);
+
+    let result: { success?: boolean; error?: string };
+    if (scope === "couple" && coupleId) {
+      result = await upsertCoupleBudgetAction(accountId, category, amountNum, period, coupleId);
+    } else {
+      result = await upsertBudgetAction(accountId, category, amountNum, period);
+    }
+
     setLoading(false);
     if (result.error) {
       setError(result.error);
     } else {
       setCategory("");
       setAmount("");
+      setScope("personal");
     }
   }
 
@@ -88,6 +102,37 @@ export function BudgetForm({ accountId, budgets }: Props) {
             </Select>
           </div>
         </div>
+
+        {showScopeSelector && (
+          <div className="space-y-1">
+            <Label>Portée</Label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setScope("personal")}
+                className={`px-3 py-1.5 text-sm rounded-full font-bold transition-colors ${
+                  scope === "personal"
+                    ? "bg-primary text-white"
+                    : "bg-background-light text-text-muted hover:bg-primary/10"
+                }`}
+              >
+                Personnel
+              </button>
+              <button
+                type="button"
+                onClick={() => setScope("couple")}
+                className={`px-3 py-1.5 text-sm rounded-full font-bold transition-colors ${
+                  scope === "couple"
+                    ? "bg-primary text-white"
+                    : "bg-background-light text-text-muted hover:bg-primary/10"
+                }`}
+              >
+                Couple
+              </button>
+            </div>
+          </div>
+        )}
+
         {error && <p className="text-sm text-danger">{error}</p>}
         <Button type="submit" size="sm" disabled={loading} className="bg-primary text-white font-bold rounded-full px-5">
           {loading ? "Enregistrement…" : "Enregistrer le budget"}
