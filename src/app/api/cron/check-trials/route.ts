@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { writeAdminLog } from "@/lib/admin-logger";
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("Authorization");
@@ -17,6 +18,20 @@ export async function GET(request: NextRequest) {
   );
 
   const expired = result.rows.length;
+
+  for (const row of result.rows) {
+    try {
+      await writeAdminLog(
+        mainDb,
+        "trial_expired",
+        String(row.user_id),
+        "Trial expiré automatiquement",
+        { planId: "free" }
+      );
+    } catch {
+      // Best-effort — ne bloque pas le cron
+    }
+  }
 
   return NextResponse.json({ expired });
 }

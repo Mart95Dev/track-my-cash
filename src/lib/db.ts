@@ -174,6 +174,14 @@ export async function initSchema() {
       notified_at TEXT
     )`,
     "ALTER TABLE transactions ADD COLUMN note TEXT",
+    `CREATE TABLE IF NOT EXISTS admin_logs (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      type       TEXT    NOT NULL,
+      user_id    TEXT,
+      message    TEXT,
+      payload    TEXT,
+      created_at TEXT    DEFAULT (datetime('now'))
+    )`,
   ];
   for (const sql of migrations) {
     try {

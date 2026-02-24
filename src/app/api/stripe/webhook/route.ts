@@ -1,6 +1,7 @@
 import { stripe } from "@/lib/stripe";
 import { headers } from "next/headers";
 import type Stripe from "stripe";
+import { writeAdminLog } from "@/lib/admin-logger";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,18 @@ export async function POST(req: Request) {
           planId,
           status: "active",
         });
+        try {
+          const { getDb } = await import("@/lib/db");
+          await writeAdminLog(
+            getDb(),
+            "subscription_activated",
+            userId,
+            "Abonnement activé via Stripe",
+            { planId, stripeSubscriptionId: session.subscription as string }
+          );
+        } catch {
+          // Best-effort
+        }
       }
       break;
     }

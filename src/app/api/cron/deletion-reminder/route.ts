@@ -3,6 +3,7 @@ import { getDb } from "@/lib/db";
 import { isEligibleForReminder, type DeletionRequest } from "@/lib/deletion-utils";
 import { sendEmail } from "@/lib/email";
 import { renderDeletionReminderEmail } from "@/lib/email-templates";
+import { writeAdminLog } from "@/lib/admin-logger";
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("Authorization");
@@ -52,6 +53,17 @@ export async function GET(request: NextRequest) {
       });
 
       notified++;
+
+      try {
+        await writeAdminLog(
+          mainDb,
+          "deletion_reminder_sent",
+          String(row.user_id),
+          "Email de rappel J+25 envoyé"
+        );
+      } catch {
+        // Best-effort
+      }
     } catch {
       // Skip user on error, continue with next
     }

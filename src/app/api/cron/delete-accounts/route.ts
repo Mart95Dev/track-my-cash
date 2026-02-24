@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb, getUserDb } from "@/lib/db";
 import { isEligibleForDeletion, type DeletionRequest } from "@/lib/deletion-utils";
+import { writeAdminLog } from "@/lib/admin-logger";
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("Authorization");
@@ -77,6 +78,18 @@ export async function GET(request: NextRequest) {
       });
 
       deleted++;
+
+      try {
+        await writeAdminLog(
+          mainDb,
+          "deletion_executed",
+          userId,
+          "Compte supprimé (J+30)",
+          { scheduledAt: String(row.scheduled_delete_at) }
+        );
+      } catch {
+        // Best-effort
+      }
     } catch {
       // Skip user on error, continue with next
     }

@@ -1,4 +1,5 @@
 import type { Client } from "@libsql/client";
+import { writeAdminLog } from "@/lib/admin-logger";
 
 const TRIAL_DAYS = 14;
 
@@ -35,4 +36,16 @@ export async function createTrialSubscription(
           ON CONFLICT(user_id) DO NOTHING`,
     args: [id, userId, trialEndsAt],
   });
+
+  try {
+    await writeAdminLog(
+      mainDb,
+      "trial_started",
+      userId,
+      "Trial 14j démarré à l'inscription",
+      { trialEndsAt }
+    );
+  } catch {
+    // Best-effort — ne bloque pas l'inscription
+  }
 }
