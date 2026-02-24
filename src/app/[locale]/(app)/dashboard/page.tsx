@@ -11,7 +11,7 @@ import {
   getGoals,
   getMonthlyExpensesByCategory,
 } from "@/lib/queries";
-import { getUserDb } from "@/lib/db";
+import { getUserDb, getDb } from "@/lib/db";
 import { getRequiredSession } from "@/lib/auth-utils";
 import { getAllRates, convertToReference, REFERENCE_CURRENCY } from "@/lib/currency";
 import { BalanceEvolutionChart } from "@/components/charts/balance-evolution-chart";
@@ -28,13 +28,17 @@ import Link from "next/link";
 import { computeMoMVariation, computeYoYComparison } from "@/lib/mom-calculator";
 import { computeHealthScore, computeGlobalHealthScore } from "@/lib/health-score";
 import { MonthlySummary } from "@/components/monthly-summary";
+import { DashboardViewToggle } from "@/components/dashboard-view-toggle";
+import { CoupleDashboard } from "@/components/couple-dashboard";
+import { getCoupleByUserId, getCoupleMembers } from "@/lib/couple-queries";
+import type { CoupleMember } from "@/lib/couple-queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ accountId?: string }>;
+  searchParams: Promise<{ accountId?: string; view?: string }>;
 }) {
   const params = await searchParams;
   const isAll = params.accountId === "all";
@@ -44,6 +48,22 @@ export default async function DashboardPage({
   const session = await getRequiredSession(locale);
   const userId = session.user.id;
   const db = await getUserDb(userId);
+
+  const view = params.view ?? "personal";
+
+  // Charger le couple de l'utilisateur (silencieux si erreur)
+  let couple: Awaited<ReturnType<typeof getCoupleByUserId>> = null;
+  let coupleMembers: CoupleMember[] = [];
+  try {
+    couple = await getCoupleByUserId(getDb(), userId);
+    if (couple) {
+      coupleMembers = await getCoupleMembers(getDb(), couple.id);
+    }
+  } catch {
+    // couple features not available
+  }
+  const partnerMember = coupleMembers.find((m) => m.user_id !== userId);
+  const hasCoupleActive = couple !== null;
 
   const userName = session.user.name ?? "";
   const initials = userName
@@ -170,6 +190,35 @@ export default async function DashboardPage({
         </Link>
       </header>
 
+      {/* Toggle Ma vue / Vue couple */}
+      <div className="px-4 mb-2">
+        <DashboardViewToggle hasCoupleActive={hasCoupleActive} locale={locale} />
+      </div>
+
+      {/* Vue couple */}
+      {view === "couple" && (
+        hasCoupleActive && partnerMember ? (
+          <CoupleDashboard
+            coupleId={couple!.id}
+            userId={userId}
+            partnerUserId={partnerMember.user_id}
+            locale={locale}
+          />
+        ) : (
+          <div className="mx-4 my-4 bg-primary/10 rounded-2xl p-5 text-center">
+            <span className="material-symbols-outlined text-primary text-[40px] mb-2">favorite</span>
+            <p className="text-text-main font-bold mb-1">Invitez votre partenaire</p>
+            <p className="text-text-muted text-sm mb-4">Créez un espace couple pour partager vos finances.</p>
+            <Link href={`/${locale}/couple`} className="inline-flex items-center justify-center h-10 px-6 bg-primary text-white font-bold rounded-xl text-sm">
+              Créer un espace couple
+            </Link>
+          </div>
+        )
+      )}
+
+      {/* Vue personnelle */}
+      {view !== "couple" && (
+        <>
       {/* Account pills */}
       <AccountFilter accounts={accounts} currentAccountId={isAll ? "all" : accountId} basePath={`/${locale}/dashboard`} />
 
@@ -270,6 +319,8 @@ export default async function DashboardPage({
       <div className="px-4 mb-4">
         <MonthlySummary data={monthlySummary} />
       </div>
+        </>
+      )}
 
       {showOnboarding && <OnboardingWizard open={true} />}
     </div>

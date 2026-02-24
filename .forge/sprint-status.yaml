@@ -63,12 +63,14 @@ stories:
     epic: couple-core
     complexity: M
     priority: P2
-    status: pending
+    status: completed
     blockedBy: [STORY-085, STORY-087]
     points: 3
-    tests: 0
-    qa_verdict: ""
-    notes: "DashboardViewToggle (client) + CoupleDashboard (server) + searchParam ?view=couple"
+    tests: 6
+    qa_verdict: "PASS"
+    qa_date: "2026-02-24"
+    qa_notes: "6 tests TU-88-x (4 toggle + 2 smoke couple-dashboard). DashboardViewToggle (client) + CoupleDashboard (server) + searchParam ?view=couple intégrés dans dashboard/page.tsx. 611 tests totaux, 0 régression. tsc --noEmit OK. 0 erreur lint."
+    notes: "DashboardViewToggle (client, pills Ma vue/Vue couple, lock si !hasCoupleActive) + CoupleDashboard (server, CoupleBalanceCard + 5 dernières transactions partagées) + searchParam ?view=couple dans dashboard/page.tsx — 6 tests TU-88-x"
 
   - id: STORY-089
     title: "Freemium gates couple (Pro/Premium)"
@@ -425,13 +427,13 @@ metrics_v10:
 
 metrics_v12:
   total: 8
-  completed: 4
+  completed: 5
   in_progress: 0
-  pending: 4
+  pending: 3
   total_points: 20
-  points_completed: 9
-  tests_total: 605
-  tests_sprint: 38
+  points_completed: 12
+  tests_total: 611
+  tests_sprint: 44
   qa_verdict: ""
 
 metrics_v11:
