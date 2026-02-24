@@ -36,6 +36,12 @@ export default function ConnexionPage() {
     <div className="min-h-screen bg-background-light flex items-center justify-center p-6">
       <div className="w-full max-w-[400px] flex flex-col gap-8">
 
+        {/* Retour accueil */}
+        <Link href={`/${locale}`} className="flex items-center gap-1.5 text-text-muted hover:text-text-main text-sm font-medium self-start transition-colors">
+          <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+          Accueil
+        </Link>
+
         {/* Logo TMC */}
         <div className="flex flex-col items-center gap-3">
           <div className="flex items-center justify-center size-20 rounded-2xl bg-primary/10 text-primary">
