@@ -31,8 +31,13 @@ import { MonthlySummary } from "@/components/monthly-summary";
 import { DashboardViewToggle } from "@/components/dashboard-view-toggle";
 import { CoupleDashboard } from "@/components/couple-dashboard";
 import { CoupleOnboardingWizard } from "@/components/couple-onboarding-wizard";
-import { getCoupleByUserId, getCoupleMembers, getOnboardingStatus } from "@/lib/couple-queries";
+import { getCoupleByUserId, getCoupleMembers, getOnboardingStatus, getOnboardingChoice } from "@/lib/couple-queries";
+import { CoupleChoiceModal } from "@/components/couple-choice-modal";
 import type { CoupleMember } from "@/lib/couple-queries";
+
+import { CoupleLockedPreview } from "@/components/couple-locked-preview";
+import { OnboardingProgressBar } from "@/components/onboarding-progress-bar";
+import { computeOnboardingProgress } from "@/lib/onboarding-progress";
 
 export const dynamic = "force-dynamic";
 
@@ -66,6 +71,11 @@ export default async function DashboardPage({
   const partnerMember = coupleMembers.find((m) => m.user_id !== userId);
   const hasCoupleActive = couple !== null;
 
+  // STORY-105: daysSinceCreation pour afficher la barre de progression
+  const daysSinceCreation = Math.floor(
+    (Date.now() - new Date(session.user.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+  );
+
   const userName = session.user.name ?? "";
   const initials = userName
     .split(" ")
@@ -80,7 +90,8 @@ export default async function DashboardPage({
   const currentMonth = now.getMonth() + 1;
   const previousYear = currentYear - 1;
 
-  const [data, balanceHistory, , expensesByBroad, monthlySummary, spendingTrend, rates, accounts, refCurrencySetting, budgetStatuses, onboardingCompleted, goals, yoyCurrent, yoyPrevious, coupleOnboardingCompleted] =
+  const [data, balanceHistory, , expensesByBroad, monthlySummary, spendingTrend, rates, accounts, refCurrencySetting, budgetStatuses, onboardingCompleted, goals, yoyCurrent, yoyPrevious, coupleOnboardingCompleted,
+      coupleOnboardingChoice] =
     await Promise.all([
       getDashboardData(db, accountId),
       getMonthlyBalanceHistory(db, 12, accountId),
@@ -97,10 +108,28 @@ export default async function DashboardPage({
       getMonthlyExpensesByCategory(db, accountId, currentYear, currentMonth),
       getMonthlyExpensesByCategory(db, accountId, previousYear, currentMonth),
       getOnboardingStatus(db),
+      getOnboardingChoice(db),
     ]);
+
+  // STORY-105: Vérifier si l'utilisateur a au moins 1 budget couple
+  let hasCoupleBudget = false;
+  try {
+    const coupleBudgetResult = await db.execute({
+      sql: "SELECT COUNT(*) as n FROM budgets WHERE scope = 'couple'",
+      args: [],
+    });
+    hasCoupleBudget = Number(coupleBudgetResult.rows[0]?.n ?? 0) > 0;
+  } catch {
+    // budgets table may not have scope column
+  }
+
+  const hasTransactions = data.monthlyExpenses > 0 || data.monthlyIncome > 0 || data.recurringMonthly > 0;
+  const hasPartner = coupleMembers.length >= 2;
+  const onboardingProgress = computeOnboardingProgress({ hasTransactions, hasPartner, hasCoupleBudget });
 
   const showOnboarding = !onboardingCompleted && accounts.length === 0;
   const showCoupleOnboarding = !coupleOnboardingCompleted && accounts.length > 0;
+  const showCoupleChoiceModal = !coupleOnboardingChoice && accounts.length === 0;
   const refCurrency = refCurrencySetting ?? REFERENCE_CURRENCY;
 
   const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -167,6 +196,7 @@ export default async function DashboardPage({
           Ajouter un compte
         </Link>
         {showOnboarding && <OnboardingWizard open={true} />}
+        {showCoupleChoiceModal && <CoupleChoiceModal open={true} />}
       </div>
     );
   }
@@ -225,6 +255,11 @@ export default async function DashboardPage({
       {/* Account pills */}
       <AccountFilter accounts={accounts} currentAccountId={isAll ? "all" : accountId} basePath={`/${locale}/dashboard`} />
 
+      {/* Onboarding Progress Bar - STORY-105 */}
+      {daysSinceCreation < 30 && (
+        <OnboardingProgressBar progress={onboardingProgress} locale={locale} />
+      )}
+
       {/* Balance card */}
       <BalanceCard
         totalBalance={totalInRef}
@@ -274,6 +309,9 @@ export default async function DashboardPage({
           </div>
         </div>
       )}
+
+      {/* Espace couple verrouillé - STORY-103 */}
+      <CoupleLockedPreview locale={locale} hasCoupleActive={hasCoupleActive} />
 
       {/* Budgets (3 max) */}
       {budgetStatuses.length > 0 && (

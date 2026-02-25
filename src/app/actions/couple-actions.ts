@@ -146,3 +146,19 @@ export async function updateTransactionCategoryAction(
   await updateTransactionCategory(db, txId, category);
   revalidatePath("/transactions");
 }
+
+/**
+ * Persiste le choix d'onboarding couple/solo de l'utilisateur.
+ * Stocké dans la per-user DB (settings table, clé `onboarding_choice`).
+ */
+export async function setOnboardingChoiceAction(
+  choice: "couple" | "solo"
+): Promise<void> {
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  await db.execute({
+    sql: "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+    args: ["onboarding_choice", choice],
+  });
+  revalidatePath("/dashboard");
+}

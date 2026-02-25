@@ -224,6 +224,12 @@ export async function initSchema() {
     "ALTER TABLE budgets ADD COLUMN couple_id TEXT",
     "ALTER TABLE goals ADD COLUMN scope TEXT DEFAULT 'personal'",
     "ALTER TABLE goals ADD COLUMN couple_id TEXT",
+    // STORY-100 : colonnes onboarding couple-first dans la table user (Main DB)
+    "ALTER TABLE user ADD COLUMN onboarding_choice TEXT DEFAULT null",
+    "ALTER TABLE user ADD COLUMN onboarding_completed_at INTEGER DEFAULT null",
+    "ALTER TABLE user ADD COLUMN reminder_couple_1d_sent INTEGER DEFAULT 0",
+    "ALTER TABLE user ADD COLUMN reminder_couple_3d_sent INTEGER DEFAULT 0",
+    "ALTER TABLE user ADD COLUMN reminder_couple_7d_sent INTEGER DEFAULT 0",
   ];
   for (const sql of migrations) {
     try {

@@ -471,6 +471,21 @@ export async function getOnboardingStatus(db: Client): Promise<boolean> {
   return result.rows.length > 0 && String(result.rows[0].value) === "true";
 }
 
+// ─── STORY-100 : Onboarding choice ───────────────────────────────────────────
+
+/**
+ * Retourne le choix d'onboarding de l'utilisateur ('couple' | 'solo') ou null si non défini.
+ * Lit le setting `onboarding_choice` dans la per-user DB.
+ */
+export async function getOnboardingChoice(db: Client): Promise<string | null> {
+  const result = await db.execute({
+    sql: "SELECT value FROM settings WHERE key = 'onboarding_choice' LIMIT 1",
+    args: [],
+  });
+  if (result.rows.length === 0) return null;
+  return String(result.rows[0].value);
+}
+
 // ─── STORY-094 : Dashboard couple enrichi ────────────────────────────────────
 
 export interface CoupleMonthStats {

@@ -7,6 +7,7 @@ import {
   getCoupleSharedGoals,
   computeCoupleBalanceForPeriod,
 } from "@/lib/couple-queries";
+import { getCoupleState, getActiveMemberCount } from "@/lib/couple-hub";
 import { leaveCoupleFormAction } from "@/app/actions/couple-actions";
 import { CopyInviteCodeButton } from "@/components/copy-invite-code-button";
 import { CoupleCreateForm } from "@/components/couple-create-form";
@@ -16,6 +17,7 @@ import { CoupleStatsCard } from "@/components/couple-stats-card";
 import { CoupleCategoriesPills } from "@/components/couple-categories-pills";
 import { formatCurrency } from "@/lib/format";
 import { getLocale } from "next-intl/server";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -25,8 +27,12 @@ export default async function CouplePage() {
   const locale = await getLocale();
 
   const couple = await getCoupleByUserId(db, userId);
+  const members = couple ? await getCoupleMembers(db, couple.id) : [];
+  const activeMemberCount = getActiveMemberCount(members);
+  const coupleState = getCoupleState(couple, activeMemberCount);
 
-  if (!couple) {
+  // ── État 1 : Pas de couple ──────────────────────────────────────────────────
+  if (coupleState === "none") {
     return (
       <div className="flex flex-col gap-4 px-4 pt-6 pb-6">
         <div className="flex items-center gap-3 mb-2">
@@ -63,11 +69,8 @@ export default async function CouplePage() {
     );
   }
 
-  const members = await getCoupleMembers(db, couple.id);
-  const partner = members.find((m) => m.user_id !== userId);
-
-  // Si pas encore de partenaire → page invite simplifiée
-  if (!partner) {
+  // ── État 2 : Couple en attente (partenaire pas encore rejoint) ──────────────
+  if (coupleState === "pending" && couple) {
     return (
       <div className="flex flex-col gap-4 px-4 pt-6 pb-6">
         <div className="flex items-center gap-3 mb-2">
@@ -76,34 +79,46 @@ export default async function CouplePage() {
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-soft p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="material-symbols-outlined text-primary text-[20px]">favorite</span>
-            <h2 className="font-bold text-text-main">Votre espace couple</h2>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="material-symbols-outlined text-amber-500 text-[20px]">hourglass_top</span>
+            <h2 className="font-bold text-text-main">En attente de votre partenaire</h2>
           </div>
+
           {couple.name && (
             <p className="text-sm font-medium text-text-main mb-3">{couple.name}</p>
           )}
-          <p className="text-sm text-text-muted italic mb-4">En attente d&apos;un partenaire</p>
-          <div className="bg-gray-50 rounded-xl p-4 mb-4">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-xs text-text-muted font-medium uppercase tracking-wide">
-                Code d&apos;invitation
-              </p>
-              <CopyInviteCodeButton inviteCode={couple.invite_code} />
-            </div>
-            <p className="text-2xl font-extrabold text-primary tracking-widest">
+
+          <p className="text-sm text-text-muted mb-5">
+            Votre espace couple est prêt. Partagez le code ci-dessous avec votre partenaire pour qu&apos;il rejoigne votre espace.
+          </p>
+
+          <div className="bg-gray-50 rounded-xl p-5 mb-5">
+            <p className="text-xs text-text-muted font-medium uppercase tracking-wide mb-2">
+              Code d&apos;invitation
+            </p>
+            <p className="text-3xl font-extrabold text-primary tracking-widest mb-3">
               {couple.invite_code}
             </p>
-            <p className="text-xs text-text-muted mt-1">
-              Partagez ce code avec votre partenaire pour qu&apos;il rejoigne votre espace.
-            </p>
+            <div className="flex gap-2">
+              <CopyInviteCodeButton inviteCode={couple.invite_code} />
+            </div>
           </div>
+
+          <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 mb-5">
+            <div className="flex items-start gap-2">
+              <span className="material-symbols-outlined text-amber-500 text-[18px] mt-0.5">info</span>
+              <p className="text-sm text-amber-800 leading-relaxed">
+                Votre partenaire recevra un rappel par email s&apos;il n&apos;a pas rejoint sous 24h.
+              </p>
+            </div>
+          </div>
+
           <form action={leaveCoupleFormAction}>
             <button
               type="submit"
               className="w-full border border-danger/30 text-danger font-bold rounded-xl px-4 py-2.5 text-sm hover:bg-danger/5"
             >
-              Quitter le couple
+              Annuler et quitter
             </button>
           </form>
         </div>
@@ -111,33 +126,63 @@ export default async function CouplePage() {
     );
   }
 
-  // Dashboard couple enrichi
+  // ── État 3 : Couple complet (2 membres actifs) ─────────────────────────────
+  const partner = members.find((m) => m.user_id !== userId);
+
   const now = new Date();
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
   const [userDb, partnerDb] = await Promise.all([
     getUserDb(userId),
-    getUserDb(partner.user_id),
+    getUserDb(partner!.user_id),
   ]);
 
   const [balance, monthStats, sharedGoals] = await Promise.all([
-    computeCoupleBalanceForPeriod(userDb, partnerDb, userId, partner.user_id, currentMonth),
+    computeCoupleBalanceForPeriod(userDb, partnerDb, userId, partner!.user_id, currentMonth),
     getCoupleMonthStats(userDb, partnerDb, currentMonth),
-    getCoupleSharedGoals(userDb, partnerDb, couple.id),
+    getCoupleSharedGoals(userDb, partnerDb, couple!.id),
   ]);
 
   return (
     <div className="flex flex-col gap-4 px-4 pt-6 pb-6">
       {/* ── En-tête ── */}
-      <div className="flex items-center gap-3 mb-2">
-        <span className="material-symbols-outlined text-primary text-[28px]">favorite</span>
-        <div>
-          <h1 className="text-2xl font-bold text-text-main">
-            {couple.name ?? "Espace couple"}
-          </h1>
-          <p className="text-xs text-text-muted">
-            {members.length} membres
-          </p>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <span className="material-symbols-outlined text-primary text-[28px]">favorite</span>
+          <div>
+            <h1 className="text-2xl font-bold text-text-main">
+              {couple!.name ?? "Espace couple"}
+            </h1>
+            <p className="text-xs text-text-muted">
+              {activeMemberCount} membres actifs
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/dashboard?view=couple"
+          className="flex items-center gap-1 text-xs font-semibold text-primary bg-primary/10 rounded-xl px-3 py-2"
+        >
+          <span className="material-symbols-outlined text-[16px]">dashboard</span>
+          Vue couple
+        </Link>
+      </div>
+
+      {/* ── Partenaire ── */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-soft p-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <span className="material-symbols-outlined text-primary text-[20px]">person</span>
+          </div>
+          <div>
+            <p className="text-xs text-text-muted">Votre partenaire</p>
+            <p className="text-sm font-bold text-text-main">
+              {partner!.user_id.slice(0, 12)}
+            </p>
+          </div>
+          <div className="ml-auto flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-success" />
+            <span className="text-xs text-success font-medium">Actif</span>
+          </div>
         </div>
       </div>
 
@@ -146,7 +191,7 @@ export default async function CouplePage() {
         user1Paid={balance.user1Paid}
         user2Paid={balance.user2Paid}
         diff={balance.diff}
-        partnerName={partner.user_id.slice(0, 8)}
+        partnerName={partner!.user_id.slice(0, 8)}
         locale={locale}
       />
 
@@ -215,9 +260,13 @@ export default async function CouplePage() {
           </div>
           <div className="flex flex-col gap-3">
             {sharedGoals.map((goal) => {
-              const pct = goal.target_amount > 0
-                ? Math.min(100, Math.round((goal.current_amount / goal.target_amount) * 100))
-                : 0;
+              const pct =
+                goal.target_amount > 0
+                  ? Math.min(
+                      100,
+                      Math.round((goal.current_amount / goal.target_amount) * 100)
+                    )
+                  : 0;
               return (
                 <div key={goal.id}>
                   <div className="flex justify-between text-sm mb-1">
@@ -246,7 +295,9 @@ export default async function CouplePage() {
         <summary className="flex items-center gap-2 cursor-pointer list-none">
           <span className="material-symbols-outlined text-text-muted text-[20px]">share</span>
           <span className="text-sm font-medium text-text-muted">Code d&apos;invitation</span>
-          <span className="material-symbols-outlined text-text-muted text-[16px] ml-auto">expand_more</span>
+          <span className="material-symbols-outlined text-text-muted text-[16px] ml-auto">
+            expand_more
+          </span>
         </summary>
         <div className="mt-4">
           <div className="bg-gray-50 rounded-xl p-4">
@@ -254,10 +305,10 @@ export default async function CouplePage() {
               <p className="text-xs text-text-muted font-medium uppercase tracking-wide">
                 Code d&apos;invitation
               </p>
-              <CopyInviteCodeButton inviteCode={couple.invite_code} />
+              <CopyInviteCodeButton inviteCode={couple!.invite_code} />
             </div>
             <p className="text-2xl font-extrabold text-primary tracking-widest">
-              {couple.invite_code}
+              {couple!.invite_code}
             </p>
             <p className="text-xs text-text-muted mt-1">
               Partagez ce code avec votre partenaire pour qu&apos;il rejoigne votre espace.

@@ -416,3 +416,51 @@ export function renderWeeklyEmail(
 
   return renderEmailBase(`Récapitulatif hebdomadaire — ${weekLabel}`, body);
 }
+
+// ─── STORY-104 : Emails de relance couple ─────────────────────────────────────
+
+export function renderCoupleReminderEmail(
+  inviteCode: string,
+  days: 1 | 3 | 7
+): string {
+  const isUrgent = days === 1;
+  const isWeek = days === 7;
+
+  const headline = isUrgent
+    ? "Votre partenaire n'a pas encore rejoint"
+    : isWeek
+      ? "Une semaine déjà — votre espace couple vous attend"
+      : "Rappel — votre espace couple est prêt";
+
+  const intro = isUrgent
+    ? "Votre partenaire vous attend depuis hier sur TrackMyCash. Partagez le code ci-dessous pour commencer à gérer vos finances ensemble."
+    : isWeek
+      ? "Il y a une semaine, vous avez créé votre espace couple sur TrackMyCash. Votre partenaire n'a pas encore rejoint — c'est le bon moment pour lui envoyer le code."
+      : "Votre espace couple est prêt sur TrackMyCash. Partagez le code d'invitation avec votre partenaire pour commencer à gérer vos finances en commun.";
+
+  const body = `
+    <h2 style="margin: 0 0 16px; font-size: 22px; color: #1a1a1a;">${headline}</h2>
+    <p style="margin: 0 0 16px; color: #555; line-height: 1.6;">${intro}</p>
+
+    <div style="background: #f5f5f5; border-radius: 8px; padding: 24px; text-align: center; margin: 0 0 24px;">
+      <p style="margin: 0 0 8px; font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Code d'invitation</p>
+      <p style="margin: 0; font-size: 32px; font-weight: 800; color: #1a1a1a; letter-spacing: 6px;">${inviteCode}</p>
+      <p style="margin: 8px 0 0; font-size: 12px; color: #888;">Partagez ce code avec votre partenaire</p>
+    </div>
+
+    <p style="margin: 0 0 12px; color: #555; line-height: 1.6;">
+      TrackMyCash vous permet de&nbsp;:
+    </p>
+    <ul style="margin: 0 0 24px; padding-left: 20px; color: #555; line-height: 1.8;">
+      <li>Suivre les dépenses partagées du couple</li>
+      <li>Calculer automatiquement qui doit quoi</li>
+      <li>Définir des budgets et objectifs communs</li>
+    </ul>
+
+    <p style="margin: 0; color: #888; font-size: 13px; line-height: 1.5;">
+      Si votre partenaire n'a pas encore de compte, il peut s'inscrire gratuitement sur TrackMyCash.
+    </p>
+  `;
+
+  return renderEmailBase("Votre partenaire vous attend sur TrackMyCash", body);
+}

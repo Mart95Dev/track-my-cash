@@ -1,9 +1,16 @@
 sprint:
+  id: sprint-couple-first-onboarding-v14
+  goal: "Couple-First Onboarding — modal choix couple/solo post-inscription, wizard enrichi, emails rappel partenaire, deep link invitation, bannière progression"
+  start_date: "2026-02-25"
+  end_date: ""
+  status: in_progress
+
+previous_sprint_v13:
   id: sprint-activation-retention-v13
   goal: "Activation & Rétention Couple — onboarding wizard, dashboard couple enrichi, notifications in-app, email hebdo couple, export PDF, blog SEO, catégories couple"
   start_date: "2026-02-24"
-  end_date: ""
-  status: in_progress
+  end_date: "2026-02-25"
+  status: completed
 
 previous_sprint_v12:
   id: sprint-niche-couple-v12
@@ -21,6 +28,92 @@ previous_sprint:
   commit: "860d0fd"
 
 stories:
+  # === SPRINT COUPLE-FIRST ONBOARDING (v14) — EN COURS ===
+
+  - id: STORY-100
+    title: "Onboarding couple-first post-inscription"
+    epic: couple-activation
+    complexity: M
+    priority: P1
+    status: completed
+    blockedBy: []
+    points: 3
+    tests: 14
+    qa_verdict: "pending"
+    notes: "14 tests (TU-100-1 à TU-100-7c). getOnboardingChoice + setOnboardingChoiceAction + CoupleChoiceModal (2 cartes, code invite, Copier, Web Share API) + dashboard intégration. DB migrations: onboarding_choice, onboarding_completed_at, reminder_couple_1/3/7d_sent. 792 tests totaux, 0 régression. tsc OK."
+
+  - id: STORY-101
+    title: "Bannière persistante invitation partenaire"
+    epic: couple-activation
+    complexity: S
+    priority: P1
+    status: completed
+    blockedBy: [STORY-100]
+    points: 2
+    tests: 3
+    qa_verdict: "pending"
+    notes: "3 tests (TU-101-1 à TU-101-3). CoupleInviteBanner (Server Component, non-dismissable, code invite + lien /couple) + layout.tsx intégration (showInviteBanner si onboarding_choice='couple' + couple solo). 814 tests totaux, 0 régression. tsc OK."
+
+  - id: STORY-102
+    title: "Navigation onglet Couple"
+    epic: couple-activation
+    complexity: S
+    priority: P2
+    status: completed
+    blockedBy: [STORY-100]
+    points: 2
+    tests: 5
+    qa_verdict: "pending"
+    notes: "5 tests (TU-102-1 à TU-102-5). BottomNav remplace Récurrents par Couple (icône favorite, href /couple, badge rouge si coupleIncomplete=true). Layout.tsx calcule coupleIncomplete + passe au BottomNav. 814 tests totaux, 0 régression. tsc OK."
+
+  - id: STORY-103
+    title: "Dashboard zones verrouillées couple"
+    epic: couple-activation
+    complexity: S
+    priority: P2
+    status: completed
+    blockedBy: [STORY-100]
+    points: 2
+    tests: 5
+    qa_verdict: "pending"
+    notes: "5 tests (TU-103-1 à TU-103-5). CoupleLockedPreview (null si hasCoupleActive, 3 cards floutées blur-sm, overlay lock, CTA /couple) + intégration dashboard. 806 tests totaux, 0 régression. tsc OK."
+
+  - id: STORY-104
+    title: "Emails de relance cron couple (J+1, J+3, J+7)"
+    epic: couple-activation
+    complexity: S
+    priority: P2
+    status: completed
+    blockedBy: [STORY-100]
+    points: 2
+    tests: 9
+    qa_verdict: "pending"
+    notes: "9 tests (TU-104-1 à TU-104-9). renderCoupleReminderEmail + route GET /api/cron/couple-reminders (guard CRON_SECRET, logique paliers J+1/3/7, flag reminder_couple_Xd_sent). 832 tests totaux, 0 régression. tsc OK."
+
+  - id: STORY-105
+    title: "Barre de progression onboarding gamifiée"
+    epic: couple-activation
+    complexity: S
+    priority: P2
+    status: completed
+    blockedBy: [STORY-100]
+    points: 2
+    tests: 9
+    qa_verdict: "pending"
+    notes: "9 tests (TU-105-1 à TU-105-9). computeOnboardingProgress (4 étapes pures: Compte créé toujours ✓, 1ère transaction, Partenaire invité, Budget commun) + OnboardingProgressBar (barre, compteur, icônes) + dashboard intégration (visible si daysSinceCreation < 30). 806 tests totaux, 0 régression. tsc OK."
+
+  - id: STORY-106
+    title: "Page /couple hub central (3 états)"
+    epic: couple-activation
+    complexity: M
+    priority: P3
+    status: completed
+    blockedBy: []
+    points: 3
+    tests: 9
+    qa_verdict: "pending"
+    notes: "9 tests (TU-106-1 à TU-106-5 + 4 extra). couple-hub.ts (getCoupleState 'none'|'pending'|'complete', getActiveMemberCount) + page /couple refondue 3 états distincts (Créer/Rejoindre, Invite en attente+CopyCode, Complet+lien dashboard). 832 tests totaux, 0 régression. tsc OK."
+
   # === SPRINT ACTIVATION & RÉTENTION COUPLE (v13) — EN COURS ===
 
   - id: STORY-093

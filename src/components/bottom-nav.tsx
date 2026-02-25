@@ -13,11 +13,17 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard",    icon: "space_dashboard",        label: "Dashboard" },
   { href: "/comptes",      icon: "account_balance_wallet", label: "Comptes" },
   { href: "/transactions", icon: "receipt_long",           label: "Transactions" },
-  { href: "/recurrents",   icon: "autorenew",              label: "Récurrents" },
+  { href: "/couple",       icon: "favorite",               label: "Couple" },
   { href: "/conseiller",   icon: "smart_toy",              label: "IA" },
 ];
 
-export function BottomNav({ unreadCount = 0 }: { unreadCount?: number }) {
+export function BottomNav({
+  unreadCount = 0,
+  coupleIncomplete = false,
+}: {
+  unreadCount?: number;
+  coupleIncomplete?: boolean;
+}) {
   const pathname = usePathname();
   const params = useParams();
   const locale = params.locale as string;
@@ -37,16 +43,24 @@ export function BottomNav({ unreadCount = 0 }: { unreadCount?: number }) {
         {NAV_ITEMS.map((item) => {
           const fullHref = `/${locale}${item.href}`;
           const isActive = pathname.startsWith(fullHref);
+          const isCouple = item.href === "/couple";
+
           return (
             <Link
               key={item.href}
               href={fullHref}
-              className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-colors ${
+              className={`relative flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-colors ${
                 isActive
                   ? "text-primary"
                   : "text-text-muted hover:text-primary/70"
               }`}
             >
+              {isCouple && coupleIncomplete && (
+                <span
+                  aria-label="couple incomplet"
+                  className="absolute top-0 right-2 w-2 h-2 rounded-full bg-red-500"
+                />
+              )}
               <span
                 className="material-symbols-outlined text-[22px]"
                 style={{
