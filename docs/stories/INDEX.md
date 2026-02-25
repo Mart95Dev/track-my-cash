@@ -217,3 +217,45 @@
 - **Points total :** 17/17 ✅
 - **Tests sprint :** 66 nouveaux tests — 495 total, 0 échec
 - **TypeScript :** 0 erreur
+
+---
+
+## Sprint Pivot Niche Couple (v12) — TERMINÉ ✅
+
+| ID | Titre | Priorité | Complexité | Statut | QA |
+|----|-------|----------|------------|--------|-----|
+| STORY-085 | DB Migrations couple (Main DB + per-user ALTER TABLE) | P1 | XS | ✅ completed | PASS |
+| STORY-086 | Système d'invitation couple | P1 | M | ✅ completed | PASS |
+| STORY-087 | Transactions partagées + balance couple | P2 | M | ✅ completed | PASS |
+| STORY-088 | Dashboard toggle Ma vue / Vue couple | P2 | M | ✅ completed | PASS |
+| STORY-089 | Freemium gates couple (Pro/Premium) | P2 | S | ✅ completed | PASS |
+| STORY-090 | Budgets & objectifs couple | P3 | M | ✅ completed | PASS |
+| STORY-091 | Conseiller IA couple | P3 | M | ✅ completed | PASS |
+| STORY-092 | Landing page + tarifs — pivot marketing couple | P3 | S | ✅ completed | PASS |
+
+### Métriques Sprint Pivot Niche Couple
+
+- **Stories complétées :** 8/8 ✅
+- **Points total :** 20/20 ✅
+- **Tests sprint :** 76 nouveaux tests — 643 total, 0 régression
+- **TypeScript :** 0 erreur · Commit : `4a7de54`
+
+---
+
+## Sprint Activation & Rétention Couple (v13) — EN COURS 🚀
+
+| ID | Titre | Priorité | Complexité | Statut | QA |
+|----|-------|----------|------------|--------|-----|
+| STORY-093 | Onboarding wizard couple post-inscription | P1 | M | ⏳ pending | — |
+| STORY-094 | Dashboard /couple enrichi | P1 | M | ⏳ pending | — |
+| STORY-095 | Centre de notifications in-app | P2 | M | ⏳ pending | — |
+| STORY-096 | Email hebdo étendu — stats couple | P2 | S | ⏳ pending | — |
+| STORY-097 | Export PDF rapport mensuel (Pro/Premium) | P3 | M | ⏳ pending | — |
+| STORY-098 | Blog SEO couple — contenu statique | P3 | S | ⏳ pending | — |
+| STORY-099 | Catégories prédéfinies couple | P3 | XS | ⏳ pending | — |
+
+### Métriques Sprint Activation & Rétention Couple
+
+- **Stories complétées :** 0/7
+- **Points total :** 0/17
+- **Tests sprint :** 0 — 643 existants

@@ -1,12 +1,14 @@
 import { describe, it, expect } from "vitest";
 import sitemap from "@/app/sitemap";
+import { BLOG_POSTS } from "@/data/blog-posts";
 
 const LOCALES = ["fr", "en", "es", "it", "de"];
 const PUBLIC_PATHS = ["", "tarifs", "connexion", "inscription"];
-const TOTAL_EXPECTED = LOCALES.length * PUBLIC_PATHS.length; // 20
+// 20 entrées locales + 1 /blog + N articles blog
+const TOTAL_EXPECTED = LOCALES.length * PUBLIC_PATHS.length + 1 + BLOG_POSTS.length;
 
 describe("sitemap.xml", () => {
-  it(`TU-2-1 : contient ${TOTAL_EXPECTED} entrées (${LOCALES.length} locales × ${PUBLIC_PATHS.length} pages)`, () => {
+  it(`TU-2-1 : contient ${TOTAL_EXPECTED} entrées (locales + blog)`, () => {
     const result = sitemap();
     expect(result.length).toBe(TOTAL_EXPECTED);
   });

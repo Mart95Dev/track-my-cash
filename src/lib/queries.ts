@@ -890,6 +890,17 @@ export async function updateTransactionNote(
   });
 }
 
+export async function updateTransactionCategory(
+  db: Client,
+  txId: number,
+  category: string
+): Promise<void> {
+  await db.execute({
+    sql: "UPDATE transactions SET category = ? WHERE id = ?",
+    args: [category, txId],
+  });
+}
+
 export async function updateRecurringPayment(
   db: Client,
   id: number,

@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb, getUserDb } from "@/lib/db";
-import { getSetting, getWeeklySummaryData } from "@/lib/queries";
+import { getSetting } from "@/lib/queries";
+import { computeWeeklySummary } from "@/lib/weekly-summary";
 import { renderWeeklyEmail } from "@/lib/email-templates";
 import { sendEmail } from "@/lib/email";
 
@@ -44,10 +45,10 @@ export async function GET(request: NextRequest) {
       const optOut = await getSetting(userDb, "weekly_summary_email");
       if (optOut === "false") continue;
 
-      const queryResult = await getWeeklySummaryData(userDb, weekStart, weekEnd);
+      const enriched = await computeWeeklySummary(userId, userDb, weekStart, weekEnd);
       const currency = (await getSetting(userDb, "reference_currency")) ?? "EUR";
 
-      const data = { ...queryResult, currency };
+      const data = { ...enriched, currency };
       const html = renderWeeklyEmail(data, name, appUrl);
 
       const weekLabel = new Date(weekStart + "T12:00:00").toLocaleDateString("fr-FR", {

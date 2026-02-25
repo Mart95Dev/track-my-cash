@@ -456,3 +456,177 @@ export async function createCoupleGoal(
     args: [name, targetAmount, currency, deadline ?? null, coupleId],
   });
 }
+
+// ─── STORY-093 : Onboarding couple ───────────────────────────────────────────
+
+/**
+ * Retourne true si l'utilisateur a complété l'onboarding couple.
+ * Lit le setting `onboarding_couple_completed` dans la per-user DB.
+ */
+export async function getOnboardingStatus(db: Client): Promise<boolean> {
+  const result = await db.execute({
+    sql: "SELECT value FROM settings WHERE key = 'onboarding_couple_completed' LIMIT 1",
+    args: [],
+  });
+  return result.rows.length > 0 && String(result.rows[0].value) === "true";
+}
+
+// ─── STORY-094 : Dashboard couple enrichi ────────────────────────────────────
+
+export interface CoupleMonthStats {
+  totalExpenses: number;
+  transactionCount: number;
+  variation: number | null;
+  topCategories: Array<{ category: string; total: number }>;
+  recentTransactions: Array<{
+    amount: number;
+    category: string;
+    description: string;
+    date: string;
+    paid_by: string;
+  }>;
+}
+
+/**
+ * Calcule les statistiques financières communes d'un couple pour un mois donné.
+ * Fusionne les transactions partagées des deux utilisateurs.
+ */
+export async function getCoupleMonthStats(
+  userDb1: Client,
+  userDb2: Client,
+  month: string
+): Promise<CoupleMonthStats> {
+  const [year, mon] = month.split("-").map(Number);
+  const prevDate = new Date(year, mon - 2, 1);
+  const prevMonth = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, "0")}`;
+
+  const currentSql = `SELECT amount, category, description, date, COALESCE(paid_by, '') as paid_by
+    FROM transactions WHERE is_couple_shared = 1 AND date LIKE ? ORDER BY date DESC`;
+  const prevSql = `SELECT COALESCE(SUM(ABS(amount)), null) as total
+    FROM transactions WHERE is_couple_shared = 1 AND date LIKE ? AND amount < 0`;
+
+  const [result1, result2, prev1, prev2] = await Promise.all([
+    userDb1.execute({ sql: currentSql, args: [month + "%"] }),
+    userDb2.execute({ sql: currentSql, args: [month + "%"] }),
+    userDb1.execute({ sql: prevSql, args: [prevMonth + "%"] }),
+    userDb2.execute({ sql: prevSql, args: [prevMonth + "%"] }),
+  ]);
+
+  type TxRow = {
+    amount: number;
+    category: string;
+    description: string;
+    date: string;
+    paid_by: string;
+  };
+
+  const mapTx = (row: (typeof result1.rows)[0]): TxRow => ({
+    amount: Number(row.amount),
+    category: String(row.category),
+    description: String(row.description),
+    date: String(row.date),
+    paid_by: String(row.paid_by),
+  });
+
+  const txs = [...result1.rows.map(mapTx), ...result2.rows.map(mapTx)].sort(
+    (a, b) => b.date.localeCompare(a.date)
+  );
+
+  const totalExpenses = txs.reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+  const transactionCount = txs.length;
+
+  // Variation vs mois précédent
+  const rawPrev1 = prev1.rows[0]?.total;
+  const rawPrev2 = prev2.rows[0]?.total;
+  const prevTotal1 = rawPrev1 != null ? Number(rawPrev1) : null;
+  const prevTotal2 = rawPrev2 != null ? Number(rawPrev2) : null;
+
+  let variation: number | null = null;
+  if (prevTotal1 !== null || prevTotal2 !== null) {
+    const prevTotal = (prevTotal1 ?? 0) + (prevTotal2 ?? 0);
+    if (prevTotal > 0) {
+      variation = ((totalExpenses - prevTotal) / prevTotal) * 100;
+    }
+  }
+
+  // Top 3 catégories par montant DESC
+  const catMap = new Map<string, number>();
+  for (const tx of txs) {
+    if (tx.amount < 0) {
+      catMap.set(tx.category, (catMap.get(tx.category) ?? 0) + Math.abs(tx.amount));
+    }
+  }
+  const topCategories = Array.from(catMap.entries())
+    .map(([category, total]) => ({ category, total }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 3);
+
+  return {
+    totalExpenses,
+    transactionCount,
+    variation,
+    topCategories,
+    recentTransactions: txs.slice(0, 10),
+  };
+}
+
+// ─── Weekly stats couple ──────────────────────────────────────────────────────
+
+export interface CoupleWeeklyData {
+  sharedExpenses: number;
+  balance: number;
+  topSharedCategory: string;
+  transactionCount: number;
+  partnerName: string;
+}
+
+/**
+ * Calcule les statistiques hebdomadaires couple en fusionnant les transactions
+ * partagées des deux bases per-user.
+ */
+export async function getCoupleWeeklyStats(
+  userDb1: Client,
+  userDb2: Client,
+  userId1: string,
+  userId2: string,
+  since: string
+): Promise<Omit<CoupleWeeklyData, "partnerName">> {
+  const sql =
+    "SELECT amount, category, paid_by FROM transactions WHERE is_couple_shared = 1 AND date >= ?";
+
+  const [r1, r2] = await Promise.all([
+    userDb1.execute({ sql, args: [since] }),
+    userDb2.execute({ sql, args: [since] }),
+  ]);
+
+  const allRows = [...r1.rows, ...r2.rows] as unknown as Array<{
+    amount: number;
+    category: string;
+    paid_by: string;
+  }>;
+
+  if (allRows.length === 0) {
+    return { sharedExpenses: 0, balance: 0, topSharedCategory: "", transactionCount: 0 };
+  }
+
+  let sharedExpenses = 0;
+  let user1Total = 0;
+  let user2Total = 0;
+  const catMap = new Map<string, number>();
+
+  for (const row of allRows) {
+    const amt = Math.abs(Number(row.amount));
+    sharedExpenses += amt;
+    catMap.set(row.category, (catMap.get(row.category) ?? 0) + amt);
+    if (row.paid_by === userId1) user1Total += amt;
+    else if (row.paid_by === userId2) user2Total += amt;
+  }
+
+  const topSharedCategory =
+    Array.from(catMap.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "";
+
+  // balance positive = userId2 doit à userId1 (userId1 a payé davantage)
+  const balance = user1Total - user2Total;
+
+  return { sharedExpenses, balance, topSharedCategory, transactionCount: allRows.length };
+}

@@ -14,7 +14,10 @@ export function getDb(): Client {
 
 export async function getUserDb(userId: string): Promise<Client> {
   const { getUserDbClient } = await import("./turso-manager");
-  return getUserDbClient(userId);
+  const client = await getUserDbClient(userId);
+  const { initUserSchema } = await import("./user-db");
+  await initUserSchema(client);
+  return client;
 }
 
 export async function initSchema() {

@@ -30,7 +30,8 @@ import { computeHealthScore, computeGlobalHealthScore } from "@/lib/health-score
 import { MonthlySummary } from "@/components/monthly-summary";
 import { DashboardViewToggle } from "@/components/dashboard-view-toggle";
 import { CoupleDashboard } from "@/components/couple-dashboard";
-import { getCoupleByUserId, getCoupleMembers } from "@/lib/couple-queries";
+import { CoupleOnboardingWizard } from "@/components/couple-onboarding-wizard";
+import { getCoupleByUserId, getCoupleMembers, getOnboardingStatus } from "@/lib/couple-queries";
 import type { CoupleMember } from "@/lib/couple-queries";
 
 export const dynamic = "force-dynamic";
@@ -79,7 +80,7 @@ export default async function DashboardPage({
   const currentMonth = now.getMonth() + 1;
   const previousYear = currentYear - 1;
 
-  const [data, balanceHistory, , expensesByBroad, monthlySummary, spendingTrend, rates, accounts, refCurrencySetting, budgetStatuses, onboardingCompleted, goals, yoyCurrent, yoyPrevious] =
+  const [data, balanceHistory, , expensesByBroad, monthlySummary, spendingTrend, rates, accounts, refCurrencySetting, budgetStatuses, onboardingCompleted, goals, yoyCurrent, yoyPrevious, coupleOnboardingCompleted] =
     await Promise.all([
       getDashboardData(db, accountId),
       getMonthlyBalanceHistory(db, 12, accountId),
@@ -95,9 +96,11 @@ export default async function DashboardPage({
       getGoals(db),
       getMonthlyExpensesByCategory(db, accountId, currentYear, currentMonth),
       getMonthlyExpensesByCategory(db, accountId, previousYear, currentMonth),
+      getOnboardingStatus(db),
     ]);
 
   const showOnboarding = !onboardingCompleted && accounts.length === 0;
+  const showCoupleOnboarding = !coupleOnboardingCompleted && accounts.length > 0;
   const refCurrency = refCurrencySetting ?? REFERENCE_CURRENCY;
 
   const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -323,6 +326,7 @@ export default async function DashboardPage({
       )}
 
       {showOnboarding && <OnboardingWizard open={true} />}
+      {showCoupleOnboarding && <CoupleOnboardingWizard locale={locale} />}
     </div>
   );
 }

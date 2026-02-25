@@ -1,5 +1,6 @@
 import { renderEmailBase } from "@/lib/email";
 import type { WeeklySummaryData } from "@/lib/queries";
+import type { CoupleWeeklyData } from "@/lib/couple-queries";
 
 export interface MonthlySummaryData {
   month: string;
@@ -288,7 +289,7 @@ export function renderTrialReminderEmail(
 export type { WeeklySummaryData };
 
 export function renderWeeklyEmail(
-  data: WeeklySummaryData,
+  data: WeeklySummaryData & { coupleWeekly?: CoupleWeeklyData },
   userName: string,
   appUrl: string
 ): string {
@@ -344,6 +345,34 @@ export function renderWeeklyEmail(
         .join("")}
     </table>`;
 
+  const coupleHtml = data.coupleWeekly
+    ? (() => {
+        const cw = data.coupleWeekly!;
+        const absBalance = Math.abs(cw.balance);
+        const balanceLabel =
+          cw.balance > 0
+            ? `${cw.partnerName} partenaire vous doit ${fmt(absBalance)}`
+            : cw.balance < 0
+              ? `vous devez ${fmt(absBalance)} à ${cw.partnerName}`
+              : "Balance à l'équilibre";
+        return `
+    <h3 style="margin: 0 0 12px; font-size: 16px; color: #7c3aed;">Cette semaine en couple</h3>
+    <table style="width: 100%; border-collapse: collapse; margin: 0 0 24px; border: 1px solid #ede9fe; border-radius: 6px; overflow: hidden;">
+      <tr>
+        <td style="padding: 10px 12px; background: #f5f3ff; color: #555; font-size: 14px;">${cw.transactionCount} transactions partagées</td>
+        <td style="padding: 10px 12px; background: #f5f3ff; color: #7c3aed; font-weight: 700; font-size: 16px; text-align: right;">${fmt(cw.sharedExpenses)}</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px 12px; color: #555; font-size: 14px;">Catégorie principale</td>
+        <td style="padding: 10px 12px; color: #333; font-size: 14px; text-align: right;">${cw.topSharedCategory}</td>
+      </tr>
+      <tr>
+        <td colspan="2" style="padding: 10px 12px; color: #555; font-size: 14px;">${balanceLabel}</td>
+      </tr>
+    </table>`;
+      })()
+    : "";
+
   const greeting = userName ? `Bonjour ${userName},` : "Bonjour,";
 
   const body = `
@@ -373,6 +402,7 @@ export function renderWeeklyEmail(
 
     ${budgetsHtml}
     ${goalsHtml}
+    ${coupleHtml}
 
     <div style="text-align: center; margin: 0 0 24px;">
       <a href="${appUrl}" style="display: inline-block; background-color: #1a1a1a; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">

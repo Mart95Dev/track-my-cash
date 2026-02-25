@@ -44,6 +44,10 @@ vi.mock("@/lib/queries", () => ({
   getNotifications: mockGetNotifications,
 }));
 
+vi.mock("@/lib/notification-queries", () => ({
+  markAllRead: vi.fn().mockResolvedValue(undefined),
+}));
+
 describe("notification-actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();

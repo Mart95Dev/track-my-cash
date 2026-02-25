@@ -6,8 +6,9 @@ import { TrialUrgencyModal } from "@/components/trial-urgency-modal";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getDb } from "@/lib/db";
+import { getDb, getUserDb } from "@/lib/db";
 import { getDaysRemaining } from "@/lib/trial-utils";
+import { getUnreadCount } from "@/lib/notification-queries";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -29,12 +30,15 @@ export default async function AppLayout({ children, params }: Props) {
   }
 
   const mainDb = getDb();
+  const userId = session.user.id;
 
-  const [subResult] = await Promise.all([
+  const userDb = await getUserDb(userId);
+  const [subResult, unreadCount] = await Promise.all([
     mainDb.execute({
       sql: "SELECT plan_id, status, trial_ends_at FROM subscriptions WHERE user_id = ?",
-      args: [session.user.id],
+      args: [userId],
     }),
+    getUnreadCount(userDb).catch(() => 0),
   ]);
 
   const subRow = subResult.rows[0] ?? null;
@@ -55,7 +59,7 @@ export default async function AppLayout({ children, params }: Props) {
       <main className="max-w-md mx-auto pb-24 min-h-screen">
         {children}
       </main>
-      <BottomNav />
+      <BottomNav unreadCount={unreadCount} />
       <PwaInstallBanner />
       <TrialUrgencyModal
         daysRemaining={bannerDaysRemaining ?? 0}

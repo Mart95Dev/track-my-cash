@@ -9,6 +9,7 @@ import {
   leaveCouple,
 } from "@/lib/couple-queries";
 import { canUseCoupleFeature } from "@/lib/subscription-utils";
+import { updateTransactionCategory } from "@/lib/queries";
 import { revalidatePath } from "next/cache";
 
 function generateInviteCode(): string {
@@ -117,4 +118,31 @@ export async function updateTransactionCoupleAction(
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function leaveCoupleFormAction(_formData: FormData): Promise<void> {
   await leaveCoupleAction();
+}
+
+/**
+ * Marque l'onboarding couple comme complété dans la per-user DB.
+ * Idempotente : INSERT OR REPLACE ne cause aucune erreur si déjà présent.
+ */
+export async function markOnboardingCompleteAction(): Promise<void> {
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  await db.execute({
+    sql: "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+    args: ["onboarding_couple_completed", "true"],
+  });
+  revalidatePath("/dashboard");
+}
+
+/**
+ * Met à jour la catégorie d'une transaction partagée (AC-5 STORY-099).
+ */
+export async function updateTransactionCategoryAction(
+  txId: number,
+  category: string
+): Promise<void> {
+  const userId = await getRequiredUserId();
+  const db = await getUserDb(userId);
+  await updateTransactionCategory(db, txId, category);
+  revalidatePath("/transactions");
 }

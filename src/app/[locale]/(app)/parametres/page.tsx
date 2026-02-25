@@ -8,6 +8,7 @@ import { BillingPortalButton } from "@/components/billing-portal-button";
 import { DeleteUserAccountDialog } from "@/components/delete-user-account-dialog";
 import { MonthlySummaryEmailButton } from "@/components/monthly-summary-email-button";
 import { MonthlyReportButton } from "@/components/monthly-report-button";
+import { ExportPdfButton } from "@/components/export-pdf-button";
 import { AnnualReportButton } from "@/components/annual-report-button";
 import { AutoCategorizeToggle } from "@/components/auto-categorize-toggle";
 import { WeeklyEmailToggle } from "@/components/weekly-email-toggle";
@@ -187,6 +188,7 @@ export default async function ParametresPage() {
         <div className="flex flex-col gap-3">
           {aiAccess.allowed && <MonthlyReportButton />}
           {aiAccess.allowed && accounts.length > 0 && <AnnualReportButton accounts={accounts} />}
+          <ExportPdfButton isProOrPremium={isProOrPremium} />
           <MonthlySummaryEmailButton />
           <WeeklyEmailToggle
             enabled={weeklyEmailSetting !== "false"}

@@ -17,13 +17,22 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/conseiller",   icon: "smart_toy",              label: "IA" },
 ];
 
-export function BottomNav() {
+export function BottomNav({ unreadCount = 0 }: { unreadCount?: number }) {
   const pathname = usePathname();
   const params = useParams();
   const locale = params.locale as string;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 h-16 pb-safe">
+      {unreadCount > 0 && (
+        <a
+          href={`/${locale}/notifications`}
+          aria-label={`${unreadCount} notifications non lues`}
+          className="absolute top-0 right-4 -translate-y-1/2 flex items-center justify-center min-w-5 h-5 px-1 bg-danger text-white text-[10px] font-bold rounded-full z-10"
+        >
+          {unreadCount}
+        </a>
+      )}
       <div className="max-w-md mx-auto flex h-full items-center justify-around px-2">
         {NAV_ITEMS.map((item) => {
           const fullHref = `/${locale}${item.href}`;

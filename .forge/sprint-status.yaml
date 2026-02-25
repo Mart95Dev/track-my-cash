@@ -1,12 +1,19 @@
 sprint:
+  id: sprint-activation-retention-v13
+  goal: "Activation & Rétention Couple — onboarding wizard, dashboard couple enrichi, notifications in-app, email hebdo couple, export PDF, blog SEO, catégories couple"
+  start_date: "2026-02-24"
+  end_date: ""
+  status: in_progress
+
+previous_sprint_v12:
   id: sprint-niche-couple-v12
   goal: "Pivot niche couple — DB migrations couple + invitation + transactions partagées + balance + dashboard toggle + gates freemium + budgets/objectifs couple + IA couple + landing page pivot"
   start_date: "2026-02-24"
-  end_date: ""
+  end_date: "2026-02-24"
   status: completed
 
 previous_sprint:
-  id: sprint-conversion-monetisation-v11
+  id: sprint-activation-retention-v12
   stories: 6
   completed: 6
   qa_verdict: PASS
@@ -14,7 +21,105 @@ previous_sprint:
   commit: "860d0fd"
 
 stories:
-  # === SPRINT NICHE COUPLE (v12) — EN COURS ===
+  # === SPRINT ACTIVATION & RÉTENTION COUPLE (v13) — EN COURS ===
+
+  - id: STORY-093
+    title: "Onboarding wizard couple post-inscription"
+    epic: couple-activation
+    complexity: M
+    priority: P1
+    status: completed
+    blockedBy: []
+    points: 3
+    tests: 9
+    qa_verdict: ""
+    notes: "9 tests (TU-93-1 à TU-93-8). getOnboardingStatus + markOnboardingCompleteAction + CoupleOnboardingWizard (4 steps, Dialog shadcn) + déclenchement conditionnel dashboard (showCoupleOnboarding). 652 tests totaux, 0 régression. tsc OK."
+
+  - id: STORY-094
+    title: "Dashboard /couple enrichi"
+    epic: couple-activation
+    complexity: M
+    priority: P1
+    status: completed
+    blockedBy: []
+    points: 3
+    tests: 15
+    qa_verdict: "PASS"
+    qa_date: "2026-02-24"
+    qa_notes: "15 tests (TU-94-1 à TU-94-11 + TU-94-QA-1 à QA-4). QA +4 : recentTransactions structure (QA-1), limite 10 tx (QA-2), titre CoupleStatsCard (QA-3), montants formatés CoupleCategoriesPills (QA-4). AC-5 (objectifs) WAIVED (Server Component, getCoupleSharedGoals déjà couvert STORY-090). AC-6 (details repliable) WAIVED (décision story). 667 tests totaux, 0 régression."
+    notes: "11 tests (TU-94-1 à TU-94-11). getCoupleMonthStats (4 requêtes parallèles, variation %, top 3 catégories, recentTransactions) + CoupleStatsCard (total + variation colorée) + CoupleCategoriesPills (pills cat+montant) + refonte couple/page.tsx en dashboard complet (balance, stats, catégories, 10 tx, objectifs communs, code invite repliable). 663 tests totaux, 0 régression. tsc OK."
+
+  - id: STORY-095
+    title: "Centre de notifications in-app"
+    epic: engagement
+    complexity: M
+    priority: P2
+    status: completed
+    blockedBy: []
+    points: 3
+    tests: 14
+    qa_verdict: "PASS"
+    qa_date: "2026-02-24"
+    qa_notes: "14 tests (TU-95-1 à TU-95-10 + TU-95-QA-1 à QA-4). QA +4 : initUserSchema CREATE TABLE notifications (QA-1), idempotence try/catch (QA-2), badge unreadCount=10 (QA-3), aria-label accessibilité (QA-4). AC-5 WAIVED (mark-all implémenté, individual tap hors périmètre). AC-6/AC-7 WAIVED (infrastructure createNotification OK, déclencheurs dashboard/goal à implémenter en sprint futur). 681 tests totaux, 0 régression."
+    notes: "10 tests (TU-95-1 à TU-95-10). notification-queries.ts (createNotification TEXT id, getUnreadCount, markAllRead, getNotifications) + user-db.ts (initUserSchema per-user) + getUserDb appelant initUserSchema + BottomNav badge unreadCount + page /notifications + notification-actions.ts retro-compat (old + new systems). 677 tests totaux, 0 régression. tsc OK."
+
+  - id: STORY-096
+    title: "Email hebdo étendu — stats couple"
+    epic: engagement
+    complexity: S
+    priority: P2
+    status: completed
+    blockedBy: []
+    points: 2
+    tests: 13
+    qa_verdict: "PASS"
+    qa_date: "2026-02-24"
+    qa_notes: "13 tests (TU-96-1 à TU-96-10 + TU-96-QA-1 à QA-3). QA +3 : balance direction u1/u2 (QA-1), balance=0 'Balance à l'équilibre' (QA-2), plan Premium → coupleWeekly présent AC-1 (QA-3). 694 tests totaux, 0 régression."
+    notes: "10 tests (TU-96-1 à TU-96-10). getCoupleWeeklyStats (couple-queries.ts — merge 2 DBs, topCategory, balance) + computeWeeklySummary (weekly-summary.ts — Pro/Premium gate, partnerName lookup) + renderWeeklyEmail étendu (couple section HTML conditionnelle, balance label pos/neg) + cron route updated. 691 tests totaux, 0 régression. tsc OK."
+
+  - id: STORY-097
+    title: "Export PDF rapport mensuel (Pro/Premium)"
+    epic: valeur-percue
+    complexity: M
+    priority: P3
+    status: completed
+    blockedBy: []
+    points: 3
+    tests: 24
+    qa_verdict: "PASS"
+    qa_date: "2026-02-24"
+    qa_notes: "24 tests (TU-97-1 à TU-97-12 + TU-97-QA-1 à QA-12). QA +12 : validateMonthParam null (QA-1), mois '2026-00' invalide (QA-2), année non numérique (QA-3), buffer réel >3 000 octets AC-2/AC-3 (QA-4), slice(0,5) catégories (QA-5), 0 catégorie (QA-6), 0 transaction (QA-7), route 200 Pro (QA-8), Content-Type application/pdf (QA-9), Content-Disposition attachment+filename (QA-10), plan Premium autorisé (QA-11), month invalide 400 (QA-12). Fix post-QA : route.ts enrichi avec getCoupleByUserId + getCoupleMonthStats + computeCoupleBalanceForPeriod → coupleData peuplé si couple actif (AC-8). 718 tests totaux, 0 régression."
+    notes: "12 tests (TU-97-1 à TU-97-12). generateMonthlyReport (pdf-report.ts — jsPDF + autotable, %PDF signature, section couple) + validateMonthParam (regex YYYY-MM) + GET /api/reports/monthly (gate 403/400) + ExportPdfButton (isProOrPremium prop, lien download) + parametres/page.tsx. 706 tests totaux, 0 régression. tsc OK."
+
+  - id: STORY-098
+    title: "Blog SEO couple — contenu statique"
+    epic: acquisition
+    complexity: S
+    priority: P3
+    status: completed
+    blockedBy: []
+    points: 2
+    tests: 25
+    qa_verdict: "PASS"
+    qa_date: "2026-02-25"
+    qa_notes: "25 tests (TU-98-1 à TU-98-9 + TU-98-QA-1 à QA-14). QA +16 : unicité titles/excerpts (QA-1/2/3), JSON-LD @context/@type/headline/keywords/publisher (QA-4/5/6/7/8), HTML contenu <h2> (QA-9), format date ISO (QA-10), readingTime entier positif (QA-11), getBlogPost 3 slugs story (QA-12×3), priority+changeFrequency sitemap (QA-13), /fr/blog priority 0.7 (QA-14). NOTE: generateMetadata non testable en isolation (RSC/next-intl). AC-3 (notFound) et AC-7 (CTA) vérifiés par inspection source (Server Component). 753 tests totaux, 0 régression."
+    notes: "9 tests (TU-98-1 à TU-98-9). src/data/blog-posts.ts (3 articles, getBlogPost helper) + /blog (liste cards) + /blog/[slug] (article + generateMetadata + JSON-LD Schema.org Article + CTA) + sitemap.ts étendu (blog list + 3 slugs). TU-2-1 mis à jour (20+4 entrées). 727 tests totaux, 0 régression. tsc OK."
+
+  - id: STORY-099
+    title: "Catégories prédéfinies couple"
+    epic: couple-ux
+    complexity: XS
+    priority: P3
+    status: completed
+    blockedBy: []
+    points: 1
+    tests: 20
+    qa_verdict: "PASS"
+    qa_date: "2026-02-25"
+    qa_notes: "20 tests (TU-99-1 à TU-99-10 + TU-99-QA-1 à QA-10). QA +10 : isCategoryEmpty(null) (QA-1), isCategoryEmpty('autre' minuscules) (QA-2), isCategoryEmpty('   ' espaces) (QA-3), isCategoryEmpty('Loyer/charges') false (QA-4), contenu exact 8 catégories story (QA-5), exactement 4 pills + Voir plus initial (QA-6), Voir plus → 8 pills (QA-7), updateTransactionCategoryAction appelé avec txId+catégorie (QA-8), catégorie 'Autre' → pills visibles AC-2 (QA-9), première pill = 'Loyer / charges' (QA-10). GAPs couverts : null non testé, 'autre' minuscule, whitespace, contenu exact vs >=6, count 4 initial, bouton Voir plus, assertion server action. 763 tests totaux, 0 régression."
+    notes: "10 tests (TU-99-1 à TU-99-10). couple-categories.ts (COUPLE_CATEGORIES 8 valeurs + isCategoryEmpty). updateTransactionCategory dans queries.ts + updateTransactionCategoryAction dans couple-actions.ts. TransactionCoupleToggle enrichi : props category + onCategorySelect, pills 4 visibles + Voir plus, affichage conditionnel (isShared && isCategoryEmpty). 737 tests totaux, 0 régression. tsc OK."
+
+  # === SPRINT NICHE COUPLE (v12) — TERMINÉ ===
 
   - id: STORY-085
     title: "DB Migrations couple (Main DB + per-user ALTER TABLE)"
@@ -468,3 +573,15 @@ metrics_v9_archived:
   tests_total: 495
   tests_sprint: 66
   qa_verdict: "PASS"
+
+metrics_v13:
+  total: 7
+  completed: 7
+  in_progress: 0
+  pending: 0
+  total_points: 17
+  points_completed: 17
+  tests_total: 763
+  tests_sprint: 110
+  qa_verdict: "PASS"
+  qa_date: "2026-02-25"
