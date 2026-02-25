@@ -155,10 +155,20 @@ export async function setOnboardingChoiceAction(
   choice: "couple" | "solo"
 ): Promise<void> {
   const userId = await getRequiredUserId();
-  const db = await getUserDb(userId);
-  await db.execute({
+
+  // Per-user DB → lecture UI via getOnboardingChoice (layout, dashboard)
+  const userDb = await getUserDb(userId);
+  await userDb.execute({
     sql: "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
     args: ["onboarding_choice", choice],
   });
+
+  // Main DB → cron /api/cron/couple-reminders (WHERE user.onboarding_choice = 'couple')
+  const mainDb = getDb();
+  await mainDb.execute({
+    sql: "UPDATE user SET onboarding_choice = ? WHERE id = ?",
+    args: [choice, userId],
+  });
+
   revalidatePath("/dashboard");
 }

@@ -64,52 +64,73 @@ describe("couple-actions — setOnboardingChoiceAction (STORY-100)", () => {
     vi.resetModules();
   });
 
-  it("TU-100-4a : insère onboarding_choice='couple' dans settings", async () => {
-    const mockExecute = vi.fn().mockResolvedValue({ rows: [] });
-    const mockDb = { execute: mockExecute } as unknown as Client;
+  it("TU-100-4a : insère onboarding_choice='couple' dans settings (per-user DB)", async () => {
+    const mockUserExecute = vi.fn().mockResolvedValue({ rows: [] });
+    const mockUserDb = { execute: mockUserExecute } as unknown as Client;
+    const mockMainExecute = vi.fn().mockResolvedValue({ rows: [] });
+    const mockMainDb = { execute: mockMainExecute } as unknown as Client;
 
-    const { getUserDb } = await import("@/lib/db");
-    (getUserDb as ReturnType<typeof vi.fn>).mockResolvedValue(mockDb);
+    const { getUserDb, getDb } = await import("@/lib/db");
+    (getUserDb as ReturnType<typeof vi.fn>).mockResolvedValue(mockUserDb);
+    (getDb as ReturnType<typeof vi.fn>).mockReturnValue(mockMainDb);
 
     const { setOnboardingChoiceAction } = await import(
       "@/app/actions/couple-actions"
     );
     await setOnboardingChoiceAction("couple");
 
-    expect(mockExecute).toHaveBeenCalledWith(
+    expect(mockUserExecute).toHaveBeenCalledWith(
       expect.objectContaining({
         sql: expect.stringContaining("INSERT OR REPLACE INTO settings"),
         args: expect.arrayContaining(["onboarding_choice", "couple"]),
       })
     );
+    expect(mockMainExecute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sql: expect.stringContaining("UPDATE user SET onboarding_choice"),
+        args: expect.arrayContaining(["couple", "user-100"]),
+      })
+    );
   });
 
-  it("TU-100-4b : insère onboarding_choice='solo' dans settings", async () => {
-    const mockExecute = vi.fn().mockResolvedValue({ rows: [] });
-    const mockDb = { execute: mockExecute } as unknown as Client;
+  it("TU-100-4b : insère onboarding_choice='solo' dans settings (per-user DB) + met à jour Main DB", async () => {
+    const mockUserExecute = vi.fn().mockResolvedValue({ rows: [] });
+    const mockUserDb = { execute: mockUserExecute } as unknown as Client;
+    const mockMainExecute = vi.fn().mockResolvedValue({ rows: [] });
+    const mockMainDb = { execute: mockMainExecute } as unknown as Client;
 
-    const { getUserDb } = await import("@/lib/db");
-    (getUserDb as ReturnType<typeof vi.fn>).mockResolvedValue(mockDb);
+    const { getUserDb, getDb } = await import("@/lib/db");
+    (getUserDb as ReturnType<typeof vi.fn>).mockResolvedValue(mockUserDb);
+    (getDb as ReturnType<typeof vi.fn>).mockReturnValue(mockMainDb);
 
     const { setOnboardingChoiceAction } = await import(
       "@/app/actions/couple-actions"
     );
     await setOnboardingChoiceAction("solo");
 
-    expect(mockExecute).toHaveBeenCalledWith(
+    expect(mockUserExecute).toHaveBeenCalledWith(
       expect.objectContaining({
         sql: expect.stringContaining("INSERT OR REPLACE INTO settings"),
         args: expect.arrayContaining(["onboarding_choice", "solo"]),
       })
     );
+    expect(mockMainExecute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sql: expect.stringContaining("UPDATE user SET onboarding_choice"),
+        args: expect.arrayContaining(["solo", "user-100"]),
+      })
+    );
   });
 
   it("TU-100-4c : idempotente — appelée 2 fois sans erreur", async () => {
-    const mockExecute = vi.fn().mockResolvedValue({ rows: [] });
-    const mockDb = { execute: mockExecute } as unknown as Client;
+    const mockUserExecute = vi.fn().mockResolvedValue({ rows: [] });
+    const mockUserDb = { execute: mockUserExecute } as unknown as Client;
+    const mockMainExecute = vi.fn().mockResolvedValue({ rows: [] });
+    const mockMainDb = { execute: mockMainExecute } as unknown as Client;
 
-    const { getUserDb } = await import("@/lib/db");
-    (getUserDb as ReturnType<typeof vi.fn>).mockResolvedValue(mockDb);
+    const { getUserDb, getDb } = await import("@/lib/db");
+    (getUserDb as ReturnType<typeof vi.fn>).mockResolvedValue(mockUserDb);
+    (getDb as ReturnType<typeof vi.fn>).mockReturnValue(mockMainDb);
 
     const { setOnboardingChoiceAction } = await import(
       "@/app/actions/couple-actions"
@@ -117,6 +138,8 @@ describe("couple-actions — setOnboardingChoiceAction (STORY-100)", () => {
     await setOnboardingChoiceAction("couple");
     await setOnboardingChoiceAction("solo");
 
-    expect(mockExecute).toHaveBeenCalledTimes(2);
+    // 2 appels × 2 writes (per-user + main DB) = 4 executes chacun
+    expect(mockUserExecute).toHaveBeenCalledTimes(2);
+    expect(mockMainExecute).toHaveBeenCalledTimes(2);
   });
 });
