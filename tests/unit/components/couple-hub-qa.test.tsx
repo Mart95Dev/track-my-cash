@@ -334,6 +334,21 @@ describe("QA STORY-103 — CoupleLockedPreview contenu", () => {
     const href = cta.getAttribute("href") ?? "";
     expect(href).toContain("/couple");
   });
+
+  it("QA-103-3 : chaque card verrouillée a les classes blur-sm et select-none (GAP-103-A)", () => {
+    const { container } = render(
+      <CoupleLockedPreview locale="fr" hasCoupleActive={false} />
+    );
+    const blurredDivs = container.querySelectorAll(".blur-sm.select-none");
+    expect(blurredDivs.length).toBe(3);
+  });
+
+  it("QA-103-3b : le href du CTA intègre le locale fourni (GAP-103-B)", () => {
+    render(<CoupleLockedPreview locale="en" hasCoupleActive={false} />);
+    const cta = screen.getByRole("link");
+    const href = cta.getAttribute("href") ?? "";
+    expect(href).toBe("/en/couple");
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════

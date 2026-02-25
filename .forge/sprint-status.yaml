@@ -83,7 +83,7 @@ stories:
     tests: 5
     qa_verdict: "PASS"
     qa_date: "2026-02-25"
-    qa_notes: "QA +6 (QA-103-1 à QA-103-2d) : contient 'Balance couple' (QA-103-1), exactement 3 sections de preview (QA-103-2), les 3 labels distincts Balance/Tableau/Objectifs (QA-103-2b), chaque section avec icône lock (QA-103-2c), null si hasCoupleActive=true (QA-103-1b), CTA Activer l'espace couple vers /couple (QA-103-2d). 884 tests totaux, 0 régression."
+    qa_notes: "REVERIFY 2026-02-25 — PASS confirmé. QA +8 (QA-103-1 à QA-103-3b) : contient 'Balance couple' (QA-103-1), null si hasCoupleActive=true (QA-103-1b), exactement 3 sections de preview (QA-103-2), les 3 labels distincts Balance/Tableau/Objectifs (QA-103-2b), chaque section avec icône lock (QA-103-2c), CTA Activer l'espace couple vers /couple (QA-103-2d). GAPs comblés : blur-sm+select-none sur les 3 cards (QA-103-3), href intègre le locale fourni /en/couple (QA-103-3b). 894 tests totaux, 0 régression."
     notes: "5 tests (TU-103-1 à TU-103-5). CoupleLockedPreview (null si hasCoupleActive, 3 cards floutées blur-sm, overlay lock, CTA /couple) + intégration dashboard. 806 tests totaux, 0 régression. tsc OK."
 
   - id: STORY-104
@@ -702,13 +702,13 @@ metrics_v14:
   pending: 0
   total_points: 16
   points_completed: 16
-  tests_total: 892
-  tests_sprint: 60
+  tests_total: 894
+  tests_sprint: 62
   qa_verdict: "PASS"
   qa_date: "2026-02-25"
   notes: >
-    Sprint Couple-First Onboarding v14 — 7 stories, 16 points, 60 nouveaux tests QA.
-    892 tests totaux (832 dev + 60 QA), 0 régression sur les 832 tests pré-QA.
+    Sprint Couple-First Onboarding v14 — 7 stories, 16 points, 62 nouveaux tests QA.
+    894 tests totaux (832 dev + 62 QA), 0 régression sur les 832 tests pré-QA.
     GAPs couverts : step invite CoupleChoiceModal, boutons Copier/Partager, code exact getOnboardingChoice,
     clic 'En couple'/'Seul(e)' → setOnboardingChoiceAction (AC-2/AC-3 STORY-100),
     showCoupleChoiceModal logique (AC-5 STORY-100), bannière non-dismissable,
@@ -717,4 +717,5 @@ metrics_v14:
     Balance couple + 3 sections CoupleLockedPreview, HTML valide emails cron,
     invariants computeOnboardingProgress (total=4, percentage=round), affichage 'X / 4',
     getCoupleState(null) ignore memberCount, getCoupleState(complete) si >=2,
-    getActiveMemberCount filtre strict 'active'. tsc OK, 0 erreur lint.
+    getActiveMemberCount filtre strict 'active',
+    blur-sm+select-none sur les 3 cards (QA-103-3), href avec locale /en/couple (QA-103-3b). tsc OK, 0 erreur lint.
