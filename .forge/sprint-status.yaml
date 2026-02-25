@@ -38,11 +38,11 @@ stories:
     status: completed
     blockedBy: []
     points: 3
-    tests: 14
+    tests: 15
     qa_verdict: "PASS"
     qa_date: "2026-02-25"
-    qa_notes: "QA +14 (QA-100-1 à QA-100-AC5b) : step invite visible si inviteCode fourni (QA-100-1), step choice sans inviteCode (QA-100-1b), bouton Copier step invite (QA-100-2), bouton Partager step invite (QA-100-3), boutons Copier+Partager simultanément (QA-100-3b), message Partagez ce code (QA-100-1c), step choice sans Copier/Partager (QA-100-1d), getOnboardingChoice retourne exactement 'couple' (QA-100-4), valeur exacte 'solo' (QA-100-4b), jamais undefined (QA-100-4c), clic 'En couple' appelle setOnboardingChoiceAction('couple') (QA-100-AC2), clic 'Seul(e)' appelle setOnboardingChoiceAction('solo') (QA-100-AC3), showCoupleChoiceModal=false si choice défini (QA-100-AC5), showCoupleChoiceModal=true si null (QA-100-AC5b). NOTE ARCHI: CoupleChoiceModal et OnboardingWizard rendent simultanément sur 1er lancement — comportement correct (Dialog Radix z-index, CoupleChoiceModal sur le dessus) mais architecturalement fragile. 888 tests totaux, 0 régression. tsc OK."
-    notes: "14 tests (TU-100-1 à TU-100-7c). getOnboardingChoice + setOnboardingChoiceAction + CoupleChoiceModal (2 cartes, code invite, Copier, Web Share API) + dashboard intégration. DB migrations: onboarding_choice, onboarding_completed_at, reminder_couple_1/3/7d_sent. 792 tests totaux, 0 régression. tsc OK."
+    qa_notes: "REVERIFY 2026-02-25 — PASS confirmé. QA +15 (QA-100-1 à QA-100-AC5b + QA-100-1e) : step invite visible si inviteCode fourni (QA-100-1), step choice sans inviteCode (QA-100-1b), bouton Copier step invite (QA-100-2), bouton Partager step invite (QA-100-3), boutons Copier+Partager simultanément (QA-100-3b), message Partagez ce code (QA-100-1c), step choice sans Copier/Partager (QA-100-1d), bouton 'Continuer sans partenaire' au step invite (QA-100-1e — GAP comblé AC-4), getOnboardingChoice retourne exactement 'couple' (QA-100-4), valeur exacte 'solo' (QA-100-4b), jamais undefined (QA-100-4c), clic 'En couple' appelle setOnboardingChoiceAction('couple') (QA-100-AC2), clic 'Seul(e)' appelle setOnboardingChoiceAction('solo') (QA-100-AC3), showCoupleChoiceModal=false si choice défini (QA-100-AC5), showCoupleChoiceModal=true si null (QA-100-AC5b). GAP COMBLÉ: bouton 'Continuer sans partenaire' (option fermeture modale sans quitter le wizard couple, AC-4). NOTE ARCHI: CoupleChoiceModal et OnboardingWizard rendent simultanément sur 1er lancement — comportement correct (Dialog Radix z-index, CoupleChoiceModal sur le dessus) mais architecturalement fragile. NOTE DB: ALTER TABLE user (Main DB) pour onboarding_choice est redondant — le code réel stocke dans per-user settings table (correct). Dette technique documentée. 911 tests totaux, 0 régression. tsc OK."
+    notes: "14 tests (TU-100-1 à TU-100-7c) + 1 test QA (QA-100-1e). getOnboardingChoice + setOnboardingChoiceAction + CoupleChoiceModal (2 cartes, code invite, Copier, Web Share API, Continuer sans partenaire) + dashboard intégration. DB migrations: onboarding_choice, onboarding_completed_at, reminder_couple_1/3/7d_sent. 911 tests totaux, 0 régression. tsc OK."
 
   - id: STORY-101
     title: "Bannière persistante invitation partenaire"
@@ -702,13 +702,13 @@ metrics_v14:
   pending: 0
   total_points: 16
   points_completed: 16
-  tests_total: 910
-  tests_sprint: 78
+  tests_total: 911
+  tests_sprint: 79
   qa_verdict: "PASS"
   qa_date: "2026-02-25"
   notes: >
-    Sprint Couple-First Onboarding v14 — 7 stories, 16 points, 78 nouveaux tests QA.
-    910 tests totaux (832 dev + 78 QA), 0 régression sur les 832 tests pré-QA.
+    Sprint Couple-First Onboarding v14 — 7 stories, 16 points, 79 nouveaux tests QA.
+    911 tests totaux (832 dev + 79 QA), 0 régression sur les 832 tests pré-QA.
     GAPs couverts : step invite CoupleChoiceModal, boutons Copier/Partager, code exact getOnboardingChoice,
     clic 'En couple'/'Seul(e)' → setOnboardingChoiceAction (AC-2/AC-3 STORY-100),
     showCoupleChoiceModal logique (AC-5 STORY-100), bannière non-dismissable,
@@ -727,4 +727,5 @@ metrics_v14:
     couple+1actif→pending, couple+0actif→pending, couple+2actifs→complete,
     lien /dashboard?view=couple présent, membres non-actifs ne déclenchent pas complete,
     transition pending→complete quand 2e membre rejoint.
+    STORY-100 REVERIFY — bouton 'Continuer sans partenaire' au step invite (QA-100-1e, GAP AC-4 comblé).
     tsc OK, 0 erreur lint.

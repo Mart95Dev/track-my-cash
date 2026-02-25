@@ -93,6 +93,12 @@ describe("QA STORY-100 — CoupleChoiceModal step invite", () => {
     expect(copyBtn).toBeNull();
     expect(shareBtn).toBeNull();
   });
+
+  it("QA-100-1e : step invite affiche le bouton 'Continuer sans partenaire' (AC-4 fermeture modale)", () => {
+    render(<CoupleChoiceModal open={true} inviteCode="CLOSE1" />);
+    const content = document.body.textContent ?? "";
+    expect(content).toContain("Continuer sans partenaire");
+  });
 });
 
 // ─── QA-100-AC2/AC3 : clic → action (couverture comportementale) ──────────────
