@@ -31,8 +31,10 @@ stories:
     status: completed
     blockedBy: []
     points: 3
-    tests: 9
-    qa_verdict: ""
+    tests: 24
+    qa_verdict: "PASS"
+    qa_date: "2026-02-25"
+    qa_notes: "24 tests (TU-93-1 à TU-93-8 + QA-93-1 à QA-93-9c). QA +15 : step 3 lien /couple (QA-1), step 4 lien /transactions (QA-2), bouton Terminer au step 4 (QA-3), handleFinish appelle markOnboardingCompleteAction (QA-4), progression 2/4+3/4+4/4 (QA-5a/5b/5c), onglet Rejoindre step 2 (QA-6), getOnboardingStatus null/1/TRUE retourne false (QA-7a/7b/7c), showCoupleOnboarding false si complété (QA-8), false si 0 compte (QA-9), true si non complété+1 compte (QA-9b), false si complété+0 compte (QA-9c). 778 tests totaux, 0 régression."
     notes: "9 tests (TU-93-1 à TU-93-8). getOnboardingStatus + markOnboardingCompleteAction + CoupleOnboardingWizard (4 steps, Dialog shadcn) + déclenchement conditionnel dashboard (showCoupleOnboarding). 652 tests totaux, 0 régression. tsc OK."
 
   - id: STORY-094
@@ -581,7 +583,7 @@ metrics_v13:
   pending: 0
   total_points: 17
   points_completed: 17
-  tests_total: 763
-  tests_sprint: 110
+  tests_total: 778
+  tests_sprint: 125
   qa_verdict: "PASS"
   qa_date: "2026-02-25"
