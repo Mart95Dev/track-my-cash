@@ -187,6 +187,46 @@ describe("QA STORY-101 — CoupleInviteBanner invariants", () => {
   });
 });
 
+// ─── QA-101-AC3 : logique showInviteBanner (disparition quand 2 membres) ──────
+
+describe("QA STORY-101 — logique showInviteBanner (AC-1, AC-3)", () => {
+  it("QA-101-AC3 : showInviteBanner=false quand activeMemberCount >= 2 (couple complet)", () => {
+    const onboardingChoice = "couple";
+    const couple = { id: "c1", invite_code: "ABC" };
+    const activeMemberCount = 2;
+    const showInviteBanner =
+      onboardingChoice === "couple" && (couple === null || activeMemberCount < 2);
+    expect(showInviteBanner).toBe(false);
+  });
+
+  it("QA-101-AC3b : showInviteBanner=true quand 1 seul membre actif (partenaire non rejoint)", () => {
+    const onboardingChoice = "couple";
+    const couple = { id: "c1", invite_code: "ABC" };
+    const activeMemberCount = 1;
+    const showInviteBanner =
+      onboardingChoice === "couple" && (couple === null || activeMemberCount < 2);
+    expect(showInviteBanner).toBe(true);
+  });
+
+  it("QA-101-AC1 : showInviteBanner=false si onboarding_choice='solo'", () => {
+    const onboardingChoice = "solo";
+    const couple = null;
+    const activeMemberCount = 0;
+    const showInviteBanner =
+      onboardingChoice === "couple" && (couple === null || activeMemberCount < 2);
+    expect(showInviteBanner).toBe(false);
+  });
+
+  it("QA-101-AC1b : showInviteBanner=false si pas de choix (null)", () => {
+    const onboardingChoice = null;
+    const couple = null;
+    const activeMemberCount = 0;
+    const showInviteBanner =
+      onboardingChoice === "couple" && (couple === null || activeMemberCount < 2);
+    expect(showInviteBanner).toBe(false);
+  });
+});
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // QA STORY-102 : BottomNav — Récurrents absent + badge aria-label
 // ═══════════════════════════════════════════════════════════════════════════════

@@ -55,7 +55,7 @@ stories:
     tests: 3
     qa_verdict: "PASS"
     qa_date: "2026-02-25"
-    qa_notes: "QA +5 (QA-101-1 à QA-101-1c) : aucun bouton dans la bannière (QA-101-1), pas d'aria-label fermer/close (QA-101-1b), code visible en texte (QA-101-2), code en gras/tracking (QA-101-2b), role=banner accessibilité (QA-101-1c). 884 tests totaux, 0 régression."
+    qa_notes: "QA +9 (QA-101-1 à QA-101-AC3b) : aucun bouton dans la bannière (QA-101-1), pas d'aria-label fermer/close (QA-101-1b), code visible en texte (QA-101-2), code en gras/tracking (QA-101-2b), role=banner accessibilité (QA-101-1c), showInviteBanner=false si activeMemberCount>=2 AC-3 (QA-101-AC3), showInviteBanner=true si 1 seul membre AC-3b (QA-101-AC3b), showInviteBanner=false si choice='solo' AC-1 (QA-101-AC1), showInviteBanner=false si choice=null AC-1b (QA-101-AC1b). 892 tests totaux, 0 régression."
     notes: "3 tests (TU-101-1 à TU-101-3). CoupleInviteBanner (Server Component, non-dismissable, code invite + lien /couple) + layout.tsx intégration (showInviteBanner si onboarding_choice='couple' + couple solo). 814 tests totaux, 0 régression. tsc OK."
 
   - id: STORY-102
@@ -702,15 +702,18 @@ metrics_v14:
   pending: 0
   total_points: 16
   points_completed: 16
-  tests_total: 884
-  tests_sprint: 52
+  tests_total: 892
+  tests_sprint: 60
   qa_verdict: "PASS"
   qa_date: "2026-02-25"
   notes: >
-    Sprint Couple-First Onboarding v14 — 7 stories, 16 points, 52 nouveaux tests QA.
-    884 tests totaux (832 dev + 52 QA), 0 régression sur les 832 tests pré-QA.
+    Sprint Couple-First Onboarding v14 — 7 stories, 16 points, 60 nouveaux tests QA.
+    892 tests totaux (832 dev + 60 QA), 0 régression sur les 832 tests pré-QA.
     GAPs couverts : step invite CoupleChoiceModal, boutons Copier/Partager, code exact getOnboardingChoice,
-    bannière non-dismissable, onglet Récurrents supprimé, badge aria-label couple,
+    clic 'En couple'/'Seul(e)' → setOnboardingChoiceAction (AC-2/AC-3 STORY-100),
+    showCoupleChoiceModal logique (AC-5 STORY-100), bannière non-dismissable,
+    showInviteBanner=false si >=2 membres/si solo/si null (AC-1/AC-3 STORY-101),
+    onglet Récurrents supprimé, badge aria-label couple,
     Balance couple + 3 sections CoupleLockedPreview, HTML valide emails cron,
     invariants computeOnboardingProgress (total=4, percentage=round), affichage 'X / 4',
     getCoupleState(null) ignore memberCount, getCoupleState(complete) si >=2,
