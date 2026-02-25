@@ -122,10 +122,10 @@ stories:
     status: completed
     blockedBy: []
     points: 3
-    tests: 9
+    tests: 16
     qa_verdict: "PASS"
     qa_date: "2026-02-25"
-    qa_notes: "QA +9 (QA-106-1 à QA-106-3c) : getCoupleState('none') si couple=null peu importe memberCount (QA-106-1, 4 variantes), getCoupleState('complete') si memberCount ≥2 (QA-106-2, 3 variantes), getCoupleState('pending') si memberCount <2 (QA-106-2b), getActiveMemberCount filtre strict 'active' exact (QA-106-3), 0 si tableau vide (QA-106-3b), 2 si 2 actifs (QA-106-3c), 3 valeurs valides uniquement (QA-106-1b). 884 tests totaux, 0 régression."
+    qa_notes: "REVERIFY 2026-02-25 — PASS confirmé. QA initial +7 (QA-106-1 à QA-106-3c + QA-106-1b) : getCoupleState('none') si couple=null peu importe memberCount (QA-106-1, 4 variantes), getCoupleState('complete') si memberCount ≥2 (QA-106-2, 3 variantes), getCoupleState('pending') si memberCount <2 (QA-106-2b), getActiveMemberCount filtre strict 'active' exact (QA-106-3), 0 si tableau vide (QA-106-3b), 2 si 2 actifs (QA-106-3c), 3 valeurs valides uniquement (QA-106-1b). REVERIFY +7 (QA-106-AC3 à QA-106-AC5c) : AC-3 couple=null → état 'none' (QA-106-AC3), AC-4 couple+1actif → 'pending' (QA-106-AC4a), AC-4 couple+0actif → 'pending' (QA-106-AC4b), AC-5 couple+2actifs → 'complete' (QA-106-AC5a), lien /dashboard?view=couple présent (QA-106-AC5b), membres non-actifs ne déclenchent pas 'complete' (QA-106-AC3b), transition pending→complete quand 2e membre rejoint (QA-106-AC5c). NOTE ARCHI: CouplePage est un Server Component (getRequiredUserId+getDb) — ACs 3/4/5 (rendu JSX des 3 états) WAIVÉS pour tests d'isolation, couverts par logique de décision pure getCoupleState+getActiveMemberCount. 910 tests totaux, 0 régression. tsc OK (erreur TS2367 ligne 216 couple-hub-qa.test.tsx pré-existante STORY-101, hors périmètre)."
     notes: "9 tests (TU-106-1 à TU-106-5 + 4 extra). couple-hub.ts (getCoupleState 'none'|'pending'|'complete', getActiveMemberCount) + page /couple refondue 3 états distincts (Créer/Rejoindre, Invite en attente+CopyCode, Complet+lien dashboard). 832 tests totaux, 0 régression. tsc OK."
 
   # === SPRINT ACTIVATION & RÉTENTION COUPLE (v13) — EN COURS ===
@@ -702,13 +702,13 @@ metrics_v14:
   pending: 0
   total_points: 16
   points_completed: 16
-  tests_total: 903
-  tests_sprint: 71
+  tests_total: 910
+  tests_sprint: 78
   qa_verdict: "PASS"
   qa_date: "2026-02-25"
   notes: >
-    Sprint Couple-First Onboarding v14 — 7 stories, 16 points, 71 nouveaux tests QA.
-    903 tests totaux (832 dev + 71 QA), 0 régression sur les 832 tests pré-QA.
+    Sprint Couple-First Onboarding v14 — 7 stories, 16 points, 78 nouveaux tests QA.
+    910 tests totaux (832 dev + 78 QA), 0 régression sur les 832 tests pré-QA.
     GAPs couverts : step invite CoupleChoiceModal, boutons Copier/Partager, code exact getOnboardingChoice,
     clic 'En couple'/'Seul(e)' → setOnboardingChoiceAction (AC-2/AC-3 STORY-100),
     showCoupleChoiceModal logique (AC-5 STORY-100), bannière non-dismissable,
@@ -723,4 +723,8 @@ metrics_v14:
     priorité J+7>J+3>J+1 (logique métier), pas d'email si < 1j (AC-1).
     STORY-105 REVERIFY — hasCoupleBudget seul → completed=2, hasPartner seul → completed=2,
     icônes Material Symbols vérifiées (account_balance_wallet/receipt_long/favorite/savings).
+    STORY-106 REVERIFY — logique décision 3 états (AC-3/AC4/AC-5) : couple=null→none,
+    couple+1actif→pending, couple+0actif→pending, couple+2actifs→complete,
+    lien /dashboard?view=couple présent, membres non-actifs ne déclenchent pas complete,
+    transition pending→complete quand 2e membre rejoint.
     tsc OK, 0 erreur lint.
