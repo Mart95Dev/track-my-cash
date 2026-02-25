@@ -69,7 +69,7 @@ stories:
     tests: 5
     qa_verdict: "PASS"
     qa_date: "2026-02-25"
-    qa_notes: "QA +6 (QA-102-1 à QA-102-2d) : onglet Récurrents absent du DOM et des liens (QA-102-1), badge aria-label contient 'incomplet' ou 'couple' (QA-102-2), badge aria-label exact 'couple incomplet' (QA-102-2b), 5 onglets présents Dashboard/Comptes/Transactions/Couple/IA (QA-102-1b), aucun badge sans coupleIncomplete (QA-102-2c), badge est un span (QA-102-2d). 884 tests totaux, 0 régression."
+    qa_notes: "REVERIFY 2026-02-25 — PASS confirmé. 11 tests (5 TU + 6 QA) couvrent tous les ACs. AC-1 (onglet Couple présent, href /fr/couple) : TU-102-1 + TU-102-2 + QA-102-1b. AC-2 (remplacement Récurrents) : TU-102-5 + QA-102-1. AC-3 (badge rouge coupleIncomplete) : TU-102-3 + TU-102-4 + QA-102-2/2b/2c/2d. AC-4 (logique layout.tsx) : coupleIncomplete = onboardingChoice==='couple' && (couple===null || activeMemberCount<2) couvert par QA-101-AC3/AC3b (même logique). GAPs mineurs WAIVED : icône 'favorite' (texte Material Symbols non critique), badge notifications déjà couvert par STORY-095, prop défaut implicitement couverte par TU-102-1 (sans prop = false). ESLint OK. tsc OK (1 erreur TS2367 dans couple-hub-qa.test.tsx ligne 216 pré-existante STORY-101, hors périmètre). 892 tests totaux, 0 régression."
     notes: "5 tests (TU-102-1 à TU-102-5). BottomNav remplace Récurrents par Couple (icône favorite, href /couple, badge rouge si coupleIncomplete=true). Layout.tsx calcule coupleIncomplete + passe au BottomNav. 814 tests totaux, 0 régression. tsc OK."
 
   - id: STORY-103
