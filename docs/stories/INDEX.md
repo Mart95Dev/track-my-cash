@@ -138,21 +138,6 @@
 
 ---
 
-## Sprint Niche Couple (v12) — EN COURS 🚧
-
-| ID | Titre | Priorité | Complexité | Statut | QA |
-|----|-------|----------|------------|--------|-------|
-| STORY-085 | DB Migrations couple (Main DB + per-user ALTER TABLE) | P1 | XS | 🔲 pending | — |
-| STORY-086 | Système d'invitation couple (createCouple + joinCouple) | P1 | M | 🔲 pending | — |
-| STORY-087 | Transactions partagées + balance couple | P2 | M | 🔲 pending | — |
-| STORY-088 | Dashboard toggle Ma vue / Vue couple | P2 | M | 🔲 pending | — |
-| STORY-089 | Freemium gates couple (Pro/Premium) | P2 | S | 🔲 pending | — |
-| STORY-090 | Budgets & objectifs couple | P3 | M | 🔲 pending | — |
-| STORY-091 | Conseiller IA couple (system prompt + tools + chips) | P3 | M | 🔲 pending | — |
-| STORY-092 | Landing page + tarifs — pivot marketing couple | P3 | S | 🔲 pending | — |
-
----
-
 ## Sprint Conversion & Monétisation (v11) — TERMINÉ ✅
 
 | ID | Titre | Priorité | Complexité | Statut | QA |
@@ -242,20 +227,42 @@
 
 ---
 
-## Sprint Activation & Rétention Couple (v13) — EN COURS 🚀
+## Sprint Couple-First Onboarding (v14) — TERMINÉ ✅
 
 | ID | Titre | Priorité | Complexité | Statut | QA |
 |----|-------|----------|------------|--------|-----|
-| STORY-093 | Onboarding wizard couple post-inscription | P1 | M | ⏳ pending | — |
-| STORY-094 | Dashboard /couple enrichi | P1 | M | ⏳ pending | — |
-| STORY-095 | Centre de notifications in-app | P2 | M | ⏳ pending | — |
-| STORY-096 | Email hebdo étendu — stats couple | P2 | S | ⏳ pending | — |
-| STORY-097 | Export PDF rapport mensuel (Pro/Premium) | P3 | M | ⏳ pending | — |
-| STORY-098 | Blog SEO couple — contenu statique | P3 | S | ⏳ pending | — |
-| STORY-099 | Catégories prédéfinies couple | P3 | XS | ⏳ pending | — |
+| STORY-100 | Onboarding couple-first post-inscription (CoupleChoiceModal) | P1 | M | ✅ completed | PASS |
+| STORY-101 | Bannière persistante invitation partenaire | P1 | S | ✅ completed | PASS |
+| STORY-102 | Navigation onglet Couple (BottomNav) | P2 | S | ✅ completed | PASS |
+| STORY-103 | Dashboard zones verrouillées couple | P2 | S | ✅ completed | PASS |
+| STORY-104 | Emails de relance cron couple (J+1, J+3, J+7) | P2 | S | ✅ completed | PASS |
+| STORY-105 | Barre de progression onboarding gamifiée | P2 | S | ✅ completed | PASS |
+| STORY-106 | Page /couple hub central (3 états) | P3 | M | ✅ completed | PASS |
+
+### Métriques Sprint Couple-First Onboarding
+
+- **Stories complétées :** 7/7 ✅
+- **Points total :** 16/16 ✅
+- **Tests sprint :** 79 nouveaux tests QA — 911 total, 0 régression
+- **TypeScript :** 0 erreur · Bug fix : double-write `setOnboardingChoiceAction` (cron emails)
+
+---
+
+## Sprint Activation & Rétention Couple (v13) — TERMINÉ ✅
+
+| ID | Titre | Priorité | Complexité | Statut | QA |
+|----|-------|----------|------------|--------|-----|
+| STORY-093 | Onboarding wizard couple post-inscription | P1 | M | ✅ completed | PASS |
+| STORY-094 | Dashboard /couple enrichi | P1 | M | ✅ completed | PASS |
+| STORY-095 | Centre de notifications in-app | P2 | M | ✅ completed | PASS |
+| STORY-096 | Email hebdo étendu — stats couple | P2 | S | ✅ completed | PASS |
+| STORY-097 | Export PDF rapport mensuel (Pro/Premium) | P3 | M | ✅ completed | PASS |
+| STORY-098 | Blog SEO couple — contenu statique | P3 | S | ✅ completed | PASS |
+| STORY-099 | Catégories prédéfinies couple | P3 | XS | ✅ completed | PASS |
 
 ### Métriques Sprint Activation & Rétention Couple
 
-- **Stories complétées :** 0/7
-- **Points total :** 0/17
-- **Tests sprint :** 0 — 643 existants
+- **Stories complétées :** 7/7 ✅
+- **Points total :** 17/17 ✅
+- **Tests sprint :** 125 nouveaux tests — 778 total, 0 régression
+- **TypeScript :** 0 erreur

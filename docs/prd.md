@@ -2,8 +2,14 @@
 
 **Version :** 13.0
 **Date :** 2026-02-24
-**Statut :** Prêt pour décomposition en stories
+**Statut :** ✅ TERMINÉ (7/7 stories PASS — 778 tests)
 **Périmètre :** Activation des inscrits couple, rétention par notifications + rapports, acquisition SEO
+
+> **Sprint v14 (Couple-First Onboarding) également TERMINÉ** — 7/7 stories PASS, 911 tests totaux.
+> Stories : STORY-100 (CoupleChoiceModal) · STORY-101 (bannière invitation) · STORY-102 (BottomNav Couple) · STORY-103 (zones verrouillées) · STORY-104 (emails cron J+1/3/7) · STORY-105 (barre progression) · STORY-106 (hub /couple 3 états).
+> Bug fix : `setOnboardingChoiceAction` double-write (per-user DB + Main DB) pour que le cron emails fonctionne.
+>
+> **Prochain sprint :** à définir via `/forge-plan`.
 
 ---
 
