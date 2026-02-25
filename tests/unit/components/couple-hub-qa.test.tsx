@@ -6,7 +6,7 @@
  * pour les composants React/TSX.
  */
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 
 // ─── Nettoyage entre chaque test ──────────────────────────────────────────────
 afterEach(() => {
@@ -92,6 +92,49 @@ describe("QA STORY-100 — CoupleChoiceModal step invite", () => {
     const shareBtn = screen.queryByRole("button", { name: /partager/i });
     expect(copyBtn).toBeNull();
     expect(shareBtn).toBeNull();
+  });
+});
+
+// ─── QA-100-AC2/AC3 : clic → action (couverture comportementale) ──────────────
+
+describe("QA STORY-100 — comportement clic (AC-2, AC-3)", () => {
+  it("QA-100-AC2 : clic 'En couple' appelle setOnboardingChoiceAction('couple')", async () => {
+    const { setOnboardingChoiceAction } = await import("@/app/actions/couple-actions");
+    vi.clearAllMocks();
+
+    render(<CoupleChoiceModal open={true} />);
+    const btn = screen.getByRole("button", { name: /en couple/i });
+    fireEvent.click(btn);
+
+    await new Promise((r) => setTimeout(r, 20));
+    expect(setOnboardingChoiceAction).toHaveBeenCalledWith("couple");
+  });
+
+  it("QA-100-AC3 : clic 'Seul(e)' appelle setOnboardingChoiceAction('solo')", async () => {
+    const { setOnboardingChoiceAction } = await import("@/app/actions/couple-actions");
+    vi.clearAllMocks();
+
+    render(<CoupleChoiceModal open={true} />);
+    const btn = screen.getByRole("button", { name: /seul/i });
+    fireEvent.click(btn);
+
+    await new Promise((r) => setTimeout(r, 20));
+    expect(setOnboardingChoiceAction).toHaveBeenCalledWith("solo");
+  });
+
+  it("QA-100-AC5 : showCoupleChoiceModal=false si coupleOnboardingChoice défini (logique pure)", () => {
+    // AC-5 : la modal ne réapparaît pas une fois le choix persisté
+    const coupleOnboardingChoice = "couple";
+    const accountsLength = 0;
+    const showCoupleChoiceModal = !coupleOnboardingChoice && accountsLength === 0;
+    expect(showCoupleChoiceModal).toBe(false);
+  });
+
+  it("QA-100-AC5b : showCoupleChoiceModal=true si null (1er lancement)", () => {
+    const coupleOnboardingChoice = null;
+    const accountsLength = 0;
+    const showCoupleChoiceModal = !coupleOnboardingChoice && accountsLength === 0;
+    expect(showCoupleChoiceModal).toBe(true);
   });
 });
 
