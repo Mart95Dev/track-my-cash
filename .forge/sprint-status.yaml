@@ -108,10 +108,10 @@ stories:
     status: completed
     blockedBy: [STORY-100]
     points: 2
-    tests: 9
+    tests: 12
     qa_verdict: "PASS"
     qa_date: "2026-02-25"
-    qa_notes: "QA +15 (QA-105-1 à QA-105-3f) : total toujours = 4 pour tous les cas (QA-105-1), percentage = round(completed/4*100) pour 1/2/3/4 (QA-105-2a), percentage ≤100 (QA-105-2b), entier arrondi (QA-105-2c), Compte créé toujours première étape (QA-105-3), completed min=1 (QA-105-3b), affiche '1 / 4' (QA-105-3), '2 / 4' (QA-105-3b), '3 / 4' (QA-105-3c), '4 / 4' (QA-105-3d), mot complétées (QA-105-3e), barre width=25% (QA-105-3f). 884 tests totaux, 0 régression."
+    qa_notes: "REVERIFY 2026-02-25 — PASS confirmé. QA initial +15 (QA-105-1 à QA-105-3f). REVERIFY QA +3 (QA-105-4 à QA-105-4c) : GAP-105-A comblé — hasCoupleBudget=true seul → completed=2+percentage=50% (QA-105-4), GAP-105-B comblé — hasPartner=true seul → completed=2 (QA-105-4b), GAP-105-C comblé — icônes Material Symbols vérifiées (account_balance_wallet, receipt_long, favorite, savings) sur les steps (QA-105-4c). GAP-105-D (intégration dashboard daysSinceCreation<30) WAIVED — Server Component non testable unitairement, code source inspecté et conforme. tsc OK, 0 erreur lint. 903 tests totaux, 0 régression."
     notes: "9 tests (TU-105-1 à TU-105-9). computeOnboardingProgress (4 étapes pures: Compte créé toujours ✓, 1ère transaction, Partenaire invité, Budget commun) + OnboardingProgressBar (barre, compteur, icônes) + dashboard intégration (visible si daysSinceCreation < 30). 806 tests totaux, 0 régression. tsc OK."
 
   - id: STORY-106
@@ -702,13 +702,13 @@ metrics_v14:
   pending: 0
   total_points: 16
   points_completed: 16
-  tests_total: 900
-  tests_sprint: 68
+  tests_total: 903
+  tests_sprint: 71
   qa_verdict: "PASS"
   qa_date: "2026-02-25"
   notes: >
-    Sprint Couple-First Onboarding v14 — 7 stories, 16 points, 68 nouveaux tests QA.
-    900 tests totaux (832 dev + 68 QA), 0 régression sur les 832 tests pré-QA.
+    Sprint Couple-First Onboarding v14 — 7 stories, 16 points, 71 nouveaux tests QA.
+    903 tests totaux (832 dev + 71 QA), 0 régression sur les 832 tests pré-QA.
     GAPs couverts : step invite CoupleChoiceModal, boutons Copier/Partager, code exact getOnboardingChoice,
     clic 'En couple'/'Seul(e)' → setOnboardingChoiceAction (AC-2/AC-3 STORY-100),
     showCoupleChoiceModal logique (AC-5 STORY-100), bannière non-dismissable,
@@ -720,4 +720,7 @@ metrics_v14:
     getActiveMemberCount filtre strict 'active',
     blur-sm+select-none sur les 3 cards (QA-103-3), href avec locale /en/couple (QA-103-3b),
     STORY-104 REVERIFY — idempotence flags 1d/7d (AC-4), paliers J+3/J+7 explicites (AC-2/AC-3),
-    priorité J+7>J+3>J+1 (logique métier), pas d'email si < 1j (AC-1). tsc OK, 0 erreur lint.
+    priorité J+7>J+3>J+1 (logique métier), pas d'email si < 1j (AC-1).
+    STORY-105 REVERIFY — hasCoupleBudget seul → completed=2, hasPartner seul → completed=2,
+    icônes Material Symbols vérifiées (account_balance_wallet/receipt_long/favorite/savings).
+    tsc OK, 0 erreur lint.

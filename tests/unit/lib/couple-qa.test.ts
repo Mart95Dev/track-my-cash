@@ -199,6 +199,43 @@ describe("QA STORY-105 — computeOnboardingProgress invariants", () => {
     // Ce qui correspond à "1 / 4" dans la barre
     expect(result.total).toBe(4);
   });
+
+  it("QA-105-4 : hasCoupleBudget=true seul (sans hasTransactions ni hasPartner) → completed=2", async () => {
+    const { computeOnboardingProgress } = await import("@/lib/onboarding-progress");
+    const result = computeOnboardingProgress({
+      hasTransactions: false,
+      hasPartner: false,
+      hasCoupleBudget: true,
+    });
+    expect(result.completed).toBe(2);
+    expect(result.total).toBe(4);
+    expect(result.percentage).toBe(50);
+  });
+
+  it("QA-105-4b : hasPartner=true seul (sans hasTransactions ni hasCoupleBudget) → completed=2", async () => {
+    const { computeOnboardingProgress } = await import("@/lib/onboarding-progress");
+    const result = computeOnboardingProgress({
+      hasTransactions: false,
+      hasPartner: true,
+      hasCoupleBudget: false,
+    });
+    expect(result.completed).toBe(2);
+    expect(result.total).toBe(4);
+  });
+
+  it("QA-105-4c : icônes Material Symbols présentes sur les étapes (account_balance_wallet, receipt_long, favorite, savings)", async () => {
+    const { computeOnboardingProgress } = await import("@/lib/onboarding-progress");
+    const result = computeOnboardingProgress({
+      hasTransactions: false,
+      hasPartner: false,
+      hasCoupleBudget: false,
+    });
+    const icons = result.steps.map((s) => s.icon);
+    expect(icons).toContain("account_balance_wallet");
+    expect(icons).toContain("receipt_long");
+    expect(icons).toContain("favorite");
+    expect(icons).toContain("savings");
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
