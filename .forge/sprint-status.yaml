@@ -94,10 +94,10 @@ stories:
     status: completed
     blockedBy: [STORY-100]
     points: 2
-    tests: 9
+    tests: 21
     qa_verdict: "PASS"
     qa_date: "2026-02-25"
-    qa_notes: "QA +6 (QA-104-1 à QA-104-2c) : code invite rendu en évidence + bloc Code d'invitation (QA-104-1), code en évidence day=3 avec background (QA-104-1b), code day=7 avec letter-spacing (QA-104-1c), HTML valide DOCTYPE+html+body (QA-104-2), charset UTF-8 dans head (QA-104-2b), TrackMyCash présent ≥2 fois (QA-104-2c). 884 tests totaux, 0 régression."
+    qa_notes: "REVERIFY 2026-02-25 — PASS confirmé. QA +12 total (QA-104-1 à QA-104-2c + QA-104-R1 à QA-104-R6). Audit initial : QA +6 (couple-qa.test.ts) — code invite en évidence (QA-104-1), background day=3 (QA-104-1b), letter-spacing day=7 (QA-104-1c), HTML valide DOCTYPE+html+body (QA-104-2), charset UTF-8 (QA-104-2b), TrackMyCash ≥2 fois (QA-104-2c). GAPs identifiés et comblés (couple-reminders-qa.test.ts) : idempotence 1d_sent=1 → 0 email (QA-104-R1, AC-4), palier J+3 envoyé si daysSinceCreation=4 + 3d_sent=0 (QA-104-R2, AC-2), palier J+7 envoyé si daysSinceCreation=8 + 7d_sent=0 (QA-104-R3, AC-3), priorité J+7 > J+3 > J+1 — seul J+7 envoyé si tous atteints (QA-104-R4), pas d'email si daysSinceCreation < 1 (QA-104-R5, AC-1), idempotence tous flags=1 → 0 email (QA-104-R6, AC-4). 900 tests totaux, 0 régression."
     notes: "9 tests (TU-104-1 à TU-104-9). renderCoupleReminderEmail + route GET /api/cron/couple-reminders (guard CRON_SECRET, logique paliers J+1/3/7, flag reminder_couple_Xd_sent). 832 tests totaux, 0 régression. tsc OK."
 
   - id: STORY-105
@@ -702,13 +702,13 @@ metrics_v14:
   pending: 0
   total_points: 16
   points_completed: 16
-  tests_total: 894
-  tests_sprint: 62
+  tests_total: 900
+  tests_sprint: 68
   qa_verdict: "PASS"
   qa_date: "2026-02-25"
   notes: >
-    Sprint Couple-First Onboarding v14 — 7 stories, 16 points, 62 nouveaux tests QA.
-    894 tests totaux (832 dev + 62 QA), 0 régression sur les 832 tests pré-QA.
+    Sprint Couple-First Onboarding v14 — 7 stories, 16 points, 68 nouveaux tests QA.
+    900 tests totaux (832 dev + 68 QA), 0 régression sur les 832 tests pré-QA.
     GAPs couverts : step invite CoupleChoiceModal, boutons Copier/Partager, code exact getOnboardingChoice,
     clic 'En couple'/'Seul(e)' → setOnboardingChoiceAction (AC-2/AC-3 STORY-100),
     showCoupleChoiceModal logique (AC-5 STORY-100), bannière non-dismissable,
@@ -718,4 +718,6 @@ metrics_v14:
     invariants computeOnboardingProgress (total=4, percentage=round), affichage 'X / 4',
     getCoupleState(null) ignore memberCount, getCoupleState(complete) si >=2,
     getActiveMemberCount filtre strict 'active',
-    blur-sm+select-none sur les 3 cards (QA-103-3), href avec locale /en/couple (QA-103-3b). tsc OK, 0 erreur lint.
+    blur-sm+select-none sur les 3 cards (QA-103-3), href avec locale /en/couple (QA-103-3b),
+    STORY-104 REVERIFY — idempotence flags 1d/7d (AC-4), paliers J+3/J+7 explicites (AC-2/AC-3),
+    priorité J+7>J+3>J+1 (logique métier), pas d'email si < 1j (AC-1). tsc OK, 0 erreur lint.
