@@ -68,7 +68,8 @@ function parseCfonbAmount(amountRaw: string, sign: string): number | null {
   if (isNaN(centimes)) return null;
 
   const euros = centimes / 100;
-  return sign === "-" ? -euros : euros;
+  // Spec CFONB : '-' ou 'D' (Débit) → négatif ; '+' ou tout autre → positif
+  return (sign === "-" || sign === "D") ? -euros : euros;
 }
 
 // ─── Parsing d'une ligne de mouvement (code 04) ───────────────────────────────
