@@ -1,4 +1,4 @@
-import type { BankParser, ParseResult } from "./types";
+import type { BankParser, ParseResult, SuggestedMapping } from "./types";
 
 export interface ColumnMapping {
   dateColumn: string;
@@ -7,7 +7,7 @@ export interface ColumnMapping {
   creditColumn?: string;
   descriptionColumn: string;
   separator: ";" | "," | "\t";
-  dateFormat: "DD/MM/YYYY" | "YYYY-MM-DD" | "DD-MM-YYYY" | "DD-MMM-YYYY";
+  dateFormat: "DD/MM/YYYY" | "YYYY-MM-DD" | "DD-MM-YYYY" | "DD-MMM-YYYY" | "DD.MM.YYYY" | "MM/DD/YYYY";
 }
 
 export interface GenericParseResult {
@@ -17,10 +17,36 @@ export interface GenericParseResult {
   fingerprint: string;
 }
 
+interface ColumnScore {
+  dateCol: number;
+  amountCol: number;
+  labelCol: number;
+  confidence: number;
+}
+
 interface GenericCsvParserType extends BankParser {
   parseWithMapping(content: string, mapping: ColumnMapping): ParseResult;
   detectHeaders(content: string): { headers: string[]; preview: string[][]; fingerprint: string };
 }
+
+// ---------------------------------------------------------------------------
+// Mots-clés de scoring pour chaque type de colonne
+// ---------------------------------------------------------------------------
+const DATE_KEYWORDS = ["date", "dt", "jour", "day", "dated", "valeur"];
+const AMOUNT_KEYWORDS = ["montant", "amount", "débit", "crédit", "debit", "credit", "somme", "total"];
+const LABEL_KEYWORDS = [
+  "libellé", "libelle", "description", "details", "label", "memo",
+  "opération", "operation", "intitulé", "intitule",
+];
+
+// Alias courants pour la détection de synonymes (partiel)
+const DATE_PARTIAL = ["date", "dt", "jour", "day", "valeur"];
+const AMOUNT_PARTIAL = ["montant", "amount", "débit", "crédit", "debit", "credit", "somme", "total"];
+const LABEL_PARTIAL = ["libellé", "libelle", "description", "details", "label", "memo", "opération", "operation", "intitulé", "intitule"];
+
+// ---------------------------------------------------------------------------
+// Utilitaires internes
+// ---------------------------------------------------------------------------
 
 function detectSeparator(line: string): ";" | "," | "\t" {
   const tabCount = (line.match(/\t/g) ?? []).length;
@@ -29,6 +55,11 @@ function detectSeparator(line: string): ";" | "," | "\t" {
   if (tabCount >= semiCount && tabCount >= commaCount) return "\t";
   if (semiCount >= commaCount) return ";";
   return ",";
+}
+
+/** Exposé pour les tests */
+export function detectSeparatorExported(line: string): ";" | "," | "\t" {
+  return detectSeparator(line);
 }
 
 function computeFingerprint(headers: string[]): string {
@@ -41,32 +72,272 @@ function computeFingerprint(headers: string[]): string {
   return Math.abs(hash).toString(16);
 }
 
-function parseDateGeneric(str: string, format: ColumnMapping["dateFormat"]): string {
+/**
+ * Vérifie si une valeur ressemble à une date dans un format reconnu.
+ */
+function looksLikeDate(value: string): boolean {
+  const v = value.trim();
+  // YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return true;
+  // DD/MM/YYYY
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(v)) return true;
+  // DD-MM-YYYY (avec année 4 chiffres)
+  if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(v)) return true;
+  // DD.MM.YYYY
+  if (/^\d{1,2}\.\d{1,2}\.\d{4}$/.test(v)) return true;
+  // DD-Mon-YYYY (ex: 15-Jan-2024)
+  if (/^\d{1,2}-[A-Za-z]{3}-\d{4}$/.test(v)) return true;
+  // MM/DD/YYYY (heuristique : même regex que DD/MM mais mois <= 12)
+  return false;
+}
+
+/**
+ * Vérifie si une valeur ressemble à un montant numérique.
+ */
+function looksLikeAmount(value: string): boolean {
+  const v = value.trim();
+  // Supprimer espaces, parenth. comptables, symboles monnaie
+  const cleaned = v.replace(/\s/g, "").replace(/^\((.+)\)$/, "-$1").replace(/[€$£]/g, "");
+  // Remplacer virgule décimale ou milliers
+  const normalized = cleaned.replace(/,/g, ".");
+  return /^-?\d+(\.\d+)?$/.test(normalized) || /^-?\d{1,3}(\.\d{3})*(,\d+)?$/.test(v);
+}
+
+/**
+ * Calcule un score de colonne pour chaque type (date, amount, label).
+ * Score par nom de header + validation sur les premières lignes.
+ * Retourne confidence 0-100.
+ */
+function detectColumns(headers: string[], firstRows: string[][]): ColumnScore {
+  const n = headers.length;
+  const dateScores = new Array<number>(n).fill(0);
+  const amountScores = new Array<number>(n).fill(0);
+  const labelScores = new Array<number>(n).fill(0);
+
+  // --- Score par nom de header ---
+  for (let i = 0; i < n; i++) {
+    const h = headers[i]!.toLowerCase().trim();
+
+    // Correspondance exacte ou partielle
+    if (DATE_KEYWORDS.includes(h)) dateScores[i]! += 50;
+    else if (DATE_PARTIAL.some((k) => h.includes(k))) dateScores[i]! += 30;
+
+    if (AMOUNT_KEYWORDS.includes(h)) amountScores[i]! += 50;
+    else if (AMOUNT_PARTIAL.some((k) => h.includes(k))) amountScores[i]! += 30;
+
+    if (LABEL_KEYWORDS.includes(h)) labelScores[i]! += 50;
+    else if (LABEL_PARTIAL.some((k) => h.includes(k))) labelScores[i]! += 30;
+  }
+
+  // --- Bonus sur les données des premières lignes ---
+  const sampleRows = firstRows.slice(0, 3);
+  for (let i = 0; i < n; i++) {
+    let dateHits = 0;
+    let amountHits = 0;
+    for (const row of sampleRows) {
+      const cell = row[i] ?? "";
+      if (looksLikeDate(cell)) dateHits++;
+      if (looksLikeAmount(cell)) amountHits++;
+    }
+    const total = sampleRows.length || 1;
+    dateScores[i]! += Math.round((dateHits / total) * 30);
+    amountScores[i]! += Math.round((amountHits / total) * 30);
+  }
+
+  // --- Sélectionner la meilleure colonne pour chaque type ---
+  const bestDateIdx = dateScores.indexOf(Math.max(...dateScores));
+  const bestAmountIdx = amountScores.indexOf(Math.max(...amountScores));
+
+  // Pour le libellé, éviter les colonnes déjà prises par date/amount
+  const labelScoresCopy = [...labelScores];
+  labelScoresCopy[bestDateIdx] = -1;
+  if (bestAmountIdx !== bestDateIdx) labelScoresCopy[bestAmountIdx] = -1;
+  const bestLabelIdx = labelScoresCopy.indexOf(Math.max(...labelScoresCopy));
+
+  const dateScore = dateScores[bestDateIdx] ?? 0;
+  const amountScore = amountScores[bestAmountIdx] ?? 0;
+  const labelScore = labelScores[bestLabelIdx] ?? 0;
+
+  // Confidence : moyenne pondérée des 3 meilleures scores (max 80 par header + 30 data = 110, normalisé)
+  const maxPossible = 80; // 50 header exact + 30 data
+  const confidence = Math.min(
+    100,
+    Math.round(((dateScore + amountScore + labelScore) / (3 * maxPossible)) * 100),
+  );
+
+  return {
+    dateCol: bestDateIdx,
+    amountCol: bestAmountIdx,
+    labelCol: bestLabelIdx,
+    confidence,
+  };
+}
+
+/** Exposé pour les tests */
+export function detectColumnsExported(headers: string[], firstRows: string[][]): ColumnScore {
+  return detectColumns(headers, firstRows);
+}
+
+// ---------------------------------------------------------------------------
+// Parsing des dates — formats supportés
+// ---------------------------------------------------------------------------
+
+const MONTH_MAP: Record<string, string> = {
+  jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06",
+  jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12",
+};
+
+/**
+ * Auto-détecte le format d'une date et la convertit en YYYY-MM-DD.
+ */
+function parseAutoDate(str: string): string {
   const s = str.trim();
-  if (format === "YYYY-MM-DD") return s;
-  if (format === "DD/MM/YYYY") {
+
+  // YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+  // DD/MM/YYYY
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) {
     const parts = s.split("/");
-    if (parts.length === 3) return `${parts[2]}-${parts[1]!.padStart(2, "0")}-${parts[0]!.padStart(2, "0")}`;
+    return `${parts[2]}-${parts[1]!.padStart(2, "0")}-${parts[0]!.padStart(2, "0")}`;
   }
-  if (format === "DD-MM-YYYY") {
+
+  // DD-MM-YYYY (année 4 chiffres)
+  if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(s)) {
     const parts = s.split("-");
-    if (parts.length === 3 && parts[2]!.length === 4) {
-      return `${parts[2]}-${parts[1]!.padStart(2, "0")}-${parts[0]!.padStart(2, "0")}`;
-    }
+    return `${parts[2]}-${parts[1]!.padStart(2, "0")}-${parts[0]!.padStart(2, "0")}`;
   }
-  if (format === "DD-MMM-YYYY") {
-    const months: Record<string, string> = {
-      jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06",
-      jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12",
-    };
+
+  // DD.MM.YYYY
+  if (/^\d{1,2}\.\d{1,2}\.\d{4}$/.test(s)) {
+    const parts = s.split(".");
+    return `${parts[2]}-${parts[1]!.padStart(2, "0")}-${parts[0]!.padStart(2, "0")}`;
+  }
+
+  // DD-Mon-YYYY (ex: 15-Jan-2024)
+  if (/^\d{1,2}-[A-Za-z]{3}-\d{4}$/.test(s)) {
     const parts = s.split("-");
-    if (parts.length === 3) {
-      const mm = months[parts[1]!.toLowerCase().slice(0, 3)] ?? "01";
-      return `${parts[2]}-${mm}-${parts[0]!.padStart(2, "0")}`;
-    }
+    const mm = MONTH_MAP[parts[1]!.toLowerCase().slice(0, 3)] ?? "01";
+    return `${parts[2]}-${mm}-${parts[0]!.padStart(2, "0")}`;
   }
+
   return s;
 }
+
+function parseDateGeneric(str: string, format: ColumnMapping["dateFormat"]): string {
+  // Si le format est auto-détecté (via parseAutoDate), déléguer
+  return parseAutoDate(str);
+}
+
+// ---------------------------------------------------------------------------
+// Parsing des montants — formats variés
+// ---------------------------------------------------------------------------
+
+/**
+ * Parse un montant dans différents formats :
+ * - "1 234,56" (FR)
+ * - "1,234.56" (EN)
+ * - "-50.00"
+ * - "(50.00)" (comptable négatif)
+ */
+function parseAmountGeneric(raw: string): number {
+  let s = raw.trim();
+
+  // Format comptable (50.00) → -50.00
+  const accountingMatch = /^\(([^)]+)\)$/.exec(s);
+  if (accountingMatch) {
+    s = `-${accountingMatch[1]!}`;
+  }
+
+  // Supprimer espaces et symboles monétaires
+  s = s.replace(/\s/g, "").replace(/[€$£]/g, "");
+
+  // Détecter format FR : virgule comme décimale, point/espace comme milliers
+  // Ex: "1 234,56" après trim/remove-space → "1234,56"
+  // Ex: "1.234,56" → "1234.56"
+  if (/^\-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) {
+    // "1.234,56" → supprimer points milliers, remplacer virgule
+    s = s.replace(/\./g, "").replace(",", ".");
+  } else if (/,\d{1,2}$/.test(s) && !s.includes(".")) {
+    // "1234,56" → "1234.56"
+    s = s.replace(",", ".");
+  } else if (/,\d{3}/.test(s) && /\.\d{2}$/.test(s)) {
+    // "1,234.56" (EN) → supprimer virgule milliers
+    s = s.replace(",", "");
+  } else {
+    // Fallback : supprimer toute virgule et remplacer par point
+    s = s.replace(",", ".");
+  }
+
+  return parseFloat(s);
+}
+
+// ---------------------------------------------------------------------------
+// Splitting CSV avec gestion des guillemets
+// ---------------------------------------------------------------------------
+
+function splitCsvLine(line: string, sep: string): string[] {
+  const result: string[] = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i]!;
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === sep && !inQuotes) {
+      result.push(current.trim());
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// Parsing principal par index de colonnes (auto-détecté)
+// ---------------------------------------------------------------------------
+
+function parseByColumnIndex(
+  lines: string[],
+  sep: string,
+  dateIdx: number,
+  amountIdx: number,
+  labelIdx: number,
+): ParseResult["transactions"] {
+  const transactions: ParseResult["transactions"] = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const cells = splitCsvLine(lines[i]!, sep);
+
+    const rawDate = dateIdx >= 0 ? (cells[dateIdx] ?? "") : "";
+    const description = labelIdx >= 0 ? (cells[labelIdx] ?? "") : "";
+
+    if (!rawDate || !description) continue;
+
+    const date = parseAutoDate(rawDate);
+    if (!date.match(/^\d{4}-\d{2}-\d{2}$/)) continue;
+
+    const rawAmount = amountIdx >= 0 ? (cells[amountIdx] ?? "") : "";
+    if (!rawAmount) continue;
+
+    const parsed = parseAmountGeneric(rawAmount);
+    if (isNaN(parsed) || parsed === 0) continue;
+
+    const amount = Math.abs(parsed);
+    const type: "income" | "expense" = parsed < 0 ? "expense" : "income";
+
+    transactions.push({ date, description, amount, type });
+  }
+
+  return transactions;
+}
+
+// ---------------------------------------------------------------------------
+// Parser principal
+// ---------------------------------------------------------------------------
 
 export const genericCsvParser: GenericCsvParserType = {
   name: "CSV générique",
@@ -75,13 +346,64 @@ export const genericCsvParser: GenericCsvParserType = {
     return filename.toLowerCase().endsWith(".csv");
   },
 
-  parse(_content: string | null, _buffer: Buffer | null): ParseResult {
-    return {
+  /**
+   * Parse automatiquement si confidence >= 70.
+   * Sinon retourne transactions=[] avec suggestedMapping.
+   */
+  parse(content: string | null, _buffer: Buffer | null): ParseResult {
+    const emptyResult: ParseResult = {
       transactions: [],
       detectedBalance: null,
       detectedBalanceDate: null,
       bankName: "CSV générique",
       currency: "EUR",
+    };
+
+    if (!content || !content.trim()) return emptyResult;
+
+    const lines = content.split(/\r?\n/).filter((l) => l.trim());
+    if (lines.length < 2) return emptyResult;
+
+    const firstLine = lines[0]!;
+    const sep = detectSeparator(firstLine);
+    const headers = splitCsvLine(firstLine, sep);
+
+    // Construire preview (premières lignes de données)
+    const preview: string[][] = [];
+    for (let i = 1; i < Math.min(lines.length, 6); i++) {
+      preview.push(splitCsvLine(lines[i]!, sep));
+    }
+
+    const score = detectColumns(headers, preview);
+
+    if (score.confidence >= 70) {
+      const transactions = parseByColumnIndex(
+        lines,
+        sep,
+        score.dateCol,
+        score.amountCol,
+        score.labelCol,
+      );
+      return {
+        transactions,
+        detectedBalance: null,
+        detectedBalanceDate: null,
+        bankName: "CSV générique",
+        currency: "EUR",
+      };
+    }
+
+    // Confidence insuffisante : retourner suggestedMapping
+    const suggestedMapping: SuggestedMapping = {
+      dateCol: score.dateCol,
+      amountCol: score.amountCol,
+      labelCol: score.labelCol,
+      confidence: score.confidence,
+    };
+
+    return {
+      ...emptyResult,
+      suggestedMapping,
     };
   },
 
@@ -91,11 +413,11 @@ export const genericCsvParser: GenericCsvParserType = {
 
     const firstLine = lines[0]!;
     const sep = detectSeparator(firstLine);
-    const headers = firstLine.split(sep).map((h) => h.replace(/^"|"$/g, "").trim());
+    const headers = splitCsvLine(firstLine, sep);
 
     const preview: string[][] = [];
     for (let i = 1; i < Math.min(lines.length, 6); i++) {
-      preview.push(lines[i]!.split(sep).map((cell) => cell.replace(/^"|"$/g, "").trim()));
+      preview.push(splitCsvLine(lines[i]!, sep));
     }
 
     return { headers, preview, fingerprint: computeFingerprint(headers) };
@@ -108,7 +430,7 @@ export const genericCsvParser: GenericCsvParserType = {
     }
 
     const sep = mapping.separator;
-    const rawHeaders = lines[0]!.split(sep).map((h) => h.replace(/^"|"$/g, "").trim());
+    const rawHeaders = splitCsvLine(lines[0]!, sep);
     const colIdx = (col: string) => rawHeaders.indexOf(col);
 
     const dateIdx = colIdx(mapping.dateColumn);
@@ -117,10 +439,10 @@ export const genericCsvParser: GenericCsvParserType = {
     const debitIdx = mapping.debitColumn ? colIdx(mapping.debitColumn) : -1;
     const creditIdx = mapping.creditColumn ? colIdx(mapping.creditColumn) : -1;
 
-    const transactions = [];
+    const transactions: ParseResult["transactions"] = [];
 
     for (let i = 1; i < lines.length; i++) {
-      const cells = lines[i]!.split(sep).map((c) => c.replace(/^"|"$/g, "").trim());
+      const cells = splitCsvLine(lines[i]!, sep);
 
       const rawDate = dateIdx >= 0 ? (cells[dateIdx] ?? "") : "";
       const description = descIdx >= 0 ? (cells[descIdx] ?? "") : "";
@@ -133,8 +455,8 @@ export const genericCsvParser: GenericCsvParserType = {
       let type: "income" | "expense";
 
       if (amountIdx >= 0) {
-        const rawAmount = (cells[amountIdx] ?? "").replace(/\s/g, "").replace(",", ".");
-        const parsed = parseFloat(rawAmount);
+        const rawAmount = cells[amountIdx] ?? "";
+        const parsed = parseAmountGeneric(rawAmount);
         if (isNaN(parsed) || parsed === 0) continue;
         amount = Math.abs(parsed);
         type = parsed < 0 ? "expense" : "income";

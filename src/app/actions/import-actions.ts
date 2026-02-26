@@ -118,8 +118,21 @@ export async function importFileAction(formData: FormData) {
   const newTransactions = transactionsWithHash.filter((t) => !existingHashes.has(t.import_hash));
   const duplicateCount = transactionsWithHash.length - newTransactions.length;
 
+  // Prévisualisation des 5 premières transactions (toutes, pas seulement nouvelles)
+  const previewFirst5 = parseResult.transactions.slice(0, 5).map((t) => ({
+    date: t.date,
+    description: t.description,
+    amount: t.amount,
+  }));
+
+  // suggestedMapping présent si le parser CSV générique a une confiance faible
+  const suggestedMapping = parseResult.suggestedMapping;
+
   return {
     success: true,
+    parserName: parseResult.bankName,
+    previewFirst5,
+    ...(suggestedMapping ? { suggestedMapping } : {}),
     preview: {
       bankName: parseResult.bankName,
       currency: parseResult.currency,
@@ -250,8 +263,17 @@ export async function importWithMappingAction(
   const newTransactions = transactionsWithHash.filter((t) => !existingHashes.has(t.import_hash));
   const duplicateCount = transactionsWithHash.length - newTransactions.length;
 
+  // Prévisualisation des 5 premières transactions
+  const previewFirst5 = parseResult.transactions.slice(0, 5).map((t) => ({
+    date: t.date,
+    description: t.description,
+    amount: t.amount,
+  }));
+
   return {
     success: true,
+    parserName: parseResult.bankName,
+    previewFirst5,
     preview: {
       bankName: parseResult.bankName,
       currency: parseResult.currency,

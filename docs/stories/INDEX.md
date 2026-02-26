@@ -269,26 +269,46 @@
 
 ---
 
-## Sprint Refonte UI/UX Stitch (v15) — 🚀 EN COURS
+## Sprint Refonte UI/UX Stitch (v15) — TERMINE ✅
 
 | ID | Titre | Priorité | Complexité | Statut | QA |
 |----|-------|----------|------------|--------|-----|
-| STORY-107 | Fondation Design System CSS Stitch v2 | P1 | XS | 🔲 pending | — |
-| STORY-108 | Refonte Landing Page | P1 | L | 🔲 pending | — |
-| STORY-109 | Refonte Page Tarifs | P1 | M | 🔲 pending | — |
-| STORY-110 | Refonte Fonctionnalités + Import Relevés | P1 | M | 🔲 pending | — |
-| STORY-111 | Refonte Pages Auth (Inscription + Connexion) | P2 | S | 🔲 pending | — |
-| STORY-112 | Refonte Dashboard App | P1 | L | 🔲 pending | — |
-| STORY-113 | Refonte Transactions App | P2 | M | 🔲 pending | — |
-| STORY-114 | Refonte Comptes App | P2 | S | 🔲 pending | — |
-| STORY-115 | Refonte Budgets & Objectifs App | P2 | M | 🔲 pending | — |
-| STORY-116 | Refonte Paramètres + Récurrents + Prévisions | P2 | M | 🔲 pending | — |
-| STORY-117 | Refonte Conseiller IA | P2 | S | 🔲 pending | — |
-| STORY-118 | Refonte Compte Suspendu | P3 | XS | 🔲 pending | — |
+| STORY-107 | Fondation Design System CSS Stitch v2 | P1 | XS | ✅ completed | PASS |
+| STORY-108 | Refonte Landing Page | P1 | L | ✅ completed | PASS |
+| STORY-109 | Refonte Page Tarifs | P1 | M | ✅ completed | PASS |
+| STORY-110 | Refonte Fonctionnalités + Import Relevés | P1 | M | ✅ completed | PASS |
+| STORY-111 | Refonte Pages Auth (Inscription + Connexion) | P2 | S | ✅ completed | PASS |
+| STORY-112 | Refonte Dashboard App | P1 | L | ✅ completed | PASS |
+| STORY-113 | Refonte Transactions App | P2 | M | ✅ completed | PASS |
+| STORY-114 | Refonte Comptes App | P2 | S | ✅ completed | PASS |
+| STORY-115 | Refonte Budgets & Objectifs App | P2 | M | ✅ completed | PASS |
+| STORY-116 | Refonte Paramètres + Récurrents + Prévisions | P2 | M | ✅ completed | PASS |
+| STORY-117 | Refonte Conseiller IA | P2 | S | ✅ completed | PASS |
+| STORY-118 | Refonte Compte Suspendu | P3 | XS | ✅ completed | PASS |
 
-### Métriques cible Sprint Refonte UI/UX
+### Métriques Sprint Refonte UI/UX
 
-- **Stories :** 0/12 (en cours)
-- **Points :** 0/33
-- **Tests baseline :** 911 (0 régression tolérée)
-- **Objectif :** Fidélité visuelle ≥ 90% vs maquettes Stitch
+- **Stories complétées :** 12/12 ✅
+- **Points :** 33/33 ✅
+- **Tests baseline :** 1201 (0 régression)
+- **Fidélité visuelle :** >= 90% vs maquettes Stitch
+
+---
+
+## Sprint Import Universel Bancaire (v16) — PLANIFIE
+
+| ID | Titre | Priorité | Complexité | Statut | QA |
+|----|-------|----------|------------|--------|-----|
+| STORY-119 | Parser CAMT.053 (XML ISO 20022) | P1 | M | 🔲 pending | — |
+| STORY-120 | Parser MT940 (SWIFT legacy) | P1 | M | 🔲 pending | — |
+| STORY-121 | Parser OFX/QFX (Open Financial Exchange) | P2 | S | 🔲 pending | — |
+| STORY-122 | Parser CFONB 120 (format bancaire France) | P2 | S | 🔲 pending | — |
+| STORY-123 | Amélioration CSV générique : auto-détection | P1 | M | 🔲 pending | — |
+| STORY-124 | Page d'import enrichie : feedback + stats | P1 | L | 🔲 pending | — |
+
+### Métriques cible Sprint Import Universel
+
+- **Stories :** 0/6 (en attente)
+- **Points :** 0/18
+- **Tests baseline :** 1201 (0 régression tolérée)
+- **Objectif :** Couverture > 95% des formats bancaires français + standards européens

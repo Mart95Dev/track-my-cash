@@ -1,6 +1,10 @@
 export type { ParsedTransaction, ParseResult, BankParser } from "./types";
 export { detectAndParseFile, parsers } from "./registry";
 export { banquePopulaireParser } from "./banque-populaire";
+export { camt053Parser } from "./camt053";
+export { mt940Parser } from "./mt940";
+export { ofxParser } from "./ofx";
+export { cfonb120Parser } from "./cfonb120";
 export { bnpParser } from "./bnp-paribas";
 export { caisseEpargneParser } from "./caisse-epargne";
 export { genericCsvParser } from "./generic-csv";

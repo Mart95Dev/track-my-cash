@@ -2,7 +2,11 @@ import { banquePopulaireParser } from "./banque-populaire";
 import { bnpParser } from "./bnp-paribas";
 import { boursoramaParser } from "./boursorama";
 import { caisseEpargneParser } from "./caisse-epargne";
+import { camt053Parser } from "./camt053";
+import { cfonb120Parser } from "./cfonb120";
 import { creditAgricoleParser } from "./credit-agricole";
+import { mt940Parser } from "./mt940";
+import { ofxParser } from "./ofx";
 import { genericCsvParser } from "./generic-csv";
 import type { GenericParseResult } from "./generic-csv";
 import { hsbcParser } from "./hsbc";
@@ -19,6 +23,10 @@ import type { BankParser, ParseResult } from "./types";
 const parsers: BankParser[] = [
   mcbPdfParser,              // PDF en premier (extension spécifique)
   revolutParser,             // XLSX en second
+  camt053Parser,             // CAMT.053 XML ISO 20022 (avant parsers CSV)
+  mt940Parser,               // MT940 SWIFT texte legacy (avant parsers CSV)
+  ofxParser,                 // OFX/QFX (Open Financial Exchange v1 SGML + v2 XML)
+  cfonb120Parser,            // CFONB 120 (format interbancaire français longueur fixe)
   mcbCsvParser,              // MCB CSV
   n26Parser,                 // N26 : "Payee" + "Transaction type" + "Amount"
   wiseParser,                // Wise : "TransferWise ID"

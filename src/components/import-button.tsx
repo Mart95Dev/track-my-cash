@@ -52,11 +52,92 @@ interface PreviewData {
   transactions: PreviewTransaction[];
 }
 
+interface PreviewFirst5Item {
+  date: string;
+  description: string;
+  amount: number;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Badge "Parser détecté"
+// ─────────────────────────────────────────────────────────────────────────────
+
+function ParserBadge({ parserName }: { parserName: string }) {
+  return (
+    <div className="flex items-center gap-2 text-sm shrink-0">
+      <span className="text-muted-foreground dark:text-text-muted">Parser détecté :</span>
+      <span className="inline-flex items-center rounded-full bg-primary/10 dark:bg-primary/20 px-2.5 py-0.5 text-xs font-medium text-primary dark:text-primary border border-primary/20 dark:border-primary/30">
+        {parserName}
+      </span>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tableau prévisualisation des 5 premières transactions
+// ─────────────────────────────────────────────────────────────────────────────
+
+function PreviewFirst5Table({
+  rows,
+  currency,
+  locale,
+}: {
+  rows: PreviewFirst5Item[];
+  currency: string;
+  locale: string;
+}) {
+  if (rows.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-1.5 shrink-0">
+      <p className="text-xs font-medium text-muted-foreground dark:text-text-muted uppercase tracking-wide">
+        Aperçu des 5 premières transactions
+      </p>
+      <div className="border dark:border-border/40 rounded-md overflow-hidden bg-background dark:bg-background-dark">
+        <Table>
+          <TableHeader>
+            <TableRow className="dark:border-border/30">
+              <TableHead className="w-24 dark:text-text-muted">Date</TableHead>
+              <TableHead className="dark:text-text-muted">Libellé</TableHead>
+              <TableHead className="text-right w-28 dark:text-text-muted">Montant</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((row, i) => (
+              <TableRow key={i} className="dark:border-border/20">
+                <TableCell className="text-xs whitespace-nowrap dark:text-text-main">
+                  {formatDate(row.date, locale)}
+                </TableCell>
+                <TableCell className="text-xs dark:text-text-main truncate max-w-[220px]">
+                  {row.description}
+                </TableCell>
+                <TableCell
+                  className={`text-right text-xs font-medium ${
+                    row.amount >= 0 ? "text-income" : "text-expense"
+                  }`}
+                >
+                  {row.amount >= 0 ? "+" : ""}
+                  {formatCurrency(Math.abs(row.amount), currency, locale)}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Composant principal
+// ─────────────────────────────────────────────────────────────────────────────
+
 export function ImportButton({ accounts, defaultAccountId }: { accounts: Account[]; defaultAccountId?: number }) {
   const t = useTranslations("import");
   const locale = useLocale();
   const { upgradeReason, showUpgradeModal, closeUpgradeModal } = useUpgradeModal();
   const [preview, setPreview] = useState<PreviewData | null>(null);
+  const [previewFirst5, setPreviewFirst5] = useState<PreviewFirst5Item[]>([]);
+  const [parserName, setParserName] = useState<string | null>(null);
   const [categoryOverrides, setCategoryOverrides] = useState<Record<number, string>>({});
   const [subcategoryOverrides, setSubcategoryOverrides] = useState<Record<number, string>>({});
   const [selectedAccountId, setSelectedAccountId] = useState<number>(defaultAccountId ?? accounts[0]?.id ?? 0);
@@ -96,6 +177,13 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
           content: result.content,
         });
       } else if (result.preview) {
+        // Stocker parserName et previewFirst5 enrichis (STORY-124)
+        if ("parserName" in result && typeof result.parserName === "string") {
+          setParserName(result.parserName);
+        }
+        if ("previewFirst5" in result && Array.isArray(result.previewFirst5)) {
+          setPreviewFirst5(result.previewFirst5 as PreviewFirst5Item[]);
+        }
         setPreview(result.preview);
         setCategoryOverrides({});
         setSubcategoryOverrides({});
@@ -132,6 +220,8 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
         toast.success(msg);
         setIsOpen(false);
         setPreview(null);
+        setPreviewFirst5([]);
+        setParserName(null);
         setCategoryOverrides({});
         setSubcategoryOverrides({});
       }
@@ -165,7 +255,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
 
       <div className="flex items-center gap-2">
         <select
-          className="flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+          className="flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm dark:bg-background-dark dark:border-border/40 dark:text-text-main"
           value={selectedAccountId}
           onChange={(e) => setSelectedAccountId(parseInt(e.target.value))}
         >
@@ -192,57 +282,73 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-5xl flex flex-col max-h-[85vh]">
+        <DialogContent className="sm:max-w-5xl flex flex-col max-h-[85vh] bg-background dark:bg-background-dark dark:border-border/40">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="dark:text-text-main">
               {t("previewTitle", { bankName: preview?.bankName ?? "" })}
             </DialogTitle>
           </DialogHeader>
 
           {preview && (
             <div className="flex flex-col gap-4 flex-1 overflow-hidden">
+
+              {/* Badge "Parser détecté" — AC-1 */}
+              {parserName && <ParserBadge parserName={parserName} />}
+
+              {/* Solde détecté */}
               {preview.detectedBalance !== null && (
-                <div className="rounded-lg border bg-info-subtle p-4 shrink-0 space-y-1">
-                  <p className="font-medium">
+                <div className="rounded-lg border dark:border-border/40 bg-info-subtle dark:bg-primary/5 p-4 shrink-0 space-y-1">
+                  <p className="font-medium dark:text-text-main">
                     {t("detectedBalance", {
                       amount: formatCurrency(preview.detectedBalance, preview.currency, locale),
                       date: preview.detectedBalanceDate ? formatDate(preview.detectedBalanceDate, locale) : "",
                     })}
                   </p>
-                  <p className="text-sm text-info">
+                  <p className="text-sm text-info dark:text-primary">
                     {t("balanceInfo")}
                   </p>
                 </div>
               )}
 
-              <div className="flex gap-4 text-sm shrink-0">
-                <span>{t("transactionsFound", { total: preview.totalCount })}</span>
-                <span className="text-income">{t("newTransactions", { count: preview.newCount })}</span>
+              {/* Stats import — AC-2 */}
+              <div className="flex flex-wrap gap-3 text-sm shrink-0">
+                <span className="dark:text-text-main">{t("transactionsFound", { total: preview.totalCount })}</span>
+                <span className="text-income font-medium">{t("newTransactions", { count: preview.newCount })}</span>
                 {preview.duplicateCount > 0 && (
-                  <span className="text-warning">
+                  <span className="text-warning dark:text-amber-400">
                     {t("duplicatesIgnored", { count: preview.duplicateCount })}
                   </span>
                 )}
               </div>
 
+              {/* Tableau prévisualisation 5 premières transactions — AC-3 */}
+              {previewFirst5.length > 0 && (
+                <PreviewFirst5Table
+                  rows={previewFirst5}
+                  currency={preview.currency}
+                  locale={locale}
+                />
+              )}
+
+              {/* Liste complète des transactions à importer */}
               {preview.newCount === 0 && preview.detectedBalance !== null ? (
-                <p className="text-sm text-muted-foreground text-center py-4">
+                <p className="text-sm text-muted-foreground dark:text-text-muted text-center py-4">
                   {t("allImportedWithBalance")}
                 </p>
               ) : preview.newCount === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">
+                <p className="text-sm text-muted-foreground dark:text-text-muted text-center py-4">
                   {t("allImported")}
                 </p>
               ) : (
-                <div className="overflow-y-auto flex-1 border rounded-md">
+                <div className="overflow-y-auto flex-1 border dark:border-border/40 rounded-md">
                   <Table>
-                    <TableHeader className="sticky top-0 bg-background">
-                      <TableRow>
-                        <TableHead className="w-24">{t("date")}</TableHead>
-                        <TableHead>{t("description")}</TableHead>
-                        <TableHead className="w-36">{t("category")}</TableHead>
-                        <TableHead className="w-40">{t("subcategory")}</TableHead>
-                        <TableHead className="text-right w-28">{t("amount")}</TableHead>
+                    <TableHeader className="sticky top-0 bg-background dark:bg-background-dark">
+                      <TableRow className="dark:border-border/30">
+                        <TableHead className="w-24 dark:text-text-muted">{t("date")}</TableHead>
+                        <TableHead className="dark:text-text-muted">{t("description")}</TableHead>
+                        <TableHead className="w-36 dark:text-text-muted">{t("category")}</TableHead>
+                        <TableHead className="w-40 dark:text-text-muted">{t("subcategory")}</TableHead>
+                        <TableHead className="text-right w-28 dark:text-text-muted">{t("amount")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -255,12 +361,12 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
                           .sort();
                         const datalistId = `import-sub-${i}`;
                         return (
-                          <TableRow key={i}>
-                            <TableCell className="whitespace-nowrap">{formatDate(tx.date, locale)}</TableCell>
-                            <TableCell className="text-xs">{tx.description}</TableCell>
+                          <TableRow key={i} className="dark:border-border/20">
+                            <TableCell className="whitespace-nowrap dark:text-text-main">{formatDate(tx.date, locale)}</TableCell>
+                            <TableCell className="text-xs dark:text-text-main">{tx.description}</TableCell>
                             <TableCell>
                               <select
-                                className="flex h-8 w-full rounded-md border border-input bg-transparent px-2 py-1 text-xs shadow-sm"
+                                className="flex h-8 w-full rounded-md border border-input bg-transparent px-2 py-1 text-xs shadow-sm dark:bg-background-dark dark:border-border/40 dark:text-text-main"
                                 value={currentCategory}
                                 onChange={(e) => {
                                   setCategoryOverrides((prev) => ({ ...prev, [i]: e.target.value }));
@@ -284,7 +390,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
                               <input
                                 type="text"
                                 list={patternsForCat.length > 0 ? datalistId : undefined}
-                                className="flex h-8 w-full rounded-md border border-input bg-transparent px-2 py-1 text-xs shadow-sm"
+                                className="flex h-8 w-full rounded-md border border-input bg-transparent px-2 py-1 text-xs shadow-sm dark:bg-background-dark dark:border-border/40 dark:text-text-main"
                                 value={subcategoryOverrides[i] ?? tx.subcategory}
                                 onChange={(e) =>
                                   setSubcategoryOverrides((prev) => ({ ...prev, [i]: e.target.value }))

@@ -1,13 +1,94 @@
 sprint:
+  id: sprint-import-universel-v16
+  goal: "Import Universel Bancaire — parsers CAMT.053 (XML ISO 20022), MT940 (SWIFT), OFX/QFX, CFONB 120 + amélioration CSV générique auto-détection + page import enrichie"
+  start_date: "2026-02-26"
+  end_date: "2026-02-26"
+  status: completed
+  stories_total: 6
+  stories_completed: 6
+  points_total: 18
+  points_completed: 18
+  tests_baseline: 1201
+  tests_current: 1356
+
+stories:
+  - id: STORY-119
+    title: "Parser CAMT.053 (XML ISO 20022)"
+    epic: import-universel
+    complexity: M
+    priority: P1
+    status: completed
+    blockedBy: []
+    points: 3
+    tests_added: 25
+    completed_at: "2026-02-26"
+
+  - id: STORY-120
+    title: "Parser MT940 (SWIFT legacy)"
+    epic: import-universel
+    complexity: M
+    priority: P1
+    status: completed
+    blockedBy: []
+    points: 3
+    tests_added: 30
+    completed_at: "2026-02-26"
+
+  - id: STORY-121
+    title: "Parser OFX/QFX (Open Financial Exchange)"
+    epic: import-universel
+    complexity: S
+    priority: P2
+    status: completed
+    blockedBy: []
+    points: 2
+    tests_added: 33
+    completed_at: "2026-02-26"
+
+  - id: STORY-122
+    title: "Parser CFONB 120 (format bancaire France)"
+    epic: import-universel
+    complexity: S
+    priority: P2
+    status: completed
+    blockedBy: []
+    points: 2
+    tests_added: 30
+    completed_at: "2026-02-26"
+
+  - id: STORY-123
+    title: "Amélioration CSV générique : auto-détection intelligente"
+    epic: import-universel
+    complexity: M
+    priority: P1
+    status: completed
+    blockedBy: []
+    points: 3
+    tests_added: 25
+    completed_at: "2026-02-26"
+    points: 3
+
+  - id: STORY-124
+    title: "Page d'import enrichie : feedback parser + stats + gestion doublons"
+    epic: import-universel
+    complexity: L
+    priority: P1
+    status: completed
+    blockedBy: [STORY-119, STORY-120, STORY-121, STORY-122, STORY-123]
+    points: 5
+    tests_added: 12
+    completed_at: "2026-02-26"
+
+previous_sprint_v15:
   id: sprint-refonte-ui-stitch-v15
   goal: "Refonte UI/UX Stitch — implémentation fidèle des 20 maquettes Google Stitch (landing + app) avec design system premium Manrope + #4848e5"
   start_date: "2026-02-25"
-  end_date: ""
-  status: in_progress
-  stories_total: 12
-  stories_completed: 12
-  points_total: 33
-  tests_baseline: 911
+  end_date: "2026-02-26"
+  status: completed
+  stories: 12
+  completed: 12
+  qa_verdict: PASS
+  tests: 1201
 
 previous_sprint_v14:
   id: sprint-couple-first-onboarding-v14
