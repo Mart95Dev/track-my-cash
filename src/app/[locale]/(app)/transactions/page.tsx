@@ -1,7 +1,7 @@
 import { searchTransactions, getAllAccounts, getCategorizationRules, getUncategorizedTransactions } from "@/lib/queries";
 import { getUserDb, getDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
-import { formatCurrency, formatDate } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
 import { TransactionForm } from "@/components/transaction-form";
 import { DeleteTransactionButton } from "@/components/delete-transaction-button";
 import { EditTransactionDialog } from "@/components/edit-transaction-dialog";
@@ -19,6 +19,15 @@ import { getCoupleByUserId } from "@/lib/couple-queries";
 import { TransactionCoupleToggle } from "@/components/transaction-couple-toggle";
 
 export const dynamic = "force-dynamic";
+
+function getDateLabel(dateKey: string, locale: string): string {
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  if (dateKey === today) return "Aujourd'hui";
+  if (dateKey === yesterday) return "Hier";
+  const d = new Date(dateKey + "T00:00:00");
+  return d.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" });
+}
 
 export default async function TransactionsPage({
   searchParams,
@@ -58,16 +67,64 @@ export default async function TransactionsPage({
 
   const totalPages = Math.ceil(total / perPage);
 
+  // Groupement des transactions par date — AC-4
+  const txByDate = transactions.reduce<Record<string, typeof transactions>>((acc, tx) => {
+    const dateKey = tx.date.slice(0, 10);
+    if (!acc[dateKey]) acc[dateKey] = [];
+    acc[dateKey].push(tx);
+    return acc;
+  }, {});
+  const sortedDates = Object.keys(txByDate).sort((a, b) => b.localeCompare(a));
+
   return (
-    <div className="flex flex-col pb-2">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 pt-6 pb-4">
-        <h1 className="text-2xl font-bold tracking-tight text-text-main">Transactions</h1>
-        <ImportButton accounts={accounts} defaultAccountId={accountId} />
+    <div className="flex flex-col pb-2 bg-background-light dark:bg-background-dark">
+
+      {/* Header sticky — AC-1 */}
+      <header className="sticky top-0 z-40 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-800/50">
+        <div className="px-4 py-4 flex items-center justify-between">
+          <h1 className="text-3xl font-extrabold tracking-tight text-text-main">Transactions</h1>
+          <button type="button" className="text-primary font-semibold text-sm hover:text-primary/80 transition-colors">
+            Modifier
+          </button>
+        </div>
+
+        {/* Chips filtres — AC-2 : Tous les comptes | Recherche | Tags */}
+        <div className="flex gap-3 px-4 pb-3 overflow-x-auto no-scrollbar">
+          <div className="flex h-10 shrink-0 items-center gap-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 shadow-sm">
+            <span className="text-[13px] font-semibold whitespace-nowrap text-slate-700 dark:text-slate-200">
+              Tous les comptes
+            </span>
+            <span className="material-symbols-outlined text-slate-400 text-[18px]">expand_more</span>
+          </div>
+          <div className="flex h-10 shrink-0 items-center gap-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 shadow-sm">
+            <span className="material-symbols-outlined text-slate-500 text-[18px]">search</span>
+            <span className="text-[13px] font-semibold whitespace-nowrap text-slate-700 dark:text-slate-200">
+              Recherche
+            </span>
+          </div>
+          <div className="flex h-10 shrink-0 items-center gap-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 shadow-sm">
+            <span className="text-[13px] font-semibold whitespace-nowrap text-slate-700 dark:text-slate-200">
+              Tags
+            </span>
+            <span className="material-symbols-outlined text-slate-400 text-[18px]">expand_more</span>
+          </div>
+        </div>
+      </header>
+
+      {/* Filtres avancés (fonctionnalité préservée) */}
+      <div className="px-4 pt-3">
+        <TransactionSearch
+          accounts={accounts}
+          currentAccountId={accountId}
+          currentSearch={search}
+          currentSort={sort}
+          tags={allTags}
+          currentTagId={tagId}
+        />
       </div>
 
       {/* Formulaire ajout */}
-      <div className="mx-4 mb-4 bg-white rounded-2xl border border-slate-100 shadow-soft p-4">
+      <div className="mx-4 mt-3 mb-4 bg-white dark:bg-card-dark rounded-2xl border border-slate-100 dark:border-slate-800 shadow-soft p-4">
         <div className="flex items-center gap-2 mb-3">
           <span className="material-symbols-outlined text-primary text-[20px]">add_circle</span>
           <h2 className="font-bold text-text-main text-sm">Nouvelle transaction</h2>
@@ -75,25 +132,26 @@ export default async function TransactionsPage({
         <TransactionForm accounts={accounts} rules={rules} defaultAccountId={accountId} />
       </div>
 
-      {/* Barre recherche + filtres */}
-      <TransactionSearch
-        accounts={accounts}
-        currentAccountId={accountId}
-        currentSearch={search}
-        currentSort={sort}
-        tags={allTags}
-        currentTagId={tagId}
-      />
-
-      {/* Boutons action */}
-      <div className="flex items-center gap-2 px-4 mb-4 overflow-x-auto no-scrollbar">
-        <ExportTransactions transactions={transactions} accounts={accounts} />
+      {/* Boutons action : Import CSV | Export Data | AI Scan — AC-3 */}
+      <div className="flex gap-3 px-4 pb-4">
+        {/* Import CSV — AC-7 : fonctionnalité import préservée */}
+        <div className="flex-1">
+          <ImportButton accounts={accounts} defaultAccountId={accountId} />
+        </div>
+        {/* Export Data */}
+        <div className="flex-1">
+          <ExportTransactions transactions={transactions} accounts={accounts} />
+        </div>
+        {/* AI Scan */}
         {aiAccess.allowed && (
-          <AutoCategorizeButton uncategorizedCount={uncategorized.length} />
+          <div className="flex-1 h-12 rounded-2xl bg-primary/10 hover:bg-primary/20 transition-colors flex items-center justify-center gap-2 text-primary text-sm font-bold">
+            <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
+            <AutoCategorizeButton uncategorizedCount={uncategorized.length} />
+          </div>
         )}
       </div>
 
-      {/* Liste transactions */}
+      {/* Liste transactions — AC-4 : groupées par date */}
       {!accountId ? (
         <div className="flex flex-col items-center justify-center py-12 text-center px-4">
           <span className="material-symbols-outlined text-text-muted text-[48px] mb-3">filter_list</span>
@@ -105,85 +163,104 @@ export default async function TransactionsPage({
           <p className="text-text-muted text-sm">Aucune transaction trouvée</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-3 px-4">
-          {transactions.map((tx) => {
-            const isIncome = tx.type === "income";
-            const txTags: Tag[] = (txTagsMap[tx.id] ?? [])
-              .map((tagId: number) => allTags.find((t) => t.id === tagId))
-              .filter((t): t is Tag => t !== undefined);
-
-            // Extraire mois et jour pour le bloc date Stitch
-            const dateObj = new Date(tx.date);
-            const dayNum = dateObj.getDate();
-            const monthShort = dateObj.toLocaleDateString(locale, { month: "short" });
-
+        <div className="px-4 flex flex-col gap-6">
+          {sortedDates.map((dateKey) => {
+            const group = txByDate[dateKey];
+            const dateLabel = getDateLabel(dateKey, locale);
             return (
-              <div
-                key={tx.id}
-                className="bg-white rounded-2xl border border-slate-100 shadow-soft p-4 flex items-center justify-between gap-4"
-              >
-                {/* Bloc date style Stitch */}
-                <div className="flex flex-col items-center justify-center h-12 w-12 rounded-xl bg-slate-100 shrink-0 text-slate-500">
-                  <span className="text-[10px] uppercase font-bold tracking-wider">{monthShort}</span>
-                  <span className="text-lg font-bold leading-none">{dayNum}</span>
+              <div key={dateKey}>
+                {/* Header date sticky — AC-4 */}
+                <div className="sticky top-0 z-10 py-3 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm px-2 mb-2">
+                  <h2 className="text-base font-bold text-text-main">{dateLabel}</h2>
                 </div>
+                <div className="flex flex-col gap-3">
+                  {group.map((tx) => {
+                    const isIncome = tx.type === "income";
+                    const txTags: Tag[] = (txTagsMap[tx.id] ?? [])
+                      .map((tagId: number) => allTags.find((t) => t.id === tagId))
+                      .filter((t): t is Tag => t !== undefined);
 
-                {/* Infos transaction */}
-                <div className="flex flex-col gap-1 min-w-0 flex-1">
-                  <p className="font-bold text-text-main truncate">
-                    {tx.description || tx.category || "—"}
-                  </p>
-
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {tx.category && (
-                      <span className="inline-flex items-center rounded-md bg-indigo-50 text-primary px-2 py-0.5 text-xs font-medium ring-1 ring-inset ring-primary/10">
-                        {tx.category}{tx.subcategory ? ` · ${tx.subcategory}` : ""}
-                      </span>
-                    )}
-                    {txTags.map((tag) => (
-                      <span
-                        key={tag.id}
-                        className="text-xs font-medium rounded-full px-2 py-0.5"
-                        style={{
-                          backgroundColor: tag.color + "20",
-                          color: tag.color,
-                        }}
+                    return (
+                      <div
+                        key={tx.id}
+                        className="relative overflow-hidden rounded-2xl shadow-soft bg-white dark:bg-card-dark transition-all hover:shadow-md"
                       >
-                        {tag.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+                        <div className="p-4 flex items-center justify-between gap-4">
+                          {/* Icône catégorie cercle coloré — AC-5 */}
+                          <div className="flex items-center gap-4 flex-1 min-w-0">
+                            <div
+                              className={`h-12 w-12 rounded-full flex items-center justify-center shrink-0 ${
+                                isIncome
+                                  ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400"
+                                  : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+                              }`}
+                            >
+                              <span className="material-symbols-outlined text-[22px]">
+                                {isIncome ? "arrow_circle_down" : "arrow_circle_up"}
+                              </span>
+                            </div>
+                            <div className="flex flex-col gap-0.5 min-w-0">
+                              <h3 className="font-bold text-base text-text-main truncate">
+                                {tx.description || tx.category || "—"}
+                              </h3>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {tx.category && (
+                                  <span className="text-sm text-text-muted truncate">{tx.category}</span>
+                                )}
+                                {txTags.map((tag) => (
+                                  <span
+                                    key={tag.id}
+                                    className="text-xs font-medium rounded-full px-2 py-0.5"
+                                    style={{
+                                      backgroundColor: tag.color + "20",
+                                      color: tag.color,
+                                    }}
+                                  >
+                                    {tag.name}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
 
-                {/* Montant + actions */}
-                <div className="shrink-0 text-right flex flex-col items-end gap-1">
-                  <p className={`font-bold text-lg ${isIncome ? "text-success" : "text-danger"}`}>
-                    {isIncome ? "+" : "-"}{formatCurrency(Math.abs(tx.amount), "EUR", locale)}
-                  </p>
-                  <div className="flex items-center gap-1">
-                    {tx.note && (
-                      <span
-                        className="material-symbols-outlined text-text-muted text-[18px]"
-                        title={tx.note}
-                      >
-                        sticky_note
-                      </span>
-                    )}
-                    <TransactionTagPopover
-                      transactionId={tx.id}
-                      allTags={allTags}
-                      initialTagIds={txTagsMap[tx.id] ?? []}
-                    />
-                    {couple !== null && (
-                      <TransactionCoupleToggle
-                        txId={tx.id}
-                        isShared={(tx as unknown as Record<string, unknown>).is_couple_shared === 1}
-                        userId={userId}
-                      />
-                    )}
-                    <EditTransactionDialog transaction={tx} accounts={accounts} rules={rules} />
-                    <DeleteTransactionButton id={tx.id} />
-                  </div>
+                          {/* Montant coloré + actions — AC-5 */}
+                          <div className="shrink-0 text-right flex flex-col items-end gap-1">
+                            <p
+                              className={`font-extrabold text-lg tracking-tight ${
+                                isIncome ? "text-success" : "text-danger"
+                              }`}
+                            >
+                              {isIncome ? "+" : "-"}{formatCurrency(Math.abs(tx.amount), "EUR", locale)}
+                            </p>
+                            <div className="flex items-center gap-1">
+                              {tx.note && (
+                                <span
+                                  className="material-symbols-outlined text-text-muted text-[18px]"
+                                  title={tx.note}
+                                >
+                                  sticky_note
+                                </span>
+                              )}
+                              <TransactionTagPopover
+                                transactionId={tx.id}
+                                allTags={allTags}
+                                initialTagIds={txTagsMap[tx.id] ?? []}
+                              />
+                              {couple !== null && (
+                                <TransactionCoupleToggle
+                                  txId={tx.id}
+                                  isShared={(tx as unknown as Record<string, unknown>).is_couple_shared === 1}
+                                  userId={userId}
+                                />
+                              )}
+                              <EditTransactionDialog transaction={tx} accounts={accounts} rules={rules} />
+                              <DeleteTransactionButton id={tx.id} />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );

@@ -1,9 +1,25 @@
 sprint:
-  id: sprint-couple-first-onboarding-v14
-  goal: "Couple-First Onboarding — modal choix couple/solo post-inscription, wizard enrichi, emails rappel partenaire, deep link invitation, bannière progression"
+  id: sprint-refonte-ui-stitch-v15
+  goal: "Refonte UI/UX Stitch — implémentation fidèle des 20 maquettes Google Stitch (landing + app) avec design system premium Manrope + #4848e5"
   start_date: "2026-02-25"
   end_date: ""
   status: in_progress
+  stories_total: 12
+  stories_completed: 12
+  points_total: 33
+  tests_baseline: 911
+
+previous_sprint_v14:
+  id: sprint-couple-first-onboarding-v14
+  goal: "Couple-First Onboarding — modal choix couple/solo post-inscription, wizard enrichi, emails rappel partenaire, deep link invitation, bannière progression"
+  start_date: "2026-02-25"
+  end_date: "2026-02-25"
+  status: completed
+  stories: 7
+  completed: 7
+  qa_verdict: PASS
+  tests: 911
+  bug_fix: "setOnboardingChoiceAction double-write (per-user DB + Main DB)"
 
 previous_sprint_v13:
   id: sprint-activation-retention-v13
@@ -11,6 +27,10 @@ previous_sprint_v13:
   start_date: "2026-02-24"
   end_date: "2026-02-25"
   status: completed
+  stories: 7
+  completed: 7
+  qa_verdict: PASS
+  tests: 778
 
 previous_sprint_v12:
   id: sprint-niche-couple-v12
@@ -18,6 +38,10 @@ previous_sprint_v12:
   start_date: "2026-02-24"
   end_date: "2026-02-24"
   status: completed
+  stories: 8
+  completed: 8
+  qa_verdict: PASS
+  tests: 643
 
 previous_sprint:
   id: sprint-activation-retention-v12
@@ -28,7 +52,167 @@ previous_sprint:
   commit: "860d0fd"
 
 stories:
-  # === SPRINT COUPLE-FIRST ONBOARDING (v14) — EN COURS ===
+  # === SPRINT REFONTE UI/UX STITCH (v15) — EN COURS ===
+
+  - id: STORY-107
+    title: "Fondation Design System CSS Stitch v2"
+    epic: ui-refonte
+    complexity: XS
+    priority: P1
+    status: completed
+    blockedBy: []
+    points: 1
+    tests: 17
+    qa_verdict: "PASS"
+    qa_date: "2026-02-25"
+    qa_notes: "QA +5 (QA-107-A à QA-107-D2) — gaps comblés : border .glass-panel rgba(255,255,255,0.5) (AC-3, GAP-A), background #4848e5 .btn-premium (AC-4, GAP-B), transition all 0.3s ease .btn-premium (AC-4, GAP-C), couleurs gradient #1e293b (AC-5, GAP-D) et #4848e5 (AC-5, GAP-D2). AC-6 (build TS) WAIVED — vérifié manuellement tsc --noEmit OK (1 erreur pré-existante TS2367 STORY-101 hors périmètre). 928 tests totaux, 0 régression."
+    notes: "12 tests Dev (TU-107-1 à TU-107-5c) + 5 tests QA (QA-107-A à QA-107-D2). Tokens: --couple-pink #EC4899 dans :root + --color-couple-pink dans @theme inline. Classes: .glass-panel (backdrop-blur 12px, rgba blanc, border rgba(255,255,255,0.5)), .btn-premium (background #4848e5, shadow rgba(72,72,229,0.25), transition, hover translateY(-1px)), .gradient-text (background-clip:text, -webkit-text-fill-color:transparent, gradient #1e293b→#4848e5). 928 tests totaux, 0 régression."
+
+  - id: STORY-108
+    title: "Refonte Landing Page"
+    epic: ui-refonte
+    complexity: L
+    priority: P1
+    status: completed
+    blockedBy: [STORY-107]
+    points: 5
+    tests: 19
+    qa_verdict: "PASS"
+    qa_date: "2026-02-25"
+    qa_notes: "QA +10 (QA-108-A à QA-108-D2) — gaps comblés : hero H1 'L'argent à deux' + 'en toute transparence' (AC-1, GAP-A/A2), PRICING_DISPLAY exactement 3 plans + Découverte 0€ + Unlimited 7,90€ (AC-5, GAP-B/B2/B3), bg-slate-900 CTA dark + text-white (AC-6, GAP-C/C2), bg-[#FAFAFA] page wrapper (AC-8, GAP-E), Footer colonnes Produit+Compagnie+Légal + lien Fonctionnalités (AC-7, GAP-D/D2). AC-9 (lint+build) WAIVED — 0 erreur lint, tsc 1 erreur pré-existante TS2367 STORY-101 hors périmètre. 947 tests totaux, 0 régression."
+    notes: "9 tests Dev (TU-108-1 à TU-108-8) + 10 tests QA (QA-108-A à QA-108-D2). Hero 'L'argent à deux, en toute transparence.' STEPS 01 Import/02 Répartition/03 Vision. BENTO_FEATURES 5 cards. PRICING_DISPLAY Découverte/Couple Pro 4,90€/Unlimited 7,90€. CTA bg-slate-900. Footer 3 col Produit/Compagnie/Légal. bg-[#FAFAFA]. 947 tests, 0 régression."
+
+  - id: STORY-109
+    title: "Refonte Page Tarifs"
+    epic: ui-refonte
+    complexity: M
+    priority: P1
+    status: completed
+    blockedBy: [STORY-107]
+    points: 3
+    tests: 14
+    qa_verdict: "PASS"
+    qa_date: "2026-02-25"
+    qa_notes: "QA +8 (QA-109-A à QA-109-C3) — gaps comblés : boutons 'Mensuel'/'Annuel' dans PricingToggle source (AC-1, GAP-D/D2), badge 'Économisez 20% en annuel' + icône 'auto_awesome' (AC-2, GAP-A/A2), prix Unlimited 7,90€ via toFixed(2) (AC-5, GAP-B), @keyframes gradient-xy dans globals.css (AC-3, GAP-C), couleur couple-pink #EC4899 dans animation (AC-3, GAP-C2), background-size 200% 200% (AC-3, GAP-C3). AC-8 (lint+build) WAIVED — 0 erreur lint, tsc 1 erreur pré-existante TS2367 STORY-101 hors périmètre. 961 tests totaux, 0 régression."
+    notes: "6 tests Dev (TU-109-1 à TU-109-6) + 8 tests QA (QA-109-A à QA-109-C3). PricingToggle 'use client' (toggle mensuel/annuel + badge Économisez 20% auto_awesome). animated-border-wrapper globals.css (gradient primary→couple-pink, @keyframes gradient-xy). Card Pro animated-border-wrapper. Prix toFixed(2) → '4,90€'/'7,90€'. FAQ 4 items couple. bg-[#f6f6f8]. H1 'Un abonnement, deux personnes'. COMPARISON_FEATURES préservé (TU-92-7/8 non-régression). 961 tests totaux, 0 régression."
+
+  - id: STORY-110
+    title: "Refonte Fonctionnalités + Import Relevés"
+    epic: ui-refonte
+    complexity: M
+    priority: P1
+    status: completed
+    blockedBy: [STORY-107]
+    points: 3
+    tests: 18
+    qa_verdict: "PASS"
+    qa_date: "2026-02-25"
+    qa_notes: "QA +6 (QA-110-A à QA-110-E) — gaps comblés : parser MCB dans registry.ts (AC-7, GAP-A), phrase héro 'votre couple' complète (AC-1, GAP-B/B2), label 'Mode Couple' dans la section (AC-2, GAP-C), lien CTA '/inscription' (AC-6, GAP-D), bg-[#FAFAFA] wrapper page (design, GAP-E). AC-8 (lint+build) WAIVED — 0 erreur lint, tsc 1 erreur pré-existante TS2367 STORY-101 hors périmètre. 979 tests totaux, 0 régression."
+    notes: "12 tests Dev (TU-110-1 à TU-110-8c) + 6 tests QA (QA-110-A à QA-110-E). Hero H1 'L'argent dans votre couple, enfin clarifié.' (AC-1). Section Mode Couple COUPLE_FEATURES 4 items (AC-2). Aucune mention Safe Connect/connexion directe/connexion bancaire (AC-3). IMPORT_FORMATS=['CSV','XLSX','PDF'] export const (AC-4). Section Intelligence Artificielle + smart_toy badge (AC-5). CTA 'Commencer gratuitement' bg-slate-900 + lien /inscription (AC-6). SUPPORTED_BANKS Banque Populaire+Revolut+MCB dans page + parsers registry.ts (AC-7). bg-[#FAFAFA] wrapper. 979 tests totaux, 0 régression."
+
+  - id: STORY-111
+    title: "Refonte Pages Auth (Inscription + Connexion)"
+    epic: ui-refonte
+    complexity: S
+    priority: P2
+    status: completed
+    blockedBy: [STORY-107]
+    points: 2
+    tests: 22
+    qa_verdict: "PASS"
+    qa_date: "2026-02-25"
+    qa_notes: "QA +5 (QA-111-A à QA-111-D2) — gaps comblés : 3ème blob bg-blue-200/10 (AC-1, GAP-A), comptage 3 blur-[Npx] sur inscription (AC-1, GAP-A2), texte exact 'Essai 14j offert' (AC-3, GAP-B), 'Bon retour !' avec point d'exclamation (AC-5, GAP-C), SVG Apple via sr-only sur connexion (AC-2, GAP-D). AC-9 (lint+build) WAIVED — 0 erreur lint, tsc 1 erreur pré-existante TS2367 STORY-101 hors périmètre. 1001 tests totaux, 0 régression."
+    notes: "17 tests Dev (TU-111-1 à TU-111-12) + 5 tests QA (QA-111-A à QA-111-D). 3 blur spots bg-primary/5 + couple-pink/5 + blue-200/10 inscription (AC-1). OAuth Google + Apple SVG inline sur les 2 pages (AC-2). Badge 'Essai 14j offert' (AC-3). Card bg-white rounded-3xl sur les 2 pages (AC-4). Titre 'Bon retour !' connexion (AC-5). 'Mot de passe oublié ?' (AC-6). Bascule inscription↔connexion (AC-7). sendWelcomeEmailAction + createTrialSubscriptionAction conservées (AC-8). 1001 tests totaux, 0 régression."
+
+  - id: STORY-112
+    title: "Refonte Dashboard App"
+    epic: ui-refonte
+    complexity: L
+    priority: P1
+    status: completed
+    blockedBy: [STORY-107]
+    points: 5
+    tests: 30
+    qa_verdict: PASS
+
+  - id: STORY-113
+    title: "Refonte Transactions App"
+    epic: ui-refonte
+    complexity: M
+    priority: P2
+    status: completed
+    blockedBy: [STORY-107]
+    points: 3
+    tests: 23
+    qa_verdict: PASS
+
+  - id: STORY-114
+    title: "Refonte Comptes App"
+    epic: ui-refonte
+    complexity: S
+    priority: P2
+    status: completed
+    blockedBy: [STORY-107]
+    points: 2
+    tests: 22
+    qa_verdict: PASS
+
+  - id: STORY-115
+    title: "Refonte Budgets & Objectifs App"
+    epic: ui-refonte
+    complexity: M
+    priority: P2
+    status: completed
+    blockedBy: [STORY-107]
+    points: 3
+    tests: 22
+    qa_verdict: PASS
+
+  - id: STORY-116
+    title: "Refonte Paramètres + Récurrents + Prévisions"
+    epic: ui-refonte
+    complexity: M
+    priority: P2
+    status: completed
+    blockedBy: [STORY-107]
+    points: 3
+    tests: 49
+    qa_verdict: PASS
+    qa_tests_added: 34
+    qa_gaps: [GAP-116-A, GAP-116-B, GAP-116-C, GAP-116-D, GAP-116-E, GAP-116-F, GAP-116-G, GAP-116-H, GAP-116-I, GAP-116-J]
+    qa_file: tests/unit/marketing/params-recurrents-previsions-stitch-qa.test.ts
+
+  - id: STORY-117
+    title: "Refonte Conseiller IA"
+    epic: ui-refonte
+    complexity: S
+    priority: P2
+    status: completed
+    blockedBy: [STORY-107]
+    points: 2
+    tests: 34
+    qa_verdict: PASS
+    qa_date: "2026-02-25"
+    qa_gaps: 9
+    qa_tests_added: 22
+    qa_file: tests/unit/marketing/conseiller-ia-stitch-qa.test.ts
+
+  - id: STORY-118
+    title: "Refonte Compte Suspendu"
+    epic: ui-refonte
+    complexity: XS
+    priority: P3
+    status: completed
+    blockedBy: [STORY-107]
+    points: 1
+    tests: 20
+    qa_verdict: PASS
+    qa_date: "2026-02-25"
+    qa_gaps: 7
+    qa_tests_added: 11
+    qa_file: tests/unit/marketing/compte-suspendu-stitch-qa.test.ts
+
+  # === SPRINT COUPLE-FIRST ONBOARDING (v14) — TERMINÉ ===
 
   - id: STORY-100
     title: "Onboarding couple-first post-inscription"

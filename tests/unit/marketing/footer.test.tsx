@@ -51,4 +51,23 @@ describe("Footer", () => {
       "/politique-confidentialite"
     );
   });
+
+  // ── QA-108-D : AC-7 — 3 colonnes Produit / Compagnie / Légal ─────────────
+
+  it("QA-108-D : Footer affiche les 3 titres de colonnes Produit, Compagnie, Légal", async () => {
+    const { Footer } = await import("@/components/marketing/footer");
+    render(<Footer />);
+    expect(screen.getByText("Produit")).toBeDefined();
+    expect(screen.getByText("Compagnie")).toBeDefined();
+    expect(screen.getByText("Légal")).toBeDefined();
+  });
+
+  it("QA-108-D2 : Footer colonne Produit contient un lien Fonctionnalités", async () => {
+    const { Footer } = await import("@/components/marketing/footer");
+    render(<Footer />);
+    const featuresLinks = screen
+      .getAllByRole("link")
+      .find((el) => el.textContent === "Fonctionnalités");
+    expect(featuresLinks).toBeDefined();
+  });
 });

@@ -266,3 +266,29 @@
 - **Points total :** 17/17 ✅
 - **Tests sprint :** 125 nouveaux tests — 778 total, 0 régression
 - **TypeScript :** 0 erreur
+
+---
+
+## Sprint Refonte UI/UX Stitch (v15) — 🚀 EN COURS
+
+| ID | Titre | Priorité | Complexité | Statut | QA |
+|----|-------|----------|------------|--------|-----|
+| STORY-107 | Fondation Design System CSS Stitch v2 | P1 | XS | 🔲 pending | — |
+| STORY-108 | Refonte Landing Page | P1 | L | 🔲 pending | — |
+| STORY-109 | Refonte Page Tarifs | P1 | M | 🔲 pending | — |
+| STORY-110 | Refonte Fonctionnalités + Import Relevés | P1 | M | 🔲 pending | — |
+| STORY-111 | Refonte Pages Auth (Inscription + Connexion) | P2 | S | 🔲 pending | — |
+| STORY-112 | Refonte Dashboard App | P1 | L | 🔲 pending | — |
+| STORY-113 | Refonte Transactions App | P2 | M | 🔲 pending | — |
+| STORY-114 | Refonte Comptes App | P2 | S | 🔲 pending | — |
+| STORY-115 | Refonte Budgets & Objectifs App | P2 | M | 🔲 pending | — |
+| STORY-116 | Refonte Paramètres + Récurrents + Prévisions | P2 | M | 🔲 pending | — |
+| STORY-117 | Refonte Conseiller IA | P2 | S | 🔲 pending | — |
+| STORY-118 | Refonte Compte Suspendu | P3 | XS | 🔲 pending | — |
+
+### Métriques cible Sprint Refonte UI/UX
+
+- **Stories :** 0/12 (en cours)
+- **Points :** 0/33
+- **Tests baseline :** 911 (0 régression tolérée)
+- **Objectif :** Fidélité visuelle ≥ 90% vs maquettes Stitch

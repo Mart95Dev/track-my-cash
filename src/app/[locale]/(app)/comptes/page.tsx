@@ -1,7 +1,7 @@
 import { getAllAccounts } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
-import { formatCurrency, formatDate } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
 import { AddAccountSheet } from "@/components/add-account-sheet";
 import { DeleteAccountButton } from "@/components/delete-account-button";
 import { EditAccountDialog } from "@/components/edit-account-dialog";
@@ -10,6 +10,15 @@ import { getLocale } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
 
+function getBalanceDateLabel(balanceDate: string): string {
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const d = balanceDate.slice(0, 10);
+  if (d === today) return "Mise à jour: Aujourd'hui";
+  if (d === yesterday) return "Mise à jour: Hier";
+  return `Mise à jour: ${d}`;
+}
+
 export default async function ComptesPage() {
   const userId = await getRequiredUserId();
   const db = await getUserDb(userId);
@@ -17,16 +26,21 @@ export default async function ComptesPage() {
   const locale = await getLocale();
 
   return (
-    <div className="flex flex-col px-4 pt-6 pb-4">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <h1 className="text-2xl font-bold text-text-main">Mes comptes</h1>
+    <div className="flex flex-col pb-24 bg-background-light dark:bg-background-dark min-h-screen">
+
+      {/* Header sticky — AC-1 */}
+      <header className="px-6 pt-12 pb-4 flex justify-between items-end bg-background-light dark:bg-background-dark sticky top-0 z-10">
+        <div>
+          <p className="text-sm font-semibold text-primary mb-1">Track My Cash</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-text-main">Mes comptes</h1>
+        </div>
+        {/* Bouton + flottant — AC-2 */}
         <AddAccountSheet />
-      </div>
+      </header>
 
       {/* Liste des comptes */}
       {accounts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="flex flex-col items-center justify-center py-16 text-center px-4">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
             <span className="material-symbols-outlined text-primary text-[32px]">account_balance</span>
           </div>
@@ -35,57 +49,55 @@ export default async function ComptesPage() {
           <AddAccountSheet />
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div className="px-4 flex flex-col gap-4 mt-2">
           {accounts.map((account) => {
             const balance = account.calculated_balance ?? account.initial_balance;
             const isPositive = balance >= 0;
             const isAlert =
               account.alert_threshold != null && balance < account.alert_threshold;
+            const dateLabel = getBalanceDateLabel(account.balance_date);
 
             return (
               <div
                 key={account.id}
-                className="bg-white rounded-2xl border border-gray-100 shadow-soft p-4"
+                className="group bg-white dark:bg-[#1e1e2d] rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 transition-all hover:shadow-md"
               >
-                <div className="flex items-start justify-between gap-3">
-                  {/* Infos compte */}
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                      <span className="material-symbols-outlined text-[22px]">account_balance</span>
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-bold text-text-main text-base">{account.name}</p>
-                        <span className="text-[11px] font-bold bg-primary/8 text-primary rounded-full px-2 py-0.5">
-                          {account.currency}
-                        </span>
-                        {isAlert && (
-                          <span className="text-[11px] font-bold bg-warning/10 text-warning rounded-full px-2 py-0.5">
-                            Solde bas
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-text-muted text-xs mt-0.5">
-                        Depuis le {formatDate(account.balance_date, locale)}
-                      </p>
-                    </div>
+                {/* Header card — AC-5 badge devise */}
+                <div className="flex justify-between items-start mb-2">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-xl text-text-main leading-tight truncate">
+                      {account.name}
+                    </h3>
+                    {/* Sous-titre date — AC-6 */}
+                    <p className="text-xs text-slate-400 font-medium mt-1">{dateLabel}</p>
                   </div>
-
-                  {/* Solde */}
-                  <div className="text-right shrink-0">
-                    <p
-                      className={`text-xl font-extrabold tracking-tight ${
-                        isPositive ? "text-success" : "text-danger"
-                      }`}
-                    >
-                      {isPositive ? "+" : ""}
-                      {formatCurrency(balance, account.currency, locale)}
-                    </p>
+                  <div className="flex items-center gap-2 shrink-0 ml-3">
+                    {isAlert && (
+                      <span className="text-[11px] font-bold bg-warning/10 text-warning rounded-full px-2 py-0.5">
+                        Solde bas
+                      </span>
+                    )}
+                    {/* Badge devise — AC-5 */}
+                    <span className="px-3 py-1 rounded-full bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-700">
+                      {account.currency}
+                    </span>
                   </div>
                 </div>
 
+                {/* Solde coloré — AC-4 */}
+                <div className="mt-4 mb-6">
+                  <p
+                    className={`text-4xl font-extrabold tracking-tight ${
+                      isPositive ? "text-success" : "text-danger"
+                    }`}
+                  >
+                    {isPositive ? "+" : "-"}
+                    {formatCurrency(Math.abs(balance), account.currency, locale)}
+                  </p>
+                </div>
+
                 {/* Actions */}
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-50">
+                <div className="flex items-center justify-end gap-2 border-t border-slate-50 dark:border-slate-800 pt-4">
                   <ReconciliationDialog account={account} />
                   <EditAccountDialog account={account} />
                   <DeleteAccountButton accountId={account.id} accountName={account.name} />

@@ -89,18 +89,15 @@ export default async function ConseillerPage() {
       : personalSuggestions;
 
   return (
-    <div className="flex flex-col">
-      <header className="flex items-center justify-between px-4 pt-6 pb-4">
+    <div className="flex flex-col bg-background-light dark:bg-background-dark min-h-screen">
+      {/* Header — AC-1 */}
+      <header className="sticky top-0 z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md px-4 pt-12 pb-4 flex items-center justify-between border-b border-slate-100/50 dark:border-slate-800/50">
         <div className="flex items-center gap-3">
-          <span className="material-symbols-outlined text-primary text-[28px]">smart_toy</span>
+          <span className="material-symbols-outlined text-primary text-[24px]">arrow_back_ios_new</span>
           <h1 className="text-xl font-bold text-text-main">Conseiller IA</h1>
         </div>
-        <span
-          className={`text-xs font-bold rounded-full px-3 py-1 ${
-            isPremium ? "bg-primary text-white" : "bg-indigo-50 text-primary"
-          }`}
-        >
-          {isPremium ? "Premium" : "Pro"}
+        <span className="text-xs font-bold rounded-full px-3 py-1 bg-primary/10 text-primary">
+          Premium
         </span>
       </header>
       <AiChat

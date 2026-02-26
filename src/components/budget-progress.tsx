@@ -17,15 +17,15 @@ function formatAmount(amount: number, currency = "EUR") {
 }
 
 export function getBudgetColor(percent: number): string {
-  if (percent >= 90) return "bg-danger";
-  if (percent >= 60) return "bg-warning";
-  return "bg-success";
+  if (percent >= 100) return "bg-danger";
+  if (percent >= 80) return "bg-warning";
+  return "bg-primary";
 }
 
 export function getBudgetBadgeColor(percent: number): string {
-  if (percent >= 90) return "bg-danger/10 text-danger";
-  if (percent >= 60) return "bg-warning/10 text-warning";
-  return "bg-success/10 text-success";
+  if (percent >= 100) return "bg-danger/10 text-danger";
+  if (percent >= 80) return "bg-warning/10 text-warning";
+  return "bg-primary/10 text-primary";
 }
 
 export function BudgetProgress({ budget, currency = "EUR", accountId }: Props) {

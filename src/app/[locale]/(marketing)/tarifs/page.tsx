@@ -5,15 +5,16 @@ import { getSession } from "@/lib/auth-utils";
 import { getUserPlanId } from "@/lib/subscription-utils";
 import { PLANS } from "@/lib/stripe-plans";
 import type { PlanId } from "@/lib/stripe-plans";
+import { PricingToggle } from "@/components/pricing-toggle";
 
 export const metadata: Metadata = {
   title: "Tarifs — TrackMyCash",
   description:
-    "Découvrez nos plans gratuit, Pro et Premium. Commencez gratuitement, évoluez selon vos besoins.",
+    "Un abonnement pour deux. Découvrez nos plans gratuit, Pro et Premium pour la gestion financière de couple.",
   openGraph: {
     title: "Tarifs — TrackMyCash",
     description:
-      "Découvrez nos plans gratuit, Pro et Premium. Commencez gratuitement, évoluez selon vos besoins.",
+      "Un abonnement pour deux. Gérez vos finances de couple à deux sur un seul abonnement.",
     type: "website",
   },
 };
@@ -40,6 +41,29 @@ export const COMPARISON_FEATURES: FeatureRow[] = [
   { label: "Email récap hebdo",      free: false,     pro: true,         premium: true },
   { label: "Rapport annuel IA",      free: false,     pro: false,        premium: true },
   { label: "Support prioritaire",    free: false,     pro: false,        premium: true },
+];
+
+const FAQ_ITEMS = [
+  {
+    question: "Mon partenaire doit-il payer aussi ?",
+    answer:
+      "Non. Un seul abonnement Pro ou Premium suffit pour les deux. Le propriétaire du couple paie, et son partenaire bénéficie de toutes les fonctionnalités couple automatiquement.",
+  },
+  {
+    question: "Puis-je tester l'espace couple gratuitement ?",
+    answer:
+      "Oui ! À l'inscription, vous bénéficiez de 14 jours d'essai Pro gratuit. Vous pouvez inviter votre partenaire et tester toutes les fonctionnalités couple sans engagement.",
+  },
+  {
+    question: "Que se passe-t-il si on se sépare ?",
+    answer:
+      "Chacun garde son compte personnel et ses données privées. Seules les données de l'espace couple partagé sont concernées. Vous pouvez quitter l'espace couple à tout moment.",
+  },
+  {
+    question: "Mon partenaire peut-il voir mes dépenses perso ?",
+    answer:
+      "Non. Vos comptes et transactions personnels restent strictement privés. Seuls les comptes et transactions marqués comme « partagés » sont visibles par votre partenaire.",
+  },
 ];
 
 function FeatureCell({ value }: { value: string | boolean }) {
@@ -76,95 +100,110 @@ type PlanCardProps = {
 
 function PlanCard({ planId, isHighlighted, isCurrentPlan }: PlanCardProps) {
   const plan = PLANS[planId];
+  // AC-4/AC-5 : toFixed(2) pour "4,90€" et "7,90€"
   const priceStr =
     plan.price === 0
       ? "0€"
-      : `${plan.price.toString().replace(".", ",")}€`;
+      : `${plan.price.toFixed(2).replace(".", ",")}€`;
 
   const cardButton = isCurrentPlan ? (
     <button
       disabled
-      className="w-full flex items-center justify-center h-10 bg-primary/10 text-primary font-bold rounded-xl text-sm cursor-not-allowed"
+      className="w-full py-4 px-6 rounded-2xl bg-primary/10 text-primary font-bold cursor-not-allowed"
     >
       Plan actuel
     </button>
   ) : planId === "free" ? (
     <Link
       href="/inscription"
-      className="w-full flex items-center justify-center h-10 border-2 border-slate-200 text-text-main font-bold rounded-xl hover:border-primary hover:text-primary transition-colors text-sm"
+      className="w-full flex items-center justify-center py-4 px-6 rounded-2xl border-2 border-slate-200 text-text-main font-bold hover:border-primary hover:text-primary transition-colors"
     >
-      Démarrer
+      Commencer
     </Link>
   ) : (
-    <SubscribeButton planId={planId} label={planId === "pro" ? "Choisir Pro" : "Choisir Premium"} />
+    <SubscribeButton
+      planId={planId}
+      label={planId === "pro" ? "Choisir Pro" : "Choisir Premium"}
+    />
   );
 
+  // AC-3 : Card Pro avec animated-border-wrapper gradient primary→pink
   if (isHighlighted) {
     return (
-      <div className="relative p-6 bg-white rounded-2xl border-2 border-primary shadow-xl shadow-primary/10">
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full uppercase">
-          Populaire
-        </div>
-        <div className="absolute -top-3 right-4 bg-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-          <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
-          Idéal en couple
-        </div>
-        {isCurrentPlan && (
-          <div className="mt-2 text-xs font-bold text-primary text-center">
-            Plan actuel
+      <div className="animated-border-wrapper rounded-3xl flex flex-col h-full shadow-xl shadow-primary/10 relative">
+        <div className="bg-white rounded-[1.4rem] p-8 h-full flex flex-col relative overflow-hidden">
+          <div className="absolute top-0 right-0 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-2xl">
+            Populaire
           </div>
-        )}
-        <h2 className="font-bold text-primary text-xl mb-1">{plan.name}</h2>
-        <div className="flex items-baseline gap-1 mb-6">
-          <span className="text-4xl font-extrabold text-text-main">{priceStr}</span>
-          <span className="text-text-muted">/mois</span>
-        </div>
-        {cardButton}
-        <ul className="flex flex-col gap-2 mt-4">
-          {plan.features.map((feature) => (
-            <li key={feature} className="flex items-center gap-2 text-sm text-text-main">
-              <span
-                className="material-symbols-outlined text-success text-[16px] shrink-0"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                check
+          <div className="mb-6">
+            <h2 className="text-lg font-bold text-primary">{plan.name}</h2>
+            <p className="text-slate-500 text-sm mb-4">Pour votre couple</p>
+            <div className="flex items-baseline">
+              <span className="text-4xl font-black tracking-tight text-slate-900">
+                {priceStr}
               </span>
-              {feature}
-            </li>
-          ))}
-        </ul>
+              <span className="text-text-muted text-sm font-medium ml-1">/mois</span>
+            </div>
+          </div>
+          <ul className="space-y-3 mb-8 flex-1">
+            {plan.features.map((feature) => (
+              <li key={feature} className="flex items-start gap-3 text-sm text-slate-700">
+                <span
+                  className="material-symbols-outlined text-primary text-[20px] shrink-0"
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                >
+                  check
+                </span>
+                {feature}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-auto">
+            {cardButton}
+            <p className="text-center text-[11px] text-primary/80 mt-3 font-semibold">
+              1 abonnement = 2 personnes
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 bg-white rounded-2xl border border-slate-100 shadow-soft">
-      <div className="flex items-center justify-between mb-1">
-        <h2 className="font-bold text-text-main text-xl">{plan.name}</h2>
-        {isCurrentPlan && (
-          <span className="text-xs font-bold bg-primary text-white px-2 py-0.5 rounded-full">
-            Plan actuel
-          </span>
-        )}
+    <div className="flex flex-col bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all h-full">
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-lg font-bold text-text-main">{plan.name}</h2>
+          {isCurrentPlan && (
+            <span className="text-xs font-bold bg-primary text-white px-2 py-0.5 rounded-full">
+              Plan actuel
+            </span>
+          )}
+        </div>
+        <p className="text-text-muted text-sm mb-4">
+          {planId === "free" ? "Pour découvrir" : "L'expérience complète"}
+        </p>
+        <div className="flex items-baseline">
+          <span className="text-4xl font-black tracking-tight">{priceStr}</span>
+          <span className="text-text-muted text-sm font-medium ml-1">/mois</span>
+        </div>
       </div>
-      <div className="flex items-baseline gap-1 mb-6">
-        <span className="text-4xl font-extrabold text-text-main">{priceStr}</span>
-        <span className="text-text-muted">/mois</span>
-      </div>
-      {cardButton}
-      <ul className="flex flex-col gap-2 mt-4">
+      <ul className="space-y-3 mb-8 flex-1">
         {plan.features.map((feature) => (
-          <li key={feature} className="flex items-center gap-2 text-sm text-text-main">
-            <span
-              className="material-symbols-outlined text-success text-[16px] shrink-0"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              check
+          <li key={feature} className="flex items-start gap-3 text-sm text-slate-600">
+            <span className="material-symbols-outlined text-slate-400 text-[20px] shrink-0">
+              check_small
             </span>
             {feature}
           </li>
         ))}
       </ul>
+      <div className="mt-auto">
+        {cardButton}
+        <p className="text-center text-[11px] text-text-muted mt-3">
+          {planId === "free" ? "Aucune carte requise" : "1 abonnement = 2 personnes"}
+        </p>
+      </div>
     </div>
   );
 }
@@ -183,19 +222,23 @@ export default async function TarifsPage() {
   const planIds: PlanId[] = ["free", "pro", "premium"];
 
   return (
-    <div className="bg-background-light min-h-screen">
-      <div className="max-w-3xl mx-auto px-4 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-text-main mb-3">
-            Tarifs simples et transparents
+    <div className="bg-[#f6f6f8] min-h-screen">
+      <div className="max-w-5xl mx-auto px-6 pb-24">
+        {/* Hero */}
+        <div className="pt-12 md:pt-20 pb-8 text-center">
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
+            Un abonnement, deux personnes
           </h1>
-          <p className="text-text-muted text-lg">
-            Commencez gratuitement. Pas de carte bleue requise.
+          <p className="text-text-muted text-lg max-w-md mx-auto">
+            Choisissez le plan qui correspond à votre couple. Changez ou annulez à tout moment.
           </p>
         </div>
 
+        {/* AC-1/AC-2 : Toggle mensuel / annuel + badge Économisez 20% */}
+        <PricingToggle />
+
         {/* 3 plan cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20 items-stretch">
           {planIds.map((planId) => (
             <PlanCard
               key={planId}
@@ -206,42 +249,42 @@ export default async function TarifsPage() {
           ))}
         </div>
 
-        {/* Comparison table */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-soft overflow-hidden">
-          <div className="p-4 border-b border-slate-100">
-            <h2 className="font-bold text-text-main">Comparaison détaillée</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
+        {/* AC-6 : Tableau comparatif COMPARISON_FEATURES re-stylé */}
+        <section>
+          <h3 className="text-2xl md:text-3xl font-extrabold mb-8 text-center">
+            Comparatif détaillé
+          </h3>
+          <div className="overflow-x-auto rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <table className="w-full text-left border-collapse min-w-[600px]">
               <thead>
-                <tr className="bg-slate-50">
-                  <th className="text-left p-4 text-sm font-semibold text-text-muted">
+                <tr className="bg-slate-50 border-b border-slate-100">
+                  <th className="py-5 px-6 text-xs font-bold uppercase tracking-wider text-text-muted w-1/3">
                     Fonctionnalité
                   </th>
-                  <th className="text-center p-4 text-sm font-semibold text-text-muted">
+                  <th className="py-5 px-4 text-center text-xs font-bold uppercase tracking-wider text-text-muted w-1/5">
                     Gratuit
                   </th>
-                  <th className="text-center p-4 text-sm font-semibold text-primary">
+                  <th className="py-5 px-4 text-center text-xs font-bold uppercase tracking-wider text-primary w-1/5">
                     Pro
                   </th>
-                  <th className="text-center p-4 text-sm font-semibold text-text-muted">
+                  <th className="py-5 px-4 text-center text-xs font-bold uppercase tracking-wider text-text-muted w-1/5">
                     Premium
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {COMPARISON_FEATURES.map((row) => (
-                  <tr key={row.label} className="hover:bg-slate-50/50">
-                    <td className="p-4 text-sm text-text-main font-medium">
+                  <tr key={row.label} className="group hover:bg-slate-50/50 transition-colors">
+                    <td className="py-4 px-6 text-sm font-medium text-slate-700">
                       {row.label}
                     </td>
-                    <td className="p-4 text-center">
+                    <td className="py-4 px-4 text-center">
                       <FeatureCell value={row.free} />
                     </td>
-                    <td className="p-4 text-center">
+                    <td className="py-4 px-4 text-center">
                       <FeatureCell value={row.pro} />
                     </td>
-                    <td className="p-4 text-center">
+                    <td className="py-4 px-4 text-center">
                       <FeatureCell value={row.premium} />
                     </td>
                   </tr>
@@ -249,9 +292,29 @@ export default async function TarifsPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </section>
 
-        <p className="text-center text-sm text-text-muted mt-8">
+        {/* FAQ couple */}
+        <section className="mt-16">
+          <h3 className="text-2xl font-extrabold mb-8 text-center">
+            Questions fréquentes
+          </h3>
+          <div className="max-w-2xl mx-auto space-y-4">
+            {FAQ_ITEMS.map((item) => (
+              <div
+                key={item.question}
+                className="bg-white rounded-2xl p-6 border border-slate-200"
+              >
+                <h4 className="font-bold mb-2">{item.question}</h4>
+                <p className="text-text-muted text-sm leading-relaxed">
+                  {item.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <p className="text-center text-sm text-text-muted mt-12">
           Déjà un compte ?{" "}
           <Link href="/connexion" className="text-primary hover:underline font-medium">
             Se connecter

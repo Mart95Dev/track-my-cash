@@ -346,7 +346,7 @@ export function AiChat({
                       <p className="text-sm">{msg.text}</p>
                     </div>
                   ) : (
-                    <div className="max-w-[80%] px-4 py-3 bg-white text-text-main rounded-2xl rounded-tl-sm shadow-soft border border-gray-100 space-y-2">
+                    <div className="max-w-[80%] px-4 py-3 bg-white text-text-main rounded-2xl rounded-bl-sm shadow-soft border border-gray-100 space-y-2">
                       <span
                         className={`text-xs font-medium px-2 py-0.5 rounded-full ${CONFIDENCE_STYLES[msg.synthesis.confidence]}`}
                       >
@@ -390,7 +390,7 @@ export function AiChat({
                   <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-1">
                     <span className="material-symbols-outlined text-[16px]">smart_toy</span>
                   </div>
-                  <div className="max-w-[80%] px-4 py-3 bg-white text-text-main rounded-2xl rounded-tl-sm shadow-soft border border-gray-100">
+                  <div className="max-w-[80%] px-4 py-3 bg-white text-text-main rounded-2xl rounded-bl-sm shadow-soft border border-gray-100">
                     <p className="text-sm text-text-muted">
                       Analyse en cours (3 modèles)…
                     </p>
@@ -451,7 +451,7 @@ export function AiChat({
                           className={`px-4 py-3 ${
                             message.role === "user"
                               ? "bg-primary text-white rounded-2xl rounded-tr-sm shadow-lg shadow-primary/20"
-                              : "bg-white text-text-main rounded-2xl rounded-tl-sm shadow-soft border border-gray-100"
+                              : "bg-white text-text-main rounded-2xl rounded-bl-sm shadow-soft border border-gray-100"
                           }`}
                         >
                           {message.role === "user" ? (
@@ -475,7 +475,7 @@ export function AiChat({
                     <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-1">
                       <span className="material-symbols-outlined text-[16px]">smart_toy</span>
                     </div>
-                    <div className="px-4 py-3 bg-white text-text-main rounded-2xl rounded-tl-sm shadow-soft border border-gray-100">
+                    <div className="px-4 py-3 bg-white text-text-main rounded-2xl rounded-bl-sm shadow-soft border border-gray-100">
                       <p className="text-sm text-text-muted">{t("thinking")}</p>
                     </div>
                   </div>
@@ -502,8 +502,8 @@ export function AiChat({
         </div>
       )}
 
-      {/* Input fixe en bas */}
-      <div className="fixed bottom-16 left-0 right-0 z-40 bg-background-light border-t border-gray-100 p-3">
+      {/* Input fixe en bas — AC-6/AC-7 */}
+      <div className="fixed bottom-16 left-0 right-0 z-40 bg-background-light dark:bg-background-dark border-t border-gray-100 dark:border-slate-800 p-3">
         <form
           onSubmit={handleSubmit}
           className="max-w-md mx-auto flex items-center gap-2"

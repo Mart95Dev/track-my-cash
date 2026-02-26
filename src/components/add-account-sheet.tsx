@@ -18,7 +18,7 @@ export function AddAccountSheet() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <button
-          className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-soft hover:bg-primary/90 transition-colors shrink-0"
+          className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30 hover:bg-primary/90 transition-colors shrink-0"
           aria-label="Ajouter un compte"
         >
           <span className="material-symbols-outlined text-[22px]">add</span>

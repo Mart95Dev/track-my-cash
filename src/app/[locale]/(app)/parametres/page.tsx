@@ -95,12 +95,16 @@ export default async function ParametresPage() {
       : "Inactif";
 
   return (
-    <div className="flex flex-col gap-4 px-4 pt-6 pb-6">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-2">
-        <span className="material-symbols-outlined text-primary text-[28px]">settings</span>
-        <h1 className="text-2xl font-bold text-text-main">Paramètres</h1>
-      </div>
+    <div className="flex flex-col bg-[#f2f2f7] dark:bg-background-dark min-h-screen pb-24">
+      {/* Header sticky — AC-1 */}
+      <header className="sticky top-0 z-10 bg-[#f2f2f7]/95 dark:bg-background-dark/95 backdrop-blur-md px-4 pt-12 pb-4 border-b border-separator-light">
+        <div className="flex items-center gap-3">
+          <span className="material-symbols-outlined text-primary text-[28px]">settings</span>
+          <h1 className="text-3xl font-extrabold tracking-tight text-text-main">Paramètres</h1>
+        </div>
+      </header>
+
+      <div className="flex flex-col gap-4 px-4 pt-4 pb-6">
 
       {/* 1. Abonnement */}
       <SettingsCard icon="workspace_premium" title="Abonnement">
@@ -228,6 +232,9 @@ export default async function ParametresPage() {
           <DeleteUserAccountDialog />
         </div>
       </div>
+
+      </div>
     </div>
   );
 }
+/* ios-toggle-page */

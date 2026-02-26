@@ -10,7 +10,9 @@ import {
   getBudgetStatus,
   getGoals,
   getMonthlyExpensesByCategory,
+  getTransactions,
 } from "@/lib/queries";
+import { formatCurrency } from "@/lib/format";
 import { getUserDb, getDb } from "@/lib/db";
 import { getRequiredSession } from "@/lib/auth-utils";
 import { getAllRates, convertToReference, REFERENCE_CURRENCY } from "@/lib/currency";
@@ -28,7 +30,6 @@ import Link from "next/link";
 import { computeMoMVariation, computeYoYComparison } from "@/lib/mom-calculator";
 import { computeHealthScore, computeGlobalHealthScore } from "@/lib/health-score";
 import { MonthlySummary } from "@/components/monthly-summary";
-import { DashboardViewToggle } from "@/components/dashboard-view-toggle";
 import { CoupleDashboard } from "@/components/couple-dashboard";
 import { CoupleOnboardingWizard } from "@/components/couple-onboarding-wizard";
 import { getCoupleByUserId, getCoupleMembers, getOnboardingStatus, getOnboardingChoice } from "@/lib/couple-queries";
@@ -91,7 +92,7 @@ export default async function DashboardPage({
   const previousYear = currentYear - 1;
 
   const [data, balanceHistory, , expensesByBroad, monthlySummary, spendingTrend, rates, accounts, refCurrencySetting, budgetStatuses, onboardingCompleted, goals, yoyCurrent, yoyPrevious, coupleOnboardingCompleted,
-      coupleOnboardingChoice] =
+      coupleOnboardingChoice, recentTransactions] =
     await Promise.all([
       getDashboardData(db, accountId),
       getMonthlyBalanceHistory(db, 12, accountId),
@@ -109,6 +110,7 @@ export default async function DashboardPage({
       getMonthlyExpensesByCategory(db, accountId, previousYear, currentMonth),
       getOnboardingStatus(db),
       getOnboardingChoice(db),
+      getTransactions(db, accountId, 5),
     ]);
 
   // STORY-105: Vérifier si l'utilisateur a au moins 1 budget couple
@@ -202,12 +204,15 @@ export default async function DashboardPage({
   }
 
   return (
-    <div className="flex flex-col pb-2">
+    <div className="flex flex-col pb-2 dark:bg-background-dark max-w-md mx-auto w-full">
       {/* Header */}
       <header className="flex items-center justify-between px-4 pt-6 pb-4">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white font-bold text-base shrink-0">
-            {initials}
+          <div className="relative shrink-0">
+            <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-base">
+              {initials}
+            </div>
+            <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-success border-2 border-white" />
           </div>
           <div>
             <p className="text-text-muted text-xs font-medium">Bonjour,</p>
@@ -223,9 +228,20 @@ export default async function DashboardPage({
         </Link>
       </header>
 
-      {/* Toggle Ma vue / Vue couple */}
-      <div className="px-4 mb-2">
-        <DashboardViewToggle hasCoupleActive={hasCoupleActive} locale={locale} />
+      {/* Chips filtres AC-2 */}
+      <div className="flex gap-2 overflow-x-auto px-4 pb-1 mb-2 scrollbar-none">
+        <Link
+          href={`/${locale}/dashboard?view=personal`}
+          className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${view !== "couple" ? "bg-primary text-white" : "bg-white border border-gray-200 text-text-muted"}`}
+        >
+          Personnel
+        </Link>
+        <Link
+          href={`/${locale}/dashboard?view=couple`}
+          className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${view === "couple" ? "bg-primary text-white" : "bg-white border border-gray-200 text-text-muted"}`}
+        >
+          Couple
+        </Link>
       </div>
 
       {/* Vue couple */}
@@ -360,6 +376,31 @@ export default async function DashboardPage({
       <div className="px-4 mb-4">
         <MonthlySummary data={monthlySummary} />
       </div>
+
+      {/* Dernières transactions */}
+      {recentTransactions.length > 0 && (
+        <section className="px-4 mb-4">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-sm font-bold text-text-main">Dernières transactions</h3>
+            <Link href={`/${locale}/transactions`} className="text-primary text-xs font-bold">
+              Voir tout
+            </Link>
+          </div>
+          <div className="bg-white dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-gray-800 shadow-soft divide-y divide-gray-50">
+            {recentTransactions.map((tx) => (
+              <div key={tx.id} className="flex items-center justify-between px-4 py-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-text-main truncate">{tx.description}</p>
+                  <p className="text-xs text-text-muted">{tx.category}</p>
+                </div>
+                <span className={`text-sm font-bold ml-3 shrink-0 ${tx.type === "income" ? "text-success" : "text-danger"}`}>
+                  {tx.type === "income" ? "+" : "-"}{formatCurrency(tx.amount, refCurrency, locale)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
         </>
       )}
 

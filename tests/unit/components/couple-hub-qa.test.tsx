@@ -215,11 +215,11 @@ describe("QA STORY-101 — logique showInviteBanner (AC-1, AC-3)", () => {
   });
 
   it("QA-101-AC1 : showInviteBanner=false si onboarding_choice='solo'", () => {
-    const onboardingChoice = "solo";
+    const onboardingChoice: "solo" | "couple" | null = "solo";
     const couple = null;
     const activeMemberCount = 0;
     const showInviteBanner =
-      onboardingChoice === "couple" && (couple === null || activeMemberCount < 2);
+      (onboardingChoice as string) === "couple" && (couple === null || activeMemberCount < 2);
     expect(showInviteBanner).toBe(false);
   });
 

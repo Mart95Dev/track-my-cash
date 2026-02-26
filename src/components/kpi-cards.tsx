@@ -24,7 +24,7 @@ function KpiCard({
   valueColor: string;
 }) {
   return (
-    <div className="flex flex-col gap-1.5 rounded-2xl p-3.5 bg-white shadow-soft border border-gray-100">
+    <div className="flex flex-col gap-1.5 rounded-2xl p-3.5 bg-white dark:bg-card-dark shadow-soft border border-gray-100 dark:border-gray-800">
       <div
         className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center ${iconColor} shrink-0`}
       >
@@ -46,7 +46,7 @@ export function KpiCards({ revenue, expenses, recurring, currency, locale }: Kpi
         icon="arrow_circle_down"
         iconBg="bg-success/10"
         iconColor="text-success"
-        label="Revenus"
+        label="Entrées"
         value={fmt(revenue)}
         valueColor="text-success"
       />
@@ -54,7 +54,7 @@ export function KpiCards({ revenue, expenses, recurring, currency, locale }: Kpi
         icon="arrow_circle_up"
         iconBg="bg-danger/10"
         iconColor="text-danger"
-        label="Dépenses"
+        label="Sorties"
         value={fmt(expenses)}
         valueColor="text-danger"
       />
@@ -62,7 +62,7 @@ export function KpiCards({ revenue, expenses, recurring, currency, locale }: Kpi
         icon="autorenew"
         iconBg="bg-primary/10"
         iconColor="text-primary"
-        label="Récurrents"
+        label="Fixes"
         value={fmt(recurring)}
         valueColor="text-text-main"
       />
