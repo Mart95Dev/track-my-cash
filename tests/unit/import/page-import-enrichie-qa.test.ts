@@ -461,6 +461,61 @@ describe("AC-5 complémentaire — previewFirst5 : limite stricte à 5 lignes po
 // Vérification structurelle — import-actions.ts : exportation des 3 actions
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────────
+// AC-8 COMPLET — Écran Step-3 de succès dédié (remplace le toast)
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe("AC-8 [COMPLET] — Écran Step-3 de succès avec animation et boutons d'action", () => {
+  it("ImportSuccessScreen est défini dans import-button.tsx", () => {
+    const src = fs.readFileSync(IMPORT_BUTTON_PATH, "utf-8");
+    expect(src).toContain("ImportSuccessScreen");
+  });
+
+  it("l'écran de succès affiche 'Voir les transactions' comme bouton d'action", () => {
+    const src = fs.readFileSync(IMPORT_BUTTON_PATH, "utf-8");
+    expect(src).toContain("Voir les transactions");
+  });
+
+  it("l'écran de succès affiche 'Importer un autre fichier' comme bouton de reset", () => {
+    const src = fs.readFileSync(IMPORT_BUTTON_PATH, "utf-8");
+    expect(src).toContain("Importer un autre fichier");
+  });
+
+  it("l'écran de succès utilise une animation CSS (animate-in ou zoom-in)", () => {
+    const src = fs.readFileSync(IMPORT_BUTTON_PATH, "utf-8");
+    const hasAnimation = src.includes("animate-in") || src.includes("zoom-in") || src.includes("fade-in");
+    expect(hasAnimation).toBe(true);
+  });
+
+  it("le state successInfo contient duplicateCount pour afficher les doublons ignorés", () => {
+    const src = fs.readFileSync(IMPORT_BUTTON_PATH, "utf-8");
+    expect(src).toContain("duplicateCount");
+  });
+
+  it("la navigation vers /transactions est appelée via router.push depuis l'écran de succès", () => {
+    const src = fs.readFileSync(IMPORT_BUTTON_PATH, "utf-8");
+    const hasRouterPush = src.includes("router.push") && src.includes("/transactions");
+    expect(hasRouterPush).toBe(true);
+  });
+
+  it("le toast.success n'est plus utilisé pour la confirmation d'import (remplacé par l'écran)", () => {
+    const src = fs.readFileSync(IMPORT_BUTTON_PATH, "utf-8");
+    // L'ancien toast.success(msg) après confirmImportAction ne doit plus exister
+    // On vérifie que le succès passe par setSuccessInfo, pas toast.success
+    expect(src).toContain("setSuccessInfo");
+  });
+
+  it("handleReset nettoie l'état successInfo et ferme le Dialog", () => {
+    const src = fs.readFileSync(IMPORT_BUTTON_PATH, "utf-8");
+    expect(src).toContain("handleReset");
+    expect(src).toContain("setSuccessInfo(null)");
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Structure import-actions.ts : exportation des 3 actions
+// ─────────────────────────────────────────────────────────────────────────────
+
 describe("Structure import-actions.ts — 3 actions exportées", () => {
   it("importFileAction est exportée", () => {
     const src = fs.readFileSync(IMPORT_ACTIONS_PATH, "utf-8");

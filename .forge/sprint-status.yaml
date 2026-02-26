@@ -9,7 +9,7 @@ sprint:
   points_total: 18
   points_completed: 18
   tests_baseline: 1201
-  tests_current: 1477
+  tests_current: 1525
 
 stories:
   - id: STORY-119
@@ -143,25 +143,18 @@ stories:
     tests_added: 12
     completed_at: "2026-02-26"
     qa_verdict: PASS
-    qa_tests_added: 34
+    qa_tests_added: 42
     qa_verified_at: "2026-02-26"
     qa_reaudit_at: "2026-02-26"
+    qa_reaudit2_at: "2026-02-26"
     qa_notes: >
-      Re-audit post-corrections — tous les gaps critiques résolus. PASS certifié.
-      GAP-1 [RÉSOLU] AC-1 : page /[locale]/(app)/import/page.tsx créée (79 lignes),
-      lien href="/import" présent dans navigation.tsx (ligne 32). Test structurel PASS.
-      GAP-2 [RÉSOLU] AC-2 : accept=".csv,.xlsx,.xml,.sta,.mt940,.ofx,.qfx,.cfonb,.asc,.pdf"
-      (10 extensions) — toutes les extensions requises présentes. Test PASS.
-      GAP-4 [RÉSOLU] AC-11 : XML, MT940, OFX, CFONB mentionnés dans import-button.tsx
-      (commentaire AC-11 ligne 277) et dans la page /import (badges SUPPORTED_FORMATS
-      avec labels XML, MT940, OFX, CFONB). Tests PASS.
-      GAP-6 [RÉSOLU] AC-6 : suggestedMapping transmis depuis importFileAction via
-      quickParse (ligne 97) et récupéré dans import-button.tsx (ligne 179).
-      Test structurel et fonctionnel PASS.
-      GAP-5 [RÉSOLU] AC-9 : guard content.trim() ligne 70 — fichier vide retourne
-      { error: "Le fichier est vide ou ne contient aucune donnée" }. Tests PASS.
-      GAP-3 [RÉSIDUEL MINEUR] AC-8 : pas d'écran de succès Step-3 dédié — le bilan
-      post-import est affiché via toast (toast.success avec imported + balance).
+      Re-audit 2 — AC-8 entièrement implémenté. PASS certifié (tous ACs couverts).
+      GAP-3 [RÉSOLU] AC-8 : ImportSuccessScreen intégré dans import-button.tsx —
+      icône ✓ animée (zoom-in + fade-in), résumé "X importées · Y doublons ignorés",
+      solde mis à jour si applicable, boutons "Voir les transactions" (router.push)
+      et "Importer un autre fichier" (handleReset). 8 tests QA AC-8 ajoutés (42 total).
+      Tous les gaps précédents résolus : AC-1 (page + navigation), AC-2 (10 extensions),
+      AC-6 (suggestedMapping), AC-9 (fichier vide), AC-11 (formats UI). 1525 tests PASS.
       La story préconisait une étape 3 explicite mais le comportement est fonctionnel
       et les tests confirment la complétude du résultat (imported, balanceUpdated).
       Considéré non bloquant pour la certification.
