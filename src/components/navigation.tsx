@@ -29,6 +29,7 @@ export function Navigation({ rightSlot }: NavigationProps) {
   const links = [
     { href: "/dashboard" as const, label: t("dashboard") },
     { href: "/comptes" as const, label: t("accounts") },
+    { href: "/import" as const, label: t("import") },
     { href: "/transactions" as const, label: t("transactions") },
     { href: "/recurrents" as const, label: t("recurring") },
     { href: "/previsions" as const, label: t("forecasts") },

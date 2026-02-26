@@ -149,6 +149,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
     preview: string[][];
     fingerprint: string;
     content: string;
+    suggestedMapping?: { dateCol: number; amountCol: number; labelCol: number; confidence: number };
   } | null>(null);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -175,6 +176,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
           preview: result.preview,
           fingerprint: result.fingerprint,
           content: result.content,
+          suggestedMapping: (result as { suggestedMapping?: { dateCol: number; amountCol: number; labelCol: number; confidence: number } }).suggestedMapping,
         });
       } else if (result.preview) {
         // Stocker parserName et previewFirst5 enrichis (STORY-124)
@@ -272,10 +274,11 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
         >
           {isPending ? t("analyzing") : t("button")}
         </Button>
+        {/* Formats supportés (AC-11) : CSV, XLSX, XML/CAMT.053, MT940/STA, OFX, QFX, CFONB, ASC, PDF */}
         <input
           ref={fileRef}
           type="file"
-          accept=".csv,.xlsx,.pdf"
+          accept=".csv,.xlsx,.xml,.sta,.mt940,.ofx,.qfx,.cfonb,.asc,.pdf"
           className="hidden"
           onChange={handleFile}
         />

@@ -10,6 +10,8 @@ export interface SuggestedMapping {
   amountCol: number;
   labelCol: number;
   confidence: number;
+  debitCol?: number;
+  creditCol?: number;
 }
 
 export interface ParseResult {

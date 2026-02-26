@@ -19,8 +19,10 @@ export interface GenericParseResult {
 
 interface ColumnScore {
   dateCol: number;
-  amountCol: number;
+  amountCol: number;      // -1 si colonnes séparées débit/crédit
   labelCol: number;
+  debitCol: number;       // -1 si colonne montant unifiée
+  creditCol: number;      // -1 si colonne montant unifiée
   confidence: number;
 }
 
@@ -33,16 +35,22 @@ interface GenericCsvParserType extends BankParser {
 // Mots-clés de scoring pour chaque type de colonne
 // ---------------------------------------------------------------------------
 const DATE_KEYWORDS = ["date", "dt", "jour", "day", "dated", "valeur"];
-const AMOUNT_KEYWORDS = ["montant", "amount", "débit", "crédit", "debit", "credit", "somme", "total"];
+const AMOUNT_KEYWORDS = ["montant", "amount", "somme", "total"];
 const LABEL_KEYWORDS = [
   "libellé", "libelle", "description", "details", "label", "memo",
   "opération", "operation", "intitulé", "intitule",
 ];
 
+// Mots-clés spécifiques pour colonnes débit et crédit séparées
+const DEBIT_KEYWORDS = ["débit", "debit", "sortie", "retrait", "withdrawal", "out"];
+const CREDIT_KEYWORDS = ["crédit", "credit", "entrée", "versement", "deposit", "in"];
+
 // Alias courants pour la détection de synonymes (partiel)
 const DATE_PARTIAL = ["date", "dt", "jour", "day", "valeur"];
-const AMOUNT_PARTIAL = ["montant", "amount", "débit", "crédit", "debit", "credit", "somme", "total"];
+const AMOUNT_PARTIAL = ["montant", "amount", "somme", "total"];
 const LABEL_PARTIAL = ["libellé", "libelle", "description", "details", "label", "memo", "opération", "operation", "intitulé", "intitule"];
+const DEBIT_PARTIAL = ["débit", "debit", "sortie", "retrait", "withdrawal", "out"];
+const CREDIT_PARTIAL = ["crédit", "credit", "entrée", "versement", "deposit", "in"];
 
 // ---------------------------------------------------------------------------
 // Utilitaires internes
@@ -104,8 +112,9 @@ function looksLikeAmount(value: string): boolean {
 }
 
 /**
- * Calcule un score de colonne pour chaque type (date, amount, label).
+ * Calcule un score de colonne pour chaque type (date, amount, label, debit, credit).
  * Score par nom de header + validation sur les premières lignes.
+ * Si debitCol >= 0 && creditCol >= 0 : format bancaire séparé, amountCol = -1.
  * Retourne confidence 0-100.
  */
 function detectColumns(headers: string[], firstRows: string[][]): ColumnScore {
@@ -113,6 +122,8 @@ function detectColumns(headers: string[], firstRows: string[][]): ColumnScore {
   const dateScores = new Array<number>(n).fill(0);
   const amountScores = new Array<number>(n).fill(0);
   const labelScores = new Array<number>(n).fill(0);
+  const debitScores = new Array<number>(n).fill(0);
+  const creditScores = new Array<number>(n).fill(0);
 
   // --- Score par nom de header ---
   for (let i = 0; i < n; i++) {
@@ -127,6 +138,12 @@ function detectColumns(headers: string[], firstRows: string[][]): ColumnScore {
 
     if (LABEL_KEYWORDS.includes(h)) labelScores[i]! += 50;
     else if (LABEL_PARTIAL.some((k) => h.includes(k))) labelScores[i]! += 30;
+
+    if (DEBIT_KEYWORDS.includes(h)) debitScores[i]! += 50;
+    else if (DEBIT_PARTIAL.some((k) => h.includes(k))) debitScores[i]! += 30;
+
+    if (CREDIT_KEYWORDS.includes(h)) creditScores[i]! += 50;
+    else if (CREDIT_PARTIAL.some((k) => h.includes(k))) creditScores[i]! += 30;
   }
 
   // --- Bonus sur les données des premières lignes ---
@@ -142,33 +159,84 @@ function detectColumns(headers: string[], firstRows: string[][]): ColumnScore {
     const total = sampleRows.length || 1;
     dateScores[i]! += Math.round((dateHits / total) * 30);
     amountScores[i]! += Math.round((amountHits / total) * 30);
+    // Bonus data pour débit/crédit : valeur numérique ou vide (cellule vide est normal pour débit/crédit séparés)
+    debitScores[i]! += Math.round((amountHits / total) * 15);
+    creditScores[i]! += Math.round((amountHits / total) * 15);
   }
 
   // --- Sélectionner la meilleure colonne pour chaque type ---
   const bestDateIdx = dateScores.indexOf(Math.max(...dateScores));
-  const bestAmountIdx = amountScores.indexOf(Math.max(...amountScores));
 
-  // Pour le libellé, éviter les colonnes déjà prises par date/amount
+  // Détecter si colonnes débit/crédit séparées sont présentes
+  const bestDebitIdx = debitScores.indexOf(Math.max(...debitScores));
+  const bestCreditIdx = creditScores.indexOf(Math.max(...creditScores));
+  const debitMaxScore = debitScores[bestDebitIdx] ?? 0;
+  const creditMaxScore = creditScores[bestCreditIdx] ?? 0;
+
+  // Colonnes débit et crédit séparées détectées si scores suffisants et colonnes distinctes
+  const hasSeparateDebitCredit =
+    debitMaxScore >= 30 &&
+    creditMaxScore >= 30 &&
+    bestDebitIdx !== bestCreditIdx &&
+    bestDebitIdx !== bestDateIdx &&
+    bestCreditIdx !== bestDateIdx;
+
+  let bestAmountIdx: number;
+  let finalDebitIdx: number;
+  let finalCreditIdx: number;
+
+  if (hasSeparateDebitCredit) {
+    // Format bancaire avec colonnes séparées : amountCol = -1
+    bestAmountIdx = -1;
+    finalDebitIdx = bestDebitIdx;
+    finalCreditIdx = bestCreditIdx;
+  } else {
+    // Format unifié : chercher la meilleure colonne montant
+    bestAmountIdx = amountScores.indexOf(Math.max(...amountScores));
+    finalDebitIdx = -1;
+    finalCreditIdx = -1;
+  }
+
+  // Pour le libellé, éviter les colonnes déjà prises
   const labelScoresCopy = [...labelScores];
   labelScoresCopy[bestDateIdx] = -1;
-  if (bestAmountIdx !== bestDateIdx) labelScoresCopy[bestAmountIdx] = -1;
+  if (hasSeparateDebitCredit) {
+    labelScoresCopy[finalDebitIdx] = -1;
+    if (finalCreditIdx !== finalDebitIdx) labelScoresCopy[finalCreditIdx] = -1;
+  } else if (bestAmountIdx >= 0 && bestAmountIdx !== bestDateIdx) {
+    labelScoresCopy[bestAmountIdx] = -1;
+  }
   const bestLabelIdx = labelScoresCopy.indexOf(Math.max(...labelScoresCopy));
 
   const dateScore = dateScores[bestDateIdx] ?? 0;
-  const amountScore = amountScores[bestAmountIdx] ?? 0;
   const labelScore = labelScores[bestLabelIdx] ?? 0;
 
-  // Confidence : moyenne pondérée des 3 meilleures scores (max 80 par header + 30 data = 110, normalisé)
-  const maxPossible = 80; // 50 header exact + 30 data
-  const confidence = Math.min(
-    100,
-    Math.round(((dateScore + amountScore + labelScore) / (3 * maxPossible)) * 100),
-  );
+  let confidence: number;
+  if (hasSeparateDebitCredit) {
+    // Bonus +20 pts pour format bancaire standard (signe fort)
+    const maxPossible = 80;
+    const debitScore = debitScores[finalDebitIdx] ?? 0;
+    const creditScore = creditScores[finalCreditIdx] ?? 0;
+    confidence = Math.min(
+      100,
+      Math.round(((dateScore + debitScore + creditScore + labelScore) / (4 * maxPossible)) * 100) + 20,
+    );
+  } else {
+    const amountScore = amountScores[bestAmountIdx >= 0 ? bestAmountIdx : 0] ?? 0;
+    // Confidence : moyenne pondérée des 3 meilleures scores (max 80 par header + 30 data = 110, normalisé)
+    const maxPossible = 80; // 50 header exact + 30 data
+    confidence = Math.min(
+      100,
+      Math.round(((dateScore + amountScore + labelScore) / (3 * maxPossible)) * 100),
+    );
+  }
 
   return {
     dateCol: bestDateIdx,
     amountCol: bestAmountIdx,
     labelCol: bestLabelIdx,
+    debitCol: finalDebitIdx,
+    creditCol: finalCreditIdx,
     confidence,
   };
 }
@@ -336,6 +404,57 @@ function parseByColumnIndex(
 }
 
 // ---------------------------------------------------------------------------
+// Parsing par colonnes débit/crédit séparées
+// ---------------------------------------------------------------------------
+
+function parseByDebitCredit(
+  lines: string[],
+  sep: string,
+  dateIdx: number,
+  debitIdx: number,
+  creditIdx: number,
+  labelIdx: number,
+): ParseResult["transactions"] {
+  const transactions: ParseResult["transactions"] = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const cells = splitCsvLine(lines[i]!, sep);
+
+    const rawDate = dateIdx >= 0 ? (cells[dateIdx] ?? "") : "";
+    const description = labelIdx >= 0 ? (cells[labelIdx] ?? "") : "";
+
+    if (!rawDate || !description) continue;
+
+    const date = parseAutoDate(rawDate);
+    if (!date.match(/^\d{4}-\d{2}-\d{2}$/)) continue;
+
+    const rawDebit = debitIdx >= 0 ? (cells[debitIdx] ?? "").trim() : "";
+    const rawCredit = creditIdx >= 0 ? (cells[creditIdx] ?? "").trim() : "";
+
+    let amount: number;
+    let type: "income" | "expense";
+
+    if (rawDebit) {
+      const debit = parseAmountGeneric(rawDebit);
+      if (isNaN(debit) || debit === 0) continue;
+      amount = Math.abs(debit);
+      type = "expense";
+    } else if (rawCredit) {
+      const credit = parseAmountGeneric(rawCredit);
+      if (isNaN(credit) || credit === 0) continue;
+      amount = Math.abs(credit);
+      type = "income";
+    } else {
+      continue;
+    }
+
+    transactions.push({ date, description, amount, type });
+  }
+
+  return transactions;
+}
+
+// ---------------------------------------------------------------------------
 // Parser principal
 // ---------------------------------------------------------------------------
 
@@ -377,13 +496,25 @@ export const genericCsvParser: GenericCsvParserType = {
     const score = detectColumns(headers, preview);
 
     if (score.confidence >= 70) {
-      const transactions = parseByColumnIndex(
-        lines,
-        sep,
-        score.dateCol,
-        score.amountCol,
-        score.labelCol,
-      );
+      let transactions: ParseResult["transactions"];
+      if (score.debitCol >= 0 && score.creditCol >= 0) {
+        transactions = parseByDebitCredit(
+          lines,
+          sep,
+          score.dateCol,
+          score.debitCol,
+          score.creditCol,
+          score.labelCol,
+        );
+      } else {
+        transactions = parseByColumnIndex(
+          lines,
+          sep,
+          score.dateCol,
+          score.amountCol,
+          score.labelCol,
+        );
+      }
       return {
         transactions,
         detectedBalance: null,
@@ -399,6 +530,8 @@ export const genericCsvParser: GenericCsvParserType = {
       amountCol: score.amountCol,
       labelCol: score.labelCol,
       confidence: score.confidence,
+      ...(score.debitCol >= 0 ? { debitCol: score.debitCol } : {}),
+      ...(score.creditCol >= 0 ? { creditCol: score.creditCol } : {}),
     };
 
     return {

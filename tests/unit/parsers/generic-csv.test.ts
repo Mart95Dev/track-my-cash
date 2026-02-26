@@ -246,3 +246,74 @@ describe("Rétrocompatibilité parseWithMapping", () => {
     expect(typeof fingerprint).toBe("string");
   });
 });
+
+// ---------------------------------------------------------------------------
+// TU-123-AC-4 — Colonnes Débit/Crédit séparées auto-détectées
+// ---------------------------------------------------------------------------
+describe("TU-123-AC-4 : Colonnes Débit/Crédit séparées auto-détectées", () => {
+  it("CSV avec colonnes 'Débit' et 'Crédit' séparées → auto-parsé si confidence >= 70", () => {
+    const csv = "Date,Libellé,Débit,Crédit\n15/01/2024,LOYER,850.00,\n20/01/2024,SALAIRE,,2500.00\n";
+    const result = genericCsvParser.parse(csv, null) as ParseResult;
+    expect(result.transactions).toHaveLength(2);
+    expect(result.transactions[0]?.amount).toBe(850.00);
+    expect(result.transactions[0]?.type).toBe("expense");
+    expect(result.transactions[1]?.amount).toBe(2500.00);
+    expect(result.transactions[1]?.type).toBe("income");
+  });
+
+  it("CSV avec colonnes 'Debit' et 'Credit' (sans accents)", () => {
+    const csv = "Date,Description,Debit,Credit\n2024-01-15,EDF,150.00,\n2024-01-20,VIREMENT,,1000.00\n";
+    const result = genericCsvParser.parse(csv, null) as ParseResult;
+    expect(result.transactions).toHaveLength(2);
+    expect(result.transactions[0]?.amount).toBe(150.00);
+    expect(result.transactions[0]?.type).toBe("expense");
+    expect(result.transactions[1]?.amount).toBe(1000.00);
+    expect(result.transactions[1]?.type).toBe("income");
+  });
+
+  it("CSV débit/crédit avec séparateur ';' → auto-parsé correctement", () => {
+    const csv = [
+      "Date;Description;Débit;Crédit",
+      "15/01/2024;CARTE;50.00;",
+      "02/01/2024;SALAIRE;;2500.00",
+    ].join("\n");
+    const result = genericCsvParser.parse(csv, null) as ParseResult;
+    expect(result.transactions).toHaveLength(2);
+    const carte = result.transactions.find((t) => t.description === "CARTE");
+    const salaire = result.transactions.find((t) => t.description === "SALAIRE");
+    expect(carte?.amount).toBe(50.00);
+    expect(carte?.type).toBe("expense");
+    expect(salaire?.amount).toBe(2500.00);
+    expect(salaire?.type).toBe("income");
+  });
+
+  it("detectColumnsExported : headers ['Date', 'Libellé', 'Débit', 'Crédit'] → debitCol et creditCol détectés", () => {
+    const headers = ["Date", "Libellé", "Débit", "Crédit"];
+    const firstRows = [
+      ["15/01/2024", "CARTE", "50.00", ""],
+      ["02/01/2024", "SALAIRE", "", "2500.00"],
+    ];
+    const score = detectColumnsExported(headers, firstRows);
+    expect(score.confidence).toBeGreaterThanOrEqual(70);
+    expect(score.debitCol).toBe(2);
+    expect(score.creditCol).toBe(3);
+    expect(score.amountCol).toBe(-1);
+  });
+
+  it("CSV débit/crédit avec keywords 'withdrawal'/'deposit' (anglais bancaire)", () => {
+    const csv = "Date,Description,Withdrawal,Deposit\n2024-01-15,RENT,800.00,\n2024-01-20,SALARY,,3000.00\n";
+    const result = genericCsvParser.parse(csv, null) as ParseResult;
+    expect(result.transactions).toHaveLength(2);
+    expect(result.transactions[0]?.amount).toBe(800.00);
+    expect(result.transactions[0]?.type).toBe("expense");
+    expect(result.transactions[1]?.amount).toBe(3000.00);
+    expect(result.transactions[1]?.type).toBe("income");
+  });
+
+  it("bankName = 'CSV auto-détecté' pour format débit/crédit séparé", () => {
+    const csv = "Date,Libellé,Débit,Crédit\n15/01/2024,LOYER,850.00,\n";
+    const result = genericCsvParser.parse(csv, null) as ParseResult;
+    expect(result.bankName).toBe("CSV auto-détecté");
+    expect(result.currency).toBe("EUR");
+  });
+});

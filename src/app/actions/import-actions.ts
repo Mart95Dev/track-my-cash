@@ -67,6 +67,9 @@ export async function importFileAction(formData: FormData) {
       if (content.includes("\ufffd") || content.includes("Num")) {
         content = new TextDecoder("iso-8859-1").decode(arrayBuffer);
       }
+      if (!content.trim()) {
+        return { error: "Le fichier est vide ou ne contient aucune donnée" };
+      }
       csvContent = content;
       rawParseResult = await detectAndParseFile(filename, content, null);
     }
@@ -83,12 +86,15 @@ export async function importFileAction(formData: FormData) {
       const mapping: ColumnMapping = JSON.parse(savedMapping);
       parseResult = genericCsvParser.parseWithMapping(csvContent ?? "", mapping);
     } else {
+      // Tenter un parse rapide pour fournir suggestedMapping (AC-6)
+      const quickParse = await Promise.resolve(genericCsvParser.parse(csvContent ?? "", null));
       return {
         needsMapping: true as const,
         headers: rawParseResult.headers,
         preview: rawParseResult.preview,
         fingerprint: rawParseResult.fingerprint,
         content: csvContent ?? "",
+        suggestedMapping: quickParse.suggestedMapping,
       };
     }
   } else {
