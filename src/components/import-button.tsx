@@ -22,6 +22,7 @@ import { formatCurrency, formatDate } from "@/lib/format";
 import { toast } from "sonner";
 import type { Account } from "@/lib/queries";
 import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { useUpgradeModal, detectUpgradeReason } from "@/hooks/use-upgrade-modal";
 import { UpgradeModal } from "@/components/upgrade-modal";
 
@@ -128,12 +129,85 @@ function PreviewFirst5Table({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Écran Step-3 : succès post-import (AC-8)
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface SuccessInfo {
+  imported: number;
+  duplicateCount: number;
+  balanceUpdated: boolean;
+  newBalance: number | null;
+  currency: string;
+}
+
+function ImportSuccessScreen({
+  info,
+  locale,
+  onViewTransactions,
+  onImportAnother,
+}: {
+  info: SuccessInfo;
+  locale: string;
+  onViewTransactions: () => void;
+  onImportAnother: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-6 py-10 animate-in fade-in-0 zoom-in-95 duration-300">
+      {/* Icône check animée */}
+      <div className="flex items-center justify-center w-20 h-20 rounded-full bg-income/10 animate-in zoom-in-50 duration-500">
+        <svg
+          className="w-10 h-10 text-income"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </div>
+
+      {/* Résumé */}
+      <div className="flex flex-col items-center gap-1 text-center">
+        <p className="text-2xl font-bold dark:text-text-main">
+          {info.imported} importée{info.imported > 1 ? "s" : ""}
+        </p>
+        {info.duplicateCount > 0 && (
+          <p className="text-sm text-muted-foreground dark:text-text-muted">
+            · {info.duplicateCount} doublon{info.duplicateCount > 1 ? "s" : ""} ignoré{info.duplicateCount > 1 ? "s" : ""}
+          </p>
+        )}
+        {info.balanceUpdated && info.newBalance !== null && (
+          <p className="text-sm text-primary font-medium mt-1">
+            Solde mis à jour :{" "}
+            {formatCurrency(info.newBalance, info.currency, locale)}
+          </p>
+        )}
+      </div>
+
+      {/* Boutons d'action */}
+      <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
+        <Button variant="outline" className="flex-1" onClick={onImportAnother}>
+          Importer un autre fichier
+        </Button>
+        <Button className="flex-1" onClick={onViewTransactions}>
+          Voir les transactions
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Composant principal
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function ImportButton({ accounts, defaultAccountId }: { accounts: Account[]; defaultAccountId?: number }) {
   const t = useTranslations("import");
   const locale = useLocale();
+  const router = useRouter();
   const { upgradeReason, showUpgradeModal, closeUpgradeModal } = useUpgradeModal();
   const [preview, setPreview] = useState<PreviewData | null>(null);
   const [previewFirst5, setPreviewFirst5] = useState<PreviewFirst5Item[]>([]);
@@ -144,6 +218,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
+  const [successInfo, setSuccessInfo] = useState<SuccessInfo | null>(null);
   const [mappingInfo, setMappingInfo] = useState<{
     headers: string[];
     preview: string[][];
@@ -196,6 +271,17 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
     if (fileRef.current) fileRef.current.value = "";
   }
 
+  function handleReset() {
+    setSuccessInfo(null);
+    setIsOpen(false);
+    setPreview(null);
+    setPreviewFirst5([]);
+    setParserName(null);
+    setCategoryOverrides({});
+    setSubcategoryOverrides({});
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
   async function handleConfirm() {
     if (!preview) return;
 
@@ -215,12 +301,13 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
       if (result.error) {
         toast.error(result.error);
       } else {
-        const imported = result.imported ?? 0;
-        const msg = result.balanceUpdated && result.newBalance != null
-          ? t("successWithBalance", { imported, balance: result.newBalance.toLocaleString("fr-FR", { style: "currency", currency: preview.currency }) })
-          : t("success", { imported });
-        toast.success(msg);
-        setIsOpen(false);
+        setSuccessInfo({
+          imported: result.imported ?? 0,
+          duplicateCount: preview.duplicateCount,
+          balanceUpdated: result.balanceUpdated ?? false,
+          newBalance: result.newBalance ?? null,
+          currency: preview.currency,
+        });
         setPreview(null);
         setPreviewFirst5([]);
         setParserName(null);
@@ -284,15 +371,28 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
         />
       </div>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleReset(); else setIsOpen(true); }}>
         <DialogContent className="sm:max-w-5xl flex flex-col max-h-[85vh] bg-background dark:bg-background-dark dark:border-border/40">
           <DialogHeader>
             <DialogTitle className="dark:text-text-main">
-              {t("previewTitle", { bankName: preview?.bankName ?? "" })}
+              {successInfo ? "Import terminé" : t("previewTitle", { bankName: preview?.bankName ?? "" })}
             </DialogTitle>
           </DialogHeader>
 
-          {preview && (
+          {/* ── Step 3 : écran de succès (AC-8) ── */}
+          {successInfo && (
+            <ImportSuccessScreen
+              info={successInfo}
+              locale={locale}
+              onViewTransactions={() => {
+                handleReset();
+                router.push("/transactions");
+              }}
+              onImportAnother={() => handleReset()}
+            />
+          )}
+
+          {preview && !successInfo && (
             <div className="flex flex-col gap-4 flex-1 overflow-hidden">
 
               {/* Badge "Parser détecté" — AC-1 */}
@@ -421,7 +521,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
               )}
 
               <div className="flex gap-2 justify-end shrink-0">
-                <Button variant="outline" onClick={() => setIsOpen(false)}>
+                <Button variant="outline" onClick={handleReset}>
                   {t("cancel")}
                 </Button>
                 <Button onClick={handleConfirm} disabled={isPending || !canConfirm}>
