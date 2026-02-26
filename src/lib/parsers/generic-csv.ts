@@ -388,7 +388,7 @@ export const genericCsvParser: GenericCsvParserType = {
         transactions,
         detectedBalance: null,
         detectedBalanceDate: null,
-        bankName: "CSV générique",
+        bankName: "CSV auto-détecté",
         currency: "EUR",
       };
     }

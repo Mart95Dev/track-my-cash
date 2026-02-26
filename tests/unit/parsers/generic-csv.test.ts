@@ -151,10 +151,10 @@ describe("TU-123-4 : Parse automatique si confidence >= 70%", () => {
     expect(result.transactions[0]?.amount).toBe(800.00);
   });
 
-  it("bankName = 'CSV générique' et currency = 'EUR'", () => {
+  it("bankName = 'CSV auto-détecté' quand confidence >= 70, currency = 'EUR'", () => {
     const csv = "Date,Libellé,Montant\n15/01/2024,Test,-10.00\n";
     const result = genericCsvParser.parse(csv, null) as ParseResult;
-    expect(result.bankName).toBe("CSV générique");
+    expect(result.bankName).toBe("CSV auto-détecté");
     expect(result.currency).toBe("EUR");
   });
 });
