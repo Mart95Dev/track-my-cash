@@ -109,25 +109,28 @@ SMTP_PASS=
 ```
 src/
   app/
-    [locale]/(app)/     # Pages application (dashboard, comptes, transactions...)
+    [locale]/(app)/     # Pages application protegees par auth (dashboard, comptes, transactions...)
     [locale]/(auth)/    # Pages auth (connexion, inscription, two-factor)
+    [locale]/offline/   # Page offline PWA (hors auth)
     api/                # API routes (auth, push, cron, stripe, reports)
     actions/            # Server Actions (mutations)
   components/           # Composants React (client components)
-    charts/             # Graphiques Recharts
+    charts/             # Graphiques Recharts (barres, camembert, timeline)
   lib/
     queries/            # 13 modules SQL domainaux (barrel re-export)
     parsers/            # 18 parsers bancaires + registry
-    email/              # Composants email partages
-    auth.ts             # Config BetterAuth (server)
-    auth-client.ts      # Config BetterAuth (client)
-    db.ts               # Connexion Turso + schema
-    push-notifications.ts # Web Push API
-  i18n/                 # Configuration next-intl
+    email/              # Composants email partages (styles, helpers)
+    auth.ts             # Config BetterAuth (server, OAuth, 2FA TOTP)
+    auth-client.ts      # Config BetterAuth (client, twoFactorClient)
+    db.ts               # Connexion Turso + schema + migrations
+    push-notifications.ts # Web Push API (VAPID, envoi, souscriptions)
+    alert-service.ts    # Alertes solde bas (email + push)
+    budget-alert-service.ts # Alertes budget (email + push)
+  i18n/                 # Configuration next-intl (5 langues)
 public/
-  sw.js                 # Service Worker PWA
+  sw.js                 # Service Worker PWA (cache, offline, push events)
 tests/
-  unit/                 # 182 fichiers de tests
+  unit/                 # 182 fichiers de tests (1588 tests)
 ```
 
 ## Historique des sprints
