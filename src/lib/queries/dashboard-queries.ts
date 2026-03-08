@@ -49,27 +49,64 @@ export async function getDashboardData(db: Client, accountId?: number) {
 export async function getMonthlyBalanceHistory(db: Client, months: number = 12, accountId?: number) {
   const allAccounts = await getAllAccounts(db);
   const accounts = accountId ? allAccounts.filter((a) => a.id === accountId) : allAccounts;
-  const now = new Date();
-  const data: { month: string; total: number }[] = [];
+  if (accounts.length === 0) return [];
 
+  const now = new Date();
+
+  // Construire la liste des mois et dates de fin
+  const monthEntries: { label: string; endDate: string }[] = [];
   for (let i = months - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const endOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-    const dateStr = endOfMonth.toISOString().split("T")[0];
-    const label = d.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" });
-
-    let total = 0;
-    for (const account of accounts) {
-      const result = await db.execute({
-        sql: `SELECT COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END), 0) as net
-          FROM transactions WHERE account_id = ? AND date >= ? AND date <= ?`,
-        args: [account.id, account.balance_date, dateStr],
-      });
-      total += account.initial_balance + Number(result.rows[0].net);
-    }
-    data.push({ month: label, total: Math.round(total * 100) / 100 });
+    monthEntries.push({
+      label: d.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" }),
+      endDate: endOfMonth.toISOString().split("T")[0]!,
+    });
   }
-  return data;
+
+  // Solde initial total des comptes
+  const baseBalance = accounts.reduce((sum, a) => sum + a.initial_balance, 0);
+
+  // Une seule requête : net cumulé par compte et par mois-fin
+  const accountIds = accounts.map((a) => a.id);
+  const accountPlaceholders = accountIds.map(() => "?").join(", ");
+  const endDates = monthEntries.map((m) => m.endDate);
+  const datePlaceholders = endDates.map(() => "?").join(", ");
+
+  // Pour chaque (account_id, end_date), calculer le net cumulé depuis balance_date
+  // On utilise une sous-requête corrélée avec les balance_date par compte
+  const balanceDateCases = accounts
+    .map(() => "WHEN account_id = ? THEN ?")
+    .join(" ");
+  const balanceDateArgs: (number | string)[] = accounts.flatMap((a) => [a.id, a.balance_date]);
+
+  const result = await db.execute({
+    sql: `SELECT
+        end_month.d as end_date,
+        COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END), 0) as net
+      FROM (SELECT value as d FROM json_each(?)) end_month
+      LEFT JOIN transactions t ON t.account_id IN (${accountPlaceholders})
+        AND t.date >= (CASE t.account_id ${balanceDateCases} END)
+        AND t.date <= end_month.d
+      GROUP BY end_month.d
+      ORDER BY end_month.d ASC`,
+    args: [
+      JSON.stringify(endDates),
+      ...accountIds,
+      ...balanceDateArgs,
+    ],
+  });
+
+  // Mapper les résultats par date de fin
+  const netByEndDate = new Map<string, number>();
+  for (const row of result.rows) {
+    netByEndDate.set(String(row.end_date), Number(row.net));
+  }
+
+  return monthEntries.map((m) => ({
+    month: m.label,
+    total: Math.round((baseBalance + (netByEndDate.get(m.endDate) ?? 0)) * 100) / 100,
+  }));
 }
 
 export async function getMonthlySummary(db: Client, accountId?: number) {
