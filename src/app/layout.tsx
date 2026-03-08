@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
+import { SwRegister } from "@/components/sw-register";
+import { PwaUpdateBanner } from "@/components/pwa-update-banner";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -28,6 +30,8 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased bg-background-light text-text-main">
+        <SwRegister />
+        <PwaUpdateBanner />
         {children}
       </body>
     </html>
