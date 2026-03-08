@@ -230,6 +230,14 @@ export async function initSchema() {
     "ALTER TABLE user ADD COLUMN reminder_couple_1d_sent INTEGER DEFAULT 0",
     "ALTER TABLE user ADD COLUMN reminder_couple_3d_sent INTEGER DEFAULT 0",
     "ALTER TABLE user ADD COLUMN reminder_couple_7d_sent INTEGER DEFAULT 0",
+    // STORY-138 : Push subscriptions
+    `CREATE TABLE IF NOT EXISTS push_subscriptions (
+      user_id TEXT PRIMARY KEY,
+      endpoint TEXT NOT NULL,
+      keys_p256dh TEXT NOT NULL,
+      keys_auth TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now'))
+    )`,
   ];
   for (const sql of migrations) {
     try {

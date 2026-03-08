@@ -9,6 +9,7 @@ import { AccountFilter } from "@/components/account-filter";
 import { getLocale } from "next-intl/server";
 import { detectRecurringSuggestionsAction } from "@/app/actions/recurring-actions";
 import { RecurringSuggestions } from "@/components/recurring-suggestions";
+import { RecurringTimelineChart } from "@/components/charts/recurring-timeline-chart";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +83,17 @@ export default async function RecurrentsPage({
               <RecurringSuggestions suggestions={suggestions} accountId={accountId} />
             </div>
           </details>
+        </div>
+      )}
+
+      {/* Timeline récurrents — STORY-137 AC-3 */}
+      {payments.length > 0 && (
+        <div className="mx-4 mb-4 bg-white rounded-2xl border border-slate-100 shadow-soft p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold text-text-main">Prévisions récurrentes</h3>
+            <span className="text-xs text-text-muted">3 mois</span>
+          </div>
+          <RecurringTimelineChart payments={payments} months={3} />
         </div>
       )}
 

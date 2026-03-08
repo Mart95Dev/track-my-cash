@@ -2,11 +2,14 @@ import type { Client } from "@libsql/client";
 import { getAccountById } from "@/lib/queries";
 import { sendEmail } from "@/lib/email";
 import { renderLowBalanceAlert } from "@/lib/email-templates";
+import { sendPushNotification } from "@/lib/push-notifications";
+import { formatCurrency } from "@/lib/format";
 
 export async function checkAndSendLowBalanceAlert(
   db: Client,
   accountId: number,
-  userEmail: string
+  userEmail: string,
+  userId?: string
 ): Promise<void> {
   try {
     const account = await getAccountById(db, accountId);
@@ -34,6 +37,16 @@ export async function checkAndSendLowBalanceAlert(
       ),
       replyTo: "support@track-my-cash.fr",
     });
+
+    // Notification push en parallèle
+    if (userId) {
+      sendPushNotification(userId, {
+        title: `Solde bas — ${account.name}`,
+        body: `Votre solde est de ${formatCurrency(balance, account.currency, "fr")}`,
+        tag: `low-balance-${accountId}`,
+        url: "/comptes",
+      }).catch(() => {});
+    }
 
     if (result.success) {
       await db.execute({

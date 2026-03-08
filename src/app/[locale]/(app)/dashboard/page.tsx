@@ -17,6 +17,8 @@ import { getUserDb, getDb } from "@/lib/db";
 import { getRequiredSession } from "@/lib/auth-utils";
 import { getAllRates, convertToReference, REFERENCE_CURRENCY } from "@/lib/currency";
 import { BalanceEvolutionChart } from "@/components/charts/balance-evolution-chart";
+import { IncomeExpenseBarChart } from "@/components/charts/income-expense-bar-chart";
+import { CategoryPieChart } from "@/components/charts/category-pie-chart";
 import { BudgetProgress } from "@/components/budget-progress";
 import { SavingsGoalsWidget } from "@/components/savings-goals-widget";
 import { AccountFilter } from "@/components/account-filter";
@@ -204,7 +206,7 @@ export default async function DashboardPage({
   }
 
   return (
-    <div className="flex flex-col pb-2 dark:bg-background-dark max-w-md mx-auto w-full">
+    <div className="flex flex-col pb-2 bg-background-light dark:bg-background-dark max-w-md mx-auto w-full">
       {/* Header */}
       <header className="flex items-center justify-between px-4 pt-6 pb-4">
         <div className="flex items-center gap-3">
@@ -309,20 +311,29 @@ export default async function DashboardPage({
         </div>
       )}
 
-      {/* Spending donut */}
-      {expensesByBroad.length > 0 && (
-        <div className="mx-4 mb-4">
-          <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-4">
-            <h3 className="text-sm font-bold text-text-main mb-3">Dépenses par catégorie</h3>
-            <div className="flex flex-wrap gap-2">
-              {expensesByBroad.slice(0, 6).map((cat) => (
-                <div key={cat.category} className="flex items-center gap-1.5 bg-background-light rounded-full px-2.5 py-1">
-                  <span className="w-2 h-2 rounded-full bg-primary inline-block shrink-0" />
-                  <span className="text-xs text-text-muted font-medium">{cat.category}</span>
-                </div>
-              ))}
-            </div>
+      {/* Income vs Expenses Bar Chart — STORY-137 AC-1 */}
+      {monthlySummary.length > 0 && (
+        <div className="mx-4 mb-4 bg-white rounded-2xl shadow-soft border border-gray-100 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold text-text-main">Revenus vs Dépenses</h3>
+            <span className="text-xs text-text-muted">6 mois</span>
           </div>
+          <IncomeExpenseBarChart
+            data={monthlySummary.slice(0, 6).reverse().map((m) => ({
+              month: new Date(m.month + "-02").toLocaleDateString("fr-FR", { month: "short", year: "2-digit" }).replace(".", ""),
+              income: m.income,
+              expenses: m.expenses,
+            }))}
+            currency={refCurrency}
+          />
+        </div>
+      )}
+
+      {/* Category Pie Chart — STORY-137 AC-2 */}
+      {expensesByBroad.length > 0 && (
+        <div className="mx-4 mb-4 bg-white rounded-2xl shadow-soft border border-gray-100 p-4">
+          <h3 className="text-sm font-bold text-text-main mb-3">Répartition des dépenses</h3>
+          <CategoryPieChart data={expensesByBroad} currency={refCurrency} />
         </div>
       )}
 

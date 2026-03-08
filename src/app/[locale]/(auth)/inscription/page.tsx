@@ -109,6 +109,7 @@ export default function InscriptionPage() {
               <div className="grid grid-cols-2 gap-4 mb-8">
                 <button
                   type="button"
+                  onClick={() => authClient.signIn.social({ provider: "google" })}
                   className="flex items-center justify-center gap-2.5 h-12 rounded-xl bg-slate-50 border border-transparent hover:bg-slate-100 hover:border-slate-200 transition-all font-medium text-slate-700 text-sm"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -121,6 +122,7 @@ export default function InscriptionPage() {
                 </button>
                 <button
                   type="button"
+                  onClick={() => authClient.signIn.social({ provider: "apple" })}
                   className="flex items-center justify-center gap-2.5 h-12 rounded-xl bg-slate-50 border border-transparent hover:bg-slate-100 hover:border-slate-200 transition-all font-medium text-slate-700 text-sm"
                 >
                   <svg className="w-5 h-5 text-slate-900" fill="currentColor" viewBox="0 0 24 24">

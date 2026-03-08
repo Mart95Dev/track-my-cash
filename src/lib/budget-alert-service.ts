@@ -2,13 +2,15 @@ import type { Client } from "@libsql/client";
 import { getBudgets, getBudgetStatus, getAccountById } from "@/lib/queries";
 import { sendEmail } from "@/lib/email";
 import { renderBudgetAlert } from "@/lib/email-templates";
+import { sendPushNotification } from "@/lib/push-notifications";
 
 const BUDGET_WARNING_THRESHOLD = 80;
 
 export async function checkAndSendBudgetAlerts(
   db: Client,
   accountId: number,
-  userEmail: string
+  userEmail: string,
+  userId?: string
 ): Promise<void> {
   try {
     const account = await getAccountById(db, accountId);
@@ -49,6 +51,19 @@ export async function checkAndSendBudgetAlerts(
         ),
         replyTo: "support@track-my-cash.fr",
       });
+
+      // Notification push en parallèle
+      if (userId) {
+        const pushTitle = alertType === "exceeded"
+          ? `Budget ${status.category} dépassé`
+          : `Budget ${status.category} bientôt épuisé`;
+        sendPushNotification(userId, {
+          title: pushTitle,
+          body: `${Math.round(status.percentage)}% utilisé`,
+          tag: `budget-${status.category}`,
+          url: "/budgets",
+        }).catch(() => {});
+      }
 
       if (result.success) {
         await db.execute({

@@ -6,6 +6,9 @@ import { TagManager } from "@/components/tag-manager";
 import { CurrencySettings } from "@/components/currency-settings";
 import { BillingPortalButton } from "@/components/billing-portal-button";
 import { DeleteUserAccountDialog } from "@/components/delete-user-account-dialog";
+import { TwoFactorSetup } from "@/components/two-factor-setup";
+import { PushNotificationToggle } from "@/components/push-notification-toggle";
+import { getVapidPublicKey, hasPushSubscription } from "@/lib/push-notifications";
 import { MonthlySummaryEmailButton } from "@/components/monthly-summary-email-button";
 import { MonthlyReportButton } from "@/components/monthly-report-button";
 import { ExportPdfButton } from "@/components/export-pdf-button";
@@ -15,7 +18,7 @@ import { WeeklyEmailToggle } from "@/components/weekly-email-toggle";
 import { ExportDataButton } from "@/components/export-data-button";
 import { getCategorizationRules, getSetting, getAllAccounts } from "@/lib/queries";
 import { getUserDb, getDb } from "@/lib/db";
-import { getRequiredUserId } from "@/lib/auth-utils";
+import { getRequiredUserId, getRequiredSession } from "@/lib/auth-utils";
 import { getAiUsageCount } from "@/lib/ai-usage";
 import { getExchangeRate } from "@/lib/currency";
 import { getTagsAction } from "@/app/actions/tag-actions";
@@ -47,7 +50,11 @@ function SettingsCard({
 }
 
 export default async function ParametresPage() {
-  const userId = await getRequiredUserId();
+  const session = await getRequiredSession();
+  const userId = session.user.id;
+  const twoFactorEnabled = !!(session.user as Record<string, unknown>).twoFactorEnabled;
+  const vapidPublicKey = getVapidPublicKey();
+  const pushEnabled = await hasPushSubscription(userId);
   const db = await getUserDb(userId);
   const mainDb = getDb();
   const currentMonth = new Date().toISOString().slice(0, 7);
@@ -128,7 +135,17 @@ export default async function ParametresPage() {
         )}
       </SettingsCard>
 
-      {/* 2. Intelligence artificielle */}
+      {/* 2. Sécurité — 2FA */}
+      <SettingsCard icon="security" title="Sécurité">
+        <TwoFactorSetup enabled={twoFactorEnabled} />
+      </SettingsCard>
+
+      {/* 3. Notifications */}
+      <SettingsCard icon="notifications" title="Notifications">
+        <PushNotificationToggle vapidPublicKey={vapidPublicKey} initialEnabled={pushEnabled} />
+      </SettingsCard>
+
+      {/* 4. Intelligence artificielle */}
       <SettingsCard icon="auto_awesome" title="Intelligence artificielle">
         {isProOrPremium ? (
           <>

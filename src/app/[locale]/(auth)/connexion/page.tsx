@@ -83,6 +83,7 @@ export default function ConnexionPage() {
               <div className="grid grid-cols-2 gap-4 mb-8">
                 <button
                   type="button"
+                  onClick={() => authClient.signIn.social({ provider: "google" })}
                   className="flex items-center justify-center gap-2 h-14 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 transition-all"
                 >
                   <svg className="w-6 h-6" viewBox="0 0 24 24">
@@ -95,6 +96,7 @@ export default function ConnexionPage() {
                 </button>
                 <button
                   type="button"
+                  onClick={() => authClient.signIn.social({ provider: "apple" })}
                   className="flex items-center justify-center gap-2 h-14 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 transition-all text-slate-900"
                 >
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">

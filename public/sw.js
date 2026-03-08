@@ -39,6 +39,40 @@ self.addEventListener("message", (event) => {
   }
 });
 
+// Push : afficher la notification reçue du serveur
+self.addEventListener("push", (event) => {
+  if (!event.data) return;
+
+  const data = event.data.json();
+  const options = {
+    body: data.body || "",
+    icon: data.icon || "/icons/icon-192.png",
+    badge: "/icons/icon-192.png",
+    tag: data.tag || "default",
+    data: { url: data.data?.url || "/dashboard" },
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title || "Track My Cash", options)
+  );
+});
+
+// Notification click : ouvrir l'URL associée
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url || "/dashboard";
+  event.waitUntil(
+    self.clients.matchAll({ type: "window" }).then((clients) => {
+      for (const client of clients) {
+        if (client.url.includes(url) && "focus" in client) {
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow(url);
+    })
+  );
+});
+
 // Fetch : stratégie différenciée
 self.addEventListener("fetch", (event) => {
   const { request } = event;
