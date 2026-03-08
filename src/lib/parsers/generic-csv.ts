@@ -111,43 +111,50 @@ function looksLikeAmount(value: string): boolean {
   return /^-?\d+(\.\d+)?$/.test(normalized) || /^-?\d{1,3}(\.\d{3})*(,\d+)?$/.test(v);
 }
 
-/**
- * Calcule un score de colonne pour chaque type (date, amount, label, debit, credit).
- * Score par nom de header + validation sur les premières lignes.
- * Si debitCol >= 0 && creditCol >= 0 : format bancaire séparé, amountCol = -1.
- * Retourne confidence 0-100.
- */
-function detectColumns(headers: string[], firstRows: string[][]): ColumnScore {
-  const n = headers.length;
-  const dateScores = new Array<number>(n).fill(0);
-  const amountScores = new Array<number>(n).fill(0);
-  const labelScores = new Array<number>(n).fill(0);
-  const debitScores = new Array<number>(n).fill(0);
-  const creditScores = new Array<number>(n).fill(0);
+interface AllScores {
+  date: number[];
+  amount: number[];
+  label: number[];
+  debit: number[];
+  credit: number[];
+}
 
-  // --- Score par nom de header ---
+function scoreHeadersByName(headers: string[]): AllScores {
+  const n = headers.length;
+  const scores: AllScores = {
+    date: new Array<number>(n).fill(0),
+    amount: new Array<number>(n).fill(0),
+    label: new Array<number>(n).fill(0),
+    debit: new Array<number>(n).fill(0),
+    credit: new Array<number>(n).fill(0),
+  };
+
   for (let i = 0; i < n; i++) {
     const h = headers[i]!.toLowerCase().trim();
 
-    // Correspondance exacte ou partielle
-    if (DATE_KEYWORDS.includes(h)) dateScores[i]! += 50;
-    else if (DATE_PARTIAL.some((k) => h.includes(k))) dateScores[i]! += 30;
+    if (DATE_KEYWORDS.includes(h)) scores.date[i]! += 50;
+    else if (DATE_PARTIAL.some((k) => h.includes(k))) scores.date[i]! += 30;
 
-    if (AMOUNT_KEYWORDS.includes(h)) amountScores[i]! += 50;
-    else if (AMOUNT_PARTIAL.some((k) => h.includes(k))) amountScores[i]! += 30;
+    if (AMOUNT_KEYWORDS.includes(h)) scores.amount[i]! += 50;
+    else if (AMOUNT_PARTIAL.some((k) => h.includes(k))) scores.amount[i]! += 30;
 
-    if (LABEL_KEYWORDS.includes(h)) labelScores[i]! += 50;
-    else if (LABEL_PARTIAL.some((k) => h.includes(k))) labelScores[i]! += 30;
+    if (LABEL_KEYWORDS.includes(h)) scores.label[i]! += 50;
+    else if (LABEL_PARTIAL.some((k) => h.includes(k))) scores.label[i]! += 30;
 
-    if (DEBIT_KEYWORDS.includes(h)) debitScores[i]! += 50;
-    else if (DEBIT_PARTIAL.some((k) => h.includes(k))) debitScores[i]! += 30;
+    if (DEBIT_KEYWORDS.includes(h)) scores.debit[i]! += 50;
+    else if (DEBIT_PARTIAL.some((k) => h.includes(k))) scores.debit[i]! += 30;
 
-    if (CREDIT_KEYWORDS.includes(h)) creditScores[i]! += 50;
-    else if (CREDIT_PARTIAL.some((k) => h.includes(k))) creditScores[i]! += 30;
+    if (CREDIT_KEYWORDS.includes(h)) scores.credit[i]! += 50;
+    else if (CREDIT_PARTIAL.some((k) => h.includes(k))) scores.credit[i]! += 30;
   }
 
-  // --- Bonus sur les données des premières lignes ---
+  return scores;
+}
+
+function scoreByDataSampling(scores: AllScores, headers: string[], firstRows: string[][]): void {
   const sampleRows = firstRows.slice(0, 3);
+  const n = headers.length;
+
   for (let i = 0; i < n; i++) {
     let dateHits = 0;
     let amountHits = 0;
@@ -157,23 +164,21 @@ function detectColumns(headers: string[], firstRows: string[][]): ColumnScore {
       if (looksLikeAmount(cell)) amountHits++;
     }
     const total = sampleRows.length || 1;
-    dateScores[i]! += Math.round((dateHits / total) * 30);
-    amountScores[i]! += Math.round((amountHits / total) * 30);
-    // Bonus data pour débit/crédit : valeur numérique ou vide (cellule vide est normal pour débit/crédit séparés)
-    debitScores[i]! += Math.round((amountHits / total) * 15);
-    creditScores[i]! += Math.round((amountHits / total) * 15);
+    scores.date[i]! += Math.round((dateHits / total) * 30);
+    scores.amount[i]! += Math.round((amountHits / total) * 30);
+    scores.debit[i]! += Math.round((amountHits / total) * 15);
+    scores.credit[i]! += Math.round((amountHits / total) * 15);
   }
+}
 
-  // --- Sélectionner la meilleure colonne pour chaque type ---
-  const bestDateIdx = dateScores.indexOf(Math.max(...dateScores));
+function selectBestColumns(scores: AllScores): ColumnScore {
+  const bestDateIdx = scores.date.indexOf(Math.max(...scores.date));
 
-  // Détecter si colonnes débit/crédit séparées sont présentes
-  const bestDebitIdx = debitScores.indexOf(Math.max(...debitScores));
-  const bestCreditIdx = creditScores.indexOf(Math.max(...creditScores));
-  const debitMaxScore = debitScores[bestDebitIdx] ?? 0;
-  const creditMaxScore = creditScores[bestCreditIdx] ?? 0;
+  const bestDebitIdx = scores.debit.indexOf(Math.max(...scores.debit));
+  const bestCreditIdx = scores.credit.indexOf(Math.max(...scores.credit));
+  const debitMaxScore = scores.debit[bestDebitIdx] ?? 0;
+  const creditMaxScore = scores.credit[bestCreditIdx] ?? 0;
 
-  // Colonnes débit et crédit séparées détectées si scores suffisants et colonnes distinctes
   const hasSeparateDebitCredit =
     debitMaxScore >= 30 &&
     creditMaxScore >= 30 &&
@@ -186,19 +191,17 @@ function detectColumns(headers: string[], firstRows: string[][]): ColumnScore {
   let finalCreditIdx: number;
 
   if (hasSeparateDebitCredit) {
-    // Format bancaire avec colonnes séparées : amountCol = -1
     bestAmountIdx = -1;
     finalDebitIdx = bestDebitIdx;
     finalCreditIdx = bestCreditIdx;
   } else {
-    // Format unifié : chercher la meilleure colonne montant
-    bestAmountIdx = amountScores.indexOf(Math.max(...amountScores));
+    bestAmountIdx = scores.amount.indexOf(Math.max(...scores.amount));
     finalDebitIdx = -1;
     finalCreditIdx = -1;
   }
 
   // Pour le libellé, éviter les colonnes déjà prises
-  const labelScoresCopy = [...labelScores];
+  const labelScoresCopy = [...scores.label];
   labelScoresCopy[bestDateIdx] = -1;
   if (hasSeparateDebitCredit) {
     labelScoresCopy[finalDebitIdx] = -1;
@@ -208,23 +211,21 @@ function detectColumns(headers: string[], firstRows: string[][]): ColumnScore {
   }
   const bestLabelIdx = labelScoresCopy.indexOf(Math.max(...labelScoresCopy));
 
-  const dateScore = dateScores[bestDateIdx] ?? 0;
-  const labelScore = labelScores[bestLabelIdx] ?? 0;
+  const dateScore = scores.date[bestDateIdx] ?? 0;
+  const labelScore = scores.label[bestLabelIdx] ?? 0;
 
   let confidence: number;
   if (hasSeparateDebitCredit) {
-    // Bonus +20 pts pour format bancaire standard (signe fort)
     const maxPossible = 80;
-    const debitScore = debitScores[finalDebitIdx] ?? 0;
-    const creditScore = creditScores[finalCreditIdx] ?? 0;
+    const debitScore = scores.debit[finalDebitIdx] ?? 0;
+    const creditScore = scores.credit[finalCreditIdx] ?? 0;
     confidence = Math.min(
       100,
       Math.round(((dateScore + debitScore + creditScore + labelScore) / (4 * maxPossible)) * 100) + 20,
     );
   } else {
-    const amountScore = amountScores[bestAmountIdx >= 0 ? bestAmountIdx : 0] ?? 0;
-    // Confidence : moyenne pondérée des 3 meilleures scores (max 80 par header + 30 data = 110, normalisé)
-    const maxPossible = 80; // 50 header exact + 30 data
+    const amountScore = scores.amount[bestAmountIdx >= 0 ? bestAmountIdx : 0] ?? 0;
+    const maxPossible = 80;
     confidence = Math.min(
       100,
       Math.round(((dateScore + amountScore + labelScore) / (3 * maxPossible)) * 100),
@@ -239,6 +240,18 @@ function detectColumns(headers: string[], firstRows: string[][]): ColumnScore {
     creditCol: finalCreditIdx,
     confidence,
   };
+}
+
+/**
+ * Calcule un score de colonne pour chaque type (date, amount, label, debit, credit).
+ * Score par nom de header + validation sur les premières lignes.
+ * Si debitCol >= 0 && creditCol >= 0 : format bancaire séparé, amountCol = -1.
+ * Retourne confidence 0-100.
+ */
+function detectColumns(headers: string[], firstRows: string[][]): ColumnScore {
+  const scores = scoreHeadersByName(headers);
+  scoreByDataSampling(scores, headers, firstRows);
+  return selectBestColumns(scores);
 }
 
 /** Exposé pour les tests */

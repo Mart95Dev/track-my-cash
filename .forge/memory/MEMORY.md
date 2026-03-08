@@ -1,7 +1,7 @@
 # FORGE Memory — track-my-cash
 
 **Initialisé :** 2026-02-21
-**Dernière mise à jour :** 2026-02-21
+**Dernière mise à jour :** 2026-03-08
 
 ## Contexte projet
 
