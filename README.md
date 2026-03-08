@@ -1,36 +1,139 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Track My Cash
 
-## Getting Started
+Application de gestion de finances personnelles et en couple. Suivez vos comptes bancaires, budgets, objectifs et dépenses partagées.
 
-First, run the development server:
+## Stack technique
+
+- **Framework** : Next.js 16 (App Router, React 19)
+- **Langage** : TypeScript (strict, 0 `any`)
+- **Base de données** : Turso (LibSQL) — double DB (Main + Per-user)
+- **Auth** : BetterAuth (email/password, OAuth Google/Apple, 2FA TOTP)
+- **UI** : Tailwind CSS v4, shadcn/ui, Material Symbols Outlined
+- **Charts** : Recharts
+- **Emails** : Nodemailer
+- **Tests** : Vitest + Testing Library (1588 tests)
+
+## Fonctionnalites
+
+### Gestion financiere
+- Multi-comptes bancaires avec calcul de solde date-aware
+- Import de releves bancaires (18 parsers : BNP, SG, CA, Revolut, N26, CAMT.053, MT940, OFX, CFONB 120, CSV generique...)
+- Detection automatique de doublons via `import_hash`
+- Transactions avec categories, sous-categories et tags
+- Paiements recurrents avec detection IA de suggestions
+
+### Budgets et objectifs
+- Budgets par categorie avec alertes (80% et 100%)
+- Objectifs d'epargne avec suivi de progression
+- Previsions financieres detaillees
+
+### Couple
+- Espace couple avec invitation par code
+- Depenses partagees (50/50, proportionnel, personnalise)
+- Dashboard couple enrichi
+- Categories et budgets partages
+
+### Visualisation
+- Graphique barres revenus vs depenses (6 mois)
+- Camembert repartition par categorie (regroupement < 5% en "Autres")
+- Timeline recurrents (3 mois)
+
+### Securite
+- Authentification email/mot de passe
+- OAuth Google et Apple
+- Authentification a deux facteurs (2FA TOTP)
+- Codes de recuperation
+
+### PWA et notifications
+- Service Worker avec cache offline (Cache-First assets, Network-First navigation)
+- Page offline dediee
+- Notifications push (Web Push API) pour alertes solde bas et budgets depasses
+- Mise a jour automatique du Service Worker
+
+### Rapports et exports
+- Export PDF mensuel
+- Rapport annuel IA
+- Email hebdomadaire de synthese
+- Export de donnees complet
+
+### Internationalisation
+- 5 langues supportees (fr, en, es, de, it)
+- Routes localisees
+
+## Commandes
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run dev      # Serveur de developpement (http://localhost:3000)
+npm run build    # Build production
+npm run lint     # ESLint
+npm test         # Tests Vitest (1588 tests)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Variables d'environnement
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+# Base de donnees Turso
+DATABASE_URL_TURSO=
+API_KEY_TURSO=
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Auth (BetterAuth)
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=
+NEXT_PUBLIC_APP_URL=
 
-## Learn More
+# OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+APPLE_CLIENT_ID=
+APPLE_CLIENT_SECRET=
 
-To learn more about Next.js, take a look at the following resources:
+# Push Notifications
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_EMAIL=
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Stripe
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Email (Nodemailer)
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+```
 
-## Deploy on Vercel
+## Architecture
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+  app/
+    [locale]/(app)/     # Pages application (dashboard, comptes, transactions...)
+    [locale]/(auth)/    # Pages auth (connexion, inscription, two-factor)
+    api/                # API routes (auth, push, cron, stripe, reports)
+    actions/            # Server Actions (mutations)
+  components/           # Composants React (client components)
+    charts/             # Graphiques Recharts
+  lib/
+    queries/            # 13 modules SQL domainaux (barrel re-export)
+    parsers/            # 18 parsers bancaires + registry
+    email/              # Composants email partages
+    auth.ts             # Config BetterAuth (server)
+    auth-client.ts      # Config BetterAuth (client)
+    db.ts               # Connexion Turso + schema
+    push-notifications.ts # Web Push API
+  i18n/                 # Configuration next-intl
+public/
+  sw.js                 # Service Worker PWA
+tests/
+  unit/                 # 182 fichiers de tests
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Historique des sprints
+
+| Sprint | Theme | Stories | Tests |
+|--------|-------|---------|-------|
+| v15 | Refonte UI/UX Stitch | 12 | 1201 |
+| v16 | Import Universel Bancaire | 6 | 1356 |
+| v17 | Refactoring + Infra + Features | 11 | 1588 |
