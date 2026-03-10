@@ -11,7 +11,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - **UI** : Tailwind CSS v4, shadcn/ui, Material Symbols Outlined
 - **Charts** : Recharts
 - **Emails** : Nodemailer
-- **Tests** : Vitest + Testing Library (1588 tests)
+- **Tests** : Vitest + Testing Library (1668 tests)
 
 ## Fonctionnalites
 
@@ -38,11 +38,24 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Camembert repartition par categorie (regroupement < 5% en "Autres")
 - Timeline recurrents (3 mois)
 
+### API Mobile
+- API REST mobile complete (`/api/mobile/*`) avec auth JWT
+- Proxy IA securise (cle API cote serveur uniquement)
+- Endpoints CRUD comptes et transactions
+- Endpoints 2FA (enable, verify, disable)
+- Endpoints RGPD (export donnees, suppression 30j)
+- Endpoints Stripe (checkout, portal)
+- Endpoints settings et regles de categorisation
+- Endpoint detection d'anomalies
+- Rate limiting par utilisateur
+- CORS configure pour l'app mobile
+
 ### Securite
 - Authentification email/mot de passe
 - OAuth Google et Apple
 - Authentification a deux facteurs (2FA TOTP)
 - Codes de recuperation
+- JWT mobile avec tokens temporaires pour flux 2FA
 
 ### PWA et notifications
 - Service Worker avec cache offline (Cache-First assets, Network-First navigation)
@@ -66,7 +79,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 npm run dev      # Serveur de developpement (http://localhost:3000)
 npm run build    # Build production
 npm run lint     # ESLint
-npm test         # Tests Vitest (1588 tests)
+npm test         # Tests Vitest (1668 tests)
 ```
 
 ## Variables d'environnement
@@ -75,6 +88,9 @@ npm test         # Tests Vitest (1588 tests)
 # Base de donnees Turso
 DATABASE_URL_TURSO=
 API_KEY_TURSO=
+
+# Auth mobile (JWT)
+JWT_SECRET_MOBILE=
 
 # Auth (BetterAuth)
 BETTER_AUTH_SECRET=
@@ -97,6 +113,9 @@ STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 
+# IA (OpenRouter)
+API_KEY_OPENROUTER=
+
 # Email (Nodemailer)
 SMTP_HOST=
 SMTP_PORT=
@@ -113,6 +132,7 @@ src/
     [locale]/(auth)/    # Pages auth (connexion, inscription, two-factor)
     [locale]/offline/   # Page offline PWA (hors auth)
     api/                # API routes (auth, push, cron, stripe, reports)
+      mobile/           # API REST mobile (auth JWT, 2FA, chat, CRUD, RGPD, settings)
     actions/            # Server Actions (mutations)
   components/           # Composants React (client components)
     charts/             # Graphiques Recharts (barres, camembert, timeline)
@@ -122,6 +142,8 @@ src/
     email/              # Composants email partages (styles, helpers)
     auth.ts             # Config BetterAuth (server, OAuth, 2FA TOTP)
     auth-client.ts      # Config BetterAuth (client, twoFactorClient)
+    mobile-auth.ts      # Auth mobile (JWT sign/verify, helpers jsonOk/jsonError)
+    mobile-2fa.ts       # 2FA mobile (TOTP, backup codes, temp tokens)
     db.ts               # Connexion Turso + schema + migrations
     push-notifications.ts # Web Push API (VAPID, envoi, souscriptions)
     alert-service.ts    # Alertes solde bas (email + push)
@@ -130,7 +152,8 @@ src/
 public/
   sw.js                 # Service Worker PWA (cache, offline, push events)
 tests/
-  unit/                 # 182 fichiers de tests (1588 tests)
+  unit/                 # Tests unitaires (186 fichiers)
+  integration/          # Tests d'integration mobile (4 suites, 33 tests)
 ```
 
 ## Historique des sprints
@@ -140,3 +163,4 @@ tests/
 | v15 | Refonte UI/UX Stitch | 12 | 1201 |
 | v16 | Import Universel Bancaire | 6 | 1356 |
 | v17 | Refactoring + Infra + Features | 11 | 1588 |
+| v18 | Parite Web/Mobile | 11 | 1668 |
