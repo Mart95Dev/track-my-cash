@@ -208,3 +208,4 @@ tests/
 | v19.1 | Pages legales RGPD + bandeau cookie (4 pages, cookie banner) | — | 1669+ |
 | v19.2 | Fix couleurs delavees iPhone iOS dark mode (marketing-light CSS scope) | — | 1669+ |
 | v20 | Blog dynamique + Newsletter (CRUD admin, lecture Turso, page [slug] SEO, newsletter HMAC, dashboard admin) | 8 | 1789 |
+| v20.1 | Fix build Vercel (generateStaticParams resilient, useSyncExternalStore cookie banner) | — | 1789 |
