@@ -8,18 +8,25 @@ import type { PlanId } from "@/lib/stripe-plans";
 import { PricingToggle } from "@/components/pricing-toggle";
 import { ScrollRevealSection } from "@/components/marketing/scroll-reveal";
 import { FaqAccordion } from "./faq-accordion";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+import { faqPageSchema, breadcrumbSchema } from "@/lib/seo/schemas";
+import { SEO_CONFIG } from "@/lib/seo/constants";
 
-export const metadata: Metadata = {
-  title: "Tarifs — TrackMyCash",
-  description:
-    "Un abonnement pour deux. Découvrez nos plans gratuit, Pro et Premium pour la gestion financière de couple.",
-  openGraph: {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildPageMetadata({
     title: "Tarifs — TrackMyCash",
     description:
-      "Un abonnement pour deux. Gérez vos finances de couple à deux sur un seul abonnement.",
-    type: "website",
-  },
-};
+      "Un abonnement pour deux. Découvrez nos plans gratuit, Pro et Premium pour la gestion financière de couple.",
+    path: "tarifs",
+    locale,
+    ogImage: "/og/tarifs.png",
+  });
+}
 
 type FeatureRow = {
   label: string;
@@ -45,7 +52,7 @@ export const COMPARISON_FEATURES: FeatureRow[] = [
   { label: "Support prioritaire",    free: false,     pro: false,        premium: true },
 ];
 
-const FAQ_ITEMS = [
+export const FAQ_ITEMS = [
   {
     question: "Mon partenaire doit-il payer aussi ?",
     answer:
@@ -229,8 +236,27 @@ export default async function TarifsPage() {
 
   const planIds: PlanId[] = ["free", "pro", "premium"];
 
+  const baseUrl = SEO_CONFIG.baseUrl;
+
   return (
     <ScrollRevealSection>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqPageSchema(FAQ_ITEMS)),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbSchema([
+              { name: "Accueil", url: `${baseUrl}/fr` },
+              { name: "Tarifs", url: `${baseUrl}/fr/tarifs` },
+            ])
+          ),
+        }}
+      />
       <div className="bg-[#f6f6f8] min-h-screen">
         <div className="max-w-5xl mx-auto px-6 pb-24">
           {/* Hero */}

@@ -3,18 +3,25 @@ import { getDb } from "@/lib/db";
 import { getPublishedPosts, getAllCategories } from "@/lib/queries/blog";
 import { ScrollRevealSection } from "@/components/marketing/scroll-reveal";
 import { BlogContent } from "./blog-content";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+import { breadcrumbSchema } from "@/lib/seo/schemas";
+import { SEO_CONFIG } from "@/lib/seo/constants";
 
-export const metadata: Metadata = {
-  title: "Blog — Gérer ses finances en couple | TrackMyCash",
-  description:
-    "Conseils pratiques pour gérer votre budget en couple, partager vos dépenses équitablement et atteindre vos objectifs d'épargne ensemble.",
-  openGraph: {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildPageMetadata({
     title: "Blog — Gérer ses finances en couple | TrackMyCash",
     description:
       "Conseils pratiques pour gérer votre budget en couple, partager vos dépenses équitablement et atteindre vos objectifs d'épargne ensemble.",
-    type: "website",
-  },
-};
+    path: "blog",
+    locale,
+    ogImage: "/og/blog.png",
+  });
+}
 
 export default async function BlogPage() {
   const db = getDb();
@@ -25,6 +32,20 @@ export default async function BlogPage() {
 
   return (
     <ScrollRevealSection>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbSchema([
+              { name: "Accueil", url: `${SEO_CONFIG.baseUrl}/fr` },
+              {
+                name: "Blog",
+                url: `${SEO_CONFIG.baseUrl}/fr/blog`,
+              },
+            ])
+          ),
+        }}
+      />
       {/* Hero */}
       <section className="bg-[#F5F3FF] py-16 pb-20 text-center">
         <div className="fade-up max-w-3xl mx-auto px-4 sm:px-6">

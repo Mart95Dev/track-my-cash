@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
-import { PLANS } from "@/lib/stripe-plans";
 import { ScrollRevealSection } from "@/components/marketing/scroll-reveal";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+import {
+  webSiteSchema,
+  softwareApplicationSchema,
+  faqPageSchema,
+} from "@/lib/seo/schemas";
+import { FaqAccordion } from "./tarifs/faq-accordion";
+import { DESCRIPTIONS, HOME_FAQ_ITEMS } from "./homepage-data";
 
-export const DESCRIPTIONS: Record<string, string> = {
-  fr: "Gérez vos finances de couple : suivez vos dépenses communes, équilibrez qui doit quoi et atteignez vos objectifs ensemble. Gratuit, sécurisé, sans publicité.",
-  en: "Manage your couple's finances: track shared expenses, balance who owes what, and reach your goals together. Free, secure, no ads.",
-  es: "Gestiona las finanzas en pareja: gastos comunes, saldo equilibrado y objetivos compartidos. Gratis, seguro, sin anuncios.",
-  it: "Gestite le finanze di coppia: spese comuni, chi deve cosa, obiettivi condivisi. Gratuito, sicuro, senza pubblicità.",
-  de: "Paarverwaltung Ihrer Finanzen: gemeinsame Ausgaben, Ausgleich, Sparziele. Kostenlos, sicher, werbefrei.",
-};
+// Re-export for backward compatibility with tests
+export { DESCRIPTIONS, HOME_FAQ_ITEMS };
 
 export async function generateMetadata({
   params,
@@ -17,19 +19,15 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://trackmycash.com";
   const description = DESCRIPTIONS[locale] ?? DESCRIPTIONS.fr;
 
-  return {
+  return buildPageMetadata({
     title: "TrackMyCash — Gérez vos finances personnelles",
     description,
-    openGraph: {
-      title: "TrackMyCash — Gérez vos finances personnelles",
-      description,
-      url: `${baseUrl}/${locale}`,
-      type: "website",
-    },
-  };
+    path: "",
+    locale,
+    ogImage: "/og/home.png",
+  });
 }
 
 // ── Tarification affichage — STORY-108 ───────────────────────────────────
@@ -292,6 +290,18 @@ const TRUST_ITEMS = [
 export default function HomePage() {
   return (
     <ScrollRevealSection>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteSchema()) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareApplicationSchema()) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema(HOME_FAQ_ITEMS)) }}
+      />
       <div>
         {/* ── HERO ── */}
         <section className="relative bg-[#F5F3FF] pt-28 pb-20 md:pt-40 md:pb-28 overflow-hidden">
@@ -605,6 +615,23 @@ export default function HomePage() {
                   <span className="text-sm font-medium text-[#1C1917]">{item}</span>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── FAQ ── */}
+        <section className="py-24 md:py-32 bg-white">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-16 fade-up">
+              <span className="inline-block bg-emerald-100 text-emerald-800 text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
+                Vos questions, nos réponses
+              </span>
+              <h2 className="font-serif text-3xl md:text-5xl font-bold tracking-tight text-[#1C1917]">
+                Questions fréquentes
+              </h2>
+            </div>
+            <div className="max-w-2xl mx-auto fade-up">
+              <FaqAccordion items={HOME_FAQ_ITEMS} />
             </div>
           </div>
         </section>

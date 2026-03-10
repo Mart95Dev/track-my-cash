@@ -19,8 +19,18 @@ const dmSerif = DM_Serif_Display({
 });
 
 export const metadata: Metadata = {
-  title: "TrackMyCash — Gestionnaire de Comptes",
-  description: "Gérez vos finances simplement et efficacement",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://trackmycash.com"),
+  title: {
+    default: "TrackMyCash — Gestion financière de couple",
+    template: "%s | TrackMyCash",
+  },
+  description:
+    "Gérez vos finances de couple : suivez vos dépenses communes, équilibrez qui doit quoi et atteignez vos objectifs ensemble. Gratuit, sécurisé, sans publicité.",
+  robots: { index: true, follow: true },
+  icons: {
+    icon: "/icons/icon-192.png",
+    apple: "/icons/icon-192.png",
+  },
 };
 
 export default function RootLayout({

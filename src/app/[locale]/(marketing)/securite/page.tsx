@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { ScrollRevealSection } from "@/components/marketing/scroll-reveal";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+import { breadcrumbSchema } from "@/lib/seo/schemas";
+import { SEO_CONFIG } from "@/lib/seo/constants";
 
-export const metadata: Metadata = {
-  title: "Sécurité — TrackMyCash",
-  description:
-    "Comment TrackMyCash protège vos données financières : sécurité, vie privée et transparence.",
-  openGraph: {
-    title: "Sécurité — TrackMyCash",
-    description:
-      "Comment TrackMyCash protège vos données financières : sécurité, vie privée et transparence.",
-    type: "website",
-  },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return buildPageMetadata({
+    title: "Sécurité — Protection de vos données financières",
+    description: "Comment TrackMyCash protège vos données financières : sécurité, vie privée et transparence.",
+    path: "securite",
+    locale,
+    ogImage: "/og/securite.png",
+  });
+}
 
 /* ── Data ─────────────────────────────────────────────────────────────── */
 
@@ -67,8 +69,13 @@ const PHILOSOPHY_ITEMS = [
 /* ── Page ─────────────────────────────────────────────────────────────── */
 
 export default function SecuritePage() {
+  const baseUrl = SEO_CONFIG.baseUrl;
   return (
     <ScrollRevealSection>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema([
+        { name: "Accueil", url: `${baseUrl}/fr` },
+        { name: "Sécurité", url: `${baseUrl}/fr/securite` },
+      ])) }} />
       <div className="min-h-screen">
         {/* ── Hero ──────────────────────────────────────────────────────── */}
         <section className="bg-[#F5F3FF] py-24 md:py-32">

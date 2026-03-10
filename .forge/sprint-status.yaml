@@ -1,85 +1,112 @@
 sprint:
-  id: sprint-blog-dynamique-v20
-  goal: "Blog Dynamique + Newsletter — CRUD admin, lecture publique, newsletter fonctionnelle, desabonnement"
+  id: sprint-seo-geo-v21
+  goal: "SEO & GEO — JSON-LD, metadata enrichie, robots IA, sitemap complet, FAQ schema, OG images"
   start_date: "2026-03-10"
-  end_date: null
-  status: in_progress
-  stories_total: 8
-  stories_completed: 8
-  points_total: 35
-  points_completed: 35
-  tests_baseline: 1669
-  tests_current: 1789
+  end_date: "2026-03-10"
+  status: completed
+  stories_total: 11
+  stories_completed: 11
+  points_total: 39
+  points_completed: 39
+  tests_baseline: 1789
+  tests_current: 1849
 
 stories:
-  - id: STORY-150
-    title: "Tables DB blog + newsletter + seed data"
-    epic: blog-dynamique
+  - id: STORY-158
+    title: "Infrastructure SEO — Modules utilitaires"
+    epic: seo-geo
+    complexity: M
+    priority: P0
+    status: done
+    blockedBy: []
+    points: 5
+
+  - id: STORY-159
+    title: "Robots.txt — Autoriser les bots IA"
+    epic: seo-geo
+    complexity: S
+    priority: P0
+    status: done
+    blockedBy: []
+    points: 2
+
+  - id: STORY-160
+    title: "Sitemap complet × 5 locales"
+    epic: seo-geo
     complexity: S
     priority: P0
     status: done
     blockedBy: []
     points: 3
 
-  - id: STORY-151
-    title: "CRUD articles dans l'admin"
-    epic: blog-dynamique
+  - id: STORY-161
+    title: "Root Layout — Metadata globale enrichie"
+    epic: seo-geo
+    complexity: XS
+    priority: P0
+    status: done
+    blockedBy: []
+    points: 2
+
+  - id: STORY-162
+    title: "Marketing Layout — Organization JSON-LD"
+    epic: seo-geo
+    complexity: S
+    priority: P0
+    status: done
+    blockedBy: [STORY-158]
+    points: 3
+
+  - id: STORY-163
+    title: "Homepage — Metadata + FAQ + JSON-LD complet"
+    epic: seo-geo
     complexity: L
     priority: P0
     status: done
-    blockedBy: [STORY-150]
+    blockedBy: [STORY-158]
     points: 8
 
-  - id: STORY-152
-    title: "Gestion des categories dans l'admin"
-    epic: blog-dynamique
+  - id: STORY-164
+    title: "Tarifs — FAQPage JSON-LD"
+    epic: seo-geo
     complexity: S
     priority: P0
     status: done
-    blockedBy: [STORY-150]
+    blockedBy: [STORY-158]
     points: 3
 
-  - id: STORY-153
-    title: "Lecture dynamique des articles cote public"
-    epic: blog-dynamique
+  - id: STORY-165
+    title: "Pages marketing — Metadata enrichie"
+    epic: seo-geo
     complexity: M
-    priority: P0
+    priority: P1
     status: done
-    blockedBy: [STORY-150]
+    blockedBy: [STORY-158]
     points: 5
 
-  - id: STORY-154
-    title: "Page article [slug] avec SEO"
-    epic: blog-dynamique
-    complexity: M
-    priority: P0
-    status: done
-    blockedBy: [STORY-153]
-    points: 5
-
-  - id: STORY-155
-    title: "Newsletter fonctionnelle (inscription)"
-    epic: blog-dynamique
-    complexity: M
-    priority: P0
-    status: done
-    blockedBy: [STORY-150]
-    points: 5
-
-  - id: STORY-156
-    title: "Dashboard inscrits newsletter dans l'admin"
-    epic: blog-dynamique
+  - id: STORY-166
+    title: "Pages légales + blog — Metadata"
+    epic: seo-geo
     complexity: S
     priority: P1
     status: done
-    blockedBy: [STORY-150, STORY-151]
+    blockedBy: [STORY-158]
     points: 3
 
-  - id: STORY-157
-    title: "Lien desabonnement newsletter"
-    epic: blog-dynamique
+  - id: STORY-167
+    title: "Blog articles — Article JSON-LD enrichi"
+    epic: seo-geo
     complexity: S
     priority: P1
     status: done
-    blockedBy: [STORY-155]
+    blockedBy: [STORY-158]
     points: 3
+
+  - id: STORY-168
+    title: "OG Images — Placeholders statiques"
+    epic: seo-geo
+    complexity: XS
+    priority: P2
+    status: done
+    blockedBy: []
+    points: 2

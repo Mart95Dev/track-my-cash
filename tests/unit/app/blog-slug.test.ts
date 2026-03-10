@@ -135,12 +135,9 @@ describe("Blog [slug] page — STORY-154", () => {
         "utf-8",
       );
 
-      // Vérifie que le JSON-LD est construit à partir des champs du post
-      expect(source).toContain('"@context": "https://schema.org"');
-      expect(source).toContain('"@type": "Article"');
-      expect(source).toContain("headline: post.title");
-      expect(source).toContain("description: post.excerpt");
-      expect(source).toContain("datePublished: post.publishedAt");
+      // Vérifie que le JSON-LD est construit via articleSchema et breadcrumbSchema
+      expect(source).toContain("articleSchema");
+      expect(source).toContain("breadcrumbSchema");
       expect(source).toContain('type="application/ld+json"');
 
       // Vérifie que le composant a bien été invoqué (pas d'erreur)

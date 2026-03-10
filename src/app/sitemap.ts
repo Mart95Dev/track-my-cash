@@ -2,8 +2,34 @@ import type { MetadataRoute } from "next";
 import { getDb } from "@/lib/db";
 import { getPublishedPosts } from "@/lib/queries/blog";
 
-const LOCALES = ["fr", "en", "es", "it", "de"] as const;
-const PUBLIC_PATHS = ["", "tarifs", "connexion", "inscription"] as const;
+export const LOCALES = ["fr", "en", "es", "it", "de"] as const;
+
+type ChangeFrequency = "weekly" | "monthly" | "yearly";
+
+interface PathConfig {
+  path: string;
+  priority: number;
+  changeFrequency: ChangeFrequency;
+}
+
+export const MARKETING_PATHS: PathConfig[] = [
+  // Homepage
+  { path: "", priority: 1.0, changeFrequency: "weekly" },
+  // Features & pricing
+  { path: "tarifs", priority: 0.9, changeFrequency: "monthly" },
+  { path: "fonctionnalites", priority: 0.9, changeFrequency: "monthly" },
+  // Trust pages
+  { path: "securite", priority: 0.8, changeFrequency: "monthly" },
+  { path: "a-propos", priority: 0.8, changeFrequency: "monthly" },
+  // Auth pages
+  { path: "connexion", priority: 0.5, changeFrequency: "monthly" },
+  { path: "inscription", priority: 0.5, changeFrequency: "monthly" },
+  // Legal pages
+  { path: "cgu", priority: 0.3, changeFrequency: "yearly" },
+  { path: "mentions-legales", priority: 0.3, changeFrequency: "yearly" },
+  { path: "politique-confidentialite", priority: 0.3, changeFrequency: "yearly" },
+  { path: "cookies", priority: 0.3, changeFrequency: "yearly" },
+];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://trackmycash.com";
@@ -11,17 +37,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const entries: MetadataRoute.Sitemap = [];
 
+  // Marketing pages × locales
   for (const locale of LOCALES) {
-    for (const path of PUBLIC_PATHS) {
+    for (const { path, priority, changeFrequency } of MARKETING_PATHS) {
       const url = path
         ? `${baseUrl}/${locale}/${path}`
         : `${baseUrl}/${locale}`;
-      entries.push({
-        url,
-        lastModified,
-        changeFrequency: path === "" ? "weekly" : "monthly",
-        priority: path === "" ? 1.0 : 0.8,
-      });
+      entries.push({ url, lastModified, changeFrequency, priority });
     }
   }
 

@@ -1,22 +1,24 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { ScrollRevealSection } from "@/components/marketing/scroll-reveal";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+import { breadcrumbSchema } from "@/lib/seo/schemas";
+import { SEO_CONFIG } from "@/lib/seo/constants";
 
-export const metadata: Metadata = {
-  title: "À propos — TrackMyCash",
-  description:
-    "L'histoire de TrackMyCash : pourquoi et comment nous avons créé l'outil de gestion financière de couple.",
-  openGraph: {
-    title: "À propos — TrackMyCash",
-    description:
-      "L'histoire de TrackMyCash : pourquoi et comment nous avons créé l'outil de gestion financière de couple.",
-    type: "website",
-  },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return buildPageMetadata({
+    title: "À propos — L'histoire de TrackMyCash",
+    description: "L'histoire de TrackMyCash : pourquoi et comment nous avons créé l'outil de gestion financière de couple.",
+    path: "a-propos",
+    locale,
+    ogImage: "/og/a-propos.png",
+  });
+}
 
 /* ── Data ─────────────────────────────────────────────────────────────── */
 
-const CONVICTIONS = [
+export const CONVICTIONS = [
   {
     title: "Transparence, pas surveillance",
     desc: "Partager ses finances ne veut pas dire espionner l\u2019autre. Chaque donnée partagée l\u2019est par choix, jamais par défaut. Vous gardez le contrôle total sur ce que votre partenaire voit.",
@@ -31,7 +33,7 @@ const CONVICTIONS = [
   },
 ];
 
-const STATS = [
+export const STATS = [
   { value: "12 000+", label: "Couples actifs" },
   { value: "2M+", label: "Transactions importées" },
   { value: "4,8/5", label: "Note moyenne" },
@@ -41,8 +43,13 @@ const STATS = [
 /* ── Page ─────────────────────────────────────────────────────────────── */
 
 export default function AProposPage() {
+  const baseUrl = SEO_CONFIG.baseUrl;
   return (
     <ScrollRevealSection>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema([
+        { name: "Accueil", url: `${baseUrl}/fr` },
+        { name: "À propos", url: `${baseUrl}/fr/a-propos` },
+      ])) }} />
       <div className="min-h-screen">
         {/* ── Hero ──────────────────────────────────────────────────────── */}
         <section className="bg-[#F5F3FF] py-24 md:py-32">

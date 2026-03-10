@@ -359,3 +359,29 @@
 - **Projets :** track-my-cash + track-my-cash-admin
 - **Tests baseline :** 1669 (0 régression tolérée)
 - **Dépendance npm à ajouter :** sanitize-html
+
+---
+
+## Sprint SEO & GEO (v21) — EN COURS 🚧
+
+| ID | Titre | Priorité | Complexité | Statut | Bloqué par |
+|----|-------|----------|------------|--------|------------|
+| STORY-158 | Infrastructure SEO — Modules utilitaires | P0 | M (5pts) | 🔲 pending | — |
+| STORY-159 | Robots.txt — Autoriser les bots IA | P0 | S (2pts) | 🔲 pending | — |
+| STORY-160 | Sitemap complet × 5 locales | P0 | S (3pts) | 🔲 pending | — |
+| STORY-161 | Root Layout — Metadata globale enrichie | P0 | XS (2pts) | 🔲 pending | — |
+| STORY-162 | Marketing Layout — Organization JSON-LD | P0 | S (3pts) | 🔲 pending | STORY-158 |
+| STORY-163 | Homepage — Metadata + FAQ + JSON-LD complet | P0 | L (8pts) | 🔲 pending | STORY-158 |
+| STORY-164 | Tarifs — FAQPage JSON-LD | P0 | S (3pts) | 🔲 pending | STORY-158 |
+| STORY-165 | Pages marketing — Metadata enrichie | P1 | M (5pts) | 🔲 pending | STORY-158 |
+| STORY-166 | Pages légales + blog — Metadata | P1 | S (3pts) | 🔲 pending | STORY-158 |
+| STORY-167 | Blog articles — Article JSON-LD enrichi | P1 | S (3pts) | 🔲 pending | STORY-158 |
+| STORY-168 | OG Images — Placeholders statiques | P2 | XS (2pts) | 🔲 pending | — |
+
+### Métriques cible Sprint SEO & GEO
+
+- **Stories :** 0/11
+- **Points total :** 39 pts
+- **Tests baseline :** 1789 (0 régression tolérée)
+- **Zéro dépendance npm ajoutée**
+- **Objectif :** Sitemap 55+ URLs, JSON-LD sur toutes pages, FAQ schema, bots IA autorisés

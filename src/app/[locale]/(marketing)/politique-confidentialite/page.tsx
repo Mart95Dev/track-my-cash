@@ -1,22 +1,42 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { ScrollRevealSection } from "@/components/marketing/scroll-reveal";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+import { breadcrumbSchema } from "@/lib/seo/schemas";
+import { SEO_CONFIG } from "@/lib/seo/constants";
 
-export const metadata: Metadata = {
-  title: "Politique de confidentialité — TrackMyCash",
-  description:
-    "Comment TrackMyCash collecte, utilise et protège vos données personnelles.",
-  openGraph: {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildPageMetadata({
     title: "Politique de confidentialité — TrackMyCash",
     description:
       "Comment TrackMyCash collecte, utilise et protège vos données personnelles.",
-    type: "website",
-  },
-};
+    path: "politique-confidentialite",
+    locale,
+  });
+}
 
 export default function PolitiqueConfidentialitePage() {
   return (
     <ScrollRevealSection>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbSchema([
+              { name: "Accueil", url: `${SEO_CONFIG.baseUrl}/fr` },
+              {
+                name: "Confidentialité",
+                url: `${SEO_CONFIG.baseUrl}/fr/politique-confidentialite`,
+              },
+            ])
+          ),
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero */}
         <section className="bg-[#F5F3FF] py-24 md:py-32">

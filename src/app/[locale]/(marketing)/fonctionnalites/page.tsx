@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { ScrollRevealSection } from "@/components/marketing/scroll-reveal";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+import { breadcrumbSchema } from "@/lib/seo/schemas";
+import { SEO_CONFIG } from "@/lib/seo/constants";
 
-export const metadata: Metadata = {
-  title: "Fonctionnalités — TrackMyCash",
-  description:
-    "Gestion financière de couple : balance automatique, import CSV/XLSX/PDF, conseiller IA et objectifs communs. Tout ce dont votre couple a besoin.",
-  openGraph: {
-    title: "Fonctionnalités — TrackMyCash",
-    description:
-      "Gestion financière de couple : balance automatique, import CSV/XLSX/PDF, conseiller IA et objectifs communs.",
-    type: "website",
-  },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return buildPageMetadata({
+    title: "Fonctionnalités — Balance couple, import bancaire, IA",
+    description: "Gestion financière de couple : balance automatique, import CSV/XLSX/PDF, conseiller IA et objectifs communs. Tout ce dont votre couple a besoin.",
+    path: "fonctionnalites",
+    locale,
+    ogImage: "/og/fonctionnalites.png",
+  });
+}
 
 // Re-exported for test compatibility
 export const IMPORT_FORMATS = ["CSV", "XLSX", "PDF"] as const;
@@ -138,8 +140,13 @@ function FeatureGrid({
 /* ── Page ─────────────────────────────────────────────────────────────── */
 
 export default function FonctionnalitesPage() {
+  const baseUrl = SEO_CONFIG.baseUrl;
   return (
     <ScrollRevealSection>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema([
+        { name: "Accueil", url: `${baseUrl}/fr` },
+        { name: "Fonctionnalités", url: `${baseUrl}/fr/fonctionnalites` },
+      ])) }} />
       <div className="min-h-screen">
         {/* ── Hero ──────────────────────────────────────────────────────── */}
         <section className="bg-[#F5F3FF] py-24 md:py-32">

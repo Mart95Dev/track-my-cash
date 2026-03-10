@@ -1,22 +1,42 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { ScrollRevealSection } from "@/components/marketing/scroll-reveal";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+import { breadcrumbSchema } from "@/lib/seo/schemas";
+import { SEO_CONFIG } from "@/lib/seo/constants";
 
-export const metadata: Metadata = {
-  title: "Mentions légales — TrackMyCash",
-  description:
-    "Informations légales relatives à l'édition et à l'hébergement du site trackmycash.com",
-  openGraph: {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildPageMetadata({
     title: "Mentions légales — TrackMyCash",
     description:
       "Informations légales relatives à l'édition et à l'hébergement du site trackmycash.com",
-    type: "website",
-  },
-};
+    path: "mentions-legales",
+    locale,
+  });
+}
 
 export default function MentionsLegalesPage() {
   return (
     <ScrollRevealSection>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbSchema([
+              { name: "Accueil", url: `${SEO_CONFIG.baseUrl}/fr` },
+              {
+                name: "Mentions légales",
+                url: `${SEO_CONFIG.baseUrl}/fr/mentions-legales`,
+              },
+            ])
+          ),
+        }}
+      />
       <div className="min-h-screen">
         {/* Hero */}
         <section className="bg-[#F5F3FF] py-24 md:py-32">

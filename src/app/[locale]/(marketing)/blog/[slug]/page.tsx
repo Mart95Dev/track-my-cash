@@ -4,6 +4,8 @@ import { Link } from "@/i18n/navigation";
 import { getDb } from "@/lib/db";
 import { getPublishedPostBySlug, getPublishedSlugs } from "@/lib/queries/blog";
 import { sanitizeBlogHtml } from "@/lib/blog-sanitize";
+import { articleSchema, breadcrumbSchema } from "@/lib/seo/schemas";
+import { SEO_CONFIG } from "@/lib/seo/constants";
 
 export async function generateStaticParams() {
   try {
@@ -29,7 +31,7 @@ export async function generateMetadata({
     return { title: "Article introuvable — TrackMyCash" };
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://trackmycash.com";
+  const baseUrl = SEO_CONFIG.baseUrl;
 
   return {
     title: post.metaTitle ?? `${post.title} | TrackMyCash`,
@@ -41,6 +43,11 @@ export async function generateMetadata({
       publishedTime: post.publishedAt ?? undefined,
       tags: post.categories.map((c) => c.name),
       url: `${baseUrl}/fr/blog/${post.slug}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.metaTitle ?? `${post.title} | TrackMyCash`,
+      description: post.metaDescription ?? post.excerpt,
     },
   };
 }
@@ -58,32 +65,35 @@ export default async function BlogPostPage({
     notFound();
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://trackmycash.com";
+  const baseUrl = SEO_CONFIG.baseUrl;
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: post.title,
-    description: post.excerpt,
-    datePublished: post.publishedAt,
-    author: {
-      "@type": "Organization",
-      name: "TrackMyCash",
+  const jsonLd = articleSchema(
+    {
+      title: post.title,
+      excerpt: post.excerpt,
+      slug: post.slug,
+      publishedAt: post.publishedAt,
+      updatedAt: post.updatedAt ?? null,
+      categories: post.categories,
     },
-    publisher: {
-      "@type": "Organization",
-      name: "TrackMyCash",
-      url: baseUrl,
-    },
-    url: `${baseUrl}/fr/blog/${post.slug}`,
-    keywords: post.categories.map((c) => c.name).join(", "),
-  };
+    baseUrl
+  );
 
   return (
     <article className="max-w-2xl mx-auto px-4 py-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema([
+            { name: "Accueil", url: `${baseUrl}/fr` },
+            { name: "Blog", url: `${baseUrl}/fr/blog` },
+            { name: post.title, url: `${baseUrl}/fr/blog/${post.slug}` },
+          ])),
+        }}
       />
 
       <div className="mb-6">
