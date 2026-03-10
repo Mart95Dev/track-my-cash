@@ -84,6 +84,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Pages auth (connexion, inscription) avec OAuth Google/Apple
 - Design system : DM Serif Display (headings) + DM Sans (body), palette Indigo/Stone
 - Animations scroll reveal (fade-up, hover-lift) et composants interactifs
+- Theme light force sur les pages marketing (override CSS `.marketing-light` pour compatibilite dark mode iOS)
 
 ### Pages legales et conformite RGPD
 - Mentions legales (/mentions-legales)
@@ -194,3 +195,4 @@ tests/
 | v18.1 | Hardening securite API mobile | — | 1668 |
 | v19 | Redesign marketing complet (DM Serif/Sans, 8 pages, animations) | — | 1668+ |
 | v19.1 | Pages legales RGPD + bandeau cookie (4 pages, cookie banner) | — | 1669+ |
+| v19.2 | Fix couleurs delavees iPhone iOS dark mode (marketing-light CSS scope) | — | 1669+ |

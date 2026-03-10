@@ -82,6 +82,7 @@
 }
 
 :root {
+  color-scheme: light dark;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   /* Tokens sémantiques métier — mode clair */
@@ -180,6 +181,46 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* ── Marketing light override ──────────────────────────────────────────
+   Force les variables light sur les pages marketing, même quand le système
+   est en mode sombre (Safari iOS applique .dark via next-themes/system).
+   Les pages marketing utilisent des couleurs hardcodées (bg-[#F5F3FF], etc.)
+   incompatibles avec le dark mode.
+── */
+.dark .marketing-light {
+  --primary: #4F46E5;
+  --primary-foreground: #ffffff;
+  --primary-light: #818CF8;
+  --primary-dark: #3730A3;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --background-light: #FAFAF9;
+  --text-main: #1C1917;
+  --text-muted: #78716C;
+  --text-light: #A8A29E;
+  --border-light: #E7E5E4;
+  --card-light: #ffffff;
+  --income: oklch(0.527 0.154 150.069);
+  --expense: oklch(0.577 0.245 27.325);
+  --warning: #e7a008;
+  --info: oklch(0.546 0.245 262.881);
+  color-scheme: light;
 }
 
 @layer base {
