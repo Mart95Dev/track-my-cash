@@ -11,7 +11,8 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - **UI** : Tailwind CSS v4, shadcn/ui, Material Symbols Outlined, DM Sans + DM Serif Display
 - **Charts** : Recharts
 - **Emails** : Nodemailer
-- **Tests** : Vitest + Testing Library (1669+ tests)
+- **Sanitize** : sanitize-html (XSS protection blog)
+- **Tests** : Vitest + Testing Library (1789+ tests)
 
 ## Fonctionnalites
 
@@ -78,7 +79,10 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Homepage avec hero, pain points, features, temoignages, how-it-works, trust bar et CTA
 - Page Fonctionnalites (mode couple, IA, import multi-formats)
 - Page Tarifs avec toggle mensuel/annuel, comparatif detaille et FAQ accordion
-- Blog avec categories, article a la une et newsletter
+- Blog dynamique (articles depuis Turso, categories, article a la une)
+- Page article [slug] avec contenu HTML sanitise, metadata SEO et JSON-LD
+- Newsletter fonctionnelle (inscription, honeypot anti-bot, email de bienvenue)
+- Desabonnement newsletter securise par HMAC-SHA256 (timingSafeEqual, page de confirmation)
 - Page A propos (histoire, convictions, chiffres cles)
 - Page Securite (6 engagements, philosophie)
 - Pages auth (connexion, inscription) avec OAuth Google/Apple
@@ -146,6 +150,9 @@ SMTP_HOST=
 SMTP_PORT=
 SMTP_USER=
 SMTP_PASS=
+
+# Newsletter
+NEWSLETTER_SECRET=           # Cle HMAC-SHA256 pour signer les liens de desabonnement
 ```
 
 ## Architecture
@@ -159,14 +166,18 @@ src/
     [locale]/offline/   # Page offline PWA (hors auth)
     api/                # API routes (auth, push, cron, stripe, reports)
       mobile/           # API REST mobile (auth JWT, 2FA, chat, CRUD, RGPD, settings)
-    actions/            # Server Actions (mutations)
+      newsletter/       # API newsletter (desabonnement HMAC)
+    actions/            # Server Actions (mutations, newsletter)
   components/           # Composants React (client components)
     marketing/          # Composants marketing (navbar, footer, scroll-reveal, cookie-banner)
     charts/             # Graphiques Recharts (barres, camembert, timeline)
   lib/
-    queries/            # 13 modules SQL domainaux (barrel re-export)
+    queries/            # 13 modules SQL domainaux + blog queries (barrel re-export)
     parsers/            # 18 parsers bancaires + registry
     email/              # Composants email partages (styles, helpers)
+    blog-sanitize.ts    # Sanitize HTML articles (XSS protection)
+    blog-db.ts          # Init tables blog (blog_posts, blog_categories, newsletter_subscribers)
+    newsletter-utils.ts # HMAC-SHA256 URL signing pour desabonnement
     auth.ts             # Config BetterAuth (server, OAuth, 2FA TOTP)
     auth-client.ts      # Config BetterAuth (client, twoFactorClient)
     mobile-auth.ts      # Auth mobile (JWT sign/verify, CORS dynamique, helpers jsonOk/jsonError)
@@ -180,7 +191,7 @@ src/
 public/
   sw.js                 # Service Worker PWA (cache, offline, push events)
 tests/
-  unit/                 # Tests unitaires (192 fichiers)
+  unit/                 # Tests unitaires (203 fichiers, 1789 tests)
   integration/          # Tests d'integration mobile (4 suites, 33 tests)
 ```
 
@@ -196,3 +207,4 @@ tests/
 | v19 | Redesign marketing complet (DM Serif/Sans, 8 pages, animations) | — | 1668+ |
 | v19.1 | Pages legales RGPD + bandeau cookie (4 pages, cookie banner) | — | 1669+ |
 | v19.2 | Fix couleurs delavees iPhone iOS dark mode (marketing-light CSS scope) | — | 1669+ |
+| v20 | Blog dynamique + Newsletter (CRUD admin, lecture Turso, page [slug] SEO, newsletter HMAC, dashboard admin) | 8 | 1789 |
