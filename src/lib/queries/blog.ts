@@ -122,6 +122,73 @@ export async function getPublishedSlugs(db: Client): Promise<string[]> {
   return result.rows.map((row) => toStr(row.slug));
 }
 
+export async function getRelatedPosts(
+  db: Client,
+  currentSlug: string,
+  categoryIds: string[],
+  limit: number = 3
+): Promise<BlogPost[]> {
+  if (categoryIds.length === 0) return [];
+
+  const placeholders = categoryIds.map(() => "?").join(", ");
+  const result = await db.execute({
+    sql: `
+      SELECT bp.*,
+        json_group_array(
+          CASE WHEN bc.id IS NOT NULL
+            THEN json_object('id', bc.id, 'name', bc.name, 'slug', bc.slug, 'color', bc.color)
+            ELSE NULL
+          END
+        ) FILTER (WHERE bc.id IS NOT NULL) AS categories_json
+      FROM blog_posts bp
+      LEFT JOIN blog_post_categories bpc ON bp.id = bpc.post_id
+      LEFT JOIN blog_categories bc ON bpc.category_id = bc.id
+      WHERE bp.status = 'published'
+        AND bp.slug != ?
+        AND bp.id IN (
+          SELECT DISTINCT bpc2.post_id
+          FROM blog_post_categories bpc2
+          WHERE bpc2.category_id IN (${placeholders})
+        )
+      GROUP BY bp.id
+      ORDER BY bp.published_at DESC
+      LIMIT ?
+    `,
+    args: [currentSlug, ...categoryIds, limit],
+  });
+
+  return result.rows.map(mapRowToPost);
+}
+
+export async function getAdjacentPosts(
+  db: Client,
+  publishedAt: string
+): Promise<{ prev: { slug: string; title: string } | null; next: { slug: string; title: string } | null }> {
+  const [prevResult, nextResult] = await Promise.all([
+    db.execute({
+      sql: `SELECT slug, title FROM blog_posts
+            WHERE status = 'published' AND published_at < ?
+            ORDER BY published_at DESC LIMIT 1`,
+      args: [publishedAt],
+    }),
+    db.execute({
+      sql: `SELECT slug, title FROM blog_posts
+            WHERE status = 'published' AND published_at > ?
+            ORDER BY published_at ASC LIMIT 1`,
+      args: [publishedAt],
+    }),
+  ]);
+
+  const prev = prevResult.rows.length > 0
+    ? { slug: String(prevResult.rows[0].slug), title: String(prevResult.rows[0].title) }
+    : null;
+  const next = nextResult.rows.length > 0
+    ? { slug: String(nextResult.rows[0].slug), title: String(nextResult.rows[0].title) }
+    : null;
+
+  return { prev, next };
+}
+
 // ── Row mapper ───────────────────────────────────────────────────────────
 
 function mapRowToPost(row: Record<string, unknown>): BlogPost {

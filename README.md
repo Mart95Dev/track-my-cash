@@ -12,7 +12,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - **Charts** : Recharts
 - **Emails** : Nodemailer
 - **Sanitize** : sanitize-html (XSS protection blog)
-- **Tests** : Vitest + Testing Library (1849+ tests)
+- **Tests** : Vitest + Testing Library (1862+ tests)
 
 ## Fonctionnalites
 
@@ -80,7 +80,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Page Fonctionnalites (mode couple, IA, import multi-formats)
 - Page Tarifs avec toggle mensuel/annuel, comparatif detaille et FAQ accordion
 - Blog dynamique (articles depuis Turso, categories, article a la une)
-- Page article [slug] avec contenu HTML sanitise, metadata SEO et JSON-LD
+- Template article enrichi : image hero, bloc auteur, TOC sticky (desktop) / repliable (mobile), barre de progression de lecture, partage social (Twitter/LinkedIn/copier), reactions emoji (localStorage), articles lies par categorie, navigation prev/next, prose enrichi (blockquotes colorees, callouts info/warning/tip, code blocks, tables stylisees)
 - Newsletter fonctionnelle (inscription, honeypot anti-bot, email de bienvenue)
 - Desabonnement newsletter securise par HMAC-SHA256 (timingSafeEqual, page de confirmation)
 - Page A propos (histoire, convictions, chiffres cles)
@@ -99,7 +99,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Styles typographiques dedies `.legal-content` (h2/h3/p/ul/table/highlight-box)
 
 ### SEO et GEO (Generative Engine Optimization)
-- 6 schemas JSON-LD : Organization, WebSite, SoftwareApplication, FAQPage, Article, BreadcrumbList
+- 6 schemas JSON-LD : Organization, WebSite, SoftwareApplication, FAQPage, Article (author Person, speakable, keywords, image conditionnelle), BreadcrumbList
 - Metadata enrichie sur toutes les pages (canonical, alternates 5 locales, OG images, Twitter cards)
 - FAQ GEO optimisee : 7 questions homepage + 4 questions tarifs (impact IA search engines +40%)
 - Robots.txt : GPTBot, PerplexityBot, ClaudeBot autorises pour citation par moteurs IA
@@ -180,13 +180,15 @@ src/
     actions/            # Server Actions (mutations, newsletter)
   components/           # Composants React (client components)
     marketing/          # Composants marketing (navbar, footer, scroll-reveal, cookie-banner)
+    blog/               # Composants blog (reading-progress-bar, table-of-contents, share-buttons, article-reactions, article-body)
     charts/             # Graphiques Recharts (barres, camembert, timeline)
   lib/
     seo/                # Infrastructure SEO/GEO (constants, schemas JSON-LD, metadata builder)
     queries/            # 13 modules SQL domainaux + blog queries (barrel re-export)
     parsers/            # 18 parsers bancaires + registry
     email/              # Composants email partages (styles, helpers)
-    blog-sanitize.ts    # Sanitize HTML articles (XSS protection)
+    blog-sanitize.ts    # Sanitize HTML articles (XSS protection, callout classes, heading ids)
+    blog-html-utils.ts  # Injection IDs headings pour ancres TOC
     blog-db.ts          # Init tables blog (blog_posts, blog_categories, newsletter_subscribers)
     newsletter-utils.ts # HMAC-SHA256 URL signing pour desabonnement
     auth.ts             # Config BetterAuth (server, OAuth, 2FA TOTP)
@@ -202,7 +204,7 @@ src/
 public/
   sw.js                 # Service Worker PWA (cache, offline, push events)
 tests/
-  unit/                 # Tests unitaires (212 fichiers, 1849 tests)
+  unit/                 # Tests unitaires (213 fichiers, 1862 tests)
   integration/          # Tests d'integration mobile (4 suites, 33 tests)
 ```
 
@@ -221,3 +223,4 @@ tests/
 | v20 | Blog dynamique + Newsletter (CRUD admin, lecture Turso, page [slug] SEO, newsletter HMAC, dashboard admin) | 8 | 1789 |
 | v20.1 | Fix build Vercel (generateStaticParams resilient, useSyncExternalStore cookie banner) | — | 1789 |
 | v21 | SEO & GEO (JSON-LD 6 schemas, metadata enrichie, robots IA, sitemap 55+ URLs, FAQ GEO, OG images, BreadcrumbList) | 11 | 1849 |
+| v21.1 | Blog article enrichi (hero image, auteur, TOC, progress bar, partage social, reactions, articles lies, nav prev/next, prose enrichi, SEO author/speakable) | — | 1862 |

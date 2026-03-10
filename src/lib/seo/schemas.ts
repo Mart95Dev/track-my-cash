@@ -99,10 +99,12 @@ export function articleSchema(
     publishedAt: string | null;
     updatedAt?: string | null;
     categories: { name: string }[];
+    authorName?: string;
+    coverImageUrl?: string | null;
   },
   baseUrl: string
 ): JsonLd {
-  return {
+  const schema: JsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: post.title,
@@ -110,8 +112,9 @@ export function articleSchema(
     datePublished: post.publishedAt ?? undefined,
     dateModified: post.updatedAt ?? post.publishedAt ?? undefined,
     author: {
-      "@type": "Organization",
-      name: SEO_CONFIG.siteName,
+      "@type": "Person",
+      name: post.authorName ?? "TrackMyCash",
+      url: `${baseUrl}/fr/a-propos`,
     },
     publisher: {
       "@type": "Organization",
@@ -126,7 +129,23 @@ export function articleSchema(
       "@id": `${baseUrl}/fr/blog/${post.slug}`,
     },
     inLanguage: "fr",
+    keywords: post.categories.map((c) => c.name).join(", "),
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: ["article h1", "article header p"],
+    },
   };
+
+  if (post.coverImageUrl) {
+    schema.image = {
+      "@type": "ImageObject",
+      url: post.coverImageUrl.startsWith("http")
+        ? post.coverImageUrl
+        : `${baseUrl}${post.coverImageUrl}`,
+    };
+  }
+
+  return schema;
 }
 
 export function breadcrumbSchema(

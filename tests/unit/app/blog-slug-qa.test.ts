@@ -24,9 +24,11 @@ const mockPost = {
   ],
 };
 
-const { mockGetPublishedPostBySlug, mockGetPublishedSlugs, mockSanitize } = vi.hoisted(() => ({
+const { mockGetPublishedPostBySlug, mockGetPublishedSlugs, mockGetRelatedPosts, mockGetAdjacentPosts, mockSanitize } = vi.hoisted(() => ({
   mockGetPublishedPostBySlug: vi.fn(),
   mockGetPublishedSlugs: vi.fn(),
+  mockGetRelatedPosts: vi.fn(),
+  mockGetAdjacentPosts: vi.fn(),
   mockSanitize: vi.fn((html: string) => `SANITIZED:${html}`),
 }));
 
@@ -37,10 +39,24 @@ vi.mock("@/lib/db", () => ({
 vi.mock("@/lib/queries/blog", () => ({
   getPublishedPostBySlug: mockGetPublishedPostBySlug,
   getPublishedSlugs: mockGetPublishedSlugs,
+  getRelatedPosts: mockGetRelatedPosts,
+  getAdjacentPosts: mockGetAdjacentPosts,
 }));
 
 vi.mock("@/lib/blog-sanitize", () => ({
   sanitizeBlogHtml: mockSanitize,
+}));
+
+vi.mock("@/lib/blog-html-utils", () => ({
+  injectHeadingIds: vi.fn((html: string) => html),
+}));
+
+vi.mock("@/components/blog/reading-progress-bar", () => ({
+  ReadingProgressBar: vi.fn(() => null),
+}));
+
+vi.mock("@/components/blog/article-body", () => ({
+  ArticleBody: vi.fn(() => null),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -57,6 +73,8 @@ describe("QA-154 — Tests complémentaires page [slug]", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.NEXT_PUBLIC_APP_URL = "https://trackmycash.com";
+    mockGetRelatedPosts.mockResolvedValue([]);
+    mockGetAdjacentPosts.mockResolvedValue({ prev: null, next: null });
   });
 
   // ── QA-154-1 : sanitizeBlogHtml est bien appelé ──────────────────────
