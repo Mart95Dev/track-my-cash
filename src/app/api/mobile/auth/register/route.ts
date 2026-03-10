@@ -86,7 +86,8 @@ export async function POST(req: Request) {
       { trialEndsAt: new Date(Date.now() + 14 * 86400000).toISOString(), platform: "android" }
     ).catch(() => {});
 
-    upsertUserPlatform(db, user.id, "android", req.headers.get("X-App-Version")).catch(() => {});
+    const platform = (req.headers.get("X-Platform") ?? "android") as "web" | "android" | "ios";
+    upsertUserPlatform(db, user.id, platform, req.headers.get("X-App-Version")).catch(() => {});
 
     return jsonCreated({
       user: {

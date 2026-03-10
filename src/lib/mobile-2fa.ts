@@ -5,14 +5,22 @@
  */
 import { SignJWT, jwtVerify, type JWTPayload } from "jose";
 import { createOTP } from "@better-auth/utils/otp";
-import { randomBytes } from "node:crypto";
+import { randomBytes, randomInt, randomUUID } from "node:crypto";
 import { getDb } from "./db";
 
 // ── Constantes ──────────────────────────────────────────────────────────────
 
 const AUTH_SECRET = process.env.BETTER_AUTH_SECRET ?? "dev-secret-change-in-production-32c";
-const JWT_SECRET = new TextEncoder().encode(AUTH_SECRET);
-const JWT_ISSUER = "track-my-cash";
+
+function getTempTokenSecret(): Uint8Array {
+  const secret = process.env.JWT_SECRET_MOBILE;
+  if (!secret && process.env.NODE_ENV === "production") {
+    throw new Error("JWT_SECRET_MOBILE is required in production");
+  }
+  return new TextEncoder().encode(secret ?? "dev-only-mobile-secret-not-for-prod");
+}
+
+const JWT_ISSUER = "track-my-cash-mobile";
 const TEMP_TOKEN_EXPIRY = "5m";
 
 const BASE32_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -36,6 +44,7 @@ interface TwoFactorRecord {
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 function randomBase32(length: number): string {
+  // 256 % 32 = 0 → pas de biais
   const bytes = randomBytes(length);
   return Array.from(bytes)
     .map((b) => BASE32_ALPHABET[b % BASE32_ALPHABET.length])
@@ -44,18 +53,11 @@ function randomBase32(length: number): string {
 
 function randomAlphanumeric(length: number): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  const bytes = randomBytes(length);
-  return Array.from(bytes)
-    .map((b) => chars[b % chars.length])
-    .join("");
+  return Array.from({ length }, () => chars[randomInt(chars.length)]).join("");
 }
 
-function randomId(length: number): string {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-  const bytes = randomBytes(length);
-  return Array.from(bytes)
-    .map((b) => chars[b % chars.length])
-    .join("");
+function generateId(): string {
+  return randomUUID().replace(/-/g, "");
 }
 
 // ── Temp Token (JWT court 5min pour le flux 2FA) ────────────────────────────
@@ -67,11 +69,11 @@ export async function signTempToken(userId: string, email: string): Promise<stri
     .setIssuer(JWT_ISSUER)
     .setIssuedAt()
     .setExpirationTime(TEMP_TOKEN_EXPIRY)
-    .sign(JWT_SECRET);
+    .sign(getTempTokenSecret());
 }
 
 export async function verifyTempToken(token: string): Promise<{ userId: string; email: string }> {
-  const { payload } = await jwtVerify(token, JWT_SECRET, { issuer: JWT_ISSUER });
+  const { payload } = await jwtVerify(token, getTempTokenSecret(), { issuer: JWT_ISSUER });
   const typed = payload as TempTokenPayload;
 
   if (!typed.sub || typed.purpose !== "2fa-verify") {
@@ -214,7 +216,7 @@ export async function initiate2FASetup(
       args: [encryptedSecret, encryptedBackupCodes, userId],
     });
   } else {
-    const id = randomId(32);
+    const id = generateId();
     await db.execute({
       sql: "INSERT INTO twoFactor (id, userId, secret, backupCodes, enabled) VALUES (?, ?, ?, ?, 0)",
       args: [id, userId, encryptedSecret, encryptedBackupCodes],
@@ -229,14 +231,10 @@ export async function initiate2FASetup(
  */
 export async function confirm2FAEnable(userId: string): Promise<void> {
   const db = getDb();
-  await db.execute({
-    sql: "UPDATE twoFactor SET enabled = 1 WHERE userId = ?",
-    args: [userId],
-  });
-  await db.execute({
-    sql: "UPDATE user SET twoFactorEnabled = 1 WHERE id = ?",
-    args: [userId],
-  });
+  await db.batch([
+    { sql: "UPDATE twoFactor SET enabled = 1 WHERE userId = ?", args: [userId] },
+    { sql: "UPDATE user SET twoFactorEnabled = 1 WHERE id = ?", args: [userId] },
+  ], "write");
 }
 
 /**
@@ -244,12 +242,8 @@ export async function confirm2FAEnable(userId: string): Promise<void> {
  */
 export async function disable2FA(userId: string): Promise<void> {
   const db = getDb();
-  await db.execute({
-    sql: "DELETE FROM twoFactor WHERE userId = ?",
-    args: [userId],
-  });
-  await db.execute({
-    sql: "UPDATE user SET twoFactorEnabled = 0 WHERE id = ?",
-    args: [userId],
-  });
+  await db.batch([
+    { sql: "DELETE FROM twoFactor WHERE userId = ?", args: [userId] },
+    { sql: "UPDATE user SET twoFactorEnabled = 0 WHERE id = ?", args: [userId] },
+  ], "write");
 }

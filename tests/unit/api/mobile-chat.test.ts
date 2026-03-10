@@ -40,7 +40,7 @@ vi.mock("@/lib/subscription-utils", () => ({
 }));
 
 vi.mock("@/lib/rate-limiter", () => ({
-  checkRateLimit: vi.fn().mockReturnValue({
+  checkRateLimitAsync: vi.fn().mockResolvedValue({
     allowed: true,
     remaining: 29,
     resetAt: Date.now() + 3_600_000,
@@ -76,7 +76,7 @@ vi.mock("ai", () => ({
 
 import { getMobileUserId } from "@/lib/mobile-auth";
 import { canUseAI } from "@/lib/subscription-utils";
-import { checkRateLimit } from "@/lib/rate-limiter";
+import { checkRateLimitAsync } from "@/lib/rate-limiter";
 
 describe("/api/mobile/chat", () => {
   beforeEach(() => {
@@ -84,7 +84,7 @@ describe("/api/mobile/chat", () => {
     vi.stubEnv("API_KEY_OPENROUTER", "test-key-123");
     (getMobileUserId as ReturnType<typeof vi.fn>).mockResolvedValue("user-123");
     (canUseAI as ReturnType<typeof vi.fn>).mockResolvedValue({ allowed: true });
-    (checkRateLimit as ReturnType<typeof vi.fn>).mockReturnValue({
+    (checkRateLimitAsync as ReturnType<typeof vi.fn>).mockResolvedValue({
       allowed: true,
       remaining: 29,
       resetAt: Date.now() + 3_600_000,
@@ -151,7 +151,7 @@ describe("/api/mobile/chat", () => {
 
   // TU-3 : 429 si rate limited
   it("retourne 429 si rate limited (AC-2)", async () => {
-    (checkRateLimit as ReturnType<typeof vi.fn>).mockReturnValue({
+    (checkRateLimitAsync as ReturnType<typeof vi.fn>).mockResolvedValue({
       allowed: false,
       remaining: 0,
       resetAt: Date.now() + 600_000,

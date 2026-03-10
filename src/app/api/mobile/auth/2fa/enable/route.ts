@@ -52,9 +52,8 @@ export async function POST(req: Request) {
     const email = String(userResult.rows[0].email);
     const { totpURI, backupCodes } = await initiate2FASetup(userId, email);
 
-    const qrDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(totpURI)}`;
-
-    return jsonOk({ totpURI, backupCodes, qrDataUrl });
+    // Le QR code doit etre genere cote client (pas via un service tiers pour eviter de fuiter le secret)
+    return jsonOk({ totpURI, backupCodes });
   } catch (err) {
     if (err instanceof Response) throw err;
     return jsonError(500, "Erreur interne du serveur");

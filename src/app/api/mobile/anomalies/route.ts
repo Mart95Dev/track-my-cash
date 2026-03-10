@@ -19,7 +19,7 @@ export async function GET(req: Request) {
     const db = await getUserDb(userId);
 
     const url = new URL(req.url);
-    const months = Number(url.searchParams.get("months") ?? 3);
+    const months = Math.min(24, Math.max(1, Number(url.searchParams.get("months") ?? 3)));
     const accountId = url.searchParams.get("account_id");
 
     // Calculer la date de debut

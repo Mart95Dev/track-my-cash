@@ -224,7 +224,7 @@ describe("/api/mobile/auth — 2FA (STORY-141)", () => {
       const json = await res.json();
       expect(json.totpURI).toBeDefined();
       expect(json.backupCodes).toHaveLength(8);
-      expect(json.qrDataUrl).toContain("qrserver.com");
+      // qrDataUrl supprimé — le QR est généré côté client
     });
   });
 

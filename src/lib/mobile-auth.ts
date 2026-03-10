@@ -9,11 +9,16 @@ import { SignJWT, jwtVerify, type JWTPayload } from "jose";
 
 // ── JWT Config ──────────────────────────────────────────────────────────────
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.BETTER_AUTH_SECRET ?? "dev-secret-change-in-production-32c"
-);
-const JWT_ISSUER = "track-my-cash";
-const JWT_EXPIRY = "30d";
+function getJwtSecret(): Uint8Array {
+  const secret = process.env.JWT_SECRET_MOBILE;
+  if (!secret && process.env.NODE_ENV === "production") {
+    throw new Error("JWT_SECRET_MOBILE is required in production");
+  }
+  return new TextEncoder().encode(secret ?? "dev-only-mobile-secret-not-for-prod");
+}
+
+const JWT_ISSUER = "track-my-cash-mobile";
+const JWT_EXPIRY = "7d";
 
 interface MobileJwtPayload extends JWTPayload {
   sub: string; // userId
@@ -32,7 +37,7 @@ export async function signMobileToken(
     .setIssuer(JWT_ISSUER)
     .setIssuedAt()
     .setExpirationTime(JWT_EXPIRY)
-    .sign(JWT_SECRET);
+    .sign(getJwtSecret());
 }
 
 // ── JWT Validation ──────────────────────────────────────────────────────────
@@ -52,7 +57,7 @@ export async function getMobileUserId(req: Request): Promise<string> {
   const token = authHeader.slice(7);
 
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET, {
+    const { payload } = await jwtVerify(token, getJwtSecret(), {
       issuer: JWT_ISSUER,
     });
 
@@ -69,45 +74,64 @@ export async function getMobileUserId(req: Request): Promise<string> {
   }
 }
 
+// ── CORS ────────────────────────────────────────────────────────────────────
+
+const ALLOWED_ORIGINS = [
+  process.env.NEXT_PUBLIC_APP_URL,
+  process.env.BETTER_AUTH_URL,
+  "capacitor://localhost",
+  "http://localhost",
+  "http://localhost:8081",
+  "http://localhost:19006",
+].filter(Boolean) as string[];
+
+function getCorsHeaders(origin?: string | null): Record<string, string> {
+  const allowedOrigin =
+    origin && ALLOWED_ORIGINS.some((o) => origin.startsWith(o))
+      ? origin
+      : ALLOWED_ORIGINS[0] ?? "";
+
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Authorization, Content-Type, X-Platform, X-App-Version",
+    "Vary": "Origin",
+  };
+}
+
 // ── Response Helpers ────────────────────────────────────────────────────────
 
-const CORS_HEADERS: Record<string, string> = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Authorization, Content-Type",
-};
-
-export function jsonOk<T>(data: T, status = 200): Response {
+export function jsonOk<T>(data: T, status = 200, origin?: string | null): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+    headers: { "Content-Type": "application/json", ...getCorsHeaders(origin) },
   });
 }
 
-export function jsonCreated<T>(data: T): Response {
-  return jsonOk(data, 201);
+export function jsonCreated<T>(data: T, origin?: string | null): Response {
+  return jsonOk(data, 201, origin);
 }
 
-export function jsonError(status: number, message: string): Response {
+export function jsonError(status: number, message: string, origin?: string | null): Response {
   return new Response(JSON.stringify({ error: message }), {
     status,
-    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+    headers: { "Content-Type": "application/json", ...getCorsHeaders(origin) },
   });
 }
 
-export function jsonNoContent(): Response {
+export function jsonNoContent(origin?: string | null): Response {
   return new Response(null, {
     status: 204,
-    headers: CORS_HEADERS,
+    headers: getCorsHeaders(origin),
   });
 }
 
 /**
  * Handler OPTIONS pour le CORS preflight
  */
-export function handleCors(): Response {
+export function handleCors(origin?: string | null): Response {
   return new Response(null, {
     status: 204,
-    headers: CORS_HEADERS,
+    headers: getCorsHeaders(origin),
   });
 }

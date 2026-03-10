@@ -11,10 +11,10 @@ import {
   jsonError,
 } from "@/lib/mobile-auth";
 import { getUserDb, getDb } from "@/lib/db";
-import { canUseAI, getUserPlanId } from "@/lib/subscription-utils";
+import { canUseAI } from "@/lib/subscription-utils";
 import { incrementAiUsage } from "@/lib/ai-usage";
 import { buildFinancialContext, SYSTEM_PROMPT } from "@/lib/ai-context";
-import { checkRateLimit } from "@/lib/rate-limiter";
+import { checkRateLimitAsync } from "@/lib/rate-limiter";
 import { getAllAccounts } from "@/lib/queries";
 
 const RATE_LIMIT = 30;
@@ -31,8 +31,8 @@ export async function POST(req: Request): Promise<Response> {
   // Auth JWT
   const userId = await getMobileUserId(req);
 
-  // Rate limiting
-  const rateLimit = checkRateLimit(userId, RATE_LIMIT, RATE_WINDOW_MS);
+  // Rate limiting (persistant via DB)
+  const rateLimit = await checkRateLimitAsync(userId, RATE_LIMIT, RATE_WINDOW_MS);
   if (!rateLimit.allowed) {
     const resetInMin = Math.ceil((rateLimit.resetAt - Date.now()) / 60000);
     return jsonError(
@@ -52,7 +52,19 @@ export async function POST(req: Request): Promise<Response> {
     return jsonError(500, "Clé API IA non configurée");
   }
 
-  const { messages, accountIds = [] }: MobileChatBody = await req.json();
+  let messages: MobileChatBody["messages"];
+  let accountIds: number[] = [];
+  try {
+    const body = await req.json() as MobileChatBody;
+    messages = body.messages;
+    accountIds = body.accountIds ?? [];
+  } catch {
+    return jsonError(400, "Corps de requête invalide");
+  }
+
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    return jsonError(400, "Messages requis");
+  }
 
   const db = await getUserDb(userId);
 

@@ -44,60 +44,22 @@ export async function GET(req: Request) {
     const from = url.searchParams.get("from") ?? undefined;
     const to = url.searchParams.get("to") ?? undefined;
 
-    const hasExtraFilters = category || type || from || to;
-
-    if (!hasExtraFilters) {
-      const result = await searchTransactions(db, {
-        accountId,
-        search,
-        sort,
-        page,
-        perPage,
-        tagId,
-      });
-
-      return jsonOk({
-        transactions: result.transactions,
-        total: result.total,
-        page,
-        per_page: perPage,
-      });
-    }
-
-    // Filtres supplémentaires non supportés par searchTransactions → filtre en mémoire
     const result = await searchTransactions(db, {
       accountId,
       search,
       sort,
-      page: 1,
-      perPage: 10000,
+      page,
+      perPage,
       tagId,
+      category,
+      type,
+      from,
+      to,
     });
 
-    let filtered = result.transactions;
-
-    if (category) {
-      filtered = filtered.filter(
-        (t) => t.category?.toLowerCase() === category.toLowerCase()
-      );
-    }
-    if (type) {
-      filtered = filtered.filter((t) => t.type === type);
-    }
-    if (from) {
-      filtered = filtered.filter((t) => t.date >= from);
-    }
-    if (to) {
-      filtered = filtered.filter((t) => t.date <= to);
-    }
-
-    const total = filtered.length;
-    const offset = (page - 1) * perPage;
-    const paginated = filtered.slice(offset, offset + perPage);
-
     return jsonOk({
-      transactions: paginated,
-      total,
+      transactions: result.transactions,
+      total: result.total,
       page,
       per_page: perPage,
     });

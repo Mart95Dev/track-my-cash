@@ -93,7 +93,8 @@ export async function POST(req: Request) {
     }
 
     // Track plateforme mobile (pour tous les users, pas seulement les nouveaux)
-    upsertUserPlatform(getDb(), user.id, "android", req.headers.get("X-App-Version")).catch(() => {});
+    const platform = (req.headers.get("X-Platform") ?? "android") as "web" | "android" | "ios";
+    upsertUserPlatform(getDb(), user.id, platform, req.headers.get("X-App-Version")).catch(() => {});
 
     return jsonOk({
       user: {

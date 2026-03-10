@@ -247,6 +247,11 @@ export async function initSchema() {
       keys_auth TEXT NOT NULL,
       created_at TEXT DEFAULT (datetime('now'))
     )`,
+    `CREATE TABLE IF NOT EXISTS rate_limits (
+      user_id TEXT PRIMARY KEY,
+      count INTEGER NOT NULL DEFAULT 1,
+      reset_at INTEGER NOT NULL
+    )`,
   ];
   for (const sql of migrations) {
     try {

@@ -38,13 +38,13 @@ vi.mock("@/lib/subscription-utils", () => ({
   getUserPlanId: vi.fn().mockResolvedValue("pro"),
 }));
 
-const mockCheckRateLimit = vi.fn().mockReturnValue({
+const mockCheckRateLimit = vi.fn().mockResolvedValue({
   allowed: true,
   remaining: 29,
   resetAt: Date.now() + 3_600_000,
 });
 vi.mock("@/lib/rate-limiter", () => ({
-  checkRateLimit: (...args: unknown[]) => mockCheckRateLimit(...args),
+  checkRateLimitAsync: (...args: unknown[]) => mockCheckRateLimit(...args),
 }));
 
 vi.mock("@/lib/db", () => ({
@@ -97,7 +97,7 @@ describe("Intégration — Chat proxy IA (STORY-149 AC-3)", () => {
     vi.stubEnv("API_KEY_OPENROUTER", "test-key-123");
     mockGetMobileUserId.mockResolvedValue("user-pro");
     mockCanUseAI.mockResolvedValue({ allowed: true });
-    mockCheckRateLimit.mockReturnValue({
+    mockCheckRateLimit.mockResolvedValue({
       allowed: true,
       remaining: 29,
       resetAt: Date.now() + 3_600_000,
@@ -135,7 +135,7 @@ describe("Intégration — Chat proxy IA (STORY-149 AC-3)", () => {
   });
 
   it("TU-6 : Chat rate limited → 429", async () => {
-    mockCheckRateLimit.mockReturnValue({
+    mockCheckRateLimit.mockResolvedValue({
       allowed: false,
       remaining: 0,
       resetAt: Date.now() + 600_000,

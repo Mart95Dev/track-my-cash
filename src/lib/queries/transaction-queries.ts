@@ -12,6 +12,10 @@ interface TransactionQueryOpts {
   search?: string;
   sort?: string;
   tagId?: number;
+  category?: string;
+  type?: string;
+  from?: string;
+  to?: string;
   limit?: number;
   offset?: number;
 }
@@ -36,6 +40,26 @@ function buildTransactionQuery(opts: TransactionQueryOpts): { sql: string; args:
     args.push(opts.tagId);
   }
 
+  if (opts.category) {
+    conditions.push("LOWER(t.category) = LOWER(?)");
+    args.push(opts.category);
+  }
+
+  if (opts.type) {
+    conditions.push("t.type = ?");
+    args.push(opts.type);
+  }
+
+  if (opts.from) {
+    conditions.push("t.date >= ?");
+    args.push(opts.from);
+  }
+
+  if (opts.to) {
+    conditions.push("t.date <= ?");
+    args.push(opts.to);
+  }
+
   const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
 
   let orderBy = "t.date DESC, t.id DESC";
@@ -58,24 +82,17 @@ function buildTransactionQuery(opts: TransactionQueryOpts): { sql: string; args:
 }
 
 function buildCountQuery(opts: TransactionQueryOpts): { sql: string; args: (number | string)[] } {
+  // Reuse buildTransactionQuery logic but extract only conditions
   const conditions: string[] = [];
   const args: (number | string)[] = [];
 
-  if (opts.accountId) {
-    conditions.push("t.account_id = ?");
-    args.push(opts.accountId);
-  }
-
-  if (opts.search) {
-    conditions.push("(t.description LIKE ? OR t.category LIKE ?)");
-    const q = `%${opts.search}%`;
-    args.push(q, q);
-  }
-
-  if (opts.tagId) {
-    conditions.push("EXISTS (SELECT 1 FROM transaction_tags tt WHERE tt.transaction_id = t.id AND tt.tag_id = ?)");
-    args.push(opts.tagId);
-  }
+  if (opts.accountId) { conditions.push("t.account_id = ?"); args.push(opts.accountId); }
+  if (opts.search) { conditions.push("(t.description LIKE ? OR t.category LIKE ?)"); const q = `%${opts.search}%`; args.push(q, q); }
+  if (opts.tagId) { conditions.push("EXISTS (SELECT 1 FROM transaction_tags tt WHERE tt.transaction_id = t.id AND tt.tag_id = ?)"); args.push(opts.tagId); }
+  if (opts.category) { conditions.push("LOWER(t.category) = LOWER(?)"); args.push(opts.category); }
+  if (opts.type) { conditions.push("t.type = ?"); args.push(opts.type); }
+  if (opts.from) { conditions.push("t.date >= ?"); args.push(opts.from); }
+  if (opts.to) { conditions.push("t.date <= ?"); args.push(opts.to); }
 
   const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
   return { sql: `SELECT COUNT(*) as cnt FROM transactions t${where}`, args };
@@ -103,6 +120,10 @@ export async function searchTransactions(
     page?: number;
     perPage?: number;
     tagId?: number;
+    category?: string;
+    type?: string;
+    from?: string;
+    to?: string;
   }
 ): Promise<{ transactions: Transaction[]; total: number }> {
   const perPage = opts.perPage ?? 20;
@@ -114,6 +135,10 @@ export async function searchTransactions(
     search: opts.search,
     sort: opts.sort,
     tagId: opts.tagId,
+    category: opts.category,
+    type: opts.type,
+    from: opts.from,
+    to: opts.to,
     limit: perPage,
     offset,
   };

@@ -33,12 +33,10 @@ export async function POST(req: Request) {
       }),
     });
 
-    const authResponse = await auth.handler(internalReq);
+    // Fire-and-forget : ne pas reveler si l'email existe ou non
+    auth.handler(internalReq).catch(() => {});
 
-    if (!authResponse.ok) {
-      return jsonError(404, "Aucun compte associé à cet email");
-    }
-
+    // Toujours retourner 200 pour eviter l'enumeration d'utilisateurs
     return jsonOk({ success: true });
   } catch {
     return jsonError(500, "Erreur interne du serveur");
