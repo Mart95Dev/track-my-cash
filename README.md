@@ -11,7 +11,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - **UI** : Tailwind CSS v4, shadcn/ui, Material Symbols Outlined, DM Sans + DM Serif Display
 - **Charts** : Recharts
 - **Emails** : Nodemailer
-- **Tests** : Vitest + Testing Library (1668+ tests)
+- **Tests** : Vitest + Testing Library (1669+ tests)
 
 ## Fonctionnalites
 
@@ -85,6 +85,14 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Design system : DM Serif Display (headings) + DM Sans (body), palette Indigo/Stone
 - Animations scroll reveal (fade-up, hover-lift) et composants interactifs
 
+### Pages legales et conformite RGPD
+- Mentions legales (/mentions-legales)
+- Politique de confidentialite (/politique-confidentialite) — 10 sections RGPD, tableaux finalites et durees de conservation
+- Conditions Generales d'Utilisation (/cgu) — 13 articles (objet, inscription, abonnements, IA, responsabilite, litiges)
+- Politique de cookies (/cookies) — tableaux cookies necessaires, analytics, marketing
+- Bandeau cookie RGPD avec vue simple et vue detaillee (toggles par categorie, persistance localStorage)
+- Styles typographiques dedies `.legal-content` (h2/h3/p/ul/table/highlight-box)
+
 ### Internationalisation
 - 5 langues supportees (fr, en, es, de, it)
 - Routes localisees
@@ -145,14 +153,14 @@ SMTP_PASS=
 src/
   app/
     [locale]/(app)/     # Pages application protegees par auth (dashboard, comptes, transactions...)
-    [locale]/(marketing)/  # Pages marketing (accueil, fonctionnalites, tarifs, blog, a-propos, securite)
+    [locale]/(marketing)/  # Pages marketing + legales (accueil, fonctionnalites, tarifs, blog, a-propos, securite, mentions-legales, politique-confidentialite, cgu, cookies)
     [locale]/(auth)/    # Pages auth (connexion, inscription, two-factor)
     [locale]/offline/   # Page offline PWA (hors auth)
     api/                # API routes (auth, push, cron, stripe, reports)
       mobile/           # API REST mobile (auth JWT, 2FA, chat, CRUD, RGPD, settings)
     actions/            # Server Actions (mutations)
   components/           # Composants React (client components)
-    marketing/          # Composants marketing (navbar, footer, scroll-reveal)
+    marketing/          # Composants marketing (navbar, footer, scroll-reveal, cookie-banner)
     charts/             # Graphiques Recharts (barres, camembert, timeline)
   lib/
     queries/            # 13 modules SQL domainaux (barrel re-export)
@@ -171,7 +179,7 @@ src/
 public/
   sw.js                 # Service Worker PWA (cache, offline, push events)
 tests/
-  unit/                 # Tests unitaires (186 fichiers)
+  unit/                 # Tests unitaires (192 fichiers)
   integration/          # Tests d'integration mobile (4 suites, 33 tests)
 ```
 
@@ -185,3 +193,4 @@ tests/
 | v18 | Parite Web/Mobile | 11 | 1668 |
 | v18.1 | Hardening securite API mobile | — | 1668 |
 | v19 | Redesign marketing complet (DM Serif/Sans, 8 pages, animations) | — | 1668+ |
+| v19.1 | Pages legales RGPD + bandeau cookie (4 pages, cookie banner) | — | 1669+ |

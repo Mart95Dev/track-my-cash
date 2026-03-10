@@ -15,7 +15,8 @@ const COMPAGNIE_LINKS = [
 const LEGAL_LINKS = [
   { label: "CGU", href: "/cgu" as const },
   { label: "Confidentialité", href: "/politique-confidentialite" as const },
-  { label: "Mentions légales", href: null },
+  { label: "Mentions légales", href: "/mentions-legales" as const },
+  { label: "Cookies", href: "/cookies" as const },
 ];
 
 export function Footer() {
@@ -92,18 +93,12 @@ export function Footer() {
             <ul className="space-y-3">
               {LEGAL_LINKS.map((link) => (
                 <li key={link.label}>
-                  {link.href ? (
-                    <Link
-                      href={link.href}
-                      className="text-sm text-[#A8A29E] hover:text-white transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  ) : (
-                    <span className="text-sm text-[#A8A29E]">
-                      {link.label}
-                    </span>
-                  )}
+                  <Link
+                    href={link.href}
+                    className="text-sm text-[#A8A29E] hover:text-white transition-colors"
+                  >
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
