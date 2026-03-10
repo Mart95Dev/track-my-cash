@@ -6,9 +6,14 @@ import { getPublishedPostBySlug, getPublishedSlugs } from "@/lib/queries/blog";
 import { sanitizeBlogHtml } from "@/lib/blog-sanitize";
 
 export async function generateStaticParams() {
-  const db = getDb();
-  const slugs = await getPublishedSlugs(db);
-  return slugs.map((slug) => ({ slug }));
+  try {
+    const db = getDb();
+    const slugs = await getPublishedSlugs(db);
+    return slugs.map((slug) => ({ slug }));
+  } catch {
+    // Tables may not exist yet at build time — return empty to skip static generation
+    return [];
+  }
 }
 
 export async function generateMetadata({
