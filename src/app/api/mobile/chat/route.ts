@@ -2,7 +2,7 @@
  * POST /api/mobile/chat — Proxy IA pour l'app mobile (STORY-140)
  * Auth JWT, rate limiting, guard plan, proxy OpenRouter côté serveur
  */
-import { generateText, convertToModelMessages, type CoreMessage } from "ai";
+import { generateText, type ModelMessage } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import {
   getMobileUserId,
@@ -44,7 +44,7 @@ export async function POST(req: Request): Promise<Response> {
   // Guard IA : vérifier le plan
   const aiCheck = await canUseAI(userId);
   if (!aiCheck.allowed) {
-    return jsonError(403, aiCheck.reason);
+    return jsonError(403, aiCheck.reason ?? "Accès refusé");
   }
 
   const apiKey = process.env.API_KEY_OPENROUTER;
@@ -86,8 +86,8 @@ ${
   const month = new Date().toISOString().slice(0, 7);
   incrementAiUsage(mainDb, userId, month).catch(() => {});
 
-  // Convertir les messages au format CoreMessage
-  const coreMessages: CoreMessage[] = messages.map((m) => ({
+  // Convertir les messages au format ModelMessage
+  const coreMessages: ModelMessage[] = messages.map((m) => ({
     role: m.role,
     content: m.content,
   }));
