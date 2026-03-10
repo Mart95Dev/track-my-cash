@@ -35,7 +35,7 @@ export default function CookiesPage() {
 
         {/* Content */}
         <section className="py-16 md:py-24">
-          <div className="legal-content max-w-3xl mx-auto px-6 fade-up">
+          <div className="legal-content max-w-3xl mx-auto px-6">
             <div className="highlight-box">
               <p>
                 <strong>A PERSONNALISER :</strong> Listez vos cookies réels.
