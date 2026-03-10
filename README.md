@@ -12,7 +12,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - **Charts** : Recharts
 - **Emails** : Nodemailer
 - **Sanitize** : sanitize-html (XSS protection blog)
-- **Tests** : Vitest + Testing Library (1789+ tests)
+- **Tests** : Vitest + Testing Library (1849+ tests)
 
 ## Fonctionnalites
 
@@ -98,6 +98,16 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Bandeau cookie RGPD avec vue simple et vue detaillee (toggles par categorie, persistance localStorage)
 - Styles typographiques dedies `.legal-content` (h2/h3/p/ul/table/highlight-box)
 
+### SEO et GEO (Generative Engine Optimization)
+- 6 schemas JSON-LD : Organization, WebSite, SoftwareApplication, FAQPage, Article, BreadcrumbList
+- Metadata enrichie sur toutes les pages (canonical, alternates 5 locales, OG images, Twitter cards)
+- FAQ GEO optimisee : 7 questions homepage + 4 questions tarifs (impact IA search engines +40%)
+- Robots.txt : GPTBot, PerplexityBot, ClaudeBot autorises pour citation par moteurs IA
+- Sitemap complet : 55+ URLs avec priorites differenciees (11 paths × 5 locales)
+- OG images : 6 placeholders PNG 1200×630 couleurs de marque
+- BreadcrumbList sur toutes les pages marketing, legales et blog
+- Infrastructure SEO modulaire (`src/lib/seo/` : constants, schemas, metadata)
+
 ### Internationalisation
 - 5 langues supportees (fr, en, es, de, it)
 - Routes localisees
@@ -172,6 +182,7 @@ src/
     marketing/          # Composants marketing (navbar, footer, scroll-reveal, cookie-banner)
     charts/             # Graphiques Recharts (barres, camembert, timeline)
   lib/
+    seo/                # Infrastructure SEO/GEO (constants, schemas JSON-LD, metadata builder)
     queries/            # 13 modules SQL domainaux + blog queries (barrel re-export)
     parsers/            # 18 parsers bancaires + registry
     email/              # Composants email partages (styles, helpers)
@@ -191,7 +202,7 @@ src/
 public/
   sw.js                 # Service Worker PWA (cache, offline, push events)
 tests/
-  unit/                 # Tests unitaires (203 fichiers, 1789 tests)
+  unit/                 # Tests unitaires (212 fichiers, 1849 tests)
   integration/          # Tests d'integration mobile (4 suites, 33 tests)
 ```
 
@@ -209,3 +220,4 @@ tests/
 | v19.2 | Fix couleurs delavees iPhone iOS dark mode (marketing-light CSS scope) | — | 1669+ |
 | v20 | Blog dynamique + Newsletter (CRUD admin, lecture Turso, page [slug] SEO, newsletter HMAC, dashboard admin) | 8 | 1789 |
 | v20.1 | Fix build Vercel (generateStaticParams resilient, useSyncExternalStore cookie banner) | — | 1789 |
+| v21 | SEO & GEO (JSON-LD 6 schemas, metadata enrichie, robots IA, sitemap 55+ URLs, FAQ GEO, OG images, BreadcrumbList) | 11 | 1849 |
