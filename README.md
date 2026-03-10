@@ -47,15 +47,20 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Endpoints Stripe (checkout, portal)
 - Endpoints settings et regles de categorisation
 - Endpoint detection d'anomalies
-- Rate limiting par utilisateur
-- CORS configure pour l'app mobile
+- Rate limiting persistant par utilisateur (table Turso)
+- CORS dynamique avec validation d'origine
 
 ### Securite
 - Authentification email/mot de passe
 - OAuth Google et Apple
 - Authentification a deux facteurs (2FA TOTP)
-- Codes de recuperation
-- JWT mobile avec tokens temporaires pour flux 2FA
+- Codes de recuperation (generation crypto securisee)
+- JWT mobile separe (`JWT_SECRET_MOBILE`) avec garde production
+- Anti-enumeration sur forgot-password (reponse constante)
+- Validation stricte des body de requetes
+- Batch atomique pour operations 2FA multi-tables
+- Filtres SQL pushes en base (pas de filtrage in-memory)
+- Parametre `months` borne sur anomalies (1-24)
 
 ### PWA et notifications
 - Service Worker avec cache offline (Cache-First assets, Network-First navigation)
@@ -142,8 +147,9 @@ src/
     email/              # Composants email partages (styles, helpers)
     auth.ts             # Config BetterAuth (server, OAuth, 2FA TOTP)
     auth-client.ts      # Config BetterAuth (client, twoFactorClient)
-    mobile-auth.ts      # Auth mobile (JWT sign/verify, helpers jsonOk/jsonError)
-    mobile-2fa.ts       # 2FA mobile (TOTP, backup codes, temp tokens)
+    mobile-auth.ts      # Auth mobile (JWT sign/verify, CORS dynamique, helpers jsonOk/jsonError)
+    mobile-2fa.ts       # 2FA mobile (TOTP, backup codes, temp tokens, batch atomique)
+    rate-limiter.ts     # Rate limiting (in-memory sync + persistant Turso async)
     db.ts               # Connexion Turso + schema + migrations
     push-notifications.ts # Web Push API (VAPID, envoi, souscriptions)
     alert-service.ts    # Alertes solde bas (email + push)
@@ -164,3 +170,4 @@ tests/
 | v16 | Import Universel Bancaire | 6 | 1356 |
 | v17 | Refactoring + Infra + Features | 11 | 1588 |
 | v18 | Parite Web/Mobile | 11 | 1668 |
+| v18.1 | Hardening securite API mobile | — | 1668 |
