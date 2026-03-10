@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useSyncExternalStore } from "react";
 import { Link } from "@/i18n/navigation";
 
 const CONSENT_KEY = "tmc_cookie_consent";
@@ -12,17 +12,18 @@ type CookieConsent = {
   timestamp: number;
 };
 
+function getHasConsent() {
+  if (typeof window === "undefined") return true;
+  return localStorage.getItem(CONSENT_KEY) !== null;
+}
+
+const subscribe = () => () => {};
+
 export function CookieBanner() {
-  const [visible, setVisible] = useState(false);
+  const hasConsent = useSyncExternalStore(subscribe, getHasConsent, () => true);
+  const [visible, setVisible] = useState(!hasConsent);
   const [showDetails, setShowDetails] = useState(false);
   const [analytics, setAnalytics] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem(CONSENT_KEY);
-    if (!stored) {
-      setVisible(true);
-    }
-  }, []);
 
   const saveConsent = useCallback((analyticsValue: boolean) => {
     const consent: CookieConsent = {
