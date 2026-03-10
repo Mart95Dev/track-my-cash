@@ -40,12 +40,12 @@ describe("Footer", () => {
     expect(cguLink?.getAttribute("href")).toBe("/cgu");
   });
 
-  it("TU-2-3 : contient un lien 'Politique de confidentialité'", async () => {
+  it("TU-2-3 : contient un lien 'Confidentialité'", async () => {
     const { Footer } = await import("@/components/marketing/footer");
     render(<Footer />);
     const privacyLink = screen
       .getAllByRole("link")
-      .find((el) => el.textContent === "Politique de confidentialité");
+      .find((el) => el.textContent === "Confidentialité");
     expect(privacyLink).toBeDefined();
     expect(privacyLink?.getAttribute("href")).toBe(
       "/politique-confidentialite"

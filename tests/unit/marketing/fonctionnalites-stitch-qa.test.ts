@@ -41,12 +41,12 @@ describe("STORY-110 QA — Parser MCB (AC-7, GAP-A)", () => {
 // ── GAP-110-B : AC-1 — Phrase héro complète ──────────────────────────────────
 
 describe("STORY-110 QA — Phrase héro complète (AC-1, GAP-B)", () => {
-  it("QA-110-B : page contient 'votre couple' (première partie du héro)", () => {
+  it("QA-110-B : page contient 'votre couple' (dans le héro)", () => {
     expect(pageSrc.toLowerCase()).toContain("votre couple");
   });
 
-  it("QA-110-B2 : page contient 'enfin clarifi' (fin du héro)", () => {
-    expect(pageSrc).toContain("enfin clarifi");
+  it("QA-110-B2 : page contient 'besoin' (fin du héro)", () => {
+    expect(pageSrc).toContain("besoin");
   });
 });
 
@@ -66,10 +66,10 @@ describe("STORY-110 QA — CTA lien /inscription (AC-6, GAP-D)", () => {
   });
 });
 
-// ── GAP-110-E : Design — bg-[#FAFAFA] wrapper ────────────────────────────────
+// ── GAP-110-E : Design — bg-[#FAFAF9] wrapper ────────────────────────────────
 
-describe("STORY-110 QA — Fond page bg-[#FAFAFA] (Design, GAP-E)", () => {
-  it("QA-110-E : page wrapper utilise 'bg-[#FAFAFA]' (cohérence design system)", () => {
-    expect(pageSrc).toContain("bg-[#FAFAFA]");
+describe("STORY-110 QA — Fond page bg-[#FAFAF9] (Design, GAP-E)", () => {
+  it("QA-110-E : page wrapper utilise 'bg-[#FAFAF9]' (cohérence design system)", () => {
+    expect(pageSrc).toContain("bg-[#FAFAF9]");
   });
 });

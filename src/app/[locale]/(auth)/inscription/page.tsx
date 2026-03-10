@@ -46,71 +46,50 @@ export default function InscriptionPage() {
   }
 
   return (
-    <div className="bg-[#fcfcfd] min-h-screen relative overflow-x-hidden">
-      {/* ── AC-1 : Blur spots background ─────────────────────────────────── */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px] opacity-70" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-couple-pink/5 rounded-full blur-[120px] opacity-60" />
-        <div className="absolute top-[40%] left-[20%] w-[300px] h-[300px] bg-blue-200/10 rounded-full blur-[80px]" />
-      </div>
-
+    <div className="bg-[#FAFAF9] min-h-screen">
       <div className="min-h-screen flex flex-col">
-        {/* Header desktop */}
-        <header className="hidden md:flex items-center justify-between px-8 py-6">
+        {/* Auth header */}
+        <header className="flex items-center justify-between px-6 md:px-8 py-5">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="bg-primary/10 rounded-lg p-2">
-              <span className="material-symbols-outlined text-primary text-xl">account_balance_wallet</span>
+            <div className="bg-primary rounded-xl p-2">
+              <span className="text-white text-lg font-bold leading-none">T</span>
             </div>
-            <span className="font-bold text-lg tracking-tight text-slate-800">Track My Cash</span>
+            <span className="font-bold text-lg tracking-tight text-slate-900">TrackMyCash</span>
           </Link>
-          <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
-            <span>Déjà un compte ?</span>
-            <Link href={`/${locale}/connexion`} className="text-primary hover:text-primary/80 transition-colors">
-              Se connecter
-            </Link>
-          </div>
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors"
+          >
+            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+            Retour à l&apos;accueil
+          </Link>
         </header>
 
         <div className="flex-1 flex items-center justify-center p-6 sm:p-8">
           <div className="w-full max-w-[520px] flex flex-col items-center">
 
-            {/* Logo mobile */}
-            <div className="mb-8 text-center md:hidden">
-              <div className="inline-flex items-center justify-center size-14 rounded-2xl bg-white shadow-sm ring-1 ring-slate-100 mb-4">
-                <span className="material-symbols-outlined text-primary text-3xl">account_balance_wallet</span>
-              </div>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900">Track My Cash</h1>
-            </div>
-
-            {/* Titre + AC-3 badge */}
+            {/* Titre + badge */}
             <div className="mb-8 text-center">
-              <h2 className="text-3xl font-extrabold tracking-tight mb-3 text-slate-900">
+              <h1 className="font-serif text-3xl md:text-4xl font-extrabold tracking-tight mb-3 text-slate-900">
                 Créer un compte
-              </h2>
-              <p className="text-slate-500 text-base flex items-center justify-center gap-2 flex-wrap">
+              </h1>
+              <p className="text-slate-500 text-base font-medium mb-3">
                 Gérez vos finances à deux
-                <span
-                  className="material-symbols-outlined text-couple-pink text-sm"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  favorite
-                </span>
-                {/* AC-3 : Badge essai 14j offert */}
-                <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-                  Essai 14j offert
-                </span>
               </p>
+              <span className="inline-block bg-[#FCE7F3] text-[#DB2777] px-3 py-1 rounded-full text-xs font-semibold">
+                Essai 14j offert
+              </span>
             </div>
 
-            {/* AC-4 : Card bg-white rounded-3xl */}
-            <div className="w-full bg-white rounded-3xl shadow-sm p-8 sm:p-10 border border-slate-100/60">
+            {/* Card */}
+            <div className="w-full bg-white rounded-3xl shadow p-8 sm:p-10 border border-border-light">
 
-              {/* AC-2 : Boutons OAuth Google + Apple */}
+              {/* Boutons OAuth Google + Apple */}
               <div className="grid grid-cols-2 gap-4 mb-8">
                 <button
                   type="button"
                   onClick={() => authClient.signIn.social({ provider: "google" })}
-                  className="flex items-center justify-center gap-2.5 h-12 rounded-xl bg-slate-50 border border-transparent hover:bg-slate-100 hover:border-slate-200 transition-all font-medium text-slate-700 text-sm"
+                  className="flex items-center justify-center gap-2.5 h-14 rounded-xl border border-border-light bg-white hover:bg-slate-50 hover:border-slate-300 transition-all font-medium text-slate-700 text-sm"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -123,7 +102,7 @@ export default function InscriptionPage() {
                 <button
                   type="button"
                   onClick={() => authClient.signIn.social({ provider: "apple" })}
-                  className="flex items-center justify-center gap-2.5 h-12 rounded-xl bg-slate-50 border border-transparent hover:bg-slate-100 hover:border-slate-200 transition-all font-medium text-slate-700 text-sm"
+                  className="flex items-center justify-center gap-2.5 h-14 rounded-xl border border-border-light bg-white hover:bg-slate-50 hover:border-slate-300 transition-all font-medium text-slate-700 text-sm"
                 >
                   <svg className="w-5 h-5 text-slate-900" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M17.05 20.28c-.96.00-1.76-.31-2.6-.31s-1.65.31-2.58.31c-2.05.00-4.04-1.25-5.05-3.03-2.05-3.58-.52-8.87 1.48-11.75 1-1.44 2.5-2.34 4.15-2.34 1.25.00 2.44.44 3.2.44s2.05-.44 3.4-.44c1.55.00 2.94.81 3.75 2.05-3.13 1.31-2.62 5.8 0 7.05-.73 1.83-1.7 3.63-3.2 5.37-.8.93-1.6 1.76-2.55 2.65-.58.55-.8.59-1.3.59zM12.03 7.25c.00-2.73 2.22-4.94 4.92-4.94.05.62-.18 1.25-.52 1.82-.41.68-1.05 1.24-1.8 1.58-.65.31-1.38.48-2.1.48-.05-.33-.05-.62-.5-.94z" />
@@ -134,9 +113,11 @@ export default function InscriptionPage() {
 
               {/* Séparateur */}
               <div className="relative flex items-center mb-8">
-                <div className="flex-grow border-t border-slate-100" />
-                <span className="flex-shrink mx-4 text-xs font-semibold text-slate-400">Ou continuer avec l&apos;email</span>
-                <div className="flex-grow border-t border-slate-100" />
+                <div className="flex-grow border-t border-border-light" />
+                <span className="flex-shrink mx-4 text-xs font-medium text-slate-400">
+                  Ou continuer avec l&apos;email
+                </span>
+                <div className="flex-grow border-t border-border-light" />
               </div>
 
               {/* Erreur */}
@@ -148,8 +129,8 @@ export default function InscriptionPage() {
 
               {/* Formulaire */}
               <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-slate-700 ml-1" htmlFor="name">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2 ml-1" htmlFor="name">
                     Prénom
                   </label>
                   <input
@@ -157,15 +138,15 @@ export default function InscriptionPage() {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 h-[50px] rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 text-slate-800 text-base outline-none"
+                    className="w-full px-5 h-14 rounded-xl bg-[#FAFAF9] border border-border-light focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-slate-400 text-base font-medium outline-none"
                     placeholder="Votre prénom"
                     required
                     autoComplete="name"
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-slate-700 ml-1" htmlFor="email">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2 ml-1" htmlFor="email">
                     Adresse email
                   </label>
                   <input
@@ -173,15 +154,15 @@ export default function InscriptionPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 h-[50px] rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 text-slate-800 text-base outline-none"
+                    className="w-full px-5 h-14 rounded-xl bg-[#FAFAF9] border border-border-light focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-slate-400 text-base font-medium outline-none"
                     placeholder="nom@exemple.com"
                     required
                     autoComplete="email"
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-slate-700 ml-1" htmlFor="password">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2 ml-1" htmlFor="password">
                     Mot de passe
                   </label>
                   <div className="relative">
@@ -190,7 +171,7 @@ export default function InscriptionPage() {
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-4 h-[50px] pr-12 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 text-slate-800 text-base outline-none"
+                      className="w-full px-5 h-14 pr-12 rounded-xl bg-[#FAFAF9] border border-border-light focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-slate-400 text-base font-medium outline-none"
                       placeholder="Min. 8 caractères"
                       required
                       autoComplete="new-password"
@@ -236,7 +217,7 @@ export default function InscriptionPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-4 text-[15px] disabled:opacity-60"
+                  className="w-full h-14 bg-primary hover:bg-primary/90 text-white text-base font-bold rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-4 disabled:opacity-60"
                 >
                   {loading ? (
                     <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -250,10 +231,10 @@ export default function InscriptionPage() {
               </form>
             </div>
 
-            {/* AC-7 : Lien connexion */}
+            {/* Lien connexion */}
             <p className="mt-8 text-sm text-slate-500 font-medium">
               Déjà un compte ?{" "}
-              <Link href={`/${locale}/connexion`} className="text-primary hover:text-primary/80 transition-colors">
+              <Link href={`/${locale}/connexion`} className="text-primary font-bold hover:text-primary/80 transition-colors">
                 Se connecter
               </Link>
             </p>

@@ -52,19 +52,19 @@ describe("STORY-111 — Titre connexion (AC-5)", () => {
   });
 });
 
-// ── TU-111-3 : AC-1 — Blur spots inscription ─────────────────────────────────
+// ── TU-111-3 : AC-1 — New design elements inscription ─────────────────────────
 
-describe("STORY-111 — Blur spots inscription (AC-1)", () => {
-  it("TU-111-3 : inscription contient 'blur-[' (blur spot background)", () => {
-    expect(inscriptionSrc).toContain("blur-[");
+describe("STORY-111 — Design elements inscription (AC-1)", () => {
+  it("TU-111-3 : inscription contient 'bg-[#FAFAF9]' (fond page)", () => {
+    expect(inscriptionSrc).toContain("bg-[#FAFAF9]");
   });
 
-  it("TU-111-3b : inscription contient 'bg-primary/5' (blob primary)", () => {
-    expect(inscriptionSrc).toContain("bg-primary/5");
+  it("TU-111-3b : inscription contient 'font-serif' (heading serif)", () => {
+    expect(inscriptionSrc).toContain("font-serif");
   });
 
-  it("TU-111-3c : inscription contient 'couple-pink' (blob couple-pink)", () => {
-    expect(inscriptionSrc.toLowerCase()).toContain("couple-pink");
+  it("TU-111-3c : inscription contient 'border-border-light' (card border)", () => {
+    expect(inscriptionSrc).toContain("border-border-light");
   });
 });
 
@@ -137,13 +137,15 @@ describe("STORY-111 — Server Actions conservées (AC-8)", () => {
   });
 });
 
-// ── TU-111-10 : AC-1 — Blur spots connexion ──────────────────────────────────
+// ── TU-111-10 : AC-1 — Design elements connexion ──────────────────────────────
 
-describe("STORY-111 — Blur spots connexion (AC-1 étendu)", () => {
-  it("TU-111-10 : connexion contient 'blur-' (blur spot background)", () => {
-    const hasBlur =
-      connexionSrc.includes("blur-[") || connexionSrc.includes("blur-3xl");
-    expect(hasBlur).toBe(true);
+describe("STORY-111 — Design elements connexion (AC-1 étendu)", () => {
+  it("TU-111-10 : connexion contient 'bg-[#FAFAF9]' (fond page)", () => {
+    expect(connexionSrc).toContain("bg-[#FAFAF9]");
+  });
+
+  it("TU-111-10b : connexion contient 'font-serif' (heading serif)", () => {
+    expect(connexionSrc).toContain("font-serif");
   });
 });
 

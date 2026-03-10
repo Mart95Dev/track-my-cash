@@ -26,29 +26,29 @@ beforeAll(() => {
 describe("STORY-108 QA — Contenu hero et sections (AC-1/AC-6/AC-8)", () => {
   // ── GAP-108-A : AC-1 — Hero H1 ────────────────────────────────────────────
 
-  it("QA-108-A : source page contient 'L'argent à deux'", () => {
+  it("QA-108-A : source page contient 'L'argent ne devrait'", () => {
     // Tient compte de l'entité HTML &apos; ou de l'apostrophe directe
-    expect(src).toMatch(/L(&apos;|')argent à deux/);
+    expect(src).toMatch(/L(&apos;|')argent ne devrait/);
   });
 
   it("QA-108-A2 : source page contient 'en toute transparence'", () => {
     expect(src).toContain("en toute transparence");
   });
 
-  // ── GAP-108-C : AC-6 — CTA dark ───────────────────────────────────────────
+  // ── GAP-108-C : AC-6 — CTA bg-primary ─────────────────────────────────────
 
-  it("QA-108-C : source page contient 'bg-slate-900' (CTA dark)", () => {
-    expect(src).toContain("bg-slate-900");
+  it("QA-108-C : source page contient 'bg-primary' (CTA card)", () => {
+    expect(src).toContain("bg-primary");
   });
 
-  it("QA-108-C2 : CTA dark contient du texte blanc (text-white)", () => {
+  it("QA-108-C2 : CTA contient du texte blanc (text-white)", () => {
     expect(src).toContain("text-white");
   });
 
-  // ── GAP-108-E : AC-8 — fond bg-[#FAFAFA] ─────────────────────────────────
+  // ── GAP-108-E : AC-8 — fond bg-[#F5F3FF] hero ────────────────────────────
 
-  it("QA-108-E : page wrapper utilise bg-[#FAFAFA]", () => {
-    expect(src).toContain("bg-[#FAFAFA]");
+  it("QA-108-E : page hero utilise bg-[#F5F3FF]", () => {
+    expect(src).toContain("bg-[#F5F3FF]");
   });
 });
 

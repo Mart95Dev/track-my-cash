@@ -92,11 +92,11 @@ describe("STORY-110 — Parsers documentés (AC-7)", () => {
   });
 });
 
-// ── TU-110-5 : AC-1 — Héro "enfin clarifié" ──────────────────────────────────
+// ── TU-110-5 : AC-1 — Héro "Tout ce dont votre couple a besoin" ─────────────
 
 describe("STORY-110 — Héro (AC-1)", () => {
-  it("TU-110-5 : page contient 'enfin clarifié' (AC-1)", () => {
-    expect(pageSrc).toContain("enfin clarifi");
+  it("TU-110-5 : page contient 'Tout ce dont votre couple a' (AC-1)", () => {
+    expect(pageSrc).toContain("Tout ce dont votre couple a");
   });
 });
 

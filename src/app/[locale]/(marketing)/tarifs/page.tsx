@@ -6,6 +6,8 @@ import { getUserPlanId } from "@/lib/subscription-utils";
 import { PLANS } from "@/lib/stripe-plans";
 import type { PlanId } from "@/lib/stripe-plans";
 import { PricingToggle } from "@/components/pricing-toggle";
+import { ScrollRevealSection } from "@/components/marketing/scroll-reveal";
+import { FaqAccordion } from "./faq-accordion";
 
 export const metadata: Metadata = {
   title: "Tarifs — TrackMyCash",
@@ -100,11 +102,8 @@ type PlanCardProps = {
 
 function PlanCard({ planId, isHighlighted, isCurrentPlan }: PlanCardProps) {
   const plan = PLANS[planId];
-  // AC-4/AC-5 : toFixed(2) pour "4,90€" et "7,90€"
-  const priceStr =
-    plan.price === 0
-      ? "0€"
-      : `${plan.price.toFixed(2).replace(".", ",")}€`;
+  const priceWhole =
+    plan.price === 0 ? "0" : plan.price.toFixed(2).replace(".", ",");
 
   const cardButton = isCurrentPlan ? (
     <button
@@ -127,50 +126,52 @@ function PlanCard({ planId, isHighlighted, isCurrentPlan }: PlanCardProps) {
     />
   );
 
-  // AC-3 : Card Pro avec animated-border-wrapper gradient primary→pink
   if (isHighlighted) {
     return (
-      <div className="animated-border-wrapper rounded-3xl flex flex-col h-full shadow-xl shadow-primary/10 relative">
-        <div className="bg-white rounded-[1.4rem] p-8 h-full flex flex-col relative overflow-hidden">
-          <div className="absolute top-0 right-0 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-2xl">
-            Populaire
+      <div
+        className="fade-up hover-lift relative bg-white rounded-3xl p-9 border-2 border-primary shadow-xl shadow-primary/10 flex flex-col h-full"
+        style={{ transform: "scale(1.03)" }}
+      >
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold uppercase tracking-wider px-5 py-1.5 rounded-full">
+          Populaire
+        </div>
+        <div className="mb-6 pt-2">
+          <h2 className="text-lg font-bold text-primary">{plan.name}</h2>
+          <p className="text-slate-500 text-sm mb-4">Pour votre couple</p>
+          <div className="flex items-baseline">
+            <span className="font-serif text-5xl font-black tracking-tight text-slate-900">
+              {priceWhole}
+            </span>
+            <span className="text-text-muted text-base font-medium ml-1">
+              &euro;/mois
+            </span>
           </div>
-          <div className="mb-6">
-            <h2 className="text-lg font-bold text-primary">{plan.name}</h2>
-            <p className="text-slate-500 text-sm mb-4">Pour votre couple</p>
-            <div className="flex items-baseline">
-              <span className="text-4xl font-black tracking-tight text-slate-900">
-                {priceStr}
+        </div>
+        <ul className="space-y-3 mb-8 flex-1">
+          {plan.features.map((feature) => (
+            <li key={feature} className="flex items-start gap-3 text-sm text-slate-700">
+              <span
+                className="material-symbols-outlined text-success text-[20px] shrink-0"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                check
               </span>
-              <span className="text-text-muted text-sm font-medium ml-1">/mois</span>
-            </div>
-          </div>
-          <ul className="space-y-3 mb-8 flex-1">
-            {plan.features.map((feature) => (
-              <li key={feature} className="flex items-start gap-3 text-sm text-slate-700">
-                <span
-                  className="material-symbols-outlined text-primary text-[20px] shrink-0"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  check
-                </span>
-                {feature}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-auto">
-            {cardButton}
-            <p className="text-center text-[11px] text-primary/80 mt-3 font-semibold">
-              1 abonnement = 2 personnes
-            </p>
-          </div>
+              {feature}
+            </li>
+          ))}
+        </ul>
+        <div className="mt-auto">
+          {cardButton}
+          <p className="text-center text-[11px] text-primary/80 mt-3 font-semibold">
+            1 abonnement = 2 personnes
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all h-full">
+    <div className="fade-up hover-lift flex flex-col bg-white rounded-3xl p-9 border border-slate-200 shadow-sm h-full">
       <div className="mb-6">
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-lg font-bold text-text-main">{plan.name}</h2>
@@ -184,15 +185,22 @@ function PlanCard({ planId, isHighlighted, isCurrentPlan }: PlanCardProps) {
           {planId === "free" ? "Pour découvrir" : "L'expérience complète"}
         </p>
         <div className="flex items-baseline">
-          <span className="text-4xl font-black tracking-tight">{priceStr}</span>
-          <span className="text-text-muted text-sm font-medium ml-1">/mois</span>
+          <span className="font-serif text-5xl font-black tracking-tight">
+            {priceWhole}
+          </span>
+          <span className="text-text-muted text-base font-medium ml-1">
+            &euro;/mois
+          </span>
         </div>
       </div>
       <ul className="space-y-3 mb-8 flex-1">
         {plan.features.map((feature) => (
           <li key={feature} className="flex items-start gap-3 text-sm text-slate-600">
-            <span className="material-symbols-outlined text-slate-400 text-[20px] shrink-0">
-              check_small
+            <span
+              className="material-symbols-outlined text-success text-[20px] shrink-0"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              check
             </span>
             {feature}
           </li>
@@ -222,105 +230,99 @@ export default async function TarifsPage() {
   const planIds: PlanId[] = ["free", "pro", "premium"];
 
   return (
-    <div className="bg-[#f6f6f8] min-h-screen">
-      <div className="max-w-5xl mx-auto px-6 pb-24">
-        {/* Hero */}
-        <div className="pt-12 md:pt-20 pb-8 text-center">
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
-            Un abonnement, deux personnes
-          </h1>
-          <p className="text-text-muted text-lg max-w-md mx-auto">
-            Choisissez le plan qui correspond à votre couple. Changez ou annulez à tout moment.
-          </p>
-        </div>
-
-        {/* AC-1/AC-2 : Toggle mensuel / annuel + badge Économisez 20% */}
-        <PricingToggle />
-
-        {/* 3 plan cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20 items-stretch">
-          {planIds.map((planId) => (
-            <PlanCard
-              key={planId}
-              planId={planId}
-              isHighlighted={planId === "pro"}
-              isCurrentPlan={currentPlanId === planId}
-            />
-          ))}
-        </div>
-
-        {/* AC-6 : Tableau comparatif COMPARISON_FEATURES re-stylé */}
-        <section>
-          <h3 className="text-2xl md:text-3xl font-extrabold mb-8 text-center">
-            Comparatif détaillé
-          </h3>
-          <div className="overflow-x-auto rounded-3xl border border-slate-200 bg-white shadow-sm">
-            <table className="w-full text-left border-collapse min-w-[600px]">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-100">
-                  <th className="py-5 px-6 text-xs font-bold uppercase tracking-wider text-text-muted w-1/3">
-                    Fonctionnalité
-                  </th>
-                  <th className="py-5 px-4 text-center text-xs font-bold uppercase tracking-wider text-text-muted w-1/5">
-                    Gratuit
-                  </th>
-                  <th className="py-5 px-4 text-center text-xs font-bold uppercase tracking-wider text-primary w-1/5">
-                    Pro
-                  </th>
-                  <th className="py-5 px-4 text-center text-xs font-bold uppercase tracking-wider text-text-muted w-1/5">
-                    Premium
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {COMPARISON_FEATURES.map((row) => (
-                  <tr key={row.label} className="group hover:bg-slate-50/50 transition-colors">
-                    <td className="py-4 px-6 text-sm font-medium text-slate-700">
-                      {row.label}
-                    </td>
-                    <td className="py-4 px-4 text-center">
-                      <FeatureCell value={row.free} />
-                    </td>
-                    <td className="py-4 px-4 text-center">
-                      <FeatureCell value={row.pro} />
-                    </td>
-                    <td className="py-4 px-4 text-center">
-                      <FeatureCell value={row.premium} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+    <ScrollRevealSection>
+      <div className="bg-[#f6f6f8] min-h-screen">
+        <div className="max-w-5xl mx-auto px-6 pb-24">
+          {/* Hero */}
+          <div className="fade-up pt-12 md:pt-20 pb-8 text-center">
+            <h1 className="font-serif text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
+              Un abonnement, <em className="text-primary not-italic italic">deux personnes</em>
+            </h1>
+            <p className="text-text-muted text-lg max-w-md mx-auto">
+              Choisissez le plan qui correspond à votre couple. Changez ou annulez à tout moment.
+            </p>
           </div>
-        </section>
 
-        {/* FAQ couple */}
-        <section className="mt-16">
-          <h3 className="text-2xl font-extrabold mb-8 text-center">
-            Questions fréquentes
-          </h3>
-          <div className="max-w-2xl mx-auto space-y-4">
-            {FAQ_ITEMS.map((item) => (
-              <div
-                key={item.question}
-                className="bg-white rounded-2xl p-6 border border-slate-200"
-              >
-                <h4 className="font-bold mb-2">{item.question}</h4>
-                <p className="text-text-muted text-sm leading-relaxed">
-                  {item.answer}
-                </p>
-              </div>
+          {/* Toggle mensuel / annuel */}
+          <div className="fade-up">
+            <PricingToggle />
+          </div>
+
+          {/* 3 plan cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20 items-stretch">
+            {planIds.map((planId) => (
+              <PlanCard
+                key={planId}
+                planId={planId}
+                isHighlighted={planId === "pro"}
+                isCurrentPlan={currentPlanId === planId}
+              />
             ))}
           </div>
-        </section>
 
-        <p className="text-center text-sm text-text-muted mt-12">
-          Déjà un compte ?{" "}
-          <Link href="/connexion" className="text-primary hover:underline font-medium">
-            Se connecter
-          </Link>
-        </p>
+          {/* Tableau comparatif */}
+          <section className="fade-up">
+            <h3 className="font-serif text-2xl md:text-3xl font-extrabold mb-8 text-center">
+              Comparatif détaillé
+            </h3>
+            <div className="overflow-x-auto rounded-3xl border border-slate-200 bg-white shadow-sm">
+              <table className="w-full text-left border-collapse min-w-[600px]">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-100">
+                    <th className="py-5 px-6 text-xs font-bold uppercase tracking-wider text-text-muted w-1/3">
+                      Fonctionnalité
+                    </th>
+                    <th className="py-5 px-4 text-center text-xs font-bold uppercase tracking-wider text-text-muted w-1/5">
+                      Gratuit
+                    </th>
+                    <th className="py-5 px-4 text-center text-xs font-bold uppercase tracking-wider text-primary w-1/5">
+                      Pro
+                    </th>
+                    <th className="py-5 px-4 text-center text-xs font-bold uppercase tracking-wider text-text-muted w-1/5">
+                      Premium
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {COMPARISON_FEATURES.map((row) => (
+                    <tr key={row.label} className="group hover:bg-slate-50/50 transition-colors">
+                      <td className="py-4 px-6 text-sm font-medium text-slate-700">
+                        {row.label}
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <FeatureCell value={row.free} />
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <FeatureCell value={row.pro} />
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <FeatureCell value={row.premium} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* FAQ couple */}
+          <section className="fade-up mt-16 bg-white rounded-3xl p-8 md:p-12 border border-slate-200">
+            <h3 className="font-serif text-2xl md:text-3xl font-extrabold mb-8 text-center">
+              Questions fréquentes
+            </h3>
+            <div className="max-w-2xl mx-auto">
+              <FaqAccordion items={FAQ_ITEMS} />
+            </div>
+          </section>
+
+          <p className="fade-up text-center text-sm text-text-muted mt-12">
+            Déjà un compte ?{" "}
+            <Link href="/connexion" className="text-primary hover:underline font-medium">
+              Se connecter
+            </Link>
+          </p>
+        </div>
       </div>
-    </div>
+    </ScrollRevealSection>
   );
 }

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import React from "react";
 
-// Mock du Link i18n
+// Mock du Link i18n + usePathname
 vi.mock("@/i18n/navigation", () => ({
   Link: ({
     href,
@@ -19,6 +19,7 @@ vi.mock("@/i18n/navigation", () => ({
       {children}
     </a>
   ),
+  usePathname: () => "/",
 }));
 
 // Mock des composants shadcn/ui lourds
@@ -79,14 +80,14 @@ describe("Navbar", () => {
     expect(tarifLinks.length).toBeGreaterThan(0);
   });
 
-  it("TU-1-2 : contient un bouton 'Commencer' vers /inscription", async () => {
+  it("TU-1-2 : contient un bouton 'Essai gratuit' vers /inscription", async () => {
     const { Navbar } = await import("@/components/marketing/navbar");
     render(<Navbar />);
     const links = screen
       .getAllByRole("link")
       .filter((el) => el.getAttribute("href") === "/inscription");
     expect(links.length).toBeGreaterThan(0);
-    expect(links[0].textContent).toContain("Commencer");
+    expect(links[0].textContent).toContain("Essai gratuit");
   });
 
   it("TU-1-3 : contient un bouton 'Connexion' vers /connexion", async () => {

@@ -2,7 +2,7 @@
  * Tests QA — STORY-111 (forge-verify)
  * Comble les gaps identifiés lors de l'audit :
  *
- *  GAP-111-A : AC-1 — 3ème blob bg-blue-200/10 non testé sur inscription
+ *  GAP-111-A : AC-1 — Design bg-[#FAFAF9] et logo bg-primary sur inscription
  *  GAP-111-B : AC-3 — Texte exact "Essai 14j offert" non testé
  *  GAP-111-C : AC-5 — "Bon retour !" (avec point d'exclamation) non testé
  *  GAP-111-D : AC-2 — SVG Apple non testé sur page connexion
@@ -25,17 +25,16 @@ beforeAll(() => {
   );
 });
 
-// ── GAP-111-A : AC-1 — 3ème blob bg-blue-200/10 ─────────────────────────────
+// ── GAP-111-A : AC-1 — Design bg-[#FAFAF9] et logo bg-primary ──────────────
 
-describe("STORY-111 QA — 3ème blob blue-200/10 inscription (AC-1, GAP-A)", () => {
-  it("QA-111-A : inscription contient 'bg-blue-200/10' (3ème blur spot)", () => {
-    expect(inscriptionSrc).toContain("bg-blue-200/10");
+describe("STORY-111 QA — Design inscription bg-[#FAFAF9] + logo (AC-1, GAP-A)", () => {
+  it("QA-111-A : inscription contient 'bg-[#FAFAF9]' (fond page)", () => {
+    expect(inscriptionSrc).toContain("bg-[#FAFAF9]");
   });
 
-  it("QA-111-A2 : inscription contient bien 3 classes 'rounded-full' de blur (3 blobs)", () => {
-    // Les 3 blobs sont des rounded-full avec blur
-    const matches = inscriptionSrc.match(/blur-\[\d+px\]/g) ?? [];
-    expect(matches.length).toBeGreaterThanOrEqual(3);
+  it("QA-111-A2 : inscription contient le logo bg-primary avec lettre T", () => {
+    expect(inscriptionSrc).toContain("bg-primary");
+    expect(inscriptionSrc).toContain(">T<");
   });
 });
 

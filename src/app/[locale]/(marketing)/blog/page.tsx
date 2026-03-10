@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Link } from "@/i18n/navigation";
 import { BLOG_POSTS } from "@/data/blog-posts";
+import { ScrollRevealSection } from "@/components/marketing/scroll-reveal";
+import { BlogContent } from "./blog-content";
 
 export const metadata: Metadata = {
   title: "Blog — Gérer ses finances en couple | TrackMyCash",
@@ -15,56 +16,27 @@ export const metadata: Metadata = {
 };
 
 export default function BlogPage() {
+  void BLOG_POSTS;
+
   return (
-    <div className="max-w-3xl mx-auto px-4 py-16">
-      <h1 className="text-3xl font-bold text-text-main mb-2">Blog</h1>
-      <p className="text-text-muted mb-10">
-        Conseils pour gérer vos finances en couple, simplement et sereinement.
-      </p>
+    <ScrollRevealSection>
+      {/* Hero */}
+      <section className="bg-[#F5F3FF] py-16 pb-20 text-center">
+        <div className="fade-up max-w-3xl mx-auto px-4 sm:px-6">
+          <h1 className="font-serif text-4xl sm:text-5xl font-bold text-text-main mb-4">
+            Le Blog
+          </h1>
+          <p className="text-text-muted text-lg leading-relaxed max-w-2xl mx-auto">
+            Conseils pratiques, retours d&apos;expérience et astuces pour gérer
+            vos finances en couple — simplement et sereinement.
+          </p>
+        </div>
+      </section>
 
-      <div className="flex flex-col gap-8">
-        {BLOG_POSTS.map((post) => (
-          <article
-            key={post.slug}
-            className="bg-white border border-gray-100 rounded-2xl p-6 shadow-soft"
-          >
-            <div className="flex items-center gap-2 mb-3">
-              {post.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="text-xs font-medium text-primary bg-indigo-50 rounded-full px-2 py-0.5"
-                >
-                  {tag}
-                </span>
-              ))}
-              <span className="text-xs text-text-muted ml-auto">
-                {new Date(post.date).toLocaleDateString("fr-FR", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
-                {" · "}
-                {post.readingTime} min de lecture
-              </span>
-            </div>
-
-            <h2 className="text-xl font-bold text-text-main mb-2">
-              {post.title}
-            </h2>
-            <p className="text-text-muted text-sm mb-4">{post.excerpt}</p>
-
-            <Link
-              href={`/blog/${post.slug}` as Parameters<typeof Link>[0]["href"]}
-              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-            >
-              Lire l&apos;article
-              <span className="material-symbols-outlined text-[16px]">
-                arrow_forward
-              </span>
-            </Link>
-          </article>
-        ))}
+      {/* Client-side interactive content */}
+      <div className="pt-10">
+        <BlogContent />
       </div>
-    </div>
+    </ScrollRevealSection>
   );
 }

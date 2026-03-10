@@ -7,7 +7,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-manrope);
+  --font-sans: var(--font-dm-sans);
+  --font-serif: var(--font-dm-serif);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -70,6 +71,14 @@
   --color-danger: var(--danger);
   --color-couple-pink: var(--couple-pink);
   --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+
+  /* ── Redesign v2 tokens ────────────────────────────────── */
+  --color-primary-light: var(--primary-light);
+  --color-primary-dark: var(--primary-dark);
+  --color-accent: var(--accent-brand);
+  --color-accent-light: var(--accent-light);
+  --color-text-light: var(--text-light);
+  --color-border-light: var(--border-light);
 }
 
 :root {
@@ -83,16 +92,22 @@
   --warning-subtle: oklch(0.98 0.016 73.684);    /* orange-50 : fond warning clair */
   --info-subtle: oklch(0.97 0.013 236.62);       /* bleu-50 : fond info clair */
   /* ── Stitch Design System ──────────────────────────────────────────── */
-  --primary: #4848e5;                            /* Stitch primary */
+  --primary: #4F46E5;                            /* Redesign primary */
   --primary-foreground: #ffffff;
-  --couple-pink: #EC4899;                        /* Accent couple — Stitch v2 */
-  --success: #078841;                            /* Stitch success */
-  --danger: #e74008;                             /* Stitch danger */
-  --warning: #e7a008;                            /* Stitch warning (override) */
-  --background-light: #f6f6f8;
+  --primary-light: #818CF8;
+  --primary-dark: #3730A3;
+  --couple-pink: #EC4899;                        /* Accent couple */
+  --accent-brand: #F59E0B;                       /* Accent amber */
+  --accent-light: #FDE68A;
+  --success: #10B981;                            /* Redesign success */
+  --danger: #e74008;                             /* Danger */
+  --warning: #e7a008;                            /* Warning */
+  --background-light: #FAFAF9;
   --background-dark: #111121;
-  --text-main: #0e0e1b;
-  --text-muted: #505095;
+  --text-main: #1C1917;
+  --text-muted: #78716C;
+  --text-light: #A8A29E;
+  --border-light: #E7E5E4;
   --card-light: #ffffff;
   --card-dark: #1a1a2e;
   --foreground: oklch(0.145 0 0);
@@ -261,4 +276,39 @@
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Redesign v2 — Scroll reveal & hover utilities ───────────── */
+.fade-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(79, 70, 229, 0.1);
+}
+
+/* ── Headings serif (redesign) ───────────────────────────────── */
+.font-serif {
+  font-family: var(--font-dm-serif), serif;
+  font-weight: 400;
 }

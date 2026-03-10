@@ -1,13 +1,20 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { DM_Sans, DM_Serif_Display } from "next/font/google";
 import { SwRegister } from "@/components/sw-register";
 import { PwaUpdateBanner } from "@/components/pwa-update-banner";
 import "./globals.css";
 
-const manrope = Manrope({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-manrope",
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-dm-sans",
+  display: "swap",
+});
+
+const dmSerif = DM_Serif_Display({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-dm-serif",
   display: "swap",
 });
 
@@ -22,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html suppressHydrationWarning className={manrope.variable}>
+    <html suppressHydrationWarning className={`${dmSans.variable} ${dmSerif.variable}`}>
       <head>
         <link
           rel="stylesheet"

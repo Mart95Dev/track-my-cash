@@ -8,10 +8,10 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - **Langage** : TypeScript (strict, 0 `any`)
 - **Base de données** : Turso (LibSQL) — double DB (Main + Per-user)
 - **Auth** : BetterAuth (email/password, OAuth Google/Apple, 2FA TOTP)
-- **UI** : Tailwind CSS v4, shadcn/ui, Material Symbols Outlined
+- **UI** : Tailwind CSS v4, shadcn/ui, Material Symbols Outlined, DM Sans + DM Serif Display
 - **Charts** : Recharts
 - **Emails** : Nodemailer
-- **Tests** : Vitest + Testing Library (1668 tests)
+- **Tests** : Vitest + Testing Library (1668+ tests)
 
 ## Fonctionnalites
 
@@ -74,6 +74,17 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Email hebdomadaire de synthese
 - Export de donnees complet
 
+### Pages marketing
+- Homepage avec hero, pain points, features, temoignages, how-it-works, trust bar et CTA
+- Page Fonctionnalites (mode couple, IA, import multi-formats)
+- Page Tarifs avec toggle mensuel/annuel, comparatif detaille et FAQ accordion
+- Blog avec categories, article a la une et newsletter
+- Page A propos (histoire, convictions, chiffres cles)
+- Page Securite (6 engagements, philosophie)
+- Pages auth (connexion, inscription) avec OAuth Google/Apple
+- Design system : DM Serif Display (headings) + DM Sans (body), palette Indigo/Stone
+- Animations scroll reveal (fade-up, hover-lift) et composants interactifs
+
 ### Internationalisation
 - 5 langues supportees (fr, en, es, de, it)
 - Routes localisees
@@ -84,7 +95,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 npm run dev      # Serveur de developpement (http://localhost:3000)
 npm run build    # Build production
 npm run lint     # ESLint
-npm test         # Tests Vitest (1668 tests)
+npm test         # Tests Vitest
 ```
 
 ## Variables d'environnement
@@ -134,12 +145,14 @@ SMTP_PASS=
 src/
   app/
     [locale]/(app)/     # Pages application protegees par auth (dashboard, comptes, transactions...)
+    [locale]/(marketing)/  # Pages marketing (accueil, fonctionnalites, tarifs, blog, a-propos, securite)
     [locale]/(auth)/    # Pages auth (connexion, inscription, two-factor)
     [locale]/offline/   # Page offline PWA (hors auth)
     api/                # API routes (auth, push, cron, stripe, reports)
       mobile/           # API REST mobile (auth JWT, 2FA, chat, CRUD, RGPD, settings)
     actions/            # Server Actions (mutations)
   components/           # Composants React (client components)
+    marketing/          # Composants marketing (navbar, footer, scroll-reveal)
     charts/             # Graphiques Recharts (barres, camembert, timeline)
   lib/
     queries/            # 13 modules SQL domainaux (barrel re-export)
@@ -171,3 +184,4 @@ tests/
 | v17 | Refactoring + Infra + Features | 11 | 1588 |
 | v18 | Parite Web/Mobile | 11 | 1668 |
 | v18.1 | Hardening securite API mobile | — | 1668 |
+| v19 | Redesign marketing complet (DM Serif/Sans, 8 pages, animations) | — | 1668+ |

@@ -88,11 +88,11 @@ describe("STORY-109 — Prix plan Pro", () => {
   });
 });
 
-// ── TU-109-4 : animated-border-wrapper (AC-3) ────────────────────────────────
+// ── TU-109-4 : Card Pro highlighted with border-primary (AC-3) ───────────────
 
-describe("STORY-109 — Card Pro animée", () => {
-  it("TU-109-4 : page tarifs contient 'animated-border-wrapper' (AC-3)", () => {
-    expect(pageSrc).toContain("animated-border-wrapper");
+describe("STORY-109 — Card Pro mise en avant", () => {
+  it("TU-109-4 : page tarifs contient 'border-primary' (card Pro highlighted, AC-3)", () => {
+    expect(pageSrc).toContain("border-primary");
   });
 });
 
