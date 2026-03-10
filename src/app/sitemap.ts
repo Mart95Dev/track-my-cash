@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
-import { BLOG_POSTS } from "@/data/blog-posts";
+import { getDb } from "@/lib/db";
+import { getPublishedPosts } from "@/lib/queries/blog";
 
 const LOCALES = ["fr", "en", "es", "it", "de"] as const;
 const PUBLIC_PATHS = ["", "tarifs", "connexion", "inscription"] as const;
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://trackmycash.com";
   const lastModified = new Date();
 
@@ -24,7 +25,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   }
 
-  // AC-5 STORY-098 : URLs blog (fr uniquement — contenu en français)
+  // Blog URLs (fr uniquement — contenu en français)
   entries.push({
     url: `${baseUrl}/fr/blog`,
     lastModified,
@@ -32,10 +33,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   });
 
-  for (const post of BLOG_POSTS) {
+  const db = getDb();
+  const posts = await getPublishedPosts(db);
+
+  for (const post of posts) {
     entries.push({
       url: `${baseUrl}/fr/blog/${post.slug}`,
-      lastModified: new Date(post.date),
+      lastModified: post.publishedAt ? new Date(post.publishedAt) : lastModified,
       changeFrequency: "monthly",
       priority: 0.6,
     });

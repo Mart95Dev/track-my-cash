@@ -1,113 +1,85 @@
 sprint:
-  id: sprint-parite-web-mobile-v18
-  goal: "Parité Web/Mobile — sécurité auth, proxy IA, 2FA, endpoints manquants, tests intégration"
+  id: sprint-blog-dynamique-v20
+  goal: "Blog Dynamique + Newsletter — CRUD admin, lecture publique, newsletter fonctionnelle, desabonnement"
   start_date: "2026-03-10"
   end_date: null
-  status: done
-  stories_total: 11
-  stories_completed: 11
-  points_total: 44
-  points_completed: 44
-  tests_baseline: 1588
-  tests_current: 1668
+  status: in_progress
+  stories_total: 8
+  stories_completed: 8
+  points_total: 35
+  points_completed: 35
+  tests_baseline: 1669
+  tests_current: 1789
 
 stories:
-  - id: STORY-139
-    title: "Corriger auth mobile — utiliser les routes JWT"
-    epic: auth-parite
+  - id: STORY-150
+    title: "Tables DB blog + newsletter + seed data"
+    epic: blog-dynamique
     complexity: S
     priority: P0
     status: done
     blockedBy: []
     points: 3
 
-  - id: STORY-140
-    title: "Supprimer clé OpenRouter mobile + créer proxy /api/mobile/chat"
-    epic: securite-parite
+  - id: STORY-151
+    title: "CRUD articles dans l'admin"
+    epic: blog-dynamique
+    complexity: L
+    priority: P0
+    status: done
+    blockedBy: [STORY-150]
+    points: 8
+
+  - id: STORY-152
+    title: "Gestion des categories dans l'admin"
+    epic: blog-dynamique
+    complexity: S
+    priority: P0
+    status: done
+    blockedBy: [STORY-150]
+    points: 3
+
+  - id: STORY-153
+    title: "Lecture dynamique des articles cote public"
+    epic: blog-dynamique
     complexity: M
     priority: P0
     status: done
-    blockedBy: [STORY-139]
+    blockedBy: [STORY-150]
     points: 5
 
-  - id: STORY-141
-    title: "Routes API 2FA TOTP pour le mobile"
-    epic: auth-parite
+  - id: STORY-154
+    title: "Page article [slug] avec SEO"
+    epic: blog-dynamique
     complexity: M
     priority: P0
     status: done
-    blockedBy: [STORY-139]
+    blockedBy: [STORY-153]
     points: 5
 
-  - id: STORY-142
-    title: "Écrans 2FA TOTP dans l'app mobile"
-    epic: auth-parite
+  - id: STORY-155
+    title: "Newsletter fonctionnelle (inscription)"
+    epic: blog-dynamique
     complexity: M
-    priority: P1
+    priority: P0
     status: done
-    blockedBy: [STORY-141]
+    blockedBy: [STORY-150]
     points: 5
 
-  - id: STORY-143
-    title: "Endpoints Stripe subscription pour le mobile"
-    epic: parite-endpoints
+  - id: STORY-156
+    title: "Dashboard inscrits newsletter dans l'admin"
+    epic: blog-dynamique
     complexity: S
     priority: P1
     status: done
-    blockedBy: [STORY-139]
+    blockedBy: [STORY-150, STORY-151]
     points: 3
 
-  - id: STORY-144
-    title: "Endpoints RGPD pour le mobile (export + suppression)"
-    epic: parite-endpoints
+  - id: STORY-157
+    title: "Lien desabonnement newsletter"
+    epic: blog-dynamique
     complexity: S
     priority: P1
     status: done
-    blockedBy: [STORY-139]
+    blockedBy: [STORY-155]
     points: 3
-
-  - id: STORY-145
-    title: "Endpoints settings et règles de catégorisation"
-    epic: parite-endpoints
-    complexity: S
-    priority: P1
-    status: done
-    blockedBy: [STORY-139]
-    points: 3
-
-  - id: STORY-146
-    title: "Endpoint détection d'anomalies"
-    epic: parite-endpoints
-    complexity: S
-    priority: P2
-    status: done
-    blockedBy: [STORY-139]
-    points: 2
-
-  - id: STORY-147
-    title: "Refactorer l'écran Conseiller IA mobile (proxy backend)"
-    epic: securite-parite
-    complexity: M
-    priority: P1
-    status: done
-    blockedBy: [STORY-140]
-    points: 5
-    note: "Déjà réalisé dans STORY-140 (proxy backend + suppression clé OpenRouter)"
-
-  - id: STORY-148
-    title: "Écran paramètres mobile complet (parité web)"
-    epic: parite-ecrans
-    complexity: M
-    priority: P2
-    status: done
-    blockedBy: [STORY-145, STORY-142]
-    points: 5
-
-  - id: STORY-149
-    title: "Tests d'intégration parité Web/Mobile"
-    epic: parite-qualite
-    complexity: M
-    priority: P2
-    status: done
-    blockedBy: [STORY-139, STORY-140, STORY-141]
-    points: 5

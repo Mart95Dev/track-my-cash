@@ -260,6 +260,15 @@ export async function initSchema() {
       // Column already exists, ignore
     }
   }
+
+  // Blog + Newsletter tables (STORY-150)
+  try {
+    const { ensureBlogTables, seedBlogData } = await import("./blog-db");
+    await ensureBlogTables(db);
+    await seedBlogData(db);
+  } catch {
+    // Tables may already exist or DB mock in tests
+  }
 }
 
 let schemaInitialized = false;

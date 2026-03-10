@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { BLOG_POSTS } from "@/data/blog-posts";
+import { getDb } from "@/lib/db";
+import { getPublishedPosts, getAllCategories } from "@/lib/queries/blog";
 import { ScrollRevealSection } from "@/components/marketing/scroll-reveal";
 import { BlogContent } from "./blog-content";
 
@@ -15,8 +16,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BlogPage() {
-  void BLOG_POSTS;
+export default async function BlogPage() {
+  const db = getDb();
+  const [posts, categories] = await Promise.all([
+    getPublishedPosts(db),
+    getAllCategories(db),
+  ]);
 
   return (
     <ScrollRevealSection>
@@ -35,7 +40,7 @@ export default function BlogPage() {
 
       {/* Client-side interactive content */}
       <div className="pt-10">
-        <BlogContent />
+        <BlogContent posts={posts} categories={categories} />
       </div>
     </ScrollRevealSection>
   );

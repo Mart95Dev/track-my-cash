@@ -336,3 +336,26 @@
 - **Points total :** 44 pts
 - **Tests baseline :** 1588 (0 régression tolérée)
 - **Objectif :** Parité fonctionnelle complète entre web et mobile, 0 clé API exposée côté client
+
+---
+
+## Sprint Blog Dynamique + Newsletter (v20) — PLANIFIE
+
+| ID | Titre | Priorité | Complexité | Statut | Bloqué par |
+|----|-------|----------|------------|--------|------------|
+| STORY-150 | Tables DB blog + newsletter + seed data | P0 | S (3pts) | 🔲 pending | — |
+| STORY-151 | CRUD articles dans l'admin | P0 | L (8pts) | 🔲 pending | STORY-150 |
+| STORY-152 | Gestion des catégories dans l'admin | P0 | S (3pts) | 🔲 pending | STORY-150 |
+| STORY-153 | Lecture dynamique des articles côté public | P0 | M (5pts) | 🔲 pending | STORY-150 |
+| STORY-154 | Page article [slug] avec SEO | P0 | M (5pts) | 🔲 pending | STORY-153 |
+| STORY-155 | Newsletter fonctionnelle (inscription) | P0 | M (5pts) | 🔲 pending | STORY-150 |
+| STORY-156 | Dashboard inscrits newsletter dans l'admin | P1 | S (3pts) | 🔲 pending | STORY-150, STORY-151 |
+| STORY-157 | Lien désabonnement newsletter | P1 | S (3pts) | 🔲 pending | STORY-155 |
+
+### Métriques cible Sprint Blog Dynamique
+
+- **Stories :** 0/8
+- **Points total :** 35 pts
+- **Projets :** track-my-cash + track-my-cash-admin
+- **Tests baseline :** 1669 (0 régression tolérée)
+- **Dépendance npm à ajouter :** sanitize-html

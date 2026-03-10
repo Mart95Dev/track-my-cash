@@ -219,6 +219,25 @@ export function renderTrialReminderEmail(
   return renderEmailBase(title, body);
 }
 
+// ─── STORY-155 : Newsletter welcome email ───────────────────────────────────
+
+export function renderNewsletterWelcomeEmail(
+  email: string,
+  unsubscribeUrl: string
+): string {
+  const body = `
+    ${renderHeading("Bienvenue dans la newsletter TrackMyCash !")}
+    ${renderParagraph(`Merci de vous être inscrit(e) avec l'adresse <strong>${email}</strong>.`)}
+    ${renderParagraph("Chaque semaine, vous recevrez nos meilleurs conseils pour gérer vos finances en couple : astuces budget, partage de dépenses, objectifs d'épargne et nouveautés produit.")}
+    ${renderNote("Zéro spam, promis. Un seul email par semaine, que du contenu utile.")}
+    <p style="margin: 24px 0 0; font-size: 12px; color: ${EMAIL_COLORS.textMuted};">
+      Si vous souhaitez vous désabonner, <a href="${unsubscribeUrl}" style="color: ${EMAIL_COLORS.textSecondary};">cliquez ici pour le desabonnement</a>.
+    </p>
+  `;
+
+  return renderEmailBase("Bienvenue dans la newsletter TrackMyCash", body);
+}
+
 export type { WeeklySummaryData };
 
 export function renderWeeklyEmail(

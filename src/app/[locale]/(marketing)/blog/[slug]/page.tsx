@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Link } from "@/i18n/navigation";
-import { BLOG_POSTS, getBlogPost } from "@/data/blog-posts";
+import { getDb } from "@/lib/db";
+import { getPublishedPostBySlug, getPublishedSlugs } from "@/lib/queries/blog";
+import { sanitizeBlogHtml } from "@/lib/blog-sanitize";
 
-export function generateStaticParams() {
-  return BLOG_POSTS.map((post) => ({ slug: post.slug }));
+export async function generateStaticParams() {
+  const db = getDb();
+  const slugs = await getPublishedSlugs(db);
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -13,7 +17,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const db = getDb();
+  const post = await getPublishedPostBySlug(db, slug);
 
   if (!post) {
     return { title: "Article introuvable — TrackMyCash" };
@@ -22,14 +27,14 @@ export async function generateMetadata({
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://trackmycash.com";
 
   return {
-    title: `${post.title} | TrackMyCash`,
-    description: post.excerpt,
+    title: post.metaTitle ?? `${post.title} | TrackMyCash`,
+    description: post.metaDescription ?? post.excerpt,
     openGraph: {
-      title: `${post.title} | TrackMyCash`,
-      description: post.excerpt,
+      title: post.metaTitle ?? `${post.title} | TrackMyCash`,
+      description: post.metaDescription ?? post.excerpt,
       type: "article",
-      publishedTime: post.date,
-      tags: post.tags,
+      publishedTime: post.publishedAt ?? undefined,
+      tags: post.categories.map((c) => c.name),
       url: `${baseUrl}/fr/blog/${post.slug}`,
     },
   };
@@ -41,7 +46,8 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string; locale: string }>;
 }) {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const db = getDb();
+  const post = await getPublishedPostBySlug(db, slug);
 
   if (!post) {
     notFound();
@@ -54,7 +60,7 @@ export default async function BlogPostPage({
     "@type": "Article",
     headline: post.title,
     description: post.excerpt,
-    datePublished: post.date,
+    datePublished: post.publishedAt,
     author: {
       "@type": "Organization",
       name: "TrackMyCash",
@@ -65,7 +71,7 @@ export default async function BlogPostPage({
       url: baseUrl,
     },
     url: `${baseUrl}/fr/blog/${post.slug}`,
-    keywords: post.tags.join(", "),
+    keywords: post.categories.map((c) => c.name).join(", "),
   };
 
   return (
@@ -89,22 +95,25 @@ export default async function BlogPostPage({
 
       <header className="mb-8">
         <div className="flex items-center gap-2 mb-4">
-          {post.tags.map((tag) => (
+          {post.categories.map((cat) => (
             <span
-              key={tag}
-              className="text-xs font-medium text-primary bg-indigo-50 rounded-full px-2 py-0.5"
+              key={cat.id}
+              className="text-xs font-medium rounded-full px-2 py-0.5"
+              style={{ backgroundColor: `${cat.color}15`, color: cat.color }}
             >
-              {tag}
+              {cat.name}
             </span>
           ))}
         </div>
         <h1 className="text-3xl font-bold text-text-main mb-3">{post.title}</h1>
         <p className="text-text-muted text-sm">
-          {new Date(post.date).toLocaleDateString("fr-FR", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
+          {post.publishedAt
+            ? new Date(post.publishedAt).toLocaleDateString("fr-FR", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })
+            : ""}
           {" · "}
           {post.readingTime} min de lecture
         </p>
@@ -112,10 +121,10 @@ export default async function BlogPostPage({
 
       <div
         className="prose prose-slate max-w-none text-text-main"
-        dangerouslySetInnerHTML={{ __html: post.content }}
+        dangerouslySetInnerHTML={{ __html: sanitizeBlogHtml(post.content) }}
       />
 
-      {/* AC-7 : CTA en bas de chaque article */}
+      {/* CTA en bas de chaque article */}
       <div className="mt-12 bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center">
         <p className="font-bold text-text-main mb-2">
           Gérez votre budget en couple avec TrackMyCash

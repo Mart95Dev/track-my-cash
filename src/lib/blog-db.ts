@@ -1,22 +1,74 @@
-export interface BlogPost {
-  slug: string;
-  title: string;
-  date: string;
-  excerpt: string;
-  content: string;
-  readingTime: number;
-  tags: string[];
+import type { Client } from "@libsql/client";
+
+/**
+ * Crée les tables blog + newsletter dans la Main DB Turso.
+ * Idempotent — peut être appelé plusieurs fois sans erreur.
+ */
+export async function ensureBlogTables(db: Client): Promise<void> {
+  await db.executeMultiple(`
+    CREATE TABLE IF NOT EXISTS blog_posts (
+      id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+      slug TEXT NOT NULL UNIQUE,
+      title TEXT NOT NULL,
+      excerpt TEXT NOT NULL DEFAULT '',
+      content TEXT NOT NULL DEFAULT '',
+      cover_image_url TEXT,
+      reading_time INTEGER NOT NULL DEFAULT 5,
+      status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft', 'published')),
+      published_at TEXT,
+      author_name TEXT NOT NULL DEFAULT 'TrackMyCash',
+      meta_title TEXT,
+      meta_description TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_blog_posts_slug ON blog_posts(slug);
+    CREATE INDEX IF NOT EXISTS idx_blog_posts_status ON blog_posts(status);
+    CREATE INDEX IF NOT EXISTS idx_blog_posts_published_at ON blog_posts(published_at);
+
+    CREATE TABLE IF NOT EXISTS blog_categories (
+      id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+      name TEXT NOT NULL UNIQUE,
+      slug TEXT NOT NULL UNIQUE,
+      color TEXT NOT NULL DEFAULT '#4F46E5'
+    );
+
+    CREATE TABLE IF NOT EXISTS blog_post_categories (
+      post_id TEXT NOT NULL REFERENCES blog_posts(id) ON DELETE CASCADE,
+      category_id TEXT NOT NULL REFERENCES blog_categories(id) ON DELETE CASCADE,
+      PRIMARY KEY (post_id, category_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+      id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+      email TEXT NOT NULL UNIQUE,
+      status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'unsubscribed')),
+      subscribed_at TEXT NOT NULL DEFAULT (datetime('now')),
+      unsubscribed_at TEXT
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_newsletter_email ON newsletter_subscribers(email);
+    CREATE INDEX IF NOT EXISTS idx_newsletter_status ON newsletter_subscribers(status);
+  `);
 }
 
-export const BLOG_POSTS: BlogPost[] = [
+/** Catégories initiales du blog */
+export const SEED_CATEGORIES = [
+  { name: "Budget", slug: "budget", color: "#4F46E5" },
+  { name: "Couple", slug: "couple", color: "#EC4899" },
+  { name: "Épargne", slug: "epargne", color: "#10B981" },
+  { name: "IA", slug: "ia", color: "#F59E0B" },
+  { name: "Sécurité", slug: "securite", color: "#EF4444" },
+] as const;
+
+/** Articles seed migrés depuis src/data/blog-posts.ts */
+export const SEED_POSTS = [
   {
     slug: "gerer-budget-couple",
     title: "Comment gérer son budget en couple sans se disputer",
-    date: "2026-02-24",
     excerpt:
       "La gestion de l'argent est l'une des premières sources de tension en couple. Voici les méthodes qui fonctionnent vraiment.",
-    readingTime: 5,
-    tags: ["budget", "couple", "finances"],
     content: `<h2>Pourquoi l'argent crée des tensions en couple ?</h2>
 <p>Selon une étude de l'Observatoire des finances françaises, les disputes liées à l'argent sont la deuxième cause de séparation. Pourtant, avec les bons outils et méthodes, il est tout à fait possible de gérer un budget commun sereinement.</p>
 
@@ -33,15 +85,15 @@ export const BLOG_POSTS: BlogPost[] = [
 
 <h2>L'outil clé : le suivi des dépenses partagées</h2>
 <p>Quelle que soit la méthode choisie, le suivi des dépenses est indispensable. Un bon outil vous permet de visualiser en temps réel qui a dépensé quoi, et d'équilibrer automatiquement la balance.</p>`,
+    readingTime: 5,
+    publishedAt: "2026-02-24T10:00:00.000Z",
+    categories: ["budget", "couple"],
   },
   {
     slug: "partager-depenses-equitablement",
     title: "Partager ses dépenses équitablement : 3 méthodes éprouvées",
-    date: "2026-02-17",
     excerpt:
       "Vous ne savez pas comment répartir les dépenses avec votre partenaire ? Découvrez 3 approches concrètes pour que chacun se sente traité équitablement.",
-    readingTime: 4,
-    tags: ["dépenses", "couple", "équilibre"],
     content: `<h2>L'équité, pas toujours l'égalité</h2>
 <p>Partager équitablement les dépenses ne signifie pas forcément payer 50/50. Si vos revenus sont différents, une répartition proportionnelle est souvent plus juste.</p>
 
@@ -56,15 +108,15 @@ export const BLOG_POSTS: BlogPost[] = [
 
 <h2>Comment un outil de suivi vous aide</h2>
 <p>Un bon outil calcule automatiquement la balance entre vous et votre partenaire, en tenant compte de qui a payé quoi. Plus besoin de sortir la calculatrice en fin de mois.</p>`,
+    readingTime: 4,
+    publishedAt: "2026-02-17T10:00:00.000Z",
+    categories: ["couple"],
   },
   {
     slug: "objectifs-epargne-couple",
     title: "5 objectifs d'épargne pour les couples en 2026",
-    date: "2026-02-10",
     excerpt:
       "Épargner ensemble, c'est bien. Épargner avec des objectifs clairs et motivants, c'est mieux. Voici 5 projets d'épargne qui soudent les couples.",
-    readingTime: 5,
-    tags: ["épargne", "couple", "objectifs"],
     content: `<h2>Pourquoi définir des objectifs communs ?</h2>
 <p>Épargner sans but précis est difficile à maintenir dans la durée. Avoir des objectifs partagés crée une motivation commune et renforce la cohésion du couple.</p>
 
@@ -82,9 +134,59 @@ export const BLOG_POSTS: BlogPost[] = [
 
 <h2>Objectif 5 : La retraite anticipée</h2>
 <p>Si vous commencez tôt, même une petite épargne mensuelle peut faire une grande différence à long terme. Utilisez un simulateur pour visualiser la croissance de votre capital.</p>`,
+    readingTime: 5,
+    publishedAt: "2026-02-10T10:00:00.000Z",
+    categories: ["epargne", "couple"],
   },
-];
+] as const;
 
-export function getBlogPost(slug: string): BlogPost | undefined {
-  return BLOG_POSTS.find((p) => p.slug === slug);
+/**
+ * Insère les données seed (catégories + articles + liaisons).
+ * Utilise INSERT OR IGNORE pour être idempotent.
+ */
+export async function seedBlogData(db: Client): Promise<void> {
+  // Insert categories
+  for (const cat of SEED_CATEGORIES) {
+    await db.execute({
+      sql: `INSERT OR IGNORE INTO blog_categories (id, name, slug, color)
+            VALUES (lower(hex(randomblob(16))), ?, ?, ?)`,
+      args: [cat.name, cat.slug, cat.color],
+    });
+  }
+
+  // Insert posts
+  for (const post of SEED_POSTS) {
+    // Check if post already exists
+    const existing = await db.execute({
+      sql: "SELECT id FROM blog_posts WHERE slug = ?",
+      args: [post.slug],
+    });
+
+    if (existing.rows.length > 0) continue;
+
+    const postResult = await db.execute({
+      sql: `INSERT INTO blog_posts (id, slug, title, excerpt, content, reading_time, status, published_at, author_name)
+            VALUES (lower(hex(randomblob(16))), ?, ?, ?, ?, ?, 'published', ?, 'TrackMyCash')
+            RETURNING id`,
+      args: [
+        post.slug,
+        post.title,
+        post.excerpt,
+        post.content,
+        post.readingTime,
+        post.publishedAt,
+      ],
+    });
+
+    const postId = String(postResult.rows[0].id);
+
+    // Link categories
+    for (const catSlug of post.categories) {
+      await db.execute({
+        sql: `INSERT OR IGNORE INTO blog_post_categories (post_id, category_id)
+              SELECT ?, id FROM blog_categories WHERE slug = ?`,
+        args: [postId, catSlug],
+      });
+    }
+  }
 }

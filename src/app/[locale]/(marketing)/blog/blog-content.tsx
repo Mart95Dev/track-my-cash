@@ -1,10 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Link } from "@/i18n/navigation";
-import { BLOG_POSTS, type BlogPost } from "@/data/blog-posts";
+import type { BlogPost, BlogCategory } from "@/lib/queries/blog";
+import { subscribeNewsletterAction } from "@/app/actions/newsletter-actions";
 
-const CATEGORIES = ["Tous", "Budget", "Couple", "Épargne", "IA", "Sécurité"];
+type Props = {
+  posts: BlogPost[];
+  categories: BlogCategory[];
+};
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("fr-FR", {
@@ -14,19 +18,16 @@ function formatDate(dateStr: string) {
   });
 }
 
-function matchesCategory(post: BlogPost, category: string): boolean {
-  if (category === "Tous") return true;
-  return post.tags.some(
-    (tag) => tag.toLowerCase() === category.toLowerCase()
-  );
-}
+export function BlogContent({ posts, categories }: Props) {
+  const [activeCategorySlug, setActiveCategorySlug] = useState<string | null>(null);
+  const [newsletterStatus, setNewsletterStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-export function BlogContent() {
-  const [activeCategory, setActiveCategory] = useState("Tous");
-
-  const filtered = BLOG_POSTS.filter((post) =>
-    matchesCategory(post, activeCategory)
-  );
+  const filtered = activeCategorySlug
+    ? posts.filter((post) =>
+        post.categories.some((c) => c.slug === activeCategorySlug)
+      )
+    : posts;
 
   const featured = filtered[0];
   const gridPosts = filtered.slice(1);
@@ -36,17 +37,28 @@ export function BlogContent() {
       {/* Category filters */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 -mt-6 mb-12">
         <div className="fade-up flex flex-wrap gap-2 justify-center">
-          {CATEGORIES.map((cat) => (
+          <button
+            onClick={() => setActiveCategorySlug(null)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeCategorySlug === null
+                ? "bg-primary text-white"
+                : "bg-white text-text-muted border border-gray-200 hover:border-gray-300"
+            }`}
+          >
+            Tous
+          </button>
+          {categories.map((cat) => (
             <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
+              key={cat.id}
+              onClick={() => setActiveCategorySlug(cat.slug)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                activeCategory === cat
-                  ? "bg-primary text-white"
+                activeCategorySlug === cat.slug
+                  ? "text-white"
                   : "bg-white text-text-muted border border-gray-200 hover:border-gray-300"
               }`}
+              style={activeCategorySlug === cat.slug ? { backgroundColor: cat.color } : undefined}
             >
-              {cat}
+              {cat.name}
             </button>
           ))}
         </div>
@@ -69,9 +81,11 @@ export function BlogContent() {
                   {featured.excerpt}
                 </p>
                 <div className="flex items-center gap-4 mb-6">
-                  <span className="text-sm text-text-muted">
-                    {formatDate(featured.date)}
-                  </span>
+                  {featured.publishedAt && (
+                    <span className="text-sm text-text-muted">
+                      {formatDate(featured.publishedAt)}
+                    </span>
+                  )}
                   <span className="text-sm text-text-muted">
                     {featured.readingTime} min de lecture
                   </span>
@@ -105,12 +119,13 @@ export function BlogContent() {
                 className="fade-up hover-lift bg-white border border-gray-100 rounded-2xl p-6 shadow-soft transition-shadow"
               >
                 <div className="flex flex-wrap items-center gap-2 mb-3">
-                  {post.tags.map((tag) => (
+                  {post.categories.map((cat) => (
                     <span
-                      key={tag}
-                      className="text-xs font-medium text-primary bg-indigo-50 rounded-full px-2.5 py-0.5"
+                      key={cat.id}
+                      className="text-xs font-medium rounded-full px-2.5 py-0.5"
+                      style={{ backgroundColor: `${cat.color}15`, color: cat.color }}
                     >
-                      {tag}
+                      {cat.name}
                     </span>
                   ))}
                 </div>
@@ -124,7 +139,7 @@ export function BlogContent() {
 
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-text-muted">
-                    {formatDate(post.date)} · {post.readingTime} min de lecture
+                    {post.publishedAt ? formatDate(post.publishedAt) : ""} · {post.readingTime} min de lecture
                   </span>
                   <Link
                     href={
@@ -165,22 +180,61 @@ export function BlogContent() {
             Un email par semaine. Astuces budget, conseils couple, nouveautés
             produit. Zéro spam.
           </p>
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
-          >
-            <input
-              type="email"
-              placeholder="votre@email.com"
-              className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-            />
-            <button
-              type="submit"
-              className="px-6 py-3 bg-primary text-white text-sm font-medium rounded-xl hover:bg-primary/90 transition-colors"
+
+          {newsletterStatus?.type === "success" ? (
+            <p className="text-green-600 font-medium" data-testid="newsletter-success">
+              {newsletterStatus.message}
+            </p>
+          ) : (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const form = e.currentTarget;
+                startTransition(async () => {
+                  const result = await subscribeNewsletterAction(formData);
+                  if (result.success) {
+                    setNewsletterStatus({ type: "success", message: result.message ?? "Merci pour votre inscription !" });
+                    form.reset();
+                  } else {
+                    setNewsletterStatus({ type: "error", message: result.error ?? "Une erreur est survenue." });
+                  }
+                });
+              }}
+              className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
             >
-              S&apos;abonner
-            </button>
-          </form>
+              {/* Honeypot — hidden from users, filled by bots */}
+              <input
+                type="text"
+                name="website"
+                autoComplete="off"
+                tabIndex={-1}
+                aria-hidden="true"
+                className="absolute -left-[9999px] opacity-0 h-0 w-0"
+              />
+
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="votre@email.com"
+                className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+              />
+              <button
+                type="submit"
+                disabled={isPending}
+                className="px-6 py-3 bg-primary text-white text-sm font-medium rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-60"
+              >
+                {isPending ? "Envoi..." : "S\u2019abonner"}
+              </button>
+            </form>
+          )}
+
+          {newsletterStatus?.type === "error" && (
+            <p className="text-red-500 text-sm mt-3" data-testid="newsletter-error">
+              {newsletterStatus.message}
+            </p>
+          )}
         </div>
       </section>
     </>
