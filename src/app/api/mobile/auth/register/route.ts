@@ -6,6 +6,12 @@
  * puis retourne un JWT mobile signé.
  */
 import { auth } from "@/lib/auth";
+import { getDb } from "@/lib/db";
+import { createTrialSubscription } from "@/lib/trial-utils";
+import { sendEmail } from "@/lib/email";
+import { renderWelcomeEmail } from "@/lib/email-templates";
+import { writeAdminLog } from "@/lib/admin-logger";
+import { upsertUserPlatform } from "@/lib/platform-tracker";
 import { signMobileToken, jsonCreated, jsonError, handleCors } from "@/lib/mobile-auth";
 
 export const dynamic = "force-dynamic";
@@ -58,6 +64,30 @@ export async function POST(req: Request) {
     // Signer un JWT mobile
     const token = await signMobileToken(user.id, user.email);
 
+    // Side-effects identiques au web (fire-and-forget)
+    const db = getDb();
+    try {
+      await createTrialSubscription(db, user.id);
+    } catch {
+      // Ne bloque pas l'inscription
+    }
+
+    sendEmail({
+      to: user.email,
+      subject: "Bienvenue sur TrackMyCash !",
+      html: renderWelcomeEmail(user.email, new URL(req.url).origin),
+    }).catch(() => {});
+
+    writeAdminLog(
+      db,
+      "trial_started",
+      user.id,
+      "Trial 14j démarré (mobile)",
+      { trialEndsAt: new Date(Date.now() + 14 * 86400000).toISOString(), platform: "android" }
+    ).catch(() => {});
+
+    upsertUserPlatform(db, user.id, "android", req.headers.get("X-App-Version")).catch(() => {});
+
     return jsonCreated({
       user: {
         id: user.id,
@@ -65,6 +95,7 @@ export async function POST(req: Request) {
         name: user.name ?? null,
       },
       token,
+      isNewUser: true,
     });
   } catch {
     return jsonError(500, "Erreur interne du serveur");

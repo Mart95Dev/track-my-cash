@@ -244,3 +244,17 @@ Tests existants (495) doivent rester PASS.
 - Fire-and-forget anomalies dans `confirmImportAction` (comme `checkAndSendLowBalanceAlert`)
 - Services fire-and-forget : créer dans `src/lib/xxx-service.ts`, appeler `.catch(() => {})` depuis server action
 - `satisfies BankParser` plutôt que `: BankParser` pour préserver les types de retour concrets
+
+### Consolidation — 2026-03-10
+
+**STORY-082**:
+- 2026-02-24 17:32:29 [dev] — STORY-082 terminée : 9 tests, useUpgradeModal hook + UpgradeModal component + detectUpgradeReason — intégré import-button / account-form / ai-chat (canAI prop) — fix TS string|undefined import-button result.error ?? ''
+
+**STORY-083**:
+- 2026-02-24 17:37:50 [dev] — STORY-083 terminée : 9 tests, page /bienvenue Server Component + success_url checkout modifiée — plan depuis searchParams, features PLANS[planId], session optionnelle try/catch
+
+**STORY-084**:
+- 2026-02-24 17:42:15 [dev] — STORY-084 terminée : 6 tests, stripe-plans enrichi 5 features/plan, bullets inlinées dans tarifs/PlanCard + landing pricing — SPRINT v11 COMPLET 6/6 stories 564 tests
+
+**STORY-149**:
+- 2026-03-10 16:20:33 [dev] — STORY-149 terminée : 33 tests intégration (4 suites), couverture auth/2FA/CRUD/chat/RGPD. Sprint v18 complet : 11/11 stories, 1668 tests (baseline 1588)

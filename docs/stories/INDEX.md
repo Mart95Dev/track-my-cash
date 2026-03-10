@@ -308,7 +308,31 @@
 
 ### Métriques cible Sprint Import Universel
 
-- **Stories :** 0/6 (en attente)
-- **Points :** 0/18
-- **Tests baseline :** 1201 (0 régression tolérée)
-- **Objectif :** Couverture > 95% des formats bancaires français + standards européens
+- **Stories :** 6/6 ✅
+- **Points :** 18/18
+- **Tests :** 1525 (0 régression)
+
+---
+
+## Sprint Parité Web/Mobile (v18) — PLANIFIÉ 📋
+
+| ID | Titre | Priorité | Complexité | Statut | Bloqué par |
+|----|-------|----------|------------|--------|------------|
+| STORY-139 | Corriger auth mobile — utiliser les routes JWT | P0 | S (3pts) | 🔲 pending | — |
+| STORY-140 | Supprimer clé OpenRouter mobile + créer proxy `/api/mobile/chat` | P0 | M (5pts) | 🔲 pending | STORY-139 |
+| STORY-141 | Routes API 2FA TOTP pour le mobile | P0 | M (5pts) | 🔲 pending | STORY-139 |
+| STORY-142 | Écrans 2FA TOTP dans l'app mobile | P1 | M (5pts) | 🔲 pending | STORY-141 |
+| STORY-143 | Endpoints Stripe subscription pour le mobile | P1 | S (3pts) | 🔲 pending | STORY-139 |
+| STORY-144 | Endpoints RGPD pour le mobile (export + suppression) | P1 | S (3pts) | 🔲 pending | STORY-139 |
+| STORY-145 | Endpoints settings et règles de catégorisation | P1 | S (3pts) | 🔲 pending | STORY-139 |
+| STORY-146 | Endpoint détection d'anomalies | P2 | S (2pts) | 🔲 pending | STORY-139 |
+| STORY-147 | Refactorer l'écran Conseiller IA mobile (proxy backend) | P1 | M (5pts) | 🔲 pending | STORY-140 |
+| STORY-148 | Écran paramètres mobile complet (parité web) | P2 | M (5pts) | 🔲 pending | STORY-145, STORY-142 |
+| STORY-149 | Tests d'intégration parité Web/Mobile | P2 | M (5pts) | 🔲 pending | STORY-139, STORY-140, STORY-141 |
+
+### Métriques cible Sprint Parité Web/Mobile
+
+- **Stories :** 0/11
+- **Points total :** 44 pts
+- **Tests baseline :** 1588 (0 régression tolérée)
+- **Objectif :** Parité fonctionnelle complète entre web et mobile, 0 clé API exposée côté client

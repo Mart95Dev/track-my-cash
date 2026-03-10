@@ -6,7 +6,10 @@
  * puis retourne un JWT mobile signé.
  */
 import { auth } from "@/lib/auth";
+import { getDb } from "@/lib/db";
+import { upsertUserPlatform } from "@/lib/platform-tracker";
 import { signMobileToken, jsonOk, jsonError, handleCors } from "@/lib/mobile-auth";
+import { has2FAEnabled, signTempToken } from "@/lib/mobile-2fa";
 
 export const dynamic = "force-dynamic";
 
@@ -45,8 +48,19 @@ export async function POST(req: Request) {
       return jsonError(401, "Identifiants invalides");
     }
 
+    // Vérifier si le 2FA est activé
+    const twoFAEnabled = await has2FAEnabled(user.id);
+    if (twoFAEnabled) {
+      const tempToken = await signTempToken(user.id, user.email);
+      return jsonOk({ requires2FA: true, tempToken });
+    }
+
     // Signer un JWT mobile
     const token = await signMobileToken(user.id, user.email);
+
+    // Track plateforme mobile
+    const appVersion = req.headers.get("X-App-Version");
+    upsertUserPlatform(getDb(), user.id, "android", appVersion).catch(() => {});
 
     return jsonOk({
       user: {

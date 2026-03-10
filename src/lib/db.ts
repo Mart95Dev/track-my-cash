@@ -131,6 +131,15 @@ export async function initSchema() {
       computed_at INTEGER NOT NULL DEFAULT (unixepoch()),
       UNIQUE(couple_id, user_id, period_month)
     );
+
+    CREATE TABLE IF NOT EXISTS user_platforms (
+      user_id TEXT NOT NULL,
+      platform TEXT NOT NULL,
+      app_version TEXT,
+      last_seen_at INTEGER DEFAULT (unixepoch()),
+      first_seen_at INTEGER DEFAULT (unixepoch()),
+      PRIMARY KEY (user_id, platform)
+    );
   `);
 
   // Add columns if they don't exist (safe ALTER TABLE)
