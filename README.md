@@ -12,6 +12,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - **Charts** : Recharts
 - **Emails** : Nodemailer
 - **Sanitize** : sanitize-html (XSS protection blog)
+- **Paiements** : Stripe (checkout, webhooks, portail client)
 - **Tests** : Vitest + Testing Library (1862+ tests)
 
 ## Fonctionnalites
@@ -78,7 +79,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 ### Pages marketing
 - Homepage restructuree UX : hero IA-first, 3 pilliers de valeur, pain points fusionnes, section IA showcase dediee, features, temoignages, how-it-works, trust bar, FAQ et CTA
 - Page Fonctionnalites (mode couple, IA, import multi-formats)
-- Page Tarifs avec toggle mensuel/annuel, comparatif detaille et FAQ accordion
+- Page Tarifs avec toggle mensuel/annuel fonctionnel (remise 15% annuel), prix reactifs, comparatif detaille et FAQ accordion
 - Blog dynamique (articles depuis Turso, categories, article a la une)
 - Template article enrichi : image hero, bloc auteur, TOC sticky (desktop) / repliable (mobile), barre de progression de lecture, partage social (Twitter/LinkedIn/copier), reactions emoji (localStorage), articles lies par categorie, navigation prev/next, prose enrichi (blockquotes colorees, callouts info/warning/tip, code blocks, tables stylisees)
 - Newsletter fonctionnelle (inscription, honeypot anti-bot, email de bienvenue)
@@ -151,6 +152,10 @@ VAPID_EMAIL=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_PRICE_ID_PRO=              # Prix mensuel Pro (4,90€/mois)
+STRIPE_PRICE_ID_PREMIUM=          # Prix mensuel Premium (7,90€/mois)
+STRIPE_PRICE_ID_PRO_ANNUAL=       # Prix annuel Pro (49,98€/an, -15%)
+STRIPE_PRICE_ID_PREMIUM_ANNUAL=   # Prix annuel Premium (80,58€/an, -15%)
 
 # IA (OpenRouter)
 API_KEY_OPENROUTER=
@@ -199,6 +204,7 @@ src/
     db.ts               # Connexion Turso + schema + migrations
     push-notifications.ts # Web Push API (VAPID, envoi, souscriptions)
     alert-service.ts    # Alertes solde bas (email + push)
+    stripe-plans.ts     # Plans (free/pro/premium), prix mensuel+annuel (-15%), limites
     budget-alert-service.ts # Alertes budget (email + push)
   i18n/                 # Configuration next-intl (5 langues)
 public/
@@ -225,3 +231,4 @@ tests/
 | v21 | SEO & GEO (JSON-LD 6 schemas, metadata enrichie, robots IA, sitemap 55+ URLs, FAQ GEO, OG images, BreadcrumbList) | 11 | 1849 |
 | v21.1 | Blog article enrichi (hero image, auteur, TOC, progress bar, partage social, reactions, articles lies, nav prev/next, prose enrichi, SEO author/speakable) | — | 1862 |
 | v22 | Rebrand Koupli + refonte homepage UX (IA-first hero, 3 pilliers valeur, IA showcase, pain points fusionnes) | — | 1862 |
+| v22.1 | Plan annuel fonctionnel (toggle reactif, remise 15%, checkout Stripe mensuel+annuel, PricingSection client) | — | 1862 |
