@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getDb } from "@/lib/db";
+import { ensureSchema, getDb } from "@/lib/db";
 import { getPublishedPosts } from "@/lib/queries/blog";
 
 export const LOCALES = ["fr", "en", "es", "it", "de"] as const;
@@ -55,6 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   });
 
+  await ensureSchema();
   const db = getDb();
   const posts = await getPublishedPosts(db);
 
