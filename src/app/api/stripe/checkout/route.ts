@@ -1,9 +1,10 @@
 import { stripe } from "@/lib/stripe";
 import { PLANS } from "@/lib/stripe-plans";
+import type { BillingCycle } from "@/lib/stripe-plans";
 import { getRequiredSession } from "@/lib/auth-utils";
 import { headers } from "next/headers";
 
-function extractLocale(referer: string | null, baseUrl: string): string {
+function extractLocale(referer: string | null): string {
   if (!referer) return "fr";
   try {
     const url = new URL(referer);
@@ -19,32 +20,42 @@ function extractLocale(referer: string | null, baseUrl: string): string {
 }
 
 export async function POST(req: Request) {
-  const { planId } = (await req.json()) as { planId: string };
+  const body = (await req.json()) as { planId: string; billingCycle?: BillingCycle };
+  const { planId, billingCycle = "mensuel" } = body;
+
   const session = await getRequiredSession();
   const userId = session.user.id;
   const userEmail = session.user.email;
 
   const plan = PLANS[planId as keyof typeof PLANS];
-  if (!plan || !plan.stripePriceId) {
+  if (!plan) {
+    return Response.json({ error: "Plan invalide" }, { status: 400 });
+  }
+
+  const priceId = billingCycle === "annuel"
+    ? plan.annualStripePriceId
+    : plan.stripePriceId;
+
+  if (!priceId) {
     return Response.json({ error: "Plan invalide" }, { status: 400 });
   }
 
   const baseUrl = process.env.BETTER_AUTH_URL ?? "http://localhost:3000";
   const referer = (await headers()).get("referer");
-  const locale = extractLocale(referer, baseUrl);
+  const locale = extractLocale(referer);
 
   const checkoutSession = await stripe.checkout.sessions.create({
     mode: "subscription",
     payment_method_types: ["card"],
-    line_items: [{ price: plan.stripePriceId, quantity: 1 }],
+    line_items: [{ price: priceId, quantity: 1 }],
     customer_email: userEmail,
-    metadata: { userId, planId },
+    metadata: { userId, planId, billingCycle },
     automatic_tax: { enabled: true },
     tax_id_collection: { enabled: true },
     success_url: `${baseUrl}/${locale}/bienvenue?plan=${planId}`,
     cancel_url: `${baseUrl}/${locale}/tarifs`,
     subscription_data: {
-      metadata: { userId, planId },
+      metadata: { userId, planId, billingCycle },
     },
   });
 

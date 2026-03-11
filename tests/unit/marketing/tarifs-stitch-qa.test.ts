@@ -40,9 +40,10 @@ describe("STORY-109 QA — Toggle boutons (AC-1, GAP-D)", () => {
 
 // ── GAP-109-A : AC-2 — Badge "Économisez 20%" + auto_awesome ─────────────────
 
-describe("STORY-109 QA — Badge Économisez 20% (AC-2, GAP-A)", () => {
-  it("QA-109-A : PricingToggle contient 'Économisez 20% en annuel'", () => {
-    expect(toggleSrc).toContain("Économisez 20% en annuel");
+describe("STORY-109 QA — Badge Économisez 15% (AC-2, GAP-A)", () => {
+  it("QA-109-A : PricingToggle contient le texte dynamique de remise annuelle", () => {
+    expect(toggleSrc).toContain("Économisez");
+    expect(toggleSrc).toContain("en annuel");
   });
 
   it("QA-109-A2 : PricingToggle contient l'icône 'auto_awesome'", () => {

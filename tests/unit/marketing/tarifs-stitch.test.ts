@@ -36,10 +36,15 @@ vi.mock("@/components/pricing-toggle", () => ({
   PricingToggle: () => null,
 }));
 
+vi.mock("@/components/pricing-section", () => ({
+  PricingSection: () => null,
+}));
+
 // ── Sources lues au démarrage ────────────────────────────────────────────────
 
 let pageSrc: string;
 let toggleSrc: string;
+let pricingSectionSrc: string;
 
 beforeAll(() => {
   pageSrc = readFileSync(
@@ -48,6 +53,10 @@ beforeAll(() => {
   );
   toggleSrc = readFileSync(
     join(process.cwd(), "src/components/pricing-toggle.tsx"),
+    "utf-8"
+  );
+  pricingSectionSrc = readFileSync(
+    join(process.cwd(), "src/components/pricing-section.tsx"),
     "utf-8"
   );
 });
@@ -91,8 +100,8 @@ describe("STORY-109 — Prix plan Pro", () => {
 // ── TU-109-4 : Card Pro highlighted with border-primary (AC-3) ───────────────
 
 describe("STORY-109 — Card Pro mise en avant", () => {
-  it("TU-109-4 : page tarifs contient 'border-primary' (card Pro highlighted, AC-3)", () => {
-    expect(pageSrc).toContain("border-primary");
+  it("TU-109-4 : pricing section contient 'border-primary' (card Pro highlighted, AC-3)", () => {
+    expect(pricingSectionSrc).toContain("border-primary");
   });
 });
 

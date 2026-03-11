@@ -19,10 +19,18 @@ export async function POST(req: Request) {
   try {
     const userId = await getMobileUserId(req);
 
-    const { planId } = (await req.json()) as { planId?: string };
+    const { planId, billingCycle = "mensuel" } = (await req.json()) as {
+      planId?: string;
+      billingCycle?: "mensuel" | "annuel";
+    };
 
     const plan = planId ? PLANS[planId as keyof typeof PLANS] : undefined;
-    if (!plan || !plan.stripePriceId) {
+    const priceId = plan
+      ? billingCycle === "annuel"
+        ? plan.annualStripePriceId
+        : plan.stripePriceId
+      : null;
+    if (!plan || !priceId) {
       return jsonError(400, "Plan invalide");
     }
 
@@ -40,15 +48,15 @@ export async function POST(req: Request) {
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],
-      line_items: [{ price: plan.stripePriceId, quantity: 1 }],
+      line_items: [{ price: priceId, quantity: 1 }],
       customer_email: email,
-      metadata: { userId, planId: plan.id },
+      metadata: { userId, planId: plan.id, billingCycle },
       automatic_tax: { enabled: true },
       tax_id_collection: { enabled: true },
       success_url: `${baseUrl}/fr/bienvenue?plan=${plan.id}`,
       cancel_url: `${baseUrl}/fr/tarifs`,
       subscription_data: {
-        metadata: { userId, planId: plan.id },
+        metadata: { userId, planId: plan.id, billingCycle },
       },
     });
 

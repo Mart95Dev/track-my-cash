@@ -10,6 +10,7 @@ const { mockPosts } = vi.hoisted(() => ({
 
 vi.mock("@/lib/db", () => ({
   getDb: vi.fn(() => ({})),
+  ensureSchema: vi.fn(),
 }));
 
 vi.mock("@/lib/queries/blog", () => ({
