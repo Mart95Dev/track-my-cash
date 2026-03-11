@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "TrackMyCash",
-    short_name: "TrackMyCash",
+    name: "Koupli",
+    short_name: "Koupli",
     description: "Gérez vos comptes bancaires personnels simplement",
     start_url: "/",
     display: "standalone",

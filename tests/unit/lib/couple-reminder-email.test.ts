@@ -11,16 +11,16 @@ describe("renderCoupleReminderEmail (STORY-104)", () => {
     expect(html).toContain("ABC123");
   });
 
-  it("TU-104-2 : retourne HTML contenant 'partenaire' et 'TrackMyCash'", () => {
+  it("TU-104-2 : retourne HTML contenant 'partenaire' et 'Koupli'", () => {
     const html = renderCoupleReminderEmail("XYZ789", 3);
     expect(html).toContain("partenaire");
-    expect(html).toContain("TrackMyCash");
+    expect(html).toContain("Koupli");
   });
 
   it("TU-104-3 : accepte days=7 et retourne du HTML valide", () => {
     const html = renderCoupleReminderEmail("CODE77", 7);
     expect(html).toContain("CODE77");
-    expect(html).toContain("TrackMyCash");
+    expect(html).toContain("Koupli");
     expect(html.length).toBeGreaterThan(100);
   });
 

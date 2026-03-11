@@ -16,7 +16,7 @@ export async function ensureBlogTables(db: Client): Promise<void> {
       reading_time INTEGER NOT NULL DEFAULT 5,
       status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft', 'published')),
       published_at TEXT,
-      author_name TEXT NOT NULL DEFAULT 'TrackMyCash',
+      author_name TEXT NOT NULL DEFAULT 'Koupli',
       meta_title TEXT,
       meta_description TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -166,7 +166,7 @@ export async function seedBlogData(db: Client): Promise<void> {
 
     const postResult = await db.execute({
       sql: `INSERT INTO blog_posts (id, slug, title, excerpt, content, reading_time, status, published_at, author_name)
-            VALUES (lower(hex(randomblob(16))), ?, ?, ?, ?, ?, 'published', ?, 'TrackMyCash')
+            VALUES (lower(hex(randomblob(16))), ?, ?, ?, ?, ?, 'published', ?, 'Koupli')
             RETURNING id`,
       args: [
         post.slug,

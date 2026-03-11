@@ -7,7 +7,7 @@
     "forecasts": "Prognosen",
     "advisor": "KI-Berater",
     "settings": "Einstellungen",
-    "appName": "TrackMyCash",
+    "appName": "Koupli",
     "menu": "Menü",
     "logout": "Abmelden",
     "goals": "Ziele"
@@ -30,7 +30,7 @@
     "createAccount": "Konto erstellen",
     "signInLink": "Anmelden",
     "signUpLink": "Konto erstellen",
-    "joinTrackMyCash": "TrackMyCash beitreten",
+    "joinKoupli": "Koupli beitreten",
     "tagline": "Verwalten Sie Ihre Finanzen einfach"
   },
   "dashboard": {
@@ -341,7 +341,7 @@
   "export": {
     "csvButton": "CSV exportieren",
     "pdfButton": "PDF exportieren",
-    "pdfTitle": "TrackMyCash Transaktionen",
+    "pdfTitle": "Koupli Transaktionen",
     "pdfSubtitle": "Exportiert am {date}",
     "income": "Einnahme",
     "expense": "Ausgabe"

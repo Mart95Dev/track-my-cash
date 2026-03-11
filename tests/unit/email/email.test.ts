@@ -79,10 +79,10 @@ describe("renderEmailBase — structure HTML", () => {
     expect(html).toContain("<p>Contenu spécial</p>");
   });
 
-  it("TU-2-3 : contient 'TrackMyCash' (branding)", async () => {
+  it("TU-2-3 : contient 'Koupli' (branding)", async () => {
     const { renderEmailBase } = await import("@/lib/email");
     const html = renderEmailBase("Test", "<p>test</p>");
-    expect(html).toContain("TrackMyCash");
+    expect(html).toContain("Koupli");
   });
 
   it("TU-2-4 : commence par '<!DOCTYPE html>'", async () => {

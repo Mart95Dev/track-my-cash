@@ -35,15 +35,15 @@ describe("TU-98-QA-1 à QA-3 — Unicité métadonnées (AC-4)", () => {
 // ---------------------------------------------------------------------------
 
 function buildJsonLd(post: (typeof SEED_POSTS)[number]) {
-  const baseUrl = "https://trackmycash.com";
+  const baseUrl = "https://koupli.com";
   return {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: post.title,
     description: post.excerpt,
     datePublished: post.publishedAt,
-    author: { "@type": "Organization", name: "TrackMyCash" },
-    publisher: { "@type": "Organization", name: "TrackMyCash", url: baseUrl },
+    author: { "@type": "Organization", name: "Koupli" },
+    publisher: { "@type": "Organization", name: "Koupli", url: baseUrl },
     url: `${baseUrl}/fr/blog/${post.slug}`,
     keywords: post.categories.join(", "),
   };
@@ -71,10 +71,10 @@ describe("TU-98-QA-4 à QA-8 — JSON-LD Schema.org Article (AC-6)", () => {
     }
   });
 
-  it("TU-98-QA-8 : publisher.name === 'TrackMyCash' pour chaque article", () => {
+  it("TU-98-QA-8 : publisher.name === 'Koupli' pour chaque article", () => {
     for (const post of SEED_POSTS) {
       const ld = buildJsonLd(post);
-      expect(ld.publisher.name).toBe("TrackMyCash");
+      expect(ld.publisher.name).toBe("Koupli");
     }
   });
 });

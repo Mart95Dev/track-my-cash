@@ -60,7 +60,7 @@ import { OnboardingWizard } from "@/components/onboarding-wizard";
 describe("OnboardingWizard", () => {
   it("TU-1-1 : affiche l'étape 1 par défaut avec le titre de bienvenue", () => {
     render(<OnboardingWizard open={true} />);
-    expect(screen.getByText("Bienvenue sur TrackMyCash !")).toBeTruthy();
+    expect(screen.getByText("Bienvenue sur Koupli !")).toBeTruthy();
     expect(screen.getByText("Créer mon compte →")).toBeTruthy();
   });
 

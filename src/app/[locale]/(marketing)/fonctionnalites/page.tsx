@@ -223,7 +223,7 @@ export default function FonctionnalitesPage() {
             </div>
             <p className="text-text-muted text-lg leading-relaxed max-w-2xl mb-10">
               Téléchargez votre relevé depuis votre espace bancaire en ligne et
-              importez-le dans TrackMyCash. Nous supportons les formats CSV,
+              importez-le dans Koupli. Nous supportons les formats CSV,
               XLSX et PDF des principales banques.
             </p>
             <FeatureGrid points={IMPORT_POINTS} />

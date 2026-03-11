@@ -42,7 +42,7 @@ vi.mock("@/lib/mobile-2fa", () => ({
   get2FARecord: vi.fn().mockResolvedValue({ secret: "encrypted-secret", enabled: true }),
   verifyTOTPCode: vi.fn().mockResolvedValue(true),
   initiate2FASetup: vi.fn().mockResolvedValue({
-    totpURI: "otpauth://totp/TrackMyCash:test@example.com?secret=ABC",
+    totpURI: "otpauth://totp/Koupli:test@example.com?secret=ABC",
     backupCodes: ["1111-2222", "3333-4444"],
   }),
   confirm2FAEnable: vi.fn().mockResolvedValue(undefined),

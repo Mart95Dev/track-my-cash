@@ -8,8 +8,8 @@ import { SEO_CONFIG } from "@/lib/seo/constants";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return buildPageMetadata({
-    title: "À propos — L'histoire de TrackMyCash",
-    description: "L'histoire de TrackMyCash : pourquoi et comment nous avons créé l'outil de gestion financière de couple.",
+    title: "À propos — L'histoire de Koupli",
+    description: "L'histoire de Koupli : pourquoi et comment nous avons créé l'outil de gestion financière de couple.",
     path: "a-propos",
     locale,
     ogImage: "/og/a-propos.png",
@@ -59,7 +59,7 @@ export default function AProposPage() {
               <em className="text-primary italic">aussi.</em>
             </h1>
             <p className="text-text-muted text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
-              TrackMyCash est né d&apos;un constat simple&nbsp;: gérer
+              Koupli est né d&apos;un constat simple&nbsp;: gérer
               l&apos;argent à deux, c&apos;est compliqué. Et aucun outil
               n&apos;était vraiment fait pour ça.
             </p>
@@ -92,7 +92,7 @@ export default function AProposPage() {
                 la situation.
               </p>
               <p>
-                Alors on a construit TrackMyCash. Un outil pensé dès le départ
+                Alors on a construit Koupli. Un outil pensé dès le départ
                 pour les couples. Pas un outil solo avec un mode
                 «&nbsp;partage&nbsp;» ajouté après coup. Un outil où la
                 transparence financière n&apos;est pas synonyme de surveillance,

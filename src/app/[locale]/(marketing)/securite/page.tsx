@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   return buildPageMetadata({
     title: "Sécurité — Protection de vos données financières",
-    description: "Comment TrackMyCash protège vos données financières : sécurité, vie privée et transparence.",
+    description: "Comment Koupli protège vos données financières : sécurité, vie privée et transparence.",
     path: "securite",
     locale,
     ogImage: "/og/securite.png",
@@ -27,7 +27,7 @@ const SECURITY_CARDS = [
   {
     num: "02",
     title: "Aucun accès à vos comptes bancaires",
-    desc: "TrackMyCash n\u2019a jamais accès à vos identifiants bancaires. Vous importez vos relevés manuellement, c\u2019est vous qui gardez le contrôle.",
+    desc: "Koupli n\u2019a jamais accès à vos identifiants bancaires. Vous importez vos relevés manuellement, c\u2019est vous qui gardez le contrôle.",
   },
   {
     num: "03",
@@ -86,7 +86,7 @@ export default function SecuritePage() {
             </h1>
             <p className="text-text-muted text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
               La sécurité n&apos;est pas une option. C&apos;est le socle sur
-              lequel repose chaque fonctionnalité de TrackMyCash.
+              lequel repose chaque fonctionnalité de Koupli.
             </p>
           </div>
         </section>

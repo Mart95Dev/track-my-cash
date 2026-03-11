@@ -16,7 +16,7 @@ describe("renderNewsletterWelcomeEmail (STORY-155)", () => {
     const { renderNewsletterWelcomeEmail } = await import("@/lib/email-templates");
     const html = renderNewsletterWelcomeEmail(
       "test@example.com",
-      "https://trackmycash.com/api/newsletter/unsubscribe?email=test%40example.com"
+      "https://koupli.com/api/newsletter/unsubscribe?email=test%40example.com"
     );
     expect(html).toContain("desabonnement");
     expect(html).toContain("unsubscribe");

@@ -41,7 +41,7 @@ export function generateMonthlyReport(data: MonthlyReportData): Uint8Array {
   // ── En-tête ──────────────────────────────────────────────────────────────────
   doc.setFontSize(18);
   doc.setTextColor(15, 23, 42);
-  doc.text("TrackMyCash — Rapport Mensuel", 14, 20);
+  doc.text("Koupli — Rapport Mensuel", 14, 20);
   doc.setFontSize(12);
   doc.setTextColor(100, 116, 139);
   doc.text(monthLabel, 14, 28);

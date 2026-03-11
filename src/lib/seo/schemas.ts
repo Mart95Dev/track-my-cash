@@ -10,11 +10,11 @@ export function organizationSchema(): JsonLd {
     url: SEO_CONFIG.baseUrl,
     logo: `${SEO_CONFIG.baseUrl}/logo.png`,
     description:
-      "TrackMyCash — Application de gestion de comptes bancaires personnels et en couple.",
+      "Koupli — Application de gestion de comptes bancaires personnels et en couple.",
     foundingDate: "2025",
     contactPoint: {
       "@type": "ContactPoint",
-      email: "contact@trackmycash.com",
+      email: "contact@koupli.com",
       contactType: "customer service",
       availableLanguage: ["fr", "en", "es", "it", "de"],
     },
@@ -28,7 +28,7 @@ export function webSiteSchema(): JsonLd {
     name: SEO_CONFIG.siteName,
     url: SEO_CONFIG.baseUrl,
     description:
-      "Gérez vos finances personnelles et en couple avec TrackMyCash.",
+      "Gérez vos finances personnelles et en couple avec Koupli.",
     inLanguage: ["fr", "en", "es", "it", "de"],
     potentialAction: {
       "@type": "SearchAction",
@@ -113,7 +113,7 @@ export function articleSchema(
     dateModified: post.updatedAt ?? post.publishedAt ?? undefined,
     author: {
       "@type": "Person",
-      name: post.authorName ?? "TrackMyCash",
+      name: post.authorName ?? "Koupli",
       url: `${baseUrl}/fr/a-propos`,
     },
     publisher: {

@@ -22,7 +22,7 @@ export async function generateMetadata({
   const description = DESCRIPTIONS[locale] ?? DESCRIPTIONS.fr;
 
   return buildPageMetadata({
-    title: "TrackMyCash — Gérez vos finances personnelles",
+    title: "Koupli — Gérez vos finances de couple avec l'IA",
     description,
     path: "",
     locale,
@@ -89,7 +89,7 @@ export const FEATURES = [
   {
     icon: "balance",
     title: "Balance équitable, toujours à jour",
-    desc: "Sachez en permanence qui a payé quoi. TrackMyCash calcule la différence et indique qui doit rembourser l'autre, sans prise de tête.",
+    desc: "Sachez en permanence qui a payé quoi. Koupli calcule la différence et indique qui doit rembourser l'autre, sans prise de tête.",
     bullets: [
       "Qui doit quoi en temps réel",
       "Calcul automatique de la balance",
@@ -210,8 +210,8 @@ const PAIN_POINTS = [
     after: "Chacun garde son jardin secret. Seuls les comptes partagés sont visibles.",
   },
   {
-    before: "« On épargne pour quoi au fait ? »",
-    after: "Des objectifs communs visuels. Voyez votre progression ensemble.",
+    before: "« On gaspille où au juste ? »",
+    after: "L'IA analyse vos dépenses communes et vous montre exactement où économiser. Des conseils personnalisés, chaque semaine.",
   },
 ];
 
@@ -223,8 +223,8 @@ const FEATURE_CARDS = [
   },
   {
     num: "02",
-    title: "IA qui vous connaît",
-    desc: "Un conseiller IA dédié au couple qui analyse vos habitudes et propose des économies concrètes.",
+    title: "Catégorisation intelligente",
+    desc: "Chaque transaction est automatiquement catégorisée. Vous voyez en un coup d'œil où part votre argent.",
   },
   {
     num: "03",
@@ -285,6 +285,43 @@ const TRUST_ITEMS = [
   "Vie privée par défaut",
 ];
 
+const VALUE_PILLARS = [
+  {
+    icon: "smart_toy",
+    title: "IA Coach couple",
+    desc: "Un conseiller qui analyse vos habitudes et propose des économies concrètes.",
+  },
+  {
+    icon: "bolt",
+    title: "Import 30 secondes",
+    desc: "Toutes les banques françaises reconnues. CSV, XLSX, PDF.",
+  },
+  {
+    icon: "lock",
+    title: "Vie privée",
+    desc: "Chacun garde son jardin secret. Seuls les comptes partagés sont visibles.",
+  },
+];
+
+const IA_BULLETS = [
+  {
+    icon: "analytics",
+    text: "Analyse vos habitudes de dépenses communes",
+  },
+  {
+    icon: "savings",
+    text: "Détecte les postes où vous pouvez économiser",
+  },
+  {
+    icon: "mail",
+    text: "Envoie des conseils personnalisés chaque semaine",
+  },
+  {
+    icon: "favorite",
+    text: "Comprend votre couple, pas un chatbot générique",
+  },
+];
+
 // ── Page ─────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
@@ -309,8 +346,8 @@ export default function HomePage() {
             <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
               {/* Text left */}
               <div className="flex-1 text-center lg:text-left fade-up">
-                <div className="inline-flex items-center gap-2 bg-primary/8 text-primary px-4 py-1.5 rounded-full text-xs font-semibold mb-8">
-                  Nouveau — Conseiller IA pour couples
+                <div className="inline-flex items-center gap-2 bg-primary/8 text-primary px-5 py-2 rounded-full text-sm font-semibold mb-8">
+                  1er conseiller IA financier pour couples
                 </div>
 
                 <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight mb-6 text-[#1C1917]">
@@ -320,8 +357,9 @@ export default function HomePage() {
                 </h1>
 
                 <p className="text-text-muted text-lg md:text-xl mb-10 leading-relaxed max-w-xl mx-auto lg:mx-0">
-                  TrackMyCash synchronise vos finances de couple en toute transparence,
-                  tout en préservant l&apos;intimité de chacun. En 2 minutes, c&apos;est réglé.
+                  Koupli synchronise vos finances de couple et utilise l&apos;IA pour analyser
+                  vos habitudes, détecter les économies et vous conseiller — comme un coach
+                  financier dédié à votre couple.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
@@ -418,8 +456,9 @@ export default function HomePage() {
                   </div>
 
                   {/* Floating AI advice badge */}
-                  <div className="absolute -bottom-4 -right-4 bg-primary text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg">
-                    💡 IA : Pensez à épargner 50 €
+                  <div className="absolute -bottom-4 -right-4 bg-primary text-white text-sm font-semibold px-5 py-2.5 rounded-2xl shadow-lg flex items-center gap-2">
+                    <span className="material-symbols-outlined text-base">smart_toy</span>
+                    IA : Épargnez 50 €/mois sur les courses
                   </div>
                 </div>
               </div>
@@ -439,6 +478,30 @@ export default function HomePage() {
                 >
                   <p className="text-2xl font-bold text-[#1C1917]">{stat.value}</p>
                   <p className="text-sm text-text-muted mt-1">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── VALUE PROPOSITION PILLARS ── */}
+        <section className="py-16 md:py-20">
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 fade-up">
+              {VALUE_PILLARS.map((pillar) => (
+                <div
+                  key={pillar.title}
+                  className="bg-white rounded-2xl border border-border-light p-6 text-center hover-lift"
+                >
+                  <span className="material-symbols-outlined text-primary text-4xl mb-4 block">
+                    {pillar.icon}
+                  </span>
+                  <h3 className="text-lg font-bold text-[#1C1917] mb-2">
+                    {pillar.title}
+                  </h3>
+                  <p className="text-sm text-text-muted leading-relaxed">
+                    {pillar.desc}
+                  </p>
                 </div>
               ))}
             </div>
@@ -473,6 +536,69 @@ export default function HomePage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── IA SHOWCASE ── */}
+        <section className="py-24 md:py-32 bg-[#F5F3FF]">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-16 fade-up">
+              <span className="inline-block bg-primary/10 text-primary text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
+                Intelligence artificielle
+              </span>
+              <h2 className="font-serif text-3xl md:text-5xl font-bold tracking-tight text-[#1C1917]">
+                Votre conseiller IA, toujours à l&apos;écoute.
+              </h2>
+            </div>
+
+            <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20 max-w-5xl mx-auto">
+              {/* Left: bullet points */}
+              <div className="flex-1 fade-up">
+                <div className="space-y-6">
+                  {IA_BULLETS.map((bullet) => (
+                    <div key={bullet.icon} className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 border border-border-light">
+                        <span className="material-symbols-outlined text-primary text-xl">
+                          {bullet.icon}
+                        </span>
+                      </div>
+                      <p className="text-[#1C1917] text-base leading-relaxed pt-2">
+                        {bullet.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right: IA conversation mockup */}
+              <div className="flex-1 w-full max-w-md fade-up">
+                <div className="bg-white rounded-2xl border border-border-light p-6 shadow-lg">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
+                      <span className="material-symbols-outlined text-white text-lg">smart_toy</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-[#1C1917]">Koupli IA</p>
+                      <p className="text-xs text-text-muted">Analyse hebdomadaire</p>
+                    </div>
+                  </div>
+                  <div className="bg-[#F5F3FF] rounded-xl p-4">
+                    <p className="text-sm text-[#1C1917] leading-relaxed">
+                      Ce mois-ci, vos courses ont augmenté de 15%. En passant au drive,
+                      vous pourriez économiser <span className="font-bold text-primary">~80 €/mois</span>.
+                    </p>
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <span className="text-xs font-medium bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full">
+                      Courses : +15%
+                    </span>
+                    <span className="text-xs font-medium bg-primary/10 text-primary px-3 py-1.5 rounded-full">
+                      Économie possible : 80 €
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>

@@ -12,9 +12,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   return buildPageMetadata({
-    title: "Mentions légales — TrackMyCash",
+    title: "Mentions légales — Koupli",
     description:
-      "Informations légales relatives à l'édition et à l'hébergement du site trackmycash.com",
+      "Informations légales relatives à l'édition et à l'hébergement du site koupli.com",
     path: "mentions-legales",
     locale,
   });
@@ -46,7 +46,7 @@ export default function MentionsLegalesPage() {
             </h1>
             <p className="text-text-muted text-lg leading-relaxed">
               Informations légales relatives à l&apos;édition et à
-              l&apos;hébergement du site trackmycash.com
+              l&apos;hébergement du site koupli.com
             </p>
             <p className="text-text-light text-sm mt-4">
               Dernière mise à jour : [JJ/MM/AAAA]
@@ -66,7 +66,7 @@ export default function MentionsLegalesPage() {
 
             <h2>Éditeur du site</h2>
             <p>
-              Le site <strong>trackmycash.com</strong> est édité par :
+              Le site <strong>koupli.com</strong> est édité par :
               <br />
               <br />
               <strong>[Raison sociale]</strong>
@@ -105,7 +105,7 @@ export default function MentionsLegalesPage() {
 
             <h2>Propriété intellectuelle</h2>
             <p>
-              L&apos;ensemble du contenu du site trackmycash.com (textes,
+              L&apos;ensemble du contenu du site koupli.com (textes,
               images, graphismes, logo, icônes, logiciels, base de données) est
               la propriété exclusive de [Raison sociale] ou de ses partenaires
               et est protégé par les lois françaises et internationales
@@ -145,7 +145,7 @@ export default function MentionsLegalesPage() {
 
             <h2>Liens hypertextes</h2>
             <p>
-              Le site trackmycash.com peut contenir des liens hypertextes vers
+              Le site koupli.com peut contenir des liens hypertextes vers
               d&apos;autres sites internet. [Raison sociale] n&apos;exerce aucun
               contrôle sur ces sites et décline toute responsabilité quant à
               leur contenu ou aux pratiques de protection de la vie privée de

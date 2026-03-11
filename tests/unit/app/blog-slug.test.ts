@@ -16,8 +16,8 @@ const mockPost = {
   readingTime: 5,
   status: "published" as const,
   publishedAt: "2026-02-24T10:00:00.000Z",
-  authorName: "TrackMyCash",
-  metaTitle: "Gérer son budget en couple | TrackMyCash",
+  authorName: "Koupli",
+  metaTitle: "Gérer son budget en couple | Koupli",
   metaDescription: "Guide complet pour gérer votre budget en couple.",
   createdAt: "2026-02-20T10:00:00.000Z",
   updatedAt: "2026-02-24T10:00:00.000Z",
@@ -74,7 +74,7 @@ vi.mock("@/i18n/navigation", () => ({
 describe("Blog [slug] page — STORY-154", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.NEXT_PUBLIC_APP_URL = "https://trackmycash.com";
+    process.env.NEXT_PUBLIC_APP_URL = "https://koupli.com";
     mockGetRelatedPosts.mockResolvedValue([]);
     mockGetAdjacentPosts.mockResolvedValue({ prev: null, next: null });
   });
@@ -90,7 +90,7 @@ describe("Blog [slug] page — STORY-154", () => {
       const metadata = await generateMetadata({
         params: Promise.resolve({ slug: "gerer-budget-couple" }),
       });
-      expect(metadata.title).toBe("Gérer son budget en couple | TrackMyCash");
+      expect(metadata.title).toBe("Gérer son budget en couple | Koupli");
     });
 
     it("retourne le titre fallback quand metaTitle est null", async () => {
@@ -105,7 +105,7 @@ describe("Blog [slug] page — STORY-154", () => {
       const metadata = await generateMetadata({
         params: Promise.resolve({ slug: "gerer-budget-couple" }),
       });
-      expect(metadata.title).toBe("Comment gérer son budget en couple | TrackMyCash");
+      expect(metadata.title).toBe("Comment gérer son budget en couple | Koupli");
     });
 
     it("retourne un titre 404 quand l'article n'existe pas", async () => {

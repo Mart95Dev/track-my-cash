@@ -31,8 +31,8 @@ describe("STORY-108 QA — Contenu hero et sections (AC-1/AC-6/AC-8)", () => {
     expect(src).toMatch(/L(&apos;|')argent ne devrait/);
   });
 
-  it("QA-108-A2 : source page contient 'en toute transparence'", () => {
-    expect(src).toContain("en toute transparence");
+  it("QA-108-A2 : source page contient la proposition de valeur IA dans le hero", () => {
+    expect(src).toContain("coach");
   });
 
   // ── GAP-108-C : AC-6 — CTA bg-primary ─────────────────────────────────────

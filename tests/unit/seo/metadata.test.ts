@@ -11,28 +11,28 @@ describe("SEO buildPageMetadata", () => {
 
   it('TU-9: canonical correct pour path "tarifs", locale "fr"', () => {
     expect(meta.alternates?.canonical).toBe(
-      "https://trackmycash.com/fr/tarifs"
+      "https://koupli.com/fr/tarifs"
     );
   });
 
   it("TU-10: alternates a 5 locales (fr, en, es, it, de)", () => {
     const langs = meta.alternates?.languages as Record<string, string>;
     expect(Object.keys(langs)).toHaveLength(5);
-    expect(langs.fr).toBe("https://trackmycash.com/fr/tarifs");
-    expect(langs.en).toBe("https://trackmycash.com/en/tarifs");
-    expect(langs.es).toBe("https://trackmycash.com/es/tarifs");
-    expect(langs.it).toBe("https://trackmycash.com/it/tarifs");
-    expect(langs.de).toBe("https://trackmycash.com/de/tarifs");
+    expect(langs.fr).toBe("https://koupli.com/fr/tarifs");
+    expect(langs.en).toBe("https://koupli.com/en/tarifs");
+    expect(langs.es).toBe("https://koupli.com/es/tarifs");
+    expect(langs.it).toBe("https://koupli.com/it/tarifs");
+    expect(langs.de).toBe("https://koupli.com/de/tarifs");
   });
 
   it("TU-11: OG complet (siteName, images, url)", () => {
     const og = meta.openGraph;
     expect(og).toBeDefined();
     if (og) {
-      expect("siteName" in og ? og.siteName : undefined).toBe("TrackMyCash");
+      expect("siteName" in og ? og.siteName : undefined).toBe("Koupli");
       expect("images" in og ? og.images : undefined).toBeDefined();
       expect("url" in og ? og.url : undefined).toBe(
-        "https://trackmycash.com/fr/tarifs"
+        "https://koupli.com/fr/tarifs"
       );
     }
   });

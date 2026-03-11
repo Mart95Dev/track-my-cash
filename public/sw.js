@@ -1,7 +1,7 @@
-// Service Worker — TrackMyCash PWA
+// Service Worker — Koupli PWA
 // Stratégie : Cache-First pour assets statiques, Network-First pour navigation/API
 
-const CACHE_NAME = "trackmycash-v1";
+const CACHE_NAME = "koupli-v1";
 const OFFLINE_URL = "/offline";
 
 const STATIC_ASSETS = [
@@ -53,7 +53,7 @@ self.addEventListener("push", (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title || "Track My Cash", options)
+    self.registration.showNotification(data.title || "Koupli", options)
   );
 });
 

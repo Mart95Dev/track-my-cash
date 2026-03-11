@@ -35,8 +35,8 @@ describe("renderTrialReminderEmail (STORY-080)", () => {
   });
 
   it("TU-80-10 : le baseUrl est intégré dans le lien CTA (AC-6)", () => {
-    const html = renderTrialReminderEmail(3, "Alice", "https://trackmycash.fr");
-    expect(html).toContain("https://trackmycash.fr/tarifs");
+    const html = renderTrialReminderEmail(3, "Alice", "https://koupli.com");
+    expect(html).toContain("https://koupli.com/tarifs");
   });
 
   it("TU-80-11 : J-3 contient la liste des features Pro (AC-3)", () => {

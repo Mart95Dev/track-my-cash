@@ -59,7 +59,7 @@ export function OnboardingWizard({ open, initialStep = 1 }: OnboardingWizardProp
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle>
-              {step === 1 && "Bienvenue sur TrackMyCash !"}
+              {step === 1 && "Bienvenue sur Koupli !"}
               {step === 2 && "Importez vos transactions"}
               {step === 3 && "Tout est prêt !"}
             </DialogTitle>

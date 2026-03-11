@@ -7,7 +7,7 @@ const swContent = readFileSync(join(process.cwd(), "public/sw.js"), "utf-8");
 describe("Service Worker (public/sw.js)", () => {
   it("defines CACHE_NAME", () => {
     expect(swContent).toContain("CACHE_NAME");
-    expect(swContent).toContain("trackmycash-v");
+    expect(swContent).toContain("koupli-v");
   });
 
   it("pre-caches offline URL", () => {

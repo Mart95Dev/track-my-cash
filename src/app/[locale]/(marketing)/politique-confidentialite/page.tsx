@@ -12,9 +12,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   return buildPageMetadata({
-    title: "Politique de confidentialité — TrackMyCash",
+    title: "Politique de confidentialité — Koupli",
     description:
-      "Comment TrackMyCash collecte, utilise et protège vos données personnelles.",
+      "Comment Koupli collecte, utilise et protège vos données personnelles.",
     path: "politique-confidentialite",
     locale,
   });
@@ -84,7 +84,7 @@ export default function PolitiqueConfidentialitePage() {
 
             <h2>2. Données collectées</h2>
             <p>
-              Dans le cadre de l&apos;utilisation de TrackMyCash, nous
+              Dans le cadre de l&apos;utilisation de Koupli, nous
               collectons les données suivantes :
             </p>
 
@@ -152,7 +152,7 @@ export default function PolitiqueConfidentialitePage() {
                 </tr>
                 <tr>
                   <td>
-                    Fourniture du service TrackMyCash (import, catégorisation,
+                    Fourniture du service Koupli (import, catégorisation,
                     répartition, budgets)
                   </td>
                   <td>Exécution du contrat</td>

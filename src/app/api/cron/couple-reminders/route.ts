@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
           const html = renderCoupleReminderEmail(row.invite_code, tier.days);
           await sendEmail({
             to: row.email,
-            subject: "Votre partenaire vous attend sur TrackMyCash",
+            subject: "Votre partenaire vous attend sur Koupli",
             html,
           });
           await db.execute({

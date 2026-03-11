@@ -60,7 +60,7 @@ export function PwaUpdateBanner() {
       <div className="pr-4">
         <p className="font-medium text-sm">Mise à jour disponible</p>
         <p className="text-xs text-muted-foreground mt-1">
-          Une nouvelle version de TrackMyCash est disponible.
+          Une nouvelle version de Koupli est disponible.
         </p>
         <div className="flex gap-2 mt-2">
           <Button size="sm" className="h-7 text-xs gap-1" onClick={handleUpdate}>

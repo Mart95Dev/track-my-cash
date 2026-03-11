@@ -49,7 +49,7 @@ export function Navbar() {
             T
           </div>
           <span className="text-base font-bold tracking-tight text-text-main">
-            TrackMyCash
+            Koupli
           </span>
         </Link>
 
@@ -110,7 +110,7 @@ export function Navbar() {
                 <div className="flex size-8 items-center justify-center rounded-lg bg-primary font-bold text-white text-sm">
                   T
                 </div>
-                TrackMyCash
+                Koupli
               </SheetTitle>
             </SheetHeader>
             <div className="mt-6 flex flex-col gap-4">

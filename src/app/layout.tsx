@@ -19,10 +19,10 @@ const dmSerif = DM_Serif_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://trackmycash.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://koupli.com"),
   title: {
-    default: "TrackMyCash — Gestion financière de couple",
-    template: "%s | TrackMyCash",
+    default: "Koupli — Gestion financière de couple",
+    template: "%s | Koupli",
   },
   description:
     "Gérez vos finances de couple : suivez vos dépenses communes, équilibrez qui doit quoi et atteignez vos objectifs ensemble. Gratuit, sécurisé, sans publicité.",

@@ -74,7 +74,7 @@ export async function POST(req: Request) {
 
     sendEmail({
       to: user.email,
-      subject: "Bienvenue sur TrackMyCash !",
+      subject: "Bienvenue sur Koupli !",
       html: renderWelcomeEmail(user.email, new URL(req.url).origin),
     }).catch(() => {});
 

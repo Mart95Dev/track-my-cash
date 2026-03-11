@@ -32,7 +32,7 @@ export function Footer() {
                 T
               </div>
               <span className="font-bold tracking-tighter text-white text-lg">
-                TrackMyCash
+                Koupli
               </span>
             </div>
             <p className="text-[#A8A29E] text-sm leading-relaxed max-w-xs">
@@ -111,7 +111,7 @@ export function Footer() {
           style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
         >
           <p className="text-sm text-[#A8A29E]">
-            &copy; 2026 TrackMyCash &mdash; Gérez vos finances simplement
+            &copy; 2026 Koupli &mdash; Gérez vos finances simplement
           </p>
           <p className="text-sm text-[#A8A29E]">Fait en France</p>
         </div>

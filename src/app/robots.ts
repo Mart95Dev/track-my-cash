@@ -21,7 +21,7 @@ const ALLOWED_AI_BOTS = [
 ];
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://trackmycash.com";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://koupli.com";
 
   return {
     rules: [

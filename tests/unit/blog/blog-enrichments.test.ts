@@ -64,27 +64,27 @@ describe("articleSchema enrichi", () => {
   it("inclut author en tant que Person avec name et url", () => {
     const schema = articleSchema(
       { ...basePost, authorName: "Martial" },
-      "https://trackmycash.com"
+      "https://koupli.com"
     );
     const author = schema.author as Record<string, unknown>;
     expect(author["@type"]).toBe("Person");
     expect(author.name).toBe("Martial");
-    expect(author.url).toBe("https://trackmycash.com/fr/a-propos");
+    expect(author.url).toBe("https://koupli.com/fr/a-propos");
   });
 
-  it("utilise TrackMyCash comme author par défaut", () => {
-    const schema = articleSchema(basePost, "https://trackmycash.com");
+  it("utilise Koupli comme author par défaut", () => {
+    const schema = articleSchema(basePost, "https://koupli.com");
     const author = schema.author as Record<string, unknown>;
-    expect(author.name).toBe("TrackMyCash");
+    expect(author.name).toBe("Koupli");
   });
 
   it("inclut keywords des catégories", () => {
-    const schema = articleSchema(basePost, "https://trackmycash.com");
+    const schema = articleSchema(basePost, "https://koupli.com");
     expect(schema.keywords).toBe("Budget, Couple");
   });
 
   it("inclut speakable specification", () => {
-    const schema = articleSchema(basePost, "https://trackmycash.com");
+    const schema = articleSchema(basePost, "https://koupli.com");
     const speakable = schema.speakable as Record<string, unknown>;
     expect(speakable["@type"]).toBe("SpeakableSpecification");
     expect(speakable.cssSelector).toEqual(["article h1", "article header p"]);
@@ -93,24 +93,24 @@ describe("articleSchema enrichi", () => {
   it("inclut image quand coverImageUrl est fourni", () => {
     const schema = articleSchema(
       { ...basePost, coverImageUrl: "/images/cover.jpg" },
-      "https://trackmycash.com"
+      "https://koupli.com"
     );
     const image = schema.image as Record<string, unknown>;
     expect(image["@type"]).toBe("ImageObject");
-    expect(image.url).toBe("https://trackmycash.com/images/cover.jpg");
+    expect(image.url).toBe("https://koupli.com/images/cover.jpg");
   });
 
   it("inclut image absolue quand URL complète fournie", () => {
     const schema = articleSchema(
       { ...basePost, coverImageUrl: "https://cdn.example.com/img.jpg" },
-      "https://trackmycash.com"
+      "https://koupli.com"
     );
     const image = schema.image as Record<string, unknown>;
     expect(image.url).toBe("https://cdn.example.com/img.jpg");
   });
 
   it("n'inclut pas image quand coverImageUrl est null", () => {
-    const schema = articleSchema(basePost, "https://trackmycash.com");
+    const schema = articleSchema(basePost, "https://koupli.com");
     expect(schema.image).toBeUndefined();
   });
 });

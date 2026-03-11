@@ -11,9 +11,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   return buildPageMetadata({
-    title: "Conditions Générales d'Utilisation — TrackMyCash",
+    title: "Conditions Générales d'Utilisation — Koupli",
     description:
-      "Les conditions régissant l'utilisation du service TrackMyCash.",
+      "Les conditions régissant l'utilisation du service Koupli.",
     path: "cgu",
     locale,
   });
@@ -45,7 +45,7 @@ export default function CGUPage() {
             </h1>
             <p className="text-text-muted text-lg leading-relaxed">
               Les présentes conditions régissent l&apos;utilisation du service
-              TrackMyCash. En créant un compte, vous acceptez ces conditions
+              Koupli. En créant un compte, vous acceptez ces conditions
               dans leur intégralité.
             </p>
             <p className="text-text-light text-sm mt-4">
@@ -70,8 +70,8 @@ export default function CGUPage() {
             <p>
               Les présentes Conditions Générales d&apos;Utilisation (ci-après «
               CGU ») ont pour objet de définir les conditions d&apos;accès et
-              d&apos;utilisation du service TrackMyCash, accessible à
-              l&apos;adresse <strong>trackmycash.com</strong> et via les
+              d&apos;utilisation du service Koupli, accessible à
+              l&apos;adresse <strong>koupli.com</strong> et via les
               applications mobiles associées (ci-après « le Service »).
             </p>
             <p>
@@ -83,7 +83,7 @@ export default function CGUPage() {
 
             <h2>2. Description du Service</h2>
             <p>
-              TrackMyCash est un service de gestion financière collaborative
+              Koupli est un service de gestion financière collaborative
               destiné aux couples. Il permet notamment de :
             </p>
             <ul>

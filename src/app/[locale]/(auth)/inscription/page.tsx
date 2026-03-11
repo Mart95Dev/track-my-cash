@@ -54,7 +54,7 @@ export default function InscriptionPage() {
             <div className="bg-primary rounded-xl p-2">
               <span className="text-white text-lg font-bold leading-none">T</span>
             </div>
-            <span className="font-bold text-lg tracking-tight text-slate-900">TrackMyCash</span>
+            <span className="font-bold text-lg tracking-tight text-slate-900">Koupli</span>
           </Link>
           <Link
             href="/"

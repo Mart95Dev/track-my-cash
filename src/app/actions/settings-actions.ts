@@ -64,7 +64,7 @@ export async function sendMonthlySummaryAction() {
 
   const result = await sendEmail({
     to: userEmail,
-    subject: `Récapitulatif mensuel TrackMyCash — ${new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}`,
+    subject: `Récapitulatif mensuel Koupli — ${new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}`,
     html,
   });
 

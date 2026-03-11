@@ -9,10 +9,10 @@ import {
 } from "../../../src/lib/seo/schemas";
 
 describe("SEO JSON-LD schemas", () => {
-  it("TU-1: organizationSchema retourne @type Organization avec name TrackMyCash", () => {
+  it("TU-1: organizationSchema retourne @type Organization avec name Koupli", () => {
     const schema = organizationSchema();
     expect(schema["@type"]).toBe("Organization");
-    expect(schema.name).toBe("TrackMyCash");
+    expect(schema.name).toBe("Koupli");
   });
 
   it("TU-2: webSiteSchema retourne @type WebSite avec potentialAction SearchAction", () => {
@@ -54,7 +54,7 @@ describe("SEO JSON-LD schemas", () => {
         publishedAt: "2025-06-01",
         categories: [{ name: "Finance" }],
       },
-      "https://trackmycash.com"
+      "https://koupli.com"
     );
     const publisher = schema.publisher as Record<string, unknown>;
     const logo = publisher.logo as Record<string, unknown>;
@@ -63,9 +63,9 @@ describe("SEO JSON-LD schemas", () => {
 
   it("TU-7: breadcrumbSchema genere les positions auto-incrementees", () => {
     const schema = breadcrumbSchema([
-      { name: "Accueil", url: "https://trackmycash.com/fr" },
-      { name: "Blog", url: "https://trackmycash.com/fr/blog" },
-      { name: "Article", url: "https://trackmycash.com/fr/blog/test" },
+      { name: "Accueil", url: "https://koupli.com/fr" },
+      { name: "Blog", url: "https://koupli.com/fr/blog" },
+      { name: "Article", url: "https://koupli.com/fr/blog/test" },
     ]);
     const items = schema.itemListElement as Record<string, unknown>[];
     expect(items).toHaveLength(3);
@@ -88,7 +88,7 @@ describe("SEO JSON-LD schemas", () => {
           publishedAt: null,
           categories: [],
         },
-        "https://trackmycash.com"
+        "https://koupli.com"
       ),
       breadcrumbSchema([]),
     ];

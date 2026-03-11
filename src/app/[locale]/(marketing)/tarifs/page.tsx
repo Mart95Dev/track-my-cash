@@ -19,7 +19,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   return buildPageMetadata({
-    title: "Tarifs — TrackMyCash",
+    title: "Tarifs — Koupli",
     description:
       "Un abonnement pour deux. Découvrez nos plans gratuit, Pro et Premium pour la gestion financière de couple.",
     path: "tarifs",

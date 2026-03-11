@@ -32,11 +32,11 @@ describe("renderWelcomeEmail", () => {
     expect(callArg).toContain('href="/dashboard"');
   });
 
-  it("TU-1-4 : passe le titre 'Bienvenue sur TrackMyCash' à renderEmailBase", async () => {
+  it("TU-1-4 : passe le titre 'Bienvenue sur Koupli' à renderEmailBase", async () => {
     const { renderWelcomeEmail } = await import("@/lib/email-templates");
     const { renderEmailBase } = await import("@/lib/email");
     renderWelcomeEmail("user@example.com", "https://track-my-cash.fr");
-    expect(vi.mocked(renderEmailBase).mock.calls[0][0]).toContain("TrackMyCash");
+    expect(vi.mocked(renderEmailBase).mock.calls[0][0]).toContain("Koupli");
   });
 
   it("TU-1-5 : si userEmail vide, affiche '—' à la place", async () => {

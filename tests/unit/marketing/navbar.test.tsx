@@ -100,13 +100,13 @@ describe("Navbar", () => {
     expect(links[0].textContent).toContain("Connexion");
   });
 
-  it("TU-1-4 : le logo 'TrackMyCash' est présent", async () => {
+  it("TU-1-4 : le logo 'Koupli' est présent", async () => {
     const { Navbar } = await import("@/components/marketing/navbar");
     render(<Navbar />);
     const logoLink = screen
       .getAllByRole("link")
       .find((el) => el.getAttribute("href") === "/");
     expect(logoLink).toBeDefined();
-    expect(logoLink?.textContent).toContain("TrackMyCash");
+    expect(logoLink?.textContent).toContain("Koupli");
   });
 });

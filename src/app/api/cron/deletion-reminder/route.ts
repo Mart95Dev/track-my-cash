@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     try {
       await sendEmail({
         to: userEmail,
-        subject: "Rappel : suppression de votre compte TrackMyCash dans 5 jours",
+        subject: "Rappel : suppression de votre compte Koupli dans 5 jours",
         html: renderDeletionReminderEmail(userEmail, deleteAt, cancelUrl),
         replyTo: process.env.EMAIL_REPLY_TO ?? process.env.EMAIL_USER,
       });

@@ -56,13 +56,13 @@ export async function subscribeNewsletterAction(
   });
 
   // Send welcome email (non-blocking — don't fail if email fails)
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://trackmycash.com";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://koupli.com";
   const unsubscribeUrl = generateUnsubscribeUrl(rawEmail, baseUrl);
   const html = renderNewsletterWelcomeEmail(rawEmail, unsubscribeUrl);
 
   await sendEmail({
     to: rawEmail,
-    subject: "Bienvenue dans la newsletter TrackMyCash !",
+    subject: "Bienvenue dans la newsletter Koupli !",
     html,
   });
 

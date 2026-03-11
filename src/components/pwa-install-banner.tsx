@@ -73,7 +73,7 @@ export function PwaInstallBanner() {
 
       {isIos ? (
         <div className="pr-4">
-          <p className="font-medium text-sm">Installer TrackMyCash</p>
+          <p className="font-medium text-sm">Installer Koupli</p>
           <p className="text-xs text-muted-foreground mt-1">
             Appuyez sur <Share className="inline h-3 w-3" /> puis &quot;Sur l&apos;écran d&apos;accueil&quot;
           </p>
@@ -83,7 +83,7 @@ export function PwaInstallBanner() {
         </div>
       ) : (
         <div className="pr-4">
-          <p className="font-medium text-sm">Installer TrackMyCash</p>
+          <p className="font-medium text-sm">Installer Koupli</p>
           <p className="text-xs text-muted-foreground mt-1">
             Accédez à votre application depuis l&apos;écran d&apos;accueil
           </p>

@@ -52,7 +52,7 @@ export async function GET(request: Request) {
 <body>
   <div class="card">
     <h1>Désinscription confirmée</h1>
-    <p>Vous ne recevrez plus d'emails de la newsletter TrackMyCash.</p>
+    <p>Vous ne recevrez plus d'emails de la newsletter Koupli.</p>
   </div>
 </body>
 </html>`;

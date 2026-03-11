@@ -118,12 +118,12 @@ describe("QA STORY-104 — renderCoupleReminderEmail structure HTML", () => {
     expect(html).toContain("UTF-8");
   });
 
-  it("QA-104-2c : le titre TrackMyCash est présent dans le head", async () => {
+  it("QA-104-2c : le titre Koupli est présent dans le head", async () => {
     const { renderCoupleReminderEmail } = await import("@/lib/email-templates");
     const html = renderCoupleReminderEmail("TITLE01", 1);
-    expect(html).toContain("TrackMyCash");
-    // TrackMyCash doit être présent au moins 2 fois (titre + contenu)
-    const occurrences = (html.match(/TrackMyCash/g) ?? []).length;
+    expect(html).toContain("Koupli");
+    // Koupli doit être présent au moins 2 fois (titre + contenu)
+    const occurrences = (html.match(/Koupli/g) ?? []).length;
     expect(occurrences).toBeGreaterThanOrEqual(2);
   });
 });

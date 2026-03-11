@@ -14,7 +14,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   return buildPageMetadata({
-    title: "Blog — Gérer ses finances en couple | TrackMyCash",
+    title: "Blog — Gérer ses finances en couple | Koupli",
     description:
       "Conseils pratiques pour gérer votre budget en couple, partager vos dépenses équitablement et atteindre vos objectifs d'épargne ensemble.",
     path: "blog",

@@ -19,7 +19,7 @@ function extractLocale(referer: string | null, baseUrl: string): string {
   return "fr";
 }
 
-const BASE = "https://app.trackmycash.com";
+const BASE = "https://app.koupli.com";
 
 describe("extractLocale (STORY-002)", () => {
   it("AC-1 : referer null → locale par défaut fr", () => {

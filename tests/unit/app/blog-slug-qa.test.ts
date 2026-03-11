@@ -14,7 +14,7 @@ const mockPost = {
   readingTime: 5,
   status: "published" as const,
   publishedAt: "2026-02-24T10:00:00.000Z",
-  authorName: "TrackMyCash",
+  authorName: "Koupli",
   metaTitle: null,
   metaDescription: null,
   createdAt: "2026-02-20T10:00:00.000Z",
@@ -72,7 +72,7 @@ vi.mock("@/i18n/navigation", () => ({
 describe("QA-154 — Tests complémentaires page [slug]", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.NEXT_PUBLIC_APP_URL = "https://trackmycash.com";
+    process.env.NEXT_PUBLIC_APP_URL = "https://koupli.com";
     mockGetRelatedPosts.mockResolvedValue([]);
     mockGetAdjacentPosts.mockResolvedValue({ prev: null, next: null });
   });
@@ -113,7 +113,7 @@ describe("QA-154 — Tests complémentaires page [slug]", () => {
       params: Promise.resolve({ slug: "gerer-budget-couple" }),
     });
     const og = metadata.openGraph as Record<string, unknown>;
-    expect(og.url).toBe("https://trackmycash.com/fr/blog/gerer-budget-couple");
+    expect(og.url).toBe("https://koupli.com/fr/blog/gerer-budget-couple");
   });
 
   // ── QA-154-4 : description fallback sur excerpt ───────────────────────

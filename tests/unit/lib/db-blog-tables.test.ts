@@ -193,7 +193,7 @@ describe("Blog DB Edge Cases (STORY-150 — QA)", () => {
     expect(Number(posts.rows[0].count)).toBe(1);
   });
 
-  // QA-150-5 : Valeurs par défaut (status=draft, reading_time=5, author=TrackMyCash)
+  // QA-150-5 : Valeurs par défaut (status=draft, reading_time=5, author=Koupli)
   it("QA-150-5 — valeurs par défaut correctes pour blog_posts", async () => {
     await client.execute({
       sql: `INSERT INTO blog_posts (id, slug, title, content, excerpt) VALUES ('p1', 'defaults', 'Test', 'Content', 'Excerpt')`,
@@ -206,7 +206,7 @@ describe("Blog DB Edge Cases (STORY-150 — QA)", () => {
     });
     expect(String(row.rows[0].status)).toBe("draft");
     expect(Number(row.rows[0].reading_time)).toBe(5);
-    expect(String(row.rows[0].author_name)).toBe("TrackMyCash");
+    expect(String(row.rows[0].author_name)).toBe("Koupli");
   });
 
   // QA-150-6 : UNIQUE sur blog_categories.name et blog_categories.slug

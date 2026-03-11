@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     .toISOString()
     .slice(0, 10);
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://trackmycash.fr";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://koupli.com";
 
   let processed = 0;
   let sent = 0;
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
 
       const result = await sendEmail({
         to: email,
-        subject: `Récapitulatif hebdomadaire TrackMyCash — semaine du ${weekLabel}`,
+        subject: `Récapitulatif hebdomadaire Koupli — semaine du ${weekLabel}`,
         html,
       });
 

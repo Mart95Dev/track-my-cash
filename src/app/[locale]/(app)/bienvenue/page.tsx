@@ -5,7 +5,7 @@ import type { PlanId } from "@/lib/stripe-plans";
 import { getSession } from "@/lib/auth-utils";
 
 export const metadata: Metadata = {
-  title: "Bienvenue — TrackMyCash",
+  title: "Bienvenue — Koupli",
   description: "Votre abonnement est actif. Commencez à suivre vos finances.",
 };
 

@@ -59,8 +59,8 @@ export default function CompteSuspenduPage() {
           </div>
           <p className="text-xs text-center text-text-muted">
             Besoin d&apos;aide immédiate ?{" "}
-            <a href="mailto:support@trackmycash.fr" className="text-primary underline">
-              support@trackmycash.fr
+            <a href="mailto:support@koupli.com" className="text-primary underline">
+              support@koupli.com
             </a>
           </p>
         </div>

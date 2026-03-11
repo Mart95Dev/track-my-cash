@@ -1,6 +1,6 @@
-# Track My Cash
+# Koupli
 
-Application de gestion de finances personnelles et en couple. Suivez vos comptes bancaires, budgets, objectifs et dépenses partagées.
+Application de gestion de finances personnelles et en couple. Suivez vos comptes bancaires, budgets, objectifs et dépenses partagées — avec un conseiller IA dédié à votre couple.
 
 ## Stack technique
 
@@ -76,7 +76,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Export de donnees complet
 
 ### Pages marketing
-- Homepage avec hero, pain points, features, temoignages, how-it-works, trust bar et CTA
+- Homepage restructuree UX : hero IA-first, 3 pilliers de valeur, pain points fusionnes, section IA showcase dediee, features, temoignages, how-it-works, trust bar, FAQ et CTA
 - Page Fonctionnalites (mode couple, IA, import multi-formats)
 - Page Tarifs avec toggle mensuel/annuel, comparatif detaille et FAQ accordion
 - Blog dynamique (articles depuis Turso, categories, article a la une)
@@ -224,3 +224,4 @@ tests/
 | v20.1 | Fix build Vercel (generateStaticParams resilient, useSyncExternalStore cookie banner) | — | 1789 |
 | v21 | SEO & GEO (JSON-LD 6 schemas, metadata enrichie, robots IA, sitemap 55+ URLs, FAQ GEO, OG images, BreadcrumbList) | 11 | 1849 |
 | v21.1 | Blog article enrichi (hero image, auteur, TOC, progress bar, partage social, reactions, articles lies, nav prev/next, prose enrichi, SEO author/speakable) | — | 1862 |
+| v22 | Rebrand Koupli + refonte homepage UX (IA-first hero, 3 pilliers valeur, IA showcase, pain points fusionnes) | — | 1862 |

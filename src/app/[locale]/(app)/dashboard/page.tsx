@@ -191,7 +191,7 @@ export default async function DashboardPage({
     return (
       <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
         <span className="material-symbols-outlined text-primary text-[64px] mb-4">account_balance_wallet</span>
-        <h2 className="text-xl font-bold text-text-main mb-2">Bienvenue sur TrackMyCash</h2>
+        <h2 className="text-xl font-bold text-text-main mb-2">Bienvenue sur Koupli</h2>
         <p className="text-text-muted text-sm mb-6">Ajoutez un compte pour commencer à suivre vos finances.</p>
         <Link
           href={`/${locale}/comptes`}

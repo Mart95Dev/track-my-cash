@@ -132,10 +132,10 @@ export function renderWelcomeEmail(userEmail: string, appUrl: string): string {
   const dashboardUrl = appUrl ? `${appUrl}/dashboard` : "/dashboard";
 
   const body = `
-    ${renderHeading("Bienvenue sur TrackMyCash !")}
+    ${renderHeading("Bienvenue sur Koupli !")}
     ${renderParagraph(`Votre compte <strong>${userEmail || "—"}</strong> vient d'être créé avec succès.`)}
     <p style="margin: 0 0 16px; color: ${EMAIL_COLORS.textSecondary}; line-height: 1.6;">
-      TrackMyCash vous permet de&nbsp;:
+      Koupli vous permet de&nbsp;:
     </p>
     <ul style="margin: 0 0 24px; padding-left: 20px; color: ${EMAIL_COLORS.textSecondary}; line-height: 1.8;">
       <li>Centraliser et suivre tous vos comptes bancaires</li>
@@ -146,7 +146,7 @@ export function renderWelcomeEmail(userEmail: string, appUrl: string): string {
     ${renderNote("Si vous n'êtes pas à l'origine de cette inscription, ignorez cet email.")}
   `;
 
-  return renderEmailBase("Bienvenue sur TrackMyCash", body);
+  return renderEmailBase("Bienvenue sur Koupli", body);
 }
 
 export function renderDeletionReminderEmail(
@@ -162,13 +162,13 @@ export function renderDeletionReminderEmail(
 
   const body = `
     <p style="margin: 0 0 16px; font-size: 16px; font-weight: 600;">Rappel : suppression de votre compte</p>
-    ${renderParagraph(`Bonjour,<br/><br/>Vous avez demandé la suppression de votre compte TrackMyCash associé à <strong>${userEmail}</strong>.`)}
+    ${renderParagraph(`Bonjour,<br/><br/>Vous avez demandé la suppression de votre compte Koupli associé à <strong>${userEmail}</strong>.`)}
     <p style="margin: 0 0 24px; color: ${EMAIL_COLORS.textSecondary}; line-height: 1.6;">
       La suppression définitive de toutes vos données aura lieu le <strong>${deleteDate}</strong> (dans 5 jours).
       Si vous avez changé d'avis, vous pouvez annuler votre demande en cliquant ci-dessous.
     </p>
     ${renderCTA("Annuler la suppression", cancelUrl)}
-    ${renderNote("Si vous n'avez pas fait cette demande, contactez-nous à contact@trackmycash.fr.")}
+    ${renderNote("Si vous n'avez pas fait cette demande, contactez-nous à contact@koupli.com.")}
   `;
 
   return renderEmailBase("Rappel : suppression de votre compte", body);
@@ -226,7 +226,7 @@ export function renderNewsletterWelcomeEmail(
   unsubscribeUrl: string
 ): string {
   const body = `
-    ${renderHeading("Bienvenue dans la newsletter TrackMyCash !")}
+    ${renderHeading("Bienvenue dans la newsletter Koupli !")}
     ${renderParagraph(`Merci de vous être inscrit(e) avec l'adresse <strong>${email}</strong>.`)}
     ${renderParagraph("Chaque semaine, vous recevrez nos meilleurs conseils pour gérer vos finances en couple : astuces budget, partage de dépenses, objectifs d'épargne et nouveautés produit.")}
     ${renderNote("Zéro spam, promis. Un seul email par semaine, que du contenu utile.")}
@@ -235,7 +235,7 @@ export function renderNewsletterWelcomeEmail(
     </p>
   `;
 
-  return renderEmailBase("Bienvenue dans la newsletter TrackMyCash", body);
+  return renderEmailBase("Bienvenue dans la newsletter Koupli", body);
 }
 
 export type { WeeklySummaryData };
@@ -352,10 +352,10 @@ export function renderCoupleReminderEmail(
       : "Rappel — votre espace couple est prêt";
 
   const intro = isUrgent
-    ? "Votre partenaire vous attend depuis hier sur TrackMyCash. Partagez le code ci-dessous pour commencer à gérer vos finances ensemble."
+    ? "Votre partenaire vous attend depuis hier sur Koupli. Partagez le code ci-dessous pour commencer à gérer vos finances ensemble."
     : isWeek
-      ? "Il y a une semaine, vous avez créé votre espace couple sur TrackMyCash. Votre partenaire n'a pas encore rejoint — c'est le bon moment pour lui envoyer le code."
-      : "Votre espace couple est prêt sur TrackMyCash. Partagez le code d'invitation avec votre partenaire pour commencer à gérer vos finances en commun.";
+      ? "Il y a une semaine, vous avez créé votre espace couple sur Koupli. Votre partenaire n'a pas encore rejoint — c'est le bon moment pour lui envoyer le code."
+      : "Votre espace couple est prêt sur Koupli. Partagez le code d'invitation avec votre partenaire pour commencer à gérer vos finances en commun.";
 
   const body = `
     ${renderHeading(headline)}
@@ -367,15 +367,15 @@ export function renderCoupleReminderEmail(
       <p style="margin: 8px 0 0; font-size: 12px; color: ${EMAIL_COLORS.textMuted};">Partagez ce code avec votre partenaire</p>
     </div>
 
-    ${renderParagraph("TrackMyCash vous permet de&nbsp;:")}
+    ${renderParagraph("Koupli vous permet de&nbsp;:")}
     <ul style="margin: 0 0 24px; padding-left: 20px; color: ${EMAIL_COLORS.textSecondary}; line-height: 1.8;">
       <li>Suivre les dépenses partagées du couple</li>
       <li>Calculer automatiquement qui doit quoi</li>
       <li>Définir des budgets et objectifs communs</li>
     </ul>
 
-    ${renderNote("Si votre partenaire n'a pas encore de compte, il peut s'inscrire gratuitement sur TrackMyCash.")}
+    ${renderNote("Si votre partenaire n'a pas encore de compte, il peut s'inscrire gratuitement sur Koupli.")}
   `;
 
-  return renderEmailBase("Votre partenaire vous attend sur TrackMyCash", body);
+  return renderEmailBase("Votre partenaire vous attend sur Koupli", body);
 }

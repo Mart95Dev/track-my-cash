@@ -36,16 +36,16 @@ export async function generateMetadata({
   const post = await getPublishedPostBySlug(db, slug);
 
   if (!post) {
-    return { title: "Article introuvable — TrackMyCash" };
+    return { title: "Article introuvable — Koupli" };
   }
 
   const baseUrl = SEO_CONFIG.baseUrl;
 
   return {
-    title: post.metaTitle ?? `${post.title} | TrackMyCash`,
+    title: post.metaTitle ?? `${post.title} | Koupli`,
     description: post.metaDescription ?? post.excerpt,
     openGraph: {
-      title: post.metaTitle ?? `${post.title} | TrackMyCash`,
+      title: post.metaTitle ?? `${post.title} | Koupli`,
       description: post.metaDescription ?? post.excerpt,
       type: "article",
       publishedTime: post.publishedAt ?? undefined,
@@ -69,7 +69,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: post.metaTitle ?? `${post.title} | TrackMyCash`,
+      title: post.metaTitle ?? `${post.title} | Koupli`,
       description: post.metaDescription ?? post.excerpt,
     },
   };
@@ -321,7 +321,7 @@ export default async function BlogPostPage({
         {/* CTA */}
         <div className="mt-12 bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center">
           <p className="font-bold text-text-main mb-2">
-            Gérez votre budget en couple avec TrackMyCash
+            Gérez votre budget en couple avec Koupli
           </p>
           <p className="text-text-muted text-sm mb-4">
             Suivez vos dépenses communes, équilibrez qui doit quoi et atteignez

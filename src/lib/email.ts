@@ -71,13 +71,13 @@ export function renderEmailBase(title: string, bodyHtml: string): string {
 <body>
   <div class="container">
     <div class="header">
-      <h1>TrackMyCash</h1>
+      <h1>Koupli</h1>
     </div>
     <div class="content">
       ${bodyHtml}
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} TrackMyCash. Tous droits réservés.</p>
+      <p>© ${new Date().getFullYear()} Koupli. Tous droits réservés.</p>
       <p style="margin-top: 4px;">Cet email a été envoyé automatiquement, merci de ne pas y répondre directement.</p>
     </div>
   </div>

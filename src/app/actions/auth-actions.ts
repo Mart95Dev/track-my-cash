@@ -22,7 +22,7 @@ export async function sendWelcomeEmailAction(userEmail: string): Promise<void> {
   try {
     await sendEmail({
       to: userEmail,
-      subject: "Bienvenue sur TrackMyCash !",
+      subject: "Bienvenue sur Koupli !",
       html: renderWelcomeEmail(userEmail, appUrl),
       replyTo: process.env.EMAIL_REPLY_TO ?? process.env.EMAIL_USER,
     });

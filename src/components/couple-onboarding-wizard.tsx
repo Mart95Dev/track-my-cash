@@ -57,7 +57,7 @@ export function CoupleOnboardingWizard({ locale }: CoupleOnboardingWizardProps) 
                 favorite
               </span>
               <p className="text-text-muted text-sm leading-relaxed">
-                TrackMyCash vous permet de gérer vos finances en couple —
+                Koupli vous permet de gérer vos finances en couple —
                 partagez vos dépenses, suivez votre balance et atteignez vos
                 objectifs communs.
               </p>

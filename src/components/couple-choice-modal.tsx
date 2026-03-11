@@ -71,8 +71,8 @@ export function CoupleChoiceModal({
     if (typeof navigator !== "undefined" && "share" in navigator) {
       try {
         await navigator.share({
-          title: "Rejoins-moi sur TrackMyCash",
-          text: `Utilise le code ${inviteCode} pour rejoindre mon espace couple sur TrackMyCash.`,
+          title: "Rejoins-moi sur Koupli",
+          text: `Utilise le code ${inviteCode} pour rejoindre mon espace couple sur Koupli.`,
           url: `${window.location.origin}/fr/couple?code=${inviteCode}`,
         });
       } catch {
@@ -97,7 +97,7 @@ export function CoupleChoiceModal({
         {step === "choice" && (
           <div className="flex flex-col gap-3 pt-2">
             <p className="text-text-muted text-sm text-center mb-2">
-              Choisissez comment vous souhaitez utiliser TrackMyCash
+              Choisissez comment vous souhaitez utiliser Koupli
             </p>
 
             {/* Carte En couple */}

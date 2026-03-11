@@ -21,34 +21,34 @@ function makeData(overrides: Partial<WeeklySummaryData> = {}): WeeklySummaryData
 
 describe("renderWeeklyEmail (STORY-061)", () => {
   it("TU-61-5 : le template contient le récap dépenses de la semaine (AC-5)", () => {
-    const html = renderWeeklyEmail(makeData(), "Alice", "https://app.trackmycash.fr");
+    const html = renderWeeklyEmail(makeData(), "Alice", "https://app.koupli.com");
     expect(html).toContain("Dépenses");
     expect(html).toContain("450");
   });
 
   it("TU-61-6 : le template contient les revenus (AC-5)", () => {
-    const html = renderWeeklyEmail(makeData(), "Alice", "https://app.trackmycash.fr");
+    const html = renderWeeklyEmail(makeData(), "Alice", "https://app.koupli.com");
     expect(html).toContain("Revenus");
     expect(html).toContain("1");
   });
 
   it("TU-61-7 : le template contient les top catégories (AC-5)", () => {
-    const html = renderWeeklyEmail(makeData(), "Alice", "https://app.trackmycash.fr");
+    const html = renderWeeklyEmail(makeData(), "Alice", "https://app.koupli.com");
     expect(html).toContain("Alimentation");
     expect(html).toContain("Transport");
     expect(html).toContain("Loisirs");
   });
 
   it("TU-61-8 : le template contient un CTA (lien vers l'app) (AC-5)", () => {
-    const html = renderWeeklyEmail(makeData(), "Alice", "https://app.trackmycash.fr");
-    expect(html).toContain("https://app.trackmycash.fr");
+    const html = renderWeeklyEmail(makeData(), "Alice", "https://app.koupli.com");
+    expect(html).toContain("https://app.koupli.com");
   });
 
   it("TU-61-9 : top catégories vide → pas de crash, retourne une chaîne valide", () => {
     const html = renderWeeklyEmail(
       makeData({ topCategories: [] }),
       "Bob",
-      "https://app.trackmycash.fr"
+      "https://app.koupli.com"
     );
     expect(typeof html).toBe("string");
     expect(html.length).toBeGreaterThan(0);

@@ -23,7 +23,7 @@ export async function createUserDatabase(userId: string): Promise<string> {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        name: `trackmycash-user-${userId.slice(0, 8)}`,
+        name: `koupli-user-${userId.slice(0, 8)}`,
         group: "default",
       }),
     }

@@ -32,7 +32,7 @@ async function setupDb() {
       reading_time INTEGER NOT NULL DEFAULT 5,
       status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft', 'published')),
       published_at TEXT,
-      author_name TEXT NOT NULL DEFAULT 'TrackMyCash',
+      author_name TEXT NOT NULL DEFAULT 'Koupli',
       meta_title TEXT,
       meta_description TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),

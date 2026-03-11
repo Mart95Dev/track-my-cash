@@ -14,7 +14,7 @@ import { getOnboardingChoice, getCoupleByUserId, getCoupleMembers } from "@/lib/
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "TrackMyCash" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "Koupli" },
   themeColor: "#0f172a",
 };
 

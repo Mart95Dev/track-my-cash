@@ -7,12 +7,12 @@ describe("Marketing Layout — Organization JSON-LD", () => {
     expect(schema["@type"]).toBe("Organization");
   });
 
-  it("TU-2: JSON parsé est valide avec @type Organization et name TrackMyCash", () => {
+  it("TU-2: JSON parsé est valide avec @type Organization et name Koupli", () => {
     const schema = organizationSchema();
     const json = JSON.stringify(schema);
     const parsed = JSON.parse(json) as Record<string, unknown>;
     expect(parsed["@type"]).toBe("Organization");
-    expect(parsed.name).toBe("TrackMyCash");
+    expect(parsed.name).toBe("Koupli");
   });
 
   it("TU-3: Le logo est une URL absolue commençant par https://", () => {

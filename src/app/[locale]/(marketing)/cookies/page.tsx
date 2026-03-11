@@ -11,9 +11,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   return buildPageMetadata({
-    title: "Politique de cookies — TrackMyCash",
+    title: "Politique de cookies — Koupli",
     description:
-      "Comment TrackMyCash utilise les cookies pour faire fonctionner le site et améliorer votre expérience.",
+      "Comment Koupli utilise les cookies pour faire fonctionner le site et améliorer votre expérience.",
     path: "cookies",
     locale,
   });
@@ -144,7 +144,7 @@ export default function CookiesPage() {
             <h3>Cookies marketing / publicitaires</h3>
             <p>
               <strong>Nous n&apos;utilisons aucun cookie publicitaire.</strong>{" "}
-              TrackMyCash ne diffuse pas de publicité et ne partage aucune
+              Koupli ne diffuse pas de publicité et ne partage aucune
               donnée avec des régies publicitaires.
             </p>
 

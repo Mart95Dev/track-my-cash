@@ -71,7 +71,7 @@ export async function DELETE(req: Request) {
       const deleteDate = new Date(scheduledDeleteAt).toLocaleDateString("fr-FR");
       sendEmail({
         to: email,
-        subject: "Confirmation de suppression de compte — TrackMyCash",
+        subject: "Confirmation de suppression de compte — Koupli",
         html: `<p>Votre demande de suppression de compte a été enregistrée.</p>
                <p>Votre compte sera supprimé le <strong>${deleteDate}</strong>.</p>
                <p>Vous pouvez annuler cette demande à tout moment depuis les paramètres de l'application.</p>`,
