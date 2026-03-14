@@ -32,9 +32,8 @@ describe("STORY-111 QA — Design inscription bg-[#FAFAF9] + logo (AC-1, GAP-A)"
     expect(inscriptionSrc).toContain("bg-[#FAFAF9]");
   });
 
-  it("QA-111-A2 : inscription contient le logo bg-primary avec lettre T", () => {
-    expect(inscriptionSrc).toContain("bg-primary");
-    expect(inscriptionSrc).toContain(">T<");
+  it("QA-111-A2 : inscription contient le logo SVG Koupli", () => {
+    expect(inscriptionSrc).toContain("koupli-logo-horizontal.svg");
   });
 });
 

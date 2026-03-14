@@ -103,10 +103,8 @@ describe("Navbar", () => {
   it("TU-1-4 : le logo 'Koupli' est présent", async () => {
     const { Navbar } = await import("@/components/marketing/navbar");
     render(<Navbar />);
-    const logoLink = screen
-      .getAllByRole("link")
-      .find((el) => el.getAttribute("href") === "/");
-    expect(logoLink).toBeDefined();
-    expect(logoLink?.textContent).toContain("Koupli");
+    const logos = screen.getAllByAltText("Koupli");
+    expect(logos.length).toBeGreaterThanOrEqual(1);
+    expect(logos[0].getAttribute("src")).toContain("koupli-logo");
   });
 });
