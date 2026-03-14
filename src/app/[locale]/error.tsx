@@ -20,7 +20,7 @@ export default function Error({
     <div className="min-h-screen flex flex-col bg-[#FAFAF9] marketing-light">
       <Navbar />
 
-      <div className="flex-1 flex items-center justify-center px-4">
+      <div className="flex-1 flex items-center justify-center px-4 py-32 md:py-40">
         <div className="text-center space-y-8 max-w-md">
           {/* Icône */}
           <div className="flex justify-center">
