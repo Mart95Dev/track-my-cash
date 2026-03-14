@@ -86,7 +86,7 @@ export function CoupleChoiceModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(v) => { if (!v) setIsOpen(false); }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-white rounded-3xl border-border-light">
         <DialogHeader>
           <DialogTitle>
             {step === "choice" ? "Comment gérez-vous vos finances ?" : "Invitez votre partenaire"}

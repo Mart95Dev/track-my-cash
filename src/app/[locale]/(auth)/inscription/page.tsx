@@ -207,8 +207,12 @@ export default function InscriptionPage() {
 
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="w-full h-14 bg-primary hover:bg-primary/90 text-white text-base font-bold rounded-xl shadow-lg shadow-primary/30 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-4 disabled:opacity-60"
+                  disabled={loading || !name || !email || password.length < 8}
+                  className={`w-full h-14 text-base font-bold rounded-xl transition-all flex items-center justify-center gap-2 mt-4 active:scale-[0.98] ${
+                    name && email && password.length >= 8 && !loading
+                      ? "bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 hover:shadow-primary/40"
+                      : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                  }`}
                 >
                   {loading ? (
                     <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

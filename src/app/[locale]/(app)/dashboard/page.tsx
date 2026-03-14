@@ -131,9 +131,10 @@ export default async function DashboardPage({
   const hasPartner = coupleMembers.length >= 2;
   const onboardingProgress = computeOnboardingProgress({ hasTransactions, hasPartner, hasCoupleBudget });
 
-  const showOnboarding = !onboardingCompleted && accounts.length === 0;
-  const showCoupleOnboarding = !coupleOnboardingCompleted && accounts.length > 0;
   const showCoupleChoiceModal = !coupleOnboardingChoice && accounts.length === 0;
+  // OnboardingWizard seulement après le choix couple (évite 2 modals empilés)
+  const showOnboarding = !onboardingCompleted && accounts.length === 0 && !showCoupleChoiceModal;
+  const showCoupleOnboarding = !coupleOnboardingCompleted && accounts.length > 0;
   const refCurrency = refCurrencySetting ?? REFERENCE_CURRENCY;
 
   const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);

@@ -34,7 +34,7 @@ export function CoupleOnboardingWizard({ locale }: CoupleOnboardingWizardProps) 
 
   return (
     <Dialog open={isOpen} onOpenChange={(v) => { if (!v) handleSkip(); }}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto bg-white rounded-3xl border-border-light">
         <DialogHeader>
           <div className="flex items-center justify-between mb-1">
             <DialogTitle>

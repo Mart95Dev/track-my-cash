@@ -55,7 +55,7 @@ export function OnboardingWizard({ open, initialStep = 1 }: OnboardingWizardProp
 
   return (
     <Dialog open={isOpen} onOpenChange={(v) => { if (!v) handleClose(); }}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto bg-white rounded-3xl border-border-light">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle>
@@ -130,7 +130,11 @@ export function OnboardingWizard({ open, initialStep = 1 }: OnboardingWizardProp
                   required
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={isPending}>
+              <Button
+                type="submit"
+                className="w-full bg-primary hover:bg-primary/90 text-white font-bold rounded-xl h-12 shadow-lg shadow-primary/20"
+                disabled={isPending}
+              >
                 {isPending ? "Création..." : "Créer mon compte →"}
               </Button>
             </form>
@@ -148,7 +152,11 @@ export function OnboardingWizard({ open, initialStep = 1 }: OnboardingWizardProp
               <p className="text-xs text-muted-foreground">CSV, Excel (.xlsx), PDF — Banque Populaire, MCB, Revolut, Crédit Agricole</p>
             </div>
             <div className="flex flex-col gap-2">
-              <Button variant="outline" className="w-full" onClick={() => setStep(3)}>
+              <Button
+                variant="outline"
+                className="w-full rounded-xl h-12 border-border-light text-text-main font-semibold hover:bg-slate-50"
+                onClick={() => setStep(3)}
+              >
                 Passer cette étape →
               </Button>
             </div>
@@ -165,7 +173,10 @@ export function OnboardingWizard({ open, initialStep = 1 }: OnboardingWizardProp
                 Votre compte est configuré. Vous pouvez maintenant suivre vos finances, importer des relevés et analyser vos dépenses.
               </p>
             </div>
-            <Button className="w-full" onClick={handleFinish}>
+            <Button
+              className="w-full bg-primary hover:bg-primary/90 text-white font-bold rounded-xl h-12 shadow-lg shadow-primary/20"
+              onClick={handleFinish}
+            >
               Accéder à mon tableau de bord →
             </Button>
           </div>
