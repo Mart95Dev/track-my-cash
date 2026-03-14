@@ -185,7 +185,7 @@ export default function ConnexionPage() {
                 Conditions
               </Link>
               <span className="text-xs text-slate-300">·</span>
-              <Link href="/confidentialite" className="text-xs text-slate-400 hover:text-primary transition-colors font-medium">
+              <Link href="/politique-confidentialite" className="text-xs text-slate-400 hover:text-primary transition-colors font-medium">
                 Confidentialité
               </Link>
             </div>

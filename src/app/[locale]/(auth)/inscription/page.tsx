@@ -239,7 +239,7 @@ export default function InscriptionPage() {
                 Conditions d&apos;utilisation
               </Link>{" "}
               et notre{" "}
-              <Link href="/confidentialite" className="underline hover:text-slate-600 transition-colors">
+              <Link href="/politique-confidentialite" className="underline hover:text-slate-600 transition-colors">
                 Politique de confidentialité
               </Link>
               .
