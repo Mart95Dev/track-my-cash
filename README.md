@@ -13,7 +13,8 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - **Emails** : Nodemailer
 - **Sanitize** : sanitize-html (XSS protection blog)
 - **Paiements** : Stripe (checkout, webhooks, portail client)
-- **Tests** : Vitest + Testing Library (1861+ tests)
+- **IA** : OpenRouter (DeepSeek V3.2, Mistral Medium 3.1, Gemini Flash, Qwen 3.5 Flash)
+- **Tests** : Vitest + Testing Library (1863+ tests)
 
 ## Fonctionnalites
 
@@ -23,10 +24,24 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Detection automatique de doublons via `import_hash`
 - Transactions avec categories, sous-categories et tags
 - Paiements recurrents avec detection IA de suggestions
+- Categorisation automatique IA des transactions (illimitee des le plan Pro)
+
+### Intelligence artificielle
+- Conseiller IA financier (chat multi-modeles : DeepSeek V3, Mistral Medium, Gemini Flash, Qwen 3.5)
+- Categorisation automatique des transactions par IA
+- Insights previsionnels : 3 conseils personnalises bases sur les tendances de depenses
+- Objectifs intelligents : analyse des finances et proposition d'objectifs d'epargne avec plan (Premium)
+- Mode consensus Premium : 3 modeles en parallele + synthese Mistral Medium
+- Conseiller couple IA avec analyse des finances communes (Premium)
+- Detection d'anomalies de depenses (alertes proactives)
+- Suggestions automatiques de budgets
+- Quotas : Pro 50 chats/mois + 30 insights/mois + categorisation illimitee, Premium illimite
+- Cle API serveur unique (pas de configuration utilisateur)
 
 ### Budgets et objectifs
 - Budgets par categorie avec alertes (80% et 100%)
 - Objectifs d'epargne avec suivi de progression
+- Objectifs intelligents IA : analyse des habitudes et proposition d'objectifs realistes avec plan d'epargne (Premium)
 - Previsions financieres detaillees
 
 ### Couple
@@ -156,10 +171,10 @@ VAPID_EMAIL=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
-STRIPE_PRICE_ID_PRO=              # Prix mensuel Pro (4,90€/mois)
-STRIPE_PRICE_ID_PREMIUM=          # Prix mensuel Premium (7,90€/mois)
-STRIPE_PRICE_ID_PRO_ANNUAL=       # Prix annuel Pro (49,98€/an, -15%)
-STRIPE_PRICE_ID_PREMIUM_ANNUAL=   # Prix annuel Premium (80,58€/an, -15%)
+STRIPE_PRICE_ID_PRO=              # Prix mensuel Pro (5,90€/mois)
+STRIPE_PRICE_ID_PREMIUM=          # Prix mensuel Premium (8,90€/mois)
+STRIPE_PRICE_ID_PRO_ANNUAL=       # Prix annuel Pro (59,97€/an, ~4,99€/mois)
+STRIPE_PRICE_ID_PREMIUM_ANNUAL=   # Prix annuel Premium (89,67€/an, ~7,47€/mois)
 
 # IA (OpenRouter)
 API_KEY_OPENROUTER=
@@ -208,7 +223,11 @@ src/
     db.ts               # Connexion Turso + schema + migrations
     push-notifications.ts # Web Push API (VAPID, envoi, souscriptions)
     alert-service.ts    # Alertes solde bas (email + push)
-    stripe-plans.ts     # Plans (free/pro/premium), prix mensuel+annuel (-15%), limites
+    stripe-plans.ts     # Plans (free 0€/pro 5,90€/premium 8,90€), prix annuels psychologiques (59,97€/89,67€)
+    ai-usage.ts         # Quotas IA par type (chat 50/mois, insights 30/mois) et plan
+    ai-context.ts       # Contexte financier pour le LLM (comptes, transactions, budgets, objectifs)
+    ai-tools.ts         # Outils IA (creation objectif, budget, recurrent via le chat)
+    ai-consensus.ts     # Mode consensus Premium (3 modeles + synthese)
     budget-alert-service.ts # Alertes budget (email + push)
   i18n/                 # Configuration next-intl (5 langues)
 public/
@@ -217,7 +236,7 @@ public/
   apple-touch-icon*.png # Apple Touch Icons (76, 120, 152, 180)
   sw.js                 # Service Worker PWA (cache, offline, push events)
 tests/
-  unit/                 # Tests unitaires (213 fichiers, 1861 tests)
+  unit/                 # Tests unitaires (213 fichiers, 1863 tests)
   integration/          # Tests d'integration mobile (4 suites, 33 tests)
 ```
 
@@ -241,3 +260,5 @@ tests/
 | v22.1 | Plan annuel fonctionnel (toggle reactif, remise 15%, checkout Stripe mensuel+annuel, PricingSection client) | — | 1862 |
 | v22.2 | Fix BetterAuth adapter (LibsqlDialect), retrait OAuth Apple, migration 2FA | — | 1861 |
 | v22.3 | Auth production-ready : OAuth Google, reset password, navbar session-aware, logos SVG Koupli, favicons, page erreur refaite, fix double locale | — | 1861 |
+| v22.4 | Fix DB per-user (schema complet, token groupe Turso, conflit 409), onboarding 1 modal, layout desktop responsive | — | 1863 |
+| v23 | IA SaaS : cle serveur unique, modeles low-cost (DeepSeek/Mistral/Gemini/Qwen), quotas separes (50 chats + 30 insights + categorisation illimitee), objectifs intelligents IA (Premium), prix 5,90€/8,90€ | — | 1862 |
