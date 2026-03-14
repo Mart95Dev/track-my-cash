@@ -27,13 +27,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr] gap-12 mb-12">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-md bg-indigo-600 flex items-center justify-center text-white text-sm font-bold">
-                T
-              </div>
-              <span className="font-bold tracking-tighter text-white text-lg">
-                Koupli
-              </span>
+            <div className="mb-4">
+              <img src="/koupli-logo-horizontal-white.svg" alt="Koupli" className="h-8" />
             </div>
             <p className="text-[#A8A29E] text-sm leading-relaxed max-w-xs">
               La gestion financière de couple réinventée. Fini les tableurs,

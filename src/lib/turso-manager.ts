@@ -23,14 +23,15 @@ export async function createUserDatabase(userId: string): Promise<string> {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        name: `koupli-user-${userId.slice(0, 8)}`,
+        name: `koupli-u-${userId.slice(0, 12).toLowerCase().replace(/[^a-z0-9]/g, "")}`,
         group: "default",
       }),
     }
   );
 
   if (!response.ok) {
-    throw new Error(`Failed to create Turso database: ${response.statusText}`);
+    const errorBody = await response.text().catch(() => "");
+    throw new Error(`Failed to create Turso database: ${response.statusText} — ${errorBody}`);
   }
 
   const { database } = (await response.json()) as {

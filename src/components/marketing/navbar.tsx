@@ -47,12 +47,7 @@ export function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex size-9 items-center justify-center rounded-lg bg-primary font-bold text-white text-lg">
-            T
-          </div>
-          <span className="text-base font-bold tracking-tight text-text-main">
-            Koupli
-          </span>
+          <img src="/koupli-logo-horizontal.svg" alt="Koupli" className="h-8" />
         </Link>
 
         {/* Navigation desktop */}
@@ -128,11 +123,8 @@ export function Navbar() {
           </SheetTrigger>
           <SheetContent side="right">
             <SheetHeader>
-              <SheetTitle className="flex items-center gap-2.5">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-primary font-bold text-white text-sm">
-                  T
-                </div>
-                Koupli
+              <SheetTitle>
+                <img src="/koupli-logo-horizontal.svg" alt="Koupli" className="h-7" />
               </SheetTitle>
             </SheetHeader>
             <div className="mt-6 flex flex-col gap-4">
