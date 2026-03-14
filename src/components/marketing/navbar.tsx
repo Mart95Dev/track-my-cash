@@ -81,12 +81,21 @@ export function Navbar() {
         {/* Actions desktop */}
         <div className="hidden items-center gap-4 md:flex">
           {session?.user ? (
-            <Button
-              asChild
-              className="rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90"
-            >
-              <Link href="/dashboard">Mon espace</Link>
-            </Button>
+            <>
+              <Button
+                asChild
+                className="rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90"
+              >
+                <Link href="/dashboard">Mon espace</Link>
+              </Button>
+              <button
+                type="button"
+                onClick={() => authClient.signOut().then(() => window.location.reload())}
+                className="text-sm font-medium text-text-muted transition-colors hover:text-danger"
+              >
+                Déconnexion
+              </button>
+            </>
           ) : (
             <>
               <Link
@@ -146,11 +155,23 @@ export function Navbar() {
               })}
               <hr className="my-2 border-border-light" />
               {session?.user ? (
-                <Button asChild className="rounded-xl bg-primary text-white font-semibold">
-                  <Link href="/dashboard" onClick={() => setOpen(false)}>
-                    Mon espace
-                  </Link>
-                </Button>
+                <>
+                  <Button asChild className="rounded-xl bg-primary text-white font-semibold">
+                    <Link href="/dashboard" onClick={() => setOpen(false)}>
+                      Mon espace
+                    </Link>
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                      authClient.signOut().then(() => window.location.reload());
+                    }}
+                    className="text-base font-medium text-text-muted transition-colors hover:text-danger"
+                  >
+                    Déconnexion
+                  </button>
+                </>
               ) : (
                 <>
                   <Link
