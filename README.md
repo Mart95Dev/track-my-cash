@@ -53,9 +53,10 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - CORS dynamique avec validation d'origine
 
 ### Securite
-- Authentification email/mot de passe
+- Authentification email/mot de passe avec reset password par email
 - OAuth Google
 - Authentification a deux facteurs (2FA TOTP)
+- Navbar session-aware (Mon espace / Deconnexion quand connecte)
 - Codes de recuperation (generation crypto securisee)
 - JWT mobile separe (`JWT_SECRET_MOBILE`) avec garde production
 - Anti-enumeration sur forgot-password (reponse constante)
@@ -86,7 +87,8 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Desabonnement newsletter securise par HMAC-SHA256 (timingSafeEqual, page de confirmation)
 - Page A propos (histoire, convictions, chiffres cles)
 - Page Securite (6 engagements, philosophie)
-- Pages auth (connexion, inscription) avec OAuth Google
+- Pages auth (connexion, inscription, mot de passe oublie, reset password) avec OAuth Google
+- Logo SVG Koupli (horizontal light/dark, icone seule) + favicons multi-resolution
 - Design system : DM Serif Display (headings) + DM Sans (body), palette Indigo/Stone
 - Animations scroll reveal (fade-up, hover-lift) et composants interactifs
 - Theme light force sur les pages marketing (override CSS `.marketing-light` pour compatibilite dark mode iOS)
@@ -125,9 +127,13 @@ npm test         # Tests Vitest
 ## Variables d'environnement
 
 ```env
-# Base de donnees Turso
+# Base de donnees Turso (Main DB)
 DATABASE_URL_TURSO=
 API_KEY_TURSO=
+
+# Turso Platform API (creation DB per-user)
+TURSO_ORG_NAME=
+TURSO_API_TOKEN=
 
 # Auth mobile (JWT)
 JWT_SECRET_MOBILE=
@@ -175,7 +181,7 @@ src/
   app/
     [locale]/(app)/     # Pages application protegees par auth (dashboard, comptes, transactions...)
     [locale]/(marketing)/  # Pages marketing + legales (accueil, fonctionnalites, tarifs, blog, a-propos, securite, mentions-legales, politique-confidentialite, cgu, cookies)
-    [locale]/(auth)/    # Pages auth (connexion, inscription, two-factor)
+    [locale]/(auth)/    # Pages auth (connexion, inscription, two-factor, mot-de-passe-oublie, reset-password)
     [locale]/offline/   # Page offline PWA (hors auth)
     api/                # API routes (auth, push, cron, stripe, reports)
       mobile/           # API REST mobile (auth JWT, 2FA, chat, CRUD, RGPD, settings)
@@ -206,6 +212,9 @@ src/
     budget-alert-service.ts # Alertes budget (email + push)
   i18n/                 # Configuration next-intl (5 langues)
 public/
+  koupli-logo*.svg      # Logos SVG (horizontal, horizontal-white, icone)
+  favicon.ico           # Favicon multi-resolution (16+32+48)
+  apple-touch-icon*.png # Apple Touch Icons (76, 120, 152, 180)
   sw.js                 # Service Worker PWA (cache, offline, push events)
 tests/
   unit/                 # Tests unitaires (213 fichiers, 1861 tests)
@@ -231,3 +240,4 @@ tests/
 | v22 | Rebrand Koupli + refonte homepage UX (IA-first hero, 3 pilliers valeur, IA showcase, pain points fusionnes) | — | 1862 |
 | v22.1 | Plan annuel fonctionnel (toggle reactif, remise 15%, checkout Stripe mensuel+annuel, PricingSection client) | — | 1862 |
 | v22.2 | Fix BetterAuth adapter (LibsqlDialect), retrait OAuth Apple, migration 2FA | — | 1861 |
+| v22.3 | Auth production-ready : OAuth Google, reset password, navbar session-aware, logos SVG Koupli, favicons, page erreur refaite, fix double locale | — | 1861 |
