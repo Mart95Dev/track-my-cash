@@ -5,7 +5,6 @@ import { createOpenAI } from "@ai-sdk/openai";
 import {
   getUncategorizedTransactions,
   batchUpdateCategories,
-  getSetting,
 } from "@/lib/queries";
 import { getUserDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
@@ -45,11 +44,12 @@ export async function autoCategorizeAction(
     return { error: aiCheck.reason ?? "Fonctionnalité réservée aux plans Pro/Premium" };
   }
 
-  const db = await getUserDb(userId);
-  const apiKey = await getSetting(db, "openrouter_api_key");
+  const apiKey = process.env.API_KEY_OPENROUTER;
   if (!apiKey) {
-    return { error: "Clé API OpenRouter non configurée dans les paramètres" };
+    return { error: "Service IA temporairement indisponible" };
   }
+
+  const db = await getUserDb(userId);
 
   const transactions = transactionIds
     ? (await Promise.all(transactionIds.map(async (id) => {
@@ -87,7 +87,7 @@ export async function autoCategorizeAction(
     });
 
     const { text } = await generateText({
-      model: openrouter("openai/gpt-4o-mini"),
+      model: openrouter("deepseek/deepseek-v3.2"),
       system: `Tu es un assistant financier. Pour chaque transaction bancaire, attribue une catégorie parmi : ${CATEGORIES.join(", ")}.
 Réponds UNIQUEMENT avec du JSON valide, sans markdown, sans code block :
 [{"id": 1, "category": "Alimentation", "subcategory": "Supermarché"}]
@@ -109,7 +109,7 @@ La subcategory est une description courte et précise (ex: "SNCF", "Netflix", "P
       };
     });
   } catch {
-    return { error: "Erreur lors de la catégorisation IA. Vérifiez votre clé API." };
+    return { error: "Erreur lors de la catégorisation IA. Réessayez plus tard." };
   }
 }
 

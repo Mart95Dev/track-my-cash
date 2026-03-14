@@ -191,7 +191,7 @@ export async function initiate2FASetup(
   const secret = randomBase32(20);
 
   const otp = createOTP(secret, { digits: 6, period: 30 });
-  const totpURI = otp.url("Track My Cash", email);
+  const totpURI = otp.url("Koupli", email);
 
   // Générer 8 backup codes (format XXXX-XXXX)
   const backupCodes: string[] = [];

@@ -18,19 +18,21 @@ const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 heure
 export const maxDuration = 30;
 
 const ALLOWED_MODELS = [
-  "openai/gpt-4o-mini",
-  "anthropic/claude-haiku-20240307",
-  "google/gemini-flash-1.5",
-  "meta-llama/llama-3.1-8b-instruct:free",
+  "deepseek/deepseek-v3.2",
+  "mistralai/mistral-medium-3.1",
+  "google/gemini-2.0-flash",
+  "qwen/qwen3.5-flash-02-23",
 ] as const;
+
+const DEFAULT_MODEL: AllowedModel = "deepseek/deepseek-v3.2";
 
 const CONSENSUS_MODELS = [
-  "anthropic/claude-sonnet-4-6",
+  "deepseek/deepseek-v3.2",
   "google/gemini-2.0-flash",
-  "openai/gpt-4o-mini",
+  "qwen/qwen3.5-flash-02-23",
 ] as const;
 
-const HAIKU_MODEL = "anthropic/claude-haiku-4-5-20251001";
+const SYNTHESIS_MODEL = "mistralai/mistral-medium-3.1";
 
 type AllowedModel = (typeof ALLOWED_MODELS)[number];
 
@@ -53,7 +55,7 @@ export async function POST(req: Request) {
     modelId as AllowedModel
   )
     ? (modelId as AllowedModel)
-    : "openai/gpt-4o-mini";
+    : DEFAULT_MODEL;
 
   const userId = await getRequiredUserId();
 
@@ -167,7 +169,7 @@ ${
       const synthesisPrompt = buildSynthesisPrompt(successfulTexts);
       try {
         const haikuResult = await generateText({
-          model: openrouter(HAIKU_MODEL),
+          model: openrouter(SYNTHESIS_MODEL),
           messages: [{ role: "user", content: synthesisPrompt }],
         });
         synthesis = JSON.parse(haikuResult.text) as ConsensusSynthesis;

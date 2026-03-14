@@ -2,10 +2,10 @@
 
 import { generateText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
-import { getUserDb } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { canUseAI } from "@/lib/subscription-utils";
-import { getSetting } from "@/lib/queries";
+import { incrementAiUsage } from "@/lib/ai-usage";
 import type { CategoryForecast } from "@/lib/forecasting";
 
 export async function getAIForecastInsightsAction(
@@ -13,15 +13,14 @@ export async function getAIForecastInsightsAction(
 ): Promise<{ insights: string[] } | { error: string }> {
   const userId = await getRequiredUserId();
 
-  const guard = await canUseAI(userId);
+  const guard = await canUseAI(userId, "insights");
   if (!guard.allowed) {
     return { error: guard.reason ?? "Fonctionnalité réservée aux plans Pro/Premium" };
   }
 
-  const db = await getUserDb(userId);
-  const apiKey = await getSetting(db, "openrouter_api_key");
+  const apiKey = process.env.API_KEY_OPENROUTER;
   if (!apiKey) {
-    return { error: "Clé API OpenRouter non configurée dans les paramètres" };
+    return { error: "Service IA temporairement indisponible" };
   }
 
   if (forecasts.length === 0) {
@@ -42,7 +41,7 @@ export async function getAIForecastInsightsAction(
     });
 
     const { text } = await generateText({
-      model: openrouter("openai/gpt-4o-mini"),
+      model: openrouter("deepseek/deepseek-v3.2"),
       system: `Tu es un conseiller financier personnel. Analyse les tendances de dépenses et génère exactement 3 insights actionnables pour améliorer les finances.
 Réponds UNIQUEMENT avec du JSON valide, sans markdown, sans code block :
 ["insight 1", "insight 2", "insight 3"]
@@ -52,6 +51,10 @@ Chaque insight doit être concis (1-2 phrases) et spécifique aux données.`,
 
     const jsonStr = text.trim().replace(/^```json\n?/, "").replace(/\n?```$/, "");
     const insights = JSON.parse(jsonStr) as string[];
+
+    // Incrémenter le compteur d'usage insights (quota séparé : 30/mois Pro)
+    const month = new Date().toISOString().slice(0, 7);
+    incrementAiUsage(getDb(), userId, month, "insights").catch(() => {});
 
     return { insights: insights.slice(0, 3) };
   } catch {

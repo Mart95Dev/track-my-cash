@@ -70,11 +70,11 @@ describe("STORY-108 QA — PRICING_DISPLAY 3 plans (AC-5)", () => {
     expect(PRICING_DISPLAY[0].price).toBe("0€");
   });
 
-  it("QA-108-B3 : PRICING_DISPLAY[2] est 'Unlimited' avec prix 7,90€", async () => {
+  it("QA-108-B3 : PRICING_DISPLAY[2] est 'Unlimited' avec prix 8,90€", async () => {
     const { PRICING_DISPLAY } = await import(
       "@/app/[locale]/(marketing)/page"
     );
     expect(PRICING_DISPLAY[2].name).toBe("Unlimited");
-    expect(PRICING_DISPLAY[2].price).toBe("7,90€");
+    expect(PRICING_DISPLAY[2].price).toBe("8,90€");
   });
 });

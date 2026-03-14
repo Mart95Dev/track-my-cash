@@ -193,18 +193,6 @@
       "saving": "...",
       "success": "Fallback-Kurs aktualisiert"
     },
-    "openrouter": {
-      "title": "KI-Berater (OpenRouter)",
-      "description": "Geben Sie Ihren OpenRouter-API-Schlüssel ein, um den KI-Berater zu nutzen. Holen Sie ihn sich auf",
-      "linkText": "openrouter.ai/keys",
-      "configured": "API-Schlüssel konfiguriert",
-      "replaceLabel": "Schlüssel ersetzen",
-      "label": "OpenRouter-API-Schlüssel",
-      "placeholder": "sk-or-...",
-      "save": "Speichern",
-      "saving": "...",
-      "success": "API-Schlüssel gespeichert"
-    },
     "tags": {
       "title": "Benutzerdefinierte Tags",
       "description": "Erstellen Sie Tags, um Ihre Transaktionen zu organisieren (z.B. Dringend, Beruflich, Urlaub).",

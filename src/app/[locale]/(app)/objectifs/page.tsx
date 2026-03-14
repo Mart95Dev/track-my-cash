@@ -3,13 +3,14 @@ import { getUserDb, getDb } from "@/lib/db";
 import { getRequiredUserId } from "@/lib/auth-utils";
 import { GoalForm } from "@/components/goal-form";
 import { GoalList } from "@/components/goal-list";
+import { SmartGoalsWidget } from "@/components/smart-goals-widget";
 import {
   getCoupleByUserId,
   getCoupleMembers,
   getCoupleSharedGoals,
   type CoupleGoalItem,
 } from "@/lib/couple-queries";
-import { canUsePremiumCoupleFeature } from "@/lib/subscription-utils";
+import { canUsePremiumCoupleFeature, getUserPlanId } from "@/lib/subscription-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -23,9 +24,10 @@ export default async function ObjectifsPage() {
   const totalSavings = goals.reduce((sum, g) => sum + g.current_amount, 0);
   const activeCount = goals.length;
 
-  // ─── Couple section ────────────────────────────────────────────────────────
+  // ─── Plan & Couple section ─────────────────────────────────────────────────
+  const planId = await getUserPlanId(userId);
+  let isPremium = planId === "premium";
   let hasCoupleActive = false;
-  let isPremium = false;
   let coupleId: string | undefined;
   let coupleSharedGoals: CoupleGoalItem[] = [];
 
@@ -35,8 +37,6 @@ export default async function ObjectifsPage() {
     if (couple) {
       hasCoupleActive = true;
       coupleId = couple.id;
-      const gate = await canUsePremiumCoupleFeature(userId);
-      isPremium = gate.allowed;
 
       if (isPremium) {
         const members = await getCoupleMembers(mainDb, couple.id);
@@ -52,10 +52,10 @@ export default async function ObjectifsPage() {
   }
 
   return (
-    <div className="flex flex-col pb-24 bg-background-light dark:bg-background-dark min-h-screen">
+    <div className="flex flex-col pb-24 bg-background-light min-h-screen">
 
       {/* Header sticky — AC-5 */}
-      <header className="px-6 pt-12 pb-4 sticky top-0 z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-100/50 dark:border-slate-800/50">
+      <header className="px-6 pt-12 pb-4 sticky top-0 z-10 bg-background-light/95 backdrop-blur-md border-b border-slate-100/50 dark:border-slate-800/50">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-extrabold tracking-tight text-text-main">
             Objectifs d&apos;épargne
@@ -128,6 +128,9 @@ export default async function ObjectifsPage() {
             </div>
           </div>
         )}
+
+        {/* Widget objectifs intelligents IA — Premium */}
+        <SmartGoalsWidget isPremium={isPremium} />
 
         {/* Banner upgrade couple si actif sans Premium */}
         {hasCoupleActive && !isPremium && (

@@ -195,7 +195,7 @@ export function renderTrialReminderEmail(
   const features = [
     "5 comptes bancaires",
     "Import PDF & Excel",
-    "Conseiller IA (10 requêtes/mois)",
+    "Conseiller IA (50 requêtes/mois)",
     "Multi-devises",
     "Export CSV & rapports",
   ];

@@ -13,18 +13,6 @@ export async function getSettingAction(key: string) {
   return getSetting(db, key);
 }
 
-export async function saveOpenRouterKeyAction(key: string) {
-  if (!key || !key.trim()) {
-    return { error: "Clé API requise" };
-  }
-  const userId = await getRequiredUserId();
-  const db = await getUserDb(userId);
-  await setSetting(db, "openrouter_api_key", key.trim());
-  revalidatePath("/conseiller");
-  revalidatePath("/parametres");
-  return { success: true };
-}
-
 export async function sendMonthlySummaryAction() {
   const session = await getRequiredSession();
   const userEmail = session.user.email;

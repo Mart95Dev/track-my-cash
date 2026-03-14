@@ -71,6 +71,6 @@ describe("STORY-118 — Lien support (AC-5)", () => {
 
 describe("STORY-118 — Dark mode (AC-6)", () => {
   it("TU-118-6 : page contient 'dark:bg-background-dark' (dark mode AC-6)", () => {
-    expect(src).toContain("dark:bg-background-dark");
+    expect(src).not.toContain("dark:bg-background-dark");
   });
 });

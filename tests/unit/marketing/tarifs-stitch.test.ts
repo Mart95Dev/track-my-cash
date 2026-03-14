@@ -4,7 +4,7 @@
  *
  *  TU-109-1 : COMPARISON_FEATURES contient "Partage couple"
  *  TU-109-2 : PricingToggle est un composant client ("use client")
- *  TU-109-3 : prix plan Pro formaté "4,90€"
+ *  TU-109-3 : prix plan Pro formaté "5,90€"
  *  TU-109-4 : page tarifs utilise "animated-border-wrapper" (card Pro animée)
  *  TU-109-5 : page tarifs contient une section FAQ (partenaire)
  *  TU-109-6 : page tarifs utilise bg-[#f6f6f8] ou bg-background-light
@@ -85,15 +85,15 @@ describe("STORY-109 — PricingToggle composant client", () => {
   });
 });
 
-// ── TU-109-3 : Prix Pro 4,90€ (AC-4) ────────────────────────────────────────
+// ── TU-109-3 : Prix Pro 5,90€ (AC-4) ────────────────────────────────────────
 
 describe("STORY-109 — Prix plan Pro", () => {
-  it("TU-109-3 : prix plan Pro (4.9) formaté en '4,90€'", () => {
-    const price = PLANS.pro.price; // 4.9
+  it("TU-109-3 : prix plan Pro (5.9) formaté en '5,90€'", () => {
+    const price = PLANS.pro.price; // 5.9
     // Vérifie la formule de formatage attendue (toFixed(2) + remplacement virgule)
     const formatted =
       price === 0 ? "0€" : `${price.toFixed(2).replace(".", ",")}€`;
-    expect(formatted).toBe("4,90€");
+    expect(formatted).toBe("5,90€");
   });
 });
 

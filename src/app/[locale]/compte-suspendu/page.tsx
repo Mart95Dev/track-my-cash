@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function CompteSuspenduPage() {
   return (
-    <main className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col items-center justify-center p-6">
+    <main className="min-h-screen bg-background-light flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-md flex flex-col items-center text-center gap-8">
 
         {/* Badge pulsant "Compte restreint" — AC-1 */}

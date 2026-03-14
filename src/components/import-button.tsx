@@ -93,7 +93,7 @@ function PreviewFirst5Table({
       <p className="text-xs font-medium text-muted-foreground dark:text-text-muted uppercase tracking-wide">
         Aperçu des 5 premières transactions
       </p>
-      <div className="border dark:border-border/40 rounded-md overflow-hidden bg-background dark:bg-background-dark">
+      <div className="border dark:border-border/40 rounded-md overflow-hidden bg-background">
         <Table>
           <TableHeader>
             <TableRow className="dark:border-border/30">
@@ -344,7 +344,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
 
       <div className="flex items-center gap-2">
         <select
-          className="flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm dark:bg-background-dark dark:border-border/40 dark:text-text-main"
+          className="flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm dark:border-border/40 dark:text-text-main"
           value={selectedAccountId}
           onChange={(e) => setSelectedAccountId(parseInt(e.target.value))}
         >
@@ -372,7 +372,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
       </div>
 
       <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleReset(); else setIsOpen(true); }}>
-        <DialogContent className="sm:max-w-5xl flex flex-col max-h-[85vh] bg-background dark:bg-background-dark dark:border-border/40">
+        <DialogContent className="sm:max-w-5xl flex flex-col max-h-[85vh] bg-background dark:border-border/40">
           <DialogHeader>
             <DialogTitle className="dark:text-text-main">
               {successInfo ? "Import terminé" : t("previewTitle", { bankName: preview?.bankName ?? "" })}
@@ -445,7 +445,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
               ) : (
                 <div className="overflow-y-auto flex-1 border dark:border-border/40 rounded-md">
                   <Table>
-                    <TableHeader className="sticky top-0 bg-background dark:bg-background-dark">
+                    <TableHeader className="sticky top-0 bg-background">
                       <TableRow className="dark:border-border/30">
                         <TableHead className="w-24 dark:text-text-muted">{t("date")}</TableHead>
                         <TableHead className="dark:text-text-muted">{t("description")}</TableHead>
@@ -469,7 +469,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
                             <TableCell className="text-xs dark:text-text-main">{tx.description}</TableCell>
                             <TableCell>
                               <select
-                                className="flex h-8 w-full rounded-md border border-input bg-transparent px-2 py-1 text-xs shadow-sm dark:bg-background-dark dark:border-border/40 dark:text-text-main"
+                                className="flex h-8 w-full rounded-md border border-input bg-transparent px-2 py-1 text-xs shadow-sm dark:border-border/40 dark:text-text-main"
                                 value={currentCategory}
                                 onChange={(e) => {
                                   setCategoryOverrides((prev) => ({ ...prev, [i]: e.target.value }));
@@ -493,7 +493,7 @@ export function ImportButton({ accounts, defaultAccountId }: { accounts: Account
                               <input
                                 type="text"
                                 list={patternsForCat.length > 0 ? datalistId : undefined}
-                                className="flex h-8 w-full rounded-md border border-input bg-transparent px-2 py-1 text-xs shadow-sm dark:bg-background-dark dark:border-border/40 dark:text-text-main"
+                                className="flex h-8 w-full rounded-md border border-input bg-transparent px-2 py-1 text-xs shadow-sm dark:border-border/40 dark:text-text-main"
                                 value={subcategoryOverrides[i] ?? tx.subcategory}
                                 onChange={(e) =>
                                   setSubcategoryOverrides((prev) => ({ ...prev, [i]: e.target.value }))

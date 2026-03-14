@@ -45,7 +45,7 @@ export default async function PrevisionsPage({
 
   if (accounts.length === 0) {
     return (
-      <div className="flex flex-col gap-4 pb-4 bg-background-light dark:bg-background-dark min-h-screen">
+      <div className="flex flex-col gap-4 pb-4 bg-background-light min-h-screen">
         <header className="flex items-center justify-between px-4 pt-6 pb-2">
           <div className="flex items-center gap-3">
             <span className="material-symbols-outlined text-primary text-[28px]">trending_up</span>
@@ -99,7 +99,7 @@ export default async function PrevisionsPage({
 
   if (allIncomeItems.size === 0 && allExpenseItems.size === 0) {
     return (
-      <div className="flex flex-col gap-4 pb-4 bg-background-light dark:bg-background-dark min-h-screen">
+      <div className="flex flex-col gap-4 pb-4 bg-background-light min-h-screen">
         <header className="flex items-center justify-between px-4 pt-6 pb-2">
           <div className="flex items-center gap-3">
             <span className="material-symbols-outlined text-primary text-[28px]">trending_up</span>

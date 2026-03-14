@@ -43,9 +43,9 @@ export default async function RecurrentsPage({
   ]);
 
   return (
-    <div className="flex flex-col bg-background-light dark:bg-background-dark min-h-screen pb-24">
+    <div className="flex flex-col bg-background-light min-h-screen pb-24">
       {/* Header sticky — AC-7 */}
-      <header className="sticky top-0 z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md px-4 pt-12 pb-4 border-b border-slate-100/50 dark:border-slate-800/50">
+      <header className="sticky top-0 z-10 bg-background-light/95 backdrop-blur-md px-4 pt-12 pb-4 border-b border-slate-100/50 dark:border-slate-800/50">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-text-main">Récurrents</h1>
           <p className="text-sm text-text-muted font-medium mt-0.5">Gérez vos abonnements</p>

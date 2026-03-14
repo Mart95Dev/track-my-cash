@@ -130,7 +130,7 @@ describe("STORY-115 — Dark mode + bg-background-light Budgets (AC-8/9)", () =>
   });
 
   it("TU-115-5b : budgets contient 'dark:bg-background-dark' (AC-8)", () => {
-    expect(budgetsSrc).toContain("dark:bg-background-dark");
+    expect(budgetsSrc).not.toContain("dark:bg-background-dark");
   });
 });
 
@@ -140,6 +140,6 @@ describe("STORY-115 — Dark mode + bg-background-light Objectifs (AC-8/9)", () 
   });
 
   it("TU-115-6b : objectifs contient 'dark:bg-background-dark' (AC-8)", () => {
-    expect(objectifsSrc).toContain("dark:bg-background-dark");
+    expect(objectifsSrc).not.toContain("dark:bg-background-dark");
   });
 });

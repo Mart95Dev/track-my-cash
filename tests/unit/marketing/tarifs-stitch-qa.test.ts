@@ -3,7 +3,7 @@
  * Comble les gaps identifiés lors de l'audit :
  *
  *  GAP-109-A : AC-2 — Badge "Économisez 20%" + icône auto_awesome dans PricingToggle
- *  GAP-109-B : AC-5 — Prix Unlimited "7,90€" vérifié
+ *  GAP-109-B : AC-5 — Prix Unlimited "8,90€" vérifié
  *  GAP-109-C : AC-3 — Animation @keyframes gradient-xy et couleur #EC4899 dans globals.css
  *  GAP-109-D : AC-1 — Boutons "Mensuel" / "Annuel" dans le toggle source
  */
@@ -51,14 +51,14 @@ describe("STORY-109 QA — Badge Économisez 15% (AC-2, GAP-A)", () => {
   });
 });
 
-// ── GAP-109-B : AC-5 — Prix Unlimited 7,90€ ─────────────────────────────────
+// ── GAP-109-B : AC-5 — Prix Unlimited 8,90€ ─────────────────────────────────
 
 describe("STORY-109 QA — Prix plan Unlimited (AC-5, GAP-B)", () => {
-  it("QA-109-B : prix plan Unlimited (7.9) formaté en '7,90€'", () => {
-    const price = PLANS.premium.price; // 7.9
+  it("QA-109-B : prix plan Unlimited (8.9) formaté en '8,90€'", () => {
+    const price = PLANS.premium.price; // 8.9
     const formatted =
       price === 0 ? "0€" : `${price.toFixed(2).replace(".", ",")}€`;
-    expect(formatted).toBe("7,90€");
+    expect(formatted).toBe("8,90€");
   });
 });
 

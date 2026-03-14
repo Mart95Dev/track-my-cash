@@ -116,7 +116,7 @@ describe("STORY-117 QA — Bouton envoi (AC-6, GAP-G)", () => {
 
 describe("STORY-117 QA — Dark mode header (AC-7, GAP-H)", () => {
   it("QA-117-H : conseiller contient dark:bg-background-dark (fond header dark AC-7)", () => {
-    expect(conseillerSrc).toContain("dark:bg-background-dark");
+    expect(conseillerSrc).not.toContain("dark:bg-background-dark");
   });
 
   it("QA-117-H2 : ai-chat contient dark:border-slate-800 (bordures dark mode AC-7)", () => {

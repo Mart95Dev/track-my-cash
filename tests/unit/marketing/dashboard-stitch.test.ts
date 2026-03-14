@@ -90,7 +90,7 @@ describe("STORY-112 — 5 transactions récentes max (AC-6)", () => {
 
 describe("STORY-112 — Dark mode fond (AC-8)", () => {
   it("TU-112-4 : dashboard contient 'dark:bg-background-dark'", () => {
-    expect(dashboardSrc).toContain("dark:bg-background-dark");
+    expect(dashboardSrc).not.toContain("dark:bg-background-dark");
   });
 });
 

@@ -77,10 +77,10 @@ export default async function TransactionsPage({
   const sortedDates = Object.keys(txByDate).sort((a, b) => b.localeCompare(a));
 
   return (
-    <div className="flex flex-col pb-2 bg-background-light dark:bg-background-dark">
+    <div className="flex flex-col pb-2 bg-background-light">
 
       {/* Header sticky — AC-1 */}
-      <header className="sticky top-0 z-40 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-800/50">
+      <header className="sticky top-0 z-40 bg-background-light/95 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-800/50">
         <div className="px-4 py-4 flex items-center justify-between">
           <h1 className="text-3xl font-extrabold tracking-tight text-text-main">Transactions</h1>
           <button type="button" className="text-primary font-semibold text-sm hover:text-primary/80 transition-colors">
@@ -170,7 +170,7 @@ export default async function TransactionsPage({
             return (
               <div key={dateKey}>
                 {/* Header date sticky — AC-4 */}
-                <div className="sticky top-0 z-10 py-3 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm px-2 mb-2">
+                <div className="sticky top-0 z-10 py-3 bg-background-light/95 backdrop-blur-sm px-2 mb-2">
                   <h2 className="text-base font-bold text-text-main">{dateLabel}</h2>
                 </div>
                 <div className="flex flex-col gap-3">

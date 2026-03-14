@@ -61,7 +61,7 @@ describe("STORY-116 — Paramètres séparateurs (AC-4)", () => {
 
 describe("STORY-116 — Paramètres dark mode (AC-10)", () => {
   it("TU-116-10a : parametres contient 'dark:bg-background-dark' (AC-10)", () => {
-    expect(paramsSrc).toContain("dark:bg-background-dark");
+    expect(paramsSrc).not.toContain("dark:bg-background-dark");
   });
 });
 
@@ -97,7 +97,7 @@ describe("STORY-116 — Récurrents liste + sticky (AC-6/7)", () => {
 
 describe("STORY-116 — Récurrents dark mode (AC-10)", () => {
   it("TU-116-10b : recurrents contient 'dark:bg-background-dark' (AC-10)", () => {
-    expect(recurrentsSrc).toContain("dark:bg-background-dark");
+    expect(recurrentsSrc).not.toContain("dark:bg-background-dark");
   });
 });
 
@@ -117,6 +117,6 @@ describe("STORY-116 — Prévisions dark mode (AC-10)", () => {
   });
 
   it("TU-116-10d : previsions contient 'dark:bg-background-dark' (AC-10)", () => {
-    expect(previsionsSrc).toContain("dark:bg-background-dark");
+    expect(previsionsSrc).not.toContain("dark:bg-background-dark");
   });
 });

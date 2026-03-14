@@ -24,7 +24,7 @@ export const UPGRADE_CONFIGS: Record<UpgradeReason, UpgradeConfig> = {
     targetPlan: "pro",
     title: "Débloquez le Conseiller IA",
     description: "Posez vos questions financières à notre assistant IA.",
-    features: ["10 requêtes IA par mois", "Analyse de vos dépenses", "Conseils personnalisés"],
+    features: ["50 requêtes IA par mois", "Catégorisation IA illimitée", "Conseils personnalisés"],
   },
   accounts_limit: {
     targetPlan: "pro",

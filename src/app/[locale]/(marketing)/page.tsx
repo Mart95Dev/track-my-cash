@@ -55,7 +55,7 @@ export const PRICING_DISPLAY: PricingDisplay[] = [
   {
     id: "pro",
     name: "Couple Pro",
-    price: "4,90€",
+    price: "5,90€",
     desc: "L'expérience complète pour gérer le budget à deux.",
     highlighted: true,
     badge: "Populaire",
@@ -65,7 +65,7 @@ export const PRICING_DISPLAY: PricingDisplay[] = [
   {
     id: "premium",
     name: "Unlimited",
-    price: "7,90€",
+    price: "8,90€",
     desc: "Pour les power users qui veulent optimiser leur patrimoine.",
     highlighted: false,
     cta: "Choisir Unlimited",

@@ -32,17 +32,17 @@ describe("ai-usage — getAiUsageCount", () => {
 });
 
 describe("ai-usage — checkAiLimit", () => {
-  it("TU-53-3 : plan pro, count = 9 → allowed: true", async () => {
+  it("TU-53-3 : plan pro, count = 49 → allowed: true", async () => {
     const { checkAiLimit } = await import("@/lib/ai-usage");
-    const result = checkAiLimit("pro", 9);
+    const result = checkAiLimit("pro", 49);
 
     expect(result.allowed).toBe(true);
     expect(result.reason).toBeUndefined();
   });
 
-  it("TU-53-4 : plan pro, count = 10 → quota atteint, allowed: false", async () => {
+  it("TU-53-4 : plan pro, count = 50 → quota atteint, allowed: false", async () => {
     const { checkAiLimit } = await import("@/lib/ai-usage");
-    const result = checkAiLimit("pro", 10);
+    const result = checkAiLimit("pro", 50);
 
     expect(result.allowed).toBe(false);
     expect(typeof result.reason).toBe("string");
@@ -54,5 +54,20 @@ describe("ai-usage — checkAiLimit", () => {
     const result = checkAiLimit("premium", 999);
 
     expect(result.allowed).toBe(true);
+  });
+
+  it("TU-53-6 : plan pro, insights count = 29 → allowed: true", async () => {
+    const { checkAiLimit } = await import("@/lib/ai-usage");
+    const result = checkAiLimit("pro", 29, "insights");
+
+    expect(result.allowed).toBe(true);
+  });
+
+  it("TU-53-7 : plan pro, insights count = 30 → quota atteint", async () => {
+    const { checkAiLimit } = await import("@/lib/ai-usage");
+    const result = checkAiLimit("pro", 30, "insights");
+
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain("insights");
   });
 });

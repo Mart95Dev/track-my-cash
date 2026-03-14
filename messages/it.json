@@ -193,18 +193,6 @@
       "saving": "...",
       "success": "Tasso di riserva aggiornato"
     },
-    "openrouter": {
-      "title": "Consulente IA (OpenRouter)",
-      "description": "Inserisci la tua chiave API OpenRouter per usare il consulente IA. Ottienila su",
-      "linkText": "openrouter.ai/keys",
-      "configured": "Chiave API configurata",
-      "replaceLabel": "Sostituisci chiave",
-      "label": "Chiave API OpenRouter",
-      "placeholder": "sk-or-...",
-      "save": "Salva",
-      "saving": "...",
-      "success": "Chiave API salvata"
-    },
     "tags": {
       "title": "Tag personalizzati",
       "description": "Crea tag per organizzare le tue transazioni (es: Urgente, Professionale, Vacanze).",

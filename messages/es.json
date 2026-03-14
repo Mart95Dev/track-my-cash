@@ -193,18 +193,6 @@
       "saving": "...",
       "success": "Tasa de reserva actualizada"
     },
-    "openrouter": {
-      "title": "Asesor IA (OpenRouter)",
-      "description": "Ingrese su clave API de OpenRouter para usar el asesor IA. Obténgala en",
-      "linkText": "openrouter.ai/keys",
-      "configured": "Clave API configurada",
-      "replaceLabel": "Reemplazar clave",
-      "label": "Clave API de OpenRouter",
-      "placeholder": "sk-or-...",
-      "save": "Guardar",
-      "saving": "...",
-      "success": "Clave API guardada"
-    },
     "tags": {
       "title": "Etiquetas personalizadas",
       "description": "Cree etiquetas para organizar sus transacciones (ej: Urgente, Profesional, Vacaciones).",

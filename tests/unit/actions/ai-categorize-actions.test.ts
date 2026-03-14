@@ -11,6 +11,11 @@ vi.mock("next/cache", () => ({
 
 vi.mock("@/lib/db", () => ({
   getUserDb: vi.fn().mockResolvedValue({}),
+  getDb: vi.fn().mockReturnValue({}),
+}));
+
+vi.mock("@/lib/ai-usage", () => ({
+  incrementAiUsage: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("@/lib/subscription-utils", () => ({
@@ -18,12 +23,10 @@ vi.mock("@/lib/subscription-utils", () => ({
 }));
 
 const mockBatchUpdateCategories = vi.fn().mockResolvedValue(undefined);
-const mockGetSetting = vi.fn().mockResolvedValue("sk-test-key");
 const mockGetUncategorized = vi.fn().mockResolvedValue([]);
 
 vi.mock("@/lib/queries", () => ({
   batchUpdateCategories: mockBatchUpdateCategories,
-  getSetting: mockGetSetting,
   getUncategorizedTransactions: mockGetUncategorized,
 }));
 

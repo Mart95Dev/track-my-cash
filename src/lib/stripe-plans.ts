@@ -38,14 +38,14 @@ export const PLANS: Record<PlanId, Plan> = {
   pro: {
     id: "pro",
     name: "Pro",
-    price: 4.9,
-    annualPrice: Math.round(4.9 * 12 * (1 - ANNUAL_DISCOUNT) * 100) / 100, // 49.98
+    price: 5.9,
+    annualPrice: 59.97, // 4,99€/mois — prix psychologique
     stripePriceId: process.env.STRIPE_PRICE_ID_PRO ?? "",
     annualStripePriceId: process.env.STRIPE_PRICE_ID_PRO_ANNUAL ?? "",
     features: [
       "5 comptes bancaires",
       "Import PDF, Excel & CSV",
-      "Conseiller IA (10 req/mois)",
+      "Conseiller IA (50 req/mois)",
       "Partage couple (transactions partagées)",
       "Multi-devises",
       "Export CSV & rapports mensuels",
@@ -55,13 +55,14 @@ export const PLANS: Record<PlanId, Plan> = {
   premium: {
     id: "premium",
     name: "Premium",
-    price: 7.9,
-    annualPrice: Math.round(7.9 * 12 * (1 - ANNUAL_DISCOUNT) * 100) / 100, // 80.58
+    price: 8.9,
+    annualPrice: 89.67, // 7,47€/mois — prix psychologique
     stripePriceId: process.env.STRIPE_PRICE_ID_PREMIUM ?? "",
     annualStripePriceId: process.env.STRIPE_PRICE_ID_PREMIUM_ANNUAL ?? "",
     features: [
       "Comptes illimités",
       "Conseiller IA illimité & prioritaire",
+      "Objectifs intelligents IA",
       "IA conseiller couple illimitée",
       "Export PDF rapport mensuel",
       "Rapport annuel IA",

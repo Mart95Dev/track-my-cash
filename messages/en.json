@@ -193,18 +193,6 @@
       "saving": "...",
       "success": "Fallback rate updated"
     },
-    "openrouter": {
-      "title": "AI Advisor (OpenRouter)",
-      "description": "Enter your OpenRouter API key to use the AI advisor. Get it at",
-      "linkText": "openrouter.ai/keys",
-      "configured": "API key configured",
-      "replaceLabel": "Replace key",
-      "label": "OpenRouter API key",
-      "placeholder": "sk-or-...",
-      "save": "Save",
-      "saving": "...",
-      "success": "API key saved"
-    },
     "tags": {
       "title": "Custom Tags",
       "description": "Create tags to organize your transactions (e.g. Urgent, Professional, Vacation).",

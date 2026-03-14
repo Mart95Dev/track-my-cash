@@ -51,13 +51,13 @@ describe("STORY-108 — Landing page Stitch v2", () => {
     expect(names).toContain("Unlimited");
   });
 
-  // ── AC-5 : Couple Pro prix 4,90€ ─────────────────────────────────────────
+  // ── AC-5 : Couple Pro prix 5,90€ ─────────────────────────────────────────
 
-  it("TU-108-5 : PRICING_DISPLAY Couple Pro affiche le prix '4,90€'", async () => {
+  it("TU-108-5 : PRICING_DISPLAY Couple Pro affiche le prix '5,90€'", async () => {
     const { PRICING_DISPLAY } = await import("@/app/[locale]/(marketing)/page");
     const couplePro = PRICING_DISPLAY.find((p) => p.name === "Couple Pro");
     expect(couplePro).toBeDefined();
-    expect(couplePro?.price).toBe("4,90€");
+    expect(couplePro?.price).toBe("5,90€");
   });
 
   // ── AC-5 : badge Populaire sur Couple Pro ────────────────────────────────

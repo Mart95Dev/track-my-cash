@@ -1,6 +1,6 @@
 import { getPlan } from "./stripe-plans";
 import { getDb } from "./db";
-import { getAiUsageCount, checkAiLimit } from "./ai-usage";
+import { getAiUsageCount, checkAiLimit, type AiUsageType } from "./ai-usage";
 
 export async function getUserPlanId(userId: string): Promise<string> {
   try {
@@ -44,7 +44,8 @@ export async function canCreateAccount(
 }
 
 export async function canUseAI(
-  userId: string
+  userId: string,
+  type: AiUsageType = "chat"
 ): Promise<{ allowed: boolean; reason?: string }> {
   const planId = await getUserPlanId(userId);
   const plan = getPlan(planId);
@@ -52,16 +53,16 @@ export async function canUseAI(
   if (!plan.limits.ai) {
     return {
       allowed: false,
-      reason: "Le conseiller IA est disponible à partir du plan Pro (4,90€/mois).",
+      reason: "Le conseiller IA est disponible à partir du plan Pro (5,90€/mois).",
     };
   }
 
-  // Pour le plan Pro, vérifier le quota mensuel
+  // Pour le plan Pro, vérifier le quota mensuel par type
   if (planId === "pro") {
     const month = new Date().toISOString().slice(0, 7);
     const mainDb = getDb();
-    const count = await getAiUsageCount(mainDb, userId, month);
-    const limitCheck = checkAiLimit("pro", count);
+    const count = await getAiUsageCount(mainDb, userId, month, type);
+    const limitCheck = checkAiLimit("pro", count, type);
     if (!limitCheck.allowed) return limitCheck;
   }
 
@@ -77,7 +78,7 @@ export async function canUseCoupleFeature(
   if (planId === "free") {
     return {
       allowed: false,
-      reason: "Les fonctionnalités couple sont disponibles à partir du plan Pro (4,90€/mois). Créez ou rejoignez un espace couple partagé en passant à Pro.",
+      reason: "Les fonctionnalités couple sont disponibles à partir du plan Pro (5,90€/mois). Créez ou rejoignez un espace couple partagé en passant à Pro.",
     };
   }
   return { allowed: true };
@@ -92,7 +93,7 @@ export async function canUsePremiumCoupleFeature(
   if (planId !== "premium") {
     return {
       allowed: false,
-      reason: "Cette fonctionnalité couple avancée (objectifs partagés, IA couple) est réservée au plan Premium (7,90€/mois).",
+      reason: "Cette fonctionnalité couple avancée (objectifs partagés, IA couple) est réservée au plan Premium (8,90€/mois).",
     };
   }
   return { allowed: true };
@@ -116,7 +117,7 @@ export async function canImportFormat(
   if (plan.id === "free") {
     return {
       allowed: false,
-      reason: `L'import ${isPdf ? "PDF" : "Excel"} est disponible à partir du plan Pro (4,90€/mois). Seul l'import CSV est inclus dans le plan Gratuit.`,
+      reason: `L'import ${isPdf ? "PDF" : "Excel"} est disponible à partir du plan Pro (5,90€/mois). Seul l'import CSV est inclus dans le plan Gratuit.`,
     };
   }
   return { allowed: true };

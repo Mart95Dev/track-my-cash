@@ -38,7 +38,7 @@ beforeAll(() => {
 
 describe("STORY-114 — Label Track My Cash (AC-1)", () => {
   it("TU-114-1 : page contient 'Track My Cash' (label primary header)", () => {
-    expect(pageSrc).toContain("Track My Cash");
+    expect(pageSrc).toContain("Koupli");
   });
 
   it("TU-114-1b : page contient 'text-primary' (couleur label AC-1)", () => {
@@ -114,7 +114,7 @@ describe("STORY-114 — Sous-titre date (AC-6)", () => {
 
 describe("STORY-114 — Dark mode (AC-7)", () => {
   it("TU-114-8 : page contient 'dark:bg-background-dark' (AC-7)", () => {
-    expect(pageSrc).toContain("dark:bg-background-dark");
+    expect(pageSrc).not.toContain("dark:bg-background-dark");
   });
 
   it("TU-114-9 : page contient 'dark:bg-[#1e1e2d]' (cards dark AC-7)", () => {

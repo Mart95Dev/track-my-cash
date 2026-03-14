@@ -203,10 +203,11 @@ describe("STORY-116 QA — Fonctionnalités préservées (AC-11, GAP-I)", () => 
 // ── GAP-116-J : AC-10 — Prévisions empty state dark mode ─────────────────────
 
 describe("STORY-116 QA — Prévisions empty state dark mode (AC-10, GAP-J)", () => {
-  it("QA-116-J1 : previsions contient 'bg-background-light dark:bg-background-dark' dans les retours vides (AC-10)", () => {
-    // Le composant a 2 early returns avec dark mode sur les états vides
-    const occurrences = (previsionsSrc.match(/bg-background-light dark:bg-background-dark/g) ?? []).length;
+  it("QA-116-J1 : previsions contient 'bg-background-light' sans dark variant dans les retours vides (AC-10)", () => {
+    // Light mode only — dark:bg-background-dark a été supprimé
+    const occurrences = (previsionsSrc.match(/bg-background-light/g) ?? []).length;
     expect(occurrences).toBeGreaterThanOrEqual(2);
+    expect(previsionsSrc).not.toContain("dark:bg-background-dark");
   });
 
   it("QA-116-J2 : previsions contient 'EmptyState' (composant état vide AC-11)", () => {

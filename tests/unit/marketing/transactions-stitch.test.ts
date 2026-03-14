@@ -74,7 +74,7 @@ describe("STORY-113 — Transactions groupées par date (AC-4)", () => {
 
 describe("STORY-113 — Dark mode (AC-6)", () => {
   it("TU-113-4 : page contient 'dark:bg-background-dark'", () => {
-    expect(pageSrc).toContain("dark:bg-background-dark");
+    expect(pageSrc).not.toContain("dark:bg-background-dark");
   });
 });
 

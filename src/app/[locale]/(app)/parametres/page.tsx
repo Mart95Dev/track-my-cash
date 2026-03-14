@@ -84,7 +84,7 @@ export default async function ParametresPage() {
   const isPremium = subscription.planId === "premium";
   const isProOrPremium = isPro || isPremium;
 
-  const aiLimit = isPremium ? Infinity : isPro ? 10 : 0;
+  const aiLimit = isPremium ? Infinity : isPro ? 50 : 0;
 
   const planBadgeColor = isPremium
     ? "bg-primary text-white"
@@ -102,9 +102,9 @@ export default async function ParametresPage() {
       : "Inactif";
 
   return (
-    <div className="flex flex-col bg-[#f2f2f7] dark:bg-background-dark min-h-screen pb-24">
+    <div className="flex flex-col bg-[#f2f2f7] min-h-screen pb-24">
       {/* Header sticky — AC-1 */}
-      <header className="sticky top-0 z-10 bg-[#f2f2f7]/95 dark:bg-background-dark/95 backdrop-blur-md px-4 pt-12 pb-4 border-b border-separator-light">
+      <header className="sticky top-0 z-10 bg-[#f2f2f7]/95 backdrop-blur-md px-4 pt-12 pb-4 border-b border-separator-light">
         <div className="flex items-center gap-3">
           <span className="material-symbols-outlined text-primary text-[28px]">settings</span>
           <h1 className="text-3xl font-extrabold tracking-tight text-text-main">Paramètres</h1>

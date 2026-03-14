@@ -89,9 +89,9 @@ export default async function ConseillerPage() {
       : personalSuggestions;
 
   return (
-    <div className="flex flex-col bg-background-light dark:bg-background-dark min-h-screen">
+    <div className="flex flex-col bg-background-light min-h-screen">
       {/* Header — AC-1 */}
-      <header className="sticky top-0 z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md px-4 pt-12 pb-4 flex items-center justify-between border-b border-slate-100/50 dark:border-slate-800/50">
+      <header className="sticky top-0 z-10 bg-background-light/95 backdrop-blur-md px-4 pt-12 pb-4 flex items-center justify-between border-b border-slate-100/50 dark:border-slate-800/50">
         <div className="flex items-center gap-3">
           <span className="material-symbols-outlined text-primary text-[24px]">arrow_back_ios_new</span>
           <h1 className="text-xl font-bold text-text-main">Conseiller IA</h1>

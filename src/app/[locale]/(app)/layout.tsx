@@ -73,7 +73,7 @@ export default async function AppLayout({ children, params }: Props) {
       : undefined;
 
   return (
-    <div className="min-h-screen bg-background-light">
+    <div className="min-h-screen bg-background-light marketing-light">
       <PlanBanner plan={bannerPlan} status={bannerStatus} daysRemaining={bannerDaysRemaining} />
       {showInviteBanner && couple && (
         <CoupleInviteBanner inviteCode={couple.invite_code} locale={locale} />

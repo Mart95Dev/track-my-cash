@@ -193,18 +193,6 @@
       "saving": "...",
       "success": "Taux de secours mis à jour"
     },
-    "openrouter": {
-      "title": "Conseiller IA (OpenRouter)",
-      "description": "Entrez votre clé API OpenRouter pour utiliser le conseiller IA. Obtenez-la sur",
-      "linkText": "openrouter.ai/keys",
-      "configured": "Clé API configurée",
-      "replaceLabel": "Remplacer la clé",
-      "label": "Clé API OpenRouter",
-      "placeholder": "sk-or-...",
-      "save": "Enregistrer",
-      "saving": "...",
-      "success": "Clé API enregistrée"
-    },
     "tags": {
       "title": "Tags personnalisés",
       "description": "Créez des tags pour organiser vos transactions (ex: Urgent, Professionnel, Vacances).",

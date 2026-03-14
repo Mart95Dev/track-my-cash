@@ -55,13 +55,13 @@ export function softwareApplicationSchema(): JsonLd {
       {
         "@type": "Offer",
         name: "Couple Pro",
-        price: "4.90",
+        price: "5.90",
         priceCurrency: "EUR",
       },
       {
         "@type": "Offer",
         name: "Unlimited",
-        price: "7.90",
+        price: "8.90",
         priceCurrency: "EUR",
       },
     ],

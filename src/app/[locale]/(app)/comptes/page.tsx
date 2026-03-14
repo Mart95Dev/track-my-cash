@@ -26,12 +26,12 @@ export default async function ComptesPage() {
   const locale = await getLocale();
 
   return (
-    <div className="flex flex-col pb-24 bg-background-light dark:bg-background-dark min-h-screen">
+    <div className="flex flex-col pb-24 bg-background-light min-h-screen">
 
       {/* Header sticky — AC-1 */}
-      <header className="px-6 pt-12 pb-4 flex justify-between items-end bg-background-light dark:bg-background-dark sticky top-0 z-10">
+      <header className="px-6 pt-12 pb-4 flex justify-between items-end bg-background-light sticky top-0 z-10">
         <div>
-          <p className="text-sm font-semibold text-primary mb-1">Track My Cash</p>
+          <p className="text-sm font-semibold text-primary mb-1">Koupli</p>
           <h1 className="text-3xl font-extrabold tracking-tight text-text-main">Mes comptes</h1>
         </div>
         {/* Bouton + flottant — AC-2 */}

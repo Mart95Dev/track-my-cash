@@ -24,9 +24,9 @@ export default async function ImportPage() {
   const accounts = await getAllAccounts(db);
 
   return (
-    <div className="flex flex-col pb-24 bg-background-light dark:bg-background-dark min-h-screen">
+    <div className="flex flex-col pb-24 bg-background-light min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md px-4 pt-12 pb-4 border-b border-slate-100/50 dark:border-slate-800/50">
+      <header className="sticky top-0 z-10 bg-background-light/95 backdrop-blur-md px-4 pt-12 pb-4 border-b border-slate-100/50 dark:border-slate-800/50">
         <h1 className="text-3xl font-extrabold tracking-tight text-text-main">Import</h1>
         <p className="text-sm text-text-muted mt-1">Importez vos relevés depuis toutes les banques</p>
       </header>

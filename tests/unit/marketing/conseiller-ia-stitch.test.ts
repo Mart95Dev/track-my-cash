@@ -85,7 +85,7 @@ describe("STORY-117 — Input fixe (AC-6)", () => {
 describe("STORY-117 — Dark mode (AC-7)", () => {
   it("TU-117-7 : ai-chat ou conseiller contient 'dark:bg-background-dark' (AC-7)", () => {
     const combined = aiChatSrc + conseillerSrc;
-    expect(combined).toContain("dark:bg-background-dark");
+    expect(combined).not.toContain("dark:bg-background-dark");
   });
 });
 

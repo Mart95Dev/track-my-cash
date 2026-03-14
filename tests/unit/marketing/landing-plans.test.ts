@@ -6,12 +6,12 @@ describe("PLANS — données utilisées sur la landing page", () => {
     expect(PLANS.free.price).toBe(0);
   });
 
-  it("TU-2-2 : PLANS.pro.price === 4.9", () => {
-    expect(PLANS.pro.price).toBe(4.9);
+  it("TU-2-2 : PLANS.pro.price === 5.9", () => {
+    expect(PLANS.pro.price).toBe(5.9);
   });
 
-  it("TU-2-3 : PLANS.premium.price === 7.9", () => {
-    expect(PLANS.premium.price).toBe(7.9);
+  it("TU-2-3 : PLANS.premium.price === 8.9", () => {
+    expect(PLANS.premium.price).toBe(8.9);
   });
 
   it("TU-2-4 : chaque plan a au moins 3 features", () => {

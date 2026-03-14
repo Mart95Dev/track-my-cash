@@ -32,7 +32,7 @@ export default async function BudgetsPage({
 
   if (accounts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center bg-background-light dark:bg-background-dark">
+      <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center bg-background-light">
         <span className="material-symbols-outlined text-primary text-[64px] mb-4">savings</span>
         <h2 className="text-xl font-bold text-text-main mb-2">Aucun compte</h2>
         <p className="text-text-muted text-sm mb-6">Créez un compte pour configurer des budgets.</p>
@@ -85,10 +85,10 @@ export default async function BudgetsPage({
   }
 
   return (
-    <div className="flex flex-col pb-24 bg-background-light dark:bg-background-dark min-h-screen">
+    <div className="flex flex-col pb-24 bg-background-light min-h-screen">
 
       {/* Header sticky — AC-1 */}
-      <header className="px-6 pt-12 pb-4 flex items-end justify-between sticky top-0 z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-100/50 dark:border-slate-800/50">
+      <header className="px-6 pt-12 pb-4 flex items-end justify-between sticky top-0 z-10 bg-background-light/95 backdrop-blur-md border-b border-slate-100/50 dark:border-slate-800/50">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-text-main">Budgets</h1>
         </div>

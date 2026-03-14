@@ -28,7 +28,7 @@ describe("UpgradeModal (STORY-082)", () => {
   it("TU-82-2 : reason='ai' → affiche le plan Pro et son prix (AC-4)", () => {
     render(<UpgradeModal reason="ai" onClose={() => {}} />);
     expect(screen.getByText("Pro")).toBeDefined();
-    expect(screen.getByText(/4[.,]9/)).toBeDefined();
+    expect(screen.getByText(/5[.,]9/)).toBeDefined();
   });
 
   it("TU-82-3 : reason='import_pdf' → affiche le titre import PDF (AC-1)", () => {

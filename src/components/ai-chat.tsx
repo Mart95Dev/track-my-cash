@@ -24,24 +24,24 @@ interface Account {
 
 const MODELS = [
   {
-    id: "openai/gpt-4o-mini",
-    label: "GPT-4o mini",
-    description: "Rapide et efficace",
+    id: "deepseek/deepseek-v3.2",
+    label: "DeepSeek V3",
+    description: "Rapide et économique",
   },
   {
-    id: "anthropic/claude-haiku-20240307",
-    label: "Claude Haiku",
-    description: "Concis et précis",
+    id: "mistralai/mistral-medium-3.1",
+    label: "Mistral Medium",
+    description: "Précis, basé en Europe",
   },
   {
-    id: "google/gemini-flash-1.5",
-    label: "Gemini Flash 1.5",
+    id: "google/gemini-2.0-flash",
+    label: "Gemini Flash",
     description: "Multimodal Google",
   },
   {
-    id: "meta-llama/llama-3.1-8b-instruct:free",
-    label: "Llama 3.1 8B",
-    description: "Open source gratuit",
+    id: "qwen/qwen3.5-flash-02-23",
+    label: "Qwen 3.5 Flash",
+    description: "Excellent en raisonnement",
   },
 ] as const;
 
@@ -56,9 +56,9 @@ type ConsensusChatItem =
     };
 
 const MODEL_LABELS: Record<string, string> = {
-  "anthropic/claude-sonnet-4-6": "Claude Sonnet",
+  "deepseek/deepseek-v3.2": "DeepSeek V3",
   "google/gemini-2.0-flash": "Gemini Flash",
-  "openai/gpt-4o-mini": "GPT-4o mini",
+  "qwen/qwen3.5-flash-02-23": "Qwen 3.5 Flash",
 };
 
 const CONFIDENCE_STYLES: Record<ConsensusSynthesis["confidence"], string> = {
@@ -89,7 +89,7 @@ export function AiChat({
     accounts.map((a) => a.id)
   );
   const [selectedModel, setSelectedModel] = useState<ModelId>(
-    "openai/gpt-4o-mini"
+    "deepseek/deepseek-v3.2"
   );
   const [input, setInput] = useState("");
   const [consensusMode, setConsensusMode] = useState(false);
@@ -503,7 +503,7 @@ export function AiChat({
       )}
 
       {/* Input fixe en bas — AC-6/AC-7 */}
-      <div className="fixed bottom-16 left-0 right-0 z-40 bg-background-light dark:bg-background-dark border-t border-gray-100 dark:border-slate-800 p-3">
+      <div className="fixed bottom-16 left-0 right-0 z-40 bg-background-light border-t border-gray-100 dark:border-slate-800 p-3">
         <form
           onSubmit={handleSubmit}
           className="max-w-md mx-auto flex items-center gap-2"
