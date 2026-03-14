@@ -55,6 +55,15 @@ vi.mock("@/components/ui/button", () => ({
 vi.mock("lucide-react", () => ({
   FileQuestion: () => <svg data-testid="icon-file-question" />,
   AlertTriangle: () => <svg data-testid="icon-alert-triangle" />,
+  Menu: () => <svg data-testid="icon-menu" />,
+}));
+
+vi.mock("@/components/marketing/navbar", () => ({
+  Navbar: () => <nav data-testid="navbar" />,
+}));
+
+vi.mock("@/components/marketing/footer", () => ({
+  Footer: () => <footer data-testid="footer" />,
 }));
 
 import NotFound from "@/app/[locale]/not-found";
