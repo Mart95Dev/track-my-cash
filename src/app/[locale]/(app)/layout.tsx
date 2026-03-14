@@ -78,7 +78,7 @@ export default async function AppLayout({ children, params }: Props) {
       {showInviteBanner && couple && (
         <CoupleInviteBanner inviteCode={couple.invite_code} locale={locale} />
       )}
-      <main className="max-w-md mx-auto pb-24 min-h-screen">
+      <main className="max-w-md md:max-w-3xl lg:max-w-5xl mx-auto px-4 pb-24 min-h-screen">
         {children}
       </main>
       <BottomNav unreadCount={unreadCount} coupleIncomplete={coupleIncomplete} />
