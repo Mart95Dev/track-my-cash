@@ -12,7 +12,7 @@ describe("STORY-136 — 2FA TOTP", () => {
   it("AC-1 auth.ts importe et configure le plugin twoFactor", () => {
     expect(authSource).toContain('import { twoFactor } from "better-auth/plugins"');
     expect(authSource).toContain("twoFactor(");
-    expect(authSource).toContain("Track My Cash");
+    expect(authSource).toContain("Koupli");
   });
 
   // AC-1 : Plugin twoFactorClient configuré côté client

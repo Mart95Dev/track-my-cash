@@ -13,13 +13,13 @@ export const auth = betterAuth({
     dialect,
     type: "sqlite",
   },
-  appName: "Track My Cash",
+  appName: "Koupli",
   emailAndPassword: {
     enabled: true,
   },
   plugins: [
     twoFactor({
-      issuer: "Track My Cash",
+      issuer: "Koupli",
       skipVerificationOnEnable: false,
     }),
   ],

@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 import { sendWelcomeEmailAction, createTrialSubscriptionAction } from "@/app/actions/auth-actions";
 
 export default function InscriptionPage() {
   const t = useTranslations("auth");
-  const locale = useLocale();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,20 +28,25 @@ export default function InscriptionPage() {
     setError("");
     setLoading(true);
 
-    const result = await authClient.signUp.email({ email, password, name });
+    try {
+      const result = await authClient.signUp.email({ email, password, name });
 
-    if (result.error) {
+      if (result.error) {
+        setError(t("errorGeneric"));
+        setLoading(false);
+        return;
+      }
+
+      // Fire-and-forget : ne bloquent jamais l'inscription
+      sendWelcomeEmailAction(email).catch(() => {});
+      createTrialSubscriptionAction().catch(() => {});
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
       setError(t("errorGeneric"));
       setLoading(false);
-      return;
     }
-
-    // Fire-and-forget : ne bloquent jamais l'inscription
-    sendWelcomeEmailAction(email).catch(() => {});
-    createTrialSubscriptionAction().catch(() => {});
-
-    router.push("/dashboard");
-    router.refresh();
   }
 
   return (
@@ -224,7 +228,7 @@ export default function InscriptionPage() {
             {/* Lien connexion */}
             <p className="mt-8 text-sm text-slate-500 font-medium">
               Déjà un compte ?{" "}
-              <Link href={`/${locale}/connexion`} className="text-primary font-bold hover:text-primary/80 transition-colors">
+              <Link href="/connexion" className="text-primary font-bold hover:text-primary/80 transition-colors">
                 Se connecter
               </Link>
             </p>

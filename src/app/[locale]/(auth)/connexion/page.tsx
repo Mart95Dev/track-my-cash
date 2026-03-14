@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 
 export default function ConnexionPage() {
   const t = useTranslations("auth");
-  const locale = useLocale();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,16 +19,21 @@ export default function ConnexionPage() {
     setError("");
     setLoading(true);
 
-    const result = await authClient.signIn.email({ email, password });
+    try {
+      const result = await authClient.signIn.email({ email, password });
 
-    if (result.error) {
-      setError(result.error.code === "INVALID_EMAIL_OR_PASSWORD" ? t("errorInvalid") : t("errorGeneric"));
+      if (result.error) {
+        setError(result.error.code === "INVALID_EMAIL_OR_PASSWORD" ? t("errorInvalid") : t("errorGeneric"));
+        setLoading(false);
+        return;
+      }
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
+      setError(t("errorGeneric"));
       setLoading(false);
-      return;
     }
-
-    router.push("/dashboard");
-    router.refresh();
   }
 
   return (
@@ -125,7 +129,7 @@ export default function ConnexionPage() {
                       Mot de passe
                     </label>
                     <Link
-                      href={`/${locale}/mot-de-passe-oublie`}
+                      href="/mot-de-passe-oublie"
                       className="text-primary text-xs font-bold hover:underline"
                     >
                       Mot de passe oublié ?
@@ -171,7 +175,7 @@ export default function ConnexionPage() {
             {/* Lien inscription */}
             <p className="mt-8 text-sm text-slate-500 font-medium">
               Pas encore de compte ?{" "}
-              <Link href={`/${locale}/inscription`} className="text-primary font-bold hover:text-primary/80 transition-colors">
+              <Link href="/inscription" className="text-primary font-bold hover:text-primary/80 transition-colors">
                 Créer un compte
               </Link>
             </p>
