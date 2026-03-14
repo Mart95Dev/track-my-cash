@@ -31,6 +31,17 @@ export async function createUserDatabase(userId: string): Promise<string> {
 
   if (!response.ok) {
     const errorBody = await response.text().catch(() => "");
+    // Si la DB existe déjà (conflict 409), récupérer son hostname
+    if (response.status === 409) {
+      const dbName = `koupli-u-${userId.slice(0, 12).toLowerCase().replace(/[^a-z0-9]/g, "")}`;
+      const hostname = `${dbName}-${orgName}.aws-eu-west-1.turso.io`;
+      const mainDb = getMainDb();
+      await mainDb.execute({
+        sql: `INSERT OR REPLACE INTO users_databases (user_id, db_hostname) VALUES (?, ?)`,
+        args: [userId, hostname],
+      });
+      return hostname;
+    }
     throw new Error(`Failed to create Turso database: ${response.statusText} — ${errorBody}`);
   }
 
