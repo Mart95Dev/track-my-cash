@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
 
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
@@ -57,12 +56,13 @@ export default function ResetPasswordPage() {
     setLoading(true);
 
     try {
-      const result = await authClient.resetPassword({
-        newPassword: password,
-        token,
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newPassword: password, token }),
       });
 
-      if (result.error) {
+      if (!res.ok) {
         setFormError("Erreur lors de la réinitialisation. Veuillez réessayer.");
         setLoading(false);
         return;

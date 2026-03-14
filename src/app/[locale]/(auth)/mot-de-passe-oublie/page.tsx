@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Link } from "@/i18n/navigation";
-import { authClient } from "@/lib/auth-client";
 
 export default function MotDePasseOubliePage() {
   const [email, setEmail] = useState("");
@@ -14,9 +13,10 @@ export default function MotDePasseOubliePage() {
     setLoading(true);
 
     try {
-      await authClient.forgetPassword({
-        email,
-        redirectTo: "/reset-password",
+      await fetch("/api/auth/forget-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, redirectTo: "/reset-password" }),
       });
     } catch {
       // Anti-enumeration : toujours afficher le même message
