@@ -84,12 +84,12 @@ export default function InscriptionPage() {
             {/* Card */}
             <div className="w-full bg-white rounded-3xl shadow p-8 sm:p-10 border border-border-light">
 
-              {/* Boutons OAuth Google + Apple */}
-              <div className="grid grid-cols-2 gap-4 mb-8">
+              {/* Bouton OAuth Google */}
+              <div className="mb-8">
                 <button
                   type="button"
                   onClick={() => authClient.signIn.social({ provider: "google" })}
-                  className="flex items-center justify-center gap-2.5 h-14 rounded-xl border border-border-light bg-white hover:bg-slate-50 hover:border-slate-300 transition-all font-medium text-slate-700 text-sm"
+                  className="w-full flex items-center justify-center gap-2.5 h-14 rounded-xl border border-border-light bg-white hover:bg-slate-50 hover:border-slate-300 transition-all font-medium text-slate-700 text-sm"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -97,17 +97,7 @@ export default function InscriptionPage() {
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                   </svg>
-                  Google
-                </button>
-                <button
-                  type="button"
-                  onClick={() => authClient.signIn.social({ provider: "apple" })}
-                  className="flex items-center justify-center gap-2.5 h-14 rounded-xl border border-border-light bg-white hover:bg-slate-50 hover:border-slate-300 transition-all font-medium text-slate-700 text-sm"
-                >
-                  <svg className="w-5 h-5 text-slate-900" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.05 20.28c-.96.00-1.76-.31-2.6-.31s-1.65.31-2.58.31c-2.05.00-4.04-1.25-5.05-3.03-2.05-3.58-.52-8.87 1.48-11.75 1-1.44 2.5-2.34 4.15-2.34 1.25.00 2.44.44 3.2.44s2.05-.44 3.4-.44c1.55.00 2.94.81 3.75 2.05-3.13 1.31-2.62 5.8 0 7.05-.73 1.83-1.7 3.63-3.2 5.37-.8.93-1.6 1.76-2.55 2.65-.58.55-.8.59-1.3.59zM12.03 7.25c.00-2.73 2.22-4.94 4.92-4.94.05.62-.18 1.25-.52 1.82-.41.68-1.05 1.24-1.8 1.58-.65.31-1.38.48-2.1.48-.05-.33-.05-.62-.5-.94z" />
-                  </svg>
-                  Apple
+                  Continuer avec Google
                 </button>
               </div>
 

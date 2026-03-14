@@ -54,13 +54,11 @@ describe("STORY-111 QA — Titre 'Bon retour !' avec point d'exclamation (AC-5, 
   });
 });
 
-// ── GAP-111-D : AC-2 — SVG Apple sur page connexion ─────────────────────────
+// ── GAP-111-D : AC-2 — Apple retiré, seul Google reste ──────────────────────
 
-describe("STORY-111 QA — SVG Apple sur page connexion (AC-2, GAP-D)", () => {
-  it("QA-111-D : connexion contient le path SVG Apple (17.05 20.28)", () => {
-    const hasAppleSvg =
-      connexionSrc.includes("17.05 20.28") ||
-      connexionSrc.includes("sr-only\">Apple");
-    expect(hasAppleSvg).toBe(true);
+describe("STORY-111 QA — Apple retiré de la page connexion (AC-2, GAP-D)", () => {
+  it("QA-111-D : connexion ne contient plus Apple OAuth", () => {
+    expect(connexionSrc).not.toContain('provider: "apple"');
+    expect(connexionSrc).toContain('provider: "google"');
   });
 });

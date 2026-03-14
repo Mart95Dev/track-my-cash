@@ -75,11 +75,8 @@ describe("STORY-111 — OAuth boutons inscription (AC-2)", () => {
     expect(inscriptionSrc).toContain("4285F4");
   });
 
-  it("TU-111-5 : inscription contient SVG Apple", () => {
-    // Apple SVG détecté par son path ou le mot "Apple"
-    const hasApple =
-      inscriptionSrc.includes("Apple") || inscriptionSrc.includes("17.05 20.28");
-    expect(hasApple).toBe(true);
+  it("TU-111-5 : inscription ne contient plus SVG Apple (retiré)", () => {
+    expect(inscriptionSrc).not.toContain('provider: "apple"');
   });
 });
 

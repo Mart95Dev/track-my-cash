@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       return jsonError(400, "Provider et idToken requis");
     }
 
-    if (provider !== "google" && provider !== "apple") {
+    if (provider !== "google") {
       return jsonError(400, "Provider non supporté");
     }
 

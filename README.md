@@ -7,13 +7,13 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - **Framework** : Next.js 16 (App Router, React 19)
 - **Langage** : TypeScript (strict, 0 `any`)
 - **Base de données** : Turso (LibSQL) — double DB (Main + Per-user)
-- **Auth** : BetterAuth (email/password, OAuth Google/Apple, 2FA TOTP)
+- **Auth** : BetterAuth (email/password, OAuth Google, 2FA TOTP)
 - **UI** : Tailwind CSS v4, shadcn/ui, Material Symbols Outlined, DM Sans + DM Serif Display
 - **Charts** : Recharts
 - **Emails** : Nodemailer
 - **Sanitize** : sanitize-html (XSS protection blog)
 - **Paiements** : Stripe (checkout, webhooks, portail client)
-- **Tests** : Vitest + Testing Library (1862+ tests)
+- **Tests** : Vitest + Testing Library (1861+ tests)
 
 ## Fonctionnalites
 
@@ -54,7 +54,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 
 ### Securite
 - Authentification email/mot de passe
-- OAuth Google et Apple
+- OAuth Google
 - Authentification a deux facteurs (2FA TOTP)
 - Codes de recuperation (generation crypto securisee)
 - JWT mobile separe (`JWT_SECRET_MOBILE`) avec garde production
@@ -86,7 +86,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Desabonnement newsletter securise par HMAC-SHA256 (timingSafeEqual, page de confirmation)
 - Page A propos (histoire, convictions, chiffres cles)
 - Page Securite (6 engagements, philosophie)
-- Pages auth (connexion, inscription) avec OAuth Google/Apple
+- Pages auth (connexion, inscription) avec OAuth Google
 - Design system : DM Serif Display (headings) + DM Sans (body), palette Indigo/Stone
 - Animations scroll reveal (fade-up, hover-lift) et composants interactifs
 - Theme light force sur les pages marketing (override CSS `.marketing-light` pour compatibilite dark mode iOS)
@@ -137,11 +137,9 @@ BETTER_AUTH_SECRET=
 BETTER_AUTH_URL=
 NEXT_PUBLIC_APP_URL=
 
-# OAuth
+# OAuth Google
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
-APPLE_CLIENT_ID=
-APPLE_CLIENT_SECRET=
 
 # Push Notifications
 VAPID_PUBLIC_KEY=
@@ -210,7 +208,7 @@ src/
 public/
   sw.js                 # Service Worker PWA (cache, offline, push events)
 tests/
-  unit/                 # Tests unitaires (213 fichiers, 1862 tests)
+  unit/                 # Tests unitaires (213 fichiers, 1861 tests)
   integration/          # Tests d'integration mobile (4 suites, 33 tests)
 ```
 
@@ -232,3 +230,4 @@ tests/
 | v21.1 | Blog article enrichi (hero image, auteur, TOC, progress bar, partage social, reactions, articles lies, nav prev/next, prose enrichi, SEO author/speakable) | — | 1862 |
 | v22 | Rebrand Koupli + refonte homepage UX (IA-first hero, 3 pilliers valeur, IA showcase, pain points fusionnes) | — | 1862 |
 | v22.1 | Plan annuel fonctionnel (toggle reactif, remise 15%, checkout Stripe mensuel+annuel, PricingSection client) | — | 1862 |
+| v22.2 | Fix BetterAuth adapter (LibsqlDialect), retrait OAuth Apple, migration 2FA | — | 1861 |
