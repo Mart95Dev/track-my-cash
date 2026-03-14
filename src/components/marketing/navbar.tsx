@@ -90,7 +90,7 @@ export function Navbar() {
               </Button>
               <button
                 type="button"
-                onClick={() => authClient.signOut().then(() => window.location.reload())}
+                onClick={() => authClient.signOut().then(() => { window.location.href = "/"; })}
                 className="text-sm font-medium text-text-muted transition-colors hover:text-danger"
               >
                 Déconnexion
@@ -165,7 +165,7 @@ export function Navbar() {
                     type="button"
                     onClick={() => {
                       setOpen(false);
-                      authClient.signOut().then(() => window.location.reload());
+                      authClient.signOut().then(() => { window.location.href = "/"; });
                     }}
                     className="text-base font-medium text-text-muted transition-colors hover:text-danger"
                   >
