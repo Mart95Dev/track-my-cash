@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
 
 export default function Error({
   error,
@@ -12,28 +10,57 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const t = useTranslations("errors.serverError");
-
   useEffect(() => {
     console.error("[error.tsx]", error);
   }, [error]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="text-center space-y-6 max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-[#FAFAF9] px-4">
+      <div className="text-center space-y-8 max-w-md">
+        {/* Icône */}
         <div className="flex justify-center">
-          <AlertTriangle className="h-16 w-16 text-destructive" />
+          <div className="flex size-20 items-center justify-center rounded-2xl bg-danger/10">
+            <span className="material-symbols-outlined text-[40px] text-danger">
+              error
+            </span>
+          </div>
         </div>
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold">{t("title")}</h1>
-          <p className="text-muted-foreground">{t("description")}</p>
+
+        {/* Texte */}
+        <div className="space-y-3">
+          <h1 className="font-serif text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
+            Une erreur est survenue
+          </h1>
+          <p className="text-slate-500 text-base font-medium">
+            Quelque chose s&apos;est mal passé. Veuillez réessayer.
+          </p>
           {error.digest && (
-            <p className="text-xs text-muted-foreground font-mono">
+            <p className="text-xs text-slate-400 font-mono">
               Code : {error.digest}
             </p>
           )}
         </div>
-        <Button onClick={reset}>{t("retry")}</Button>
+
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Button
+            onClick={reset}
+            className="rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90 h-12 px-6"
+          >
+            <span className="material-symbols-outlined text-[18px] mr-2">refresh</span>
+            Réessayer
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            className="rounded-xl border-border-light text-slate-700 font-semibold hover:bg-slate-50 h-12 px-6"
+          >
+            <a href="/">
+              <span className="material-symbols-outlined text-[18px] mr-2">home</span>
+              Retour à l&apos;accueil
+            </a>
+          </Button>
+        </div>
       </div>
     </div>
   );
