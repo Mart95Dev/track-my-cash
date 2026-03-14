@@ -76,7 +76,7 @@ export default function ConnexionPage() {
               <div className="mb-8">
                 <button
                   type="button"
-                  onClick={() => authClient.signIn.social({ provider: "google" })}
+                  onClick={() => authClient.signIn.social({ provider: "google", callbackURL: "/dashboard" })}
                   className="w-full flex items-center justify-center gap-2.5 h-14 rounded-xl border border-border-light bg-white hover:bg-slate-50 hover:border-slate-300 transition-all font-medium text-slate-700 text-sm"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">

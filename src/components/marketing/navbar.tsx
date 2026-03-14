@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
 import {
   Sheet,
   SheetContent,
@@ -23,6 +24,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const { data: session } = authClient.useSession();
 
   useEffect(() => {
     function handleScroll() {
@@ -78,18 +80,29 @@ export function Navbar() {
 
         {/* Actions desktop */}
         <div className="hidden items-center gap-4 md:flex">
-          <Link
-            href="/connexion"
-            className="text-sm font-medium text-text-muted transition-colors hover:text-primary"
-          >
-            Connexion
-          </Link>
-          <Button
-            asChild
-            className="rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90"
-          >
-            <Link href="/inscription">Essai gratuit</Link>
-          </Button>
+          {session?.user ? (
+            <Button
+              asChild
+              className="rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90"
+            >
+              <Link href="/dashboard">Mon espace</Link>
+            </Button>
+          ) : (
+            <>
+              <Link
+                href="/connexion"
+                className="text-sm font-medium text-text-muted transition-colors hover:text-primary"
+              >
+                Connexion
+              </Link>
+              <Button
+                asChild
+                className="rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90"
+              >
+                <Link href="/inscription">Essai gratuit</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Menu hamburger mobile */}
@@ -132,18 +145,28 @@ export function Navbar() {
                 );
               })}
               <hr className="my-2 border-border-light" />
-              <Link
-                href="/connexion"
-                className="text-base font-medium text-text-muted transition-colors hover:text-primary"
-                onClick={() => setOpen(false)}
-              >
-                Connexion
-              </Link>
-              <Button asChild className="rounded-xl bg-primary text-white font-semibold">
-                <Link href="/inscription" onClick={() => setOpen(false)}>
-                  Essai gratuit
-                </Link>
-              </Button>
+              {session?.user ? (
+                <Button asChild className="rounded-xl bg-primary text-white font-semibold">
+                  <Link href="/dashboard" onClick={() => setOpen(false)}>
+                    Mon espace
+                  </Link>
+                </Button>
+              ) : (
+                <>
+                  <Link
+                    href="/connexion"
+                    className="text-base font-medium text-text-muted transition-colors hover:text-primary"
+                    onClick={() => setOpen(false)}
+                  >
+                    Connexion
+                  </Link>
+                  <Button asChild className="rounded-xl bg-primary text-white font-semibold">
+                    <Link href="/inscription" onClick={() => setOpen(false)}>
+                      Essai gratuit
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </SheetContent>
         </Sheet>

@@ -26,8 +26,9 @@ describe("STORY-134/135 — OAuth Google", () => {
       join(SRC, "app/[locale]/(auth)/connexion/page.tsx"),
       "utf-8"
     );
-    expect(connexion).toContain('signIn.social({ provider: "google" })');
-    expect(connexion).not.toContain('signIn.social({ provider: "apple" })');
+    expect(connexion).toContain('provider: "google"');
+    expect(connexion).toContain('callbackURL: "/dashboard"');
+    expect(connexion).not.toContain('provider: "apple"');
   });
 
   // AC-5 : Page inscription wire le bouton Google OAuth
@@ -36,8 +37,9 @@ describe("STORY-134/135 — OAuth Google", () => {
       join(SRC, "app/[locale]/(auth)/inscription/page.tsx"),
       "utf-8"
     );
-    expect(inscription).toContain('signIn.social({ provider: "google" })');
-    expect(inscription).not.toContain('signIn.social({ provider: "apple" })');
+    expect(inscription).toContain('provider: "google"');
+    expect(inscription).toContain('callbackURL: "/dashboard"');
+    expect(inscription).not.toContain('provider: "apple"');
   });
 
   // AC-6 : Les deux pages importent authClient
