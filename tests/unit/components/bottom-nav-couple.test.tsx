@@ -19,7 +19,8 @@ import { BottomNav } from "@/components/bottom-nav";
 describe("BottomNav — onglet Couple (STORY-102)", () => {
   it("TU-102-1 : affiche un onglet 'Couple' dans la navigation", () => {
     render(<BottomNav />);
-    expect(screen.getByText("Couple")).toBeDefined();
+    const couples = screen.getAllByText("Couple");
+    expect(couples.length).toBeGreaterThanOrEqual(1);
   });
 
   // ─── TU-102-2 : Href vers /couple ─────────────────────────────────────────
@@ -27,19 +28,19 @@ describe("BottomNav — onglet Couple (STORY-102)", () => {
   it("TU-102-2 : le lien Couple contient '/couple' dans son href", () => {
     render(<BottomNav />);
     const links = screen.getAllByRole("link");
-    const coupleLink = links.find((link) =>
+    const coupleLinks = links.filter((link) =>
       link.getAttribute("href")?.includes("/couple")
     );
-    expect(coupleLink).toBeDefined();
-    expect(coupleLink!.getAttribute("href")).toBe("/fr/couple");
+    expect(coupleLinks.length).toBeGreaterThanOrEqual(1);
+    expect(coupleLinks[0].getAttribute("href")).toBe("/fr/couple");
   });
 
   // ─── TU-102-3 : Badge présent quand coupleIncomplete=true ────────────────
 
   it("TU-102-3 : badge rouge présent quand coupleIncomplete=true", () => {
     render(<BottomNav coupleIncomplete={true} />);
-    const badge = screen.getByLabelText("couple incomplet");
-    expect(badge).toBeDefined();
+    const badges = screen.getAllByLabelText("couple incomplet");
+    expect(badges.length).toBeGreaterThanOrEqual(1);
   });
 
   // ─── TU-102-4 : Pas de badge quand coupleIncomplete=false ────────────────
@@ -53,21 +54,12 @@ describe("BottomNav — onglet Couple (STORY-102)", () => {
   // ─── TU-102-5 : Exactement 5 onglets, Récurrents n'est plus là ───────────
 
   it("TU-102-5 : BottomNav contient exactement 5 items de navigation", () => {
-    render(<BottomNav />);
-    // Les 5 onglets : Dashboard, Comptes, Transactions, Couple, IA
-    const navLinks = screen.getAllByRole("link");
-    // Filtre uniquement les liens de nav (exclut le badge notifications s'il y en a)
-    const navItems = navLinks.filter((link) => {
-      const href = link.getAttribute("href") ?? "";
-      return (
-        href.includes("/dashboard") ||
-        href.includes("/comptes") ||
-        href.includes("/transactions") ||
-        href.includes("/couple") ||
-        href.includes("/conseiller")
-      );
-    });
-    expect(navItems).toHaveLength(5);
+    const { container } = render(<BottomNav />);
+    // Count links in the mobile bottom nav only (nav element, not aside)
+    const mobileNav = container.querySelector("nav");
+    expect(mobileNav).not.toBeNull();
+    const navLinks = mobileNav!.querySelectorAll("a");
+    expect(navLinks).toHaveLength(5);
 
     // Vérifie que 'Récurrents' n'est plus dans le DOM
     expect(screen.queryByText("Récurrents")).toBeNull();

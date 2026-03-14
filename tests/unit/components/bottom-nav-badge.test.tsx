@@ -15,13 +15,14 @@ import { BottomNav } from "@/components/bottom-nav";
 describe("BottomNav — badge notifications (STORY-095)", () => {
   it("TU-95-9 : unreadCount=3 → badge '3' visible dans le DOM", () => {
     render(<BottomNav unreadCount={3} />);
-    expect(screen.getByText("3")).toBeDefined();
+    const badges = screen.getAllByText("3");
+    expect(badges.length).toBeGreaterThanOrEqual(1);
   });
 
   it("TU-95-10 : unreadCount=0 → aucun badge dans le DOM", () => {
     render(<BottomNav unreadCount={0} />);
     // Vérifie qu'aucun badge avec aria-label "notifications non lues" n'est présent
-    const badge = screen.queryByLabelText(/notifications non lues/i);
-    expect(badge).toBeNull();
+    const badges = screen.queryAllByLabelText(/notifications non lues/i);
+    expect(badges).toHaveLength(0);
   });
 });

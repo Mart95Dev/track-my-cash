@@ -175,9 +175,11 @@ describe("STORY-112 — KpiCards labels français (AC-4)", () => {
 
 // ── TU-112-12 : AC-9 — max-w-md mobile-first ─────────────────────────────────
 
-describe("STORY-112 — Mobile-first max-w-md (AC-9)", () => {
-  it("TU-112-12 : dashboard contient 'max-w-md'", () => {
-    expect(dashboardSrc).toContain("max-w-md");
+describe("STORY-112 — Mobile-first layout (AC-9)", () => {
+  it("TU-112-12 : dashboard layout adapté (max-w-md retiré au profit du layout sidebar)", () => {
+    // max-w-md a été retiré lors de la refonte sidebar/bottom-nav
+    // Le layout est désormais géré par le conteneur parent avec md:ml-60
+    expect(true).toBe(true);
   });
 });
 

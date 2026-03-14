@@ -74,14 +74,16 @@ export default async function AppLayout({ children, params }: Props) {
 
   return (
     <div className="min-h-screen bg-background-light marketing-light">
-      <PlanBanner plan={bannerPlan} status={bannerStatus} daysRemaining={bannerDaysRemaining} />
-      {showInviteBanner && couple && (
-        <CoupleInviteBanner inviteCode={couple.invite_code} locale={locale} />
-      )}
-      <main className="max-w-md md:max-w-3xl lg:max-w-5xl mx-auto px-4 pb-24 min-h-screen">
-        {children}
-      </main>
       <BottomNav unreadCount={unreadCount} coupleIncomplete={coupleIncomplete} />
+      <div className="md:ml-60">
+        <PlanBanner plan={bannerPlan} status={bannerStatus} daysRemaining={bannerDaysRemaining} />
+        {showInviteBanner && couple && (
+          <CoupleInviteBanner inviteCode={couple.invite_code} locale={locale} />
+        )}
+        <main className="max-w-[1440px] mx-auto px-4 md:px-8 pb-24 min-h-screen">
+          {children}
+        </main>
+      </div>
       <PwaInstallBanner />
       <TrialUrgencyModal
         daysRemaining={bannerDaysRemaining ?? 0}

@@ -207,7 +207,7 @@ export default async function DashboardPage({
   }
 
   return (
-    <div className="flex flex-col pb-2 bg-background-light max-w-md mx-auto w-full">
+    <div className="flex flex-col pb-2 bg-background-light w-full">
       {/* Header */}
       <header className="flex items-center justify-between px-4 pt-6 pb-4">
         <div className="flex items-center gap-3">

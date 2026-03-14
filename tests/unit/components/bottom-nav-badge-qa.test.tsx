@@ -15,12 +15,13 @@ import { BottomNav } from "@/components/bottom-nav";
 describe("BottomNav — badge QA (STORY-095)", () => {
   it("TU-95-QA-3 : unreadCount=10 → badge affiche '10' (nombre à deux chiffres)", () => {
     render(<BottomNav unreadCount={10} />);
-    expect(screen.getByText("10")).toBeDefined();
+    const badges = screen.getAllByText("10");
+    expect(badges.length).toBeGreaterThanOrEqual(1);
   });
 
   it("TU-95-QA-4 : unreadCount=1 → aria-label contient '1 notifications non lues' (accessibilité)", () => {
     render(<BottomNav unreadCount={1} />);
-    const badge = screen.queryByLabelText(/1 notifications non lues/i);
-    expect(badge).not.toBeNull();
+    const badges = screen.queryAllByLabelText(/1 notifications non lues/i);
+    expect(badges.length).toBeGreaterThanOrEqual(1);
   });
 });

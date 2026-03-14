@@ -252,35 +252,35 @@ describe("QA STORY-102 — BottomNav invariants couple", () => {
 
   it("QA-102-2 : badge aria-label contient 'incomplet' ou 'couple'", () => {
     render(<BottomNav coupleIncomplete={true} />);
-    const badge = screen.getByLabelText(/incomplet|couple/i);
-    expect(badge).toBeDefined();
+    const badges = screen.getAllByLabelText(/incomplet|couple/i);
+    expect(badges.length).toBeGreaterThanOrEqual(1);
   });
 
   it("QA-102-2b : badge aria-label est exactement 'couple incomplet'", () => {
     render(<BottomNav coupleIncomplete={true} />);
-    const badge = screen.getByLabelText("couple incomplet");
-    expect(badge).toBeDefined();
+    const badges = screen.getAllByLabelText("couple incomplet");
+    expect(badges.length).toBeGreaterThanOrEqual(1);
   });
 
   it("QA-102-1b : les 5 onglets attendus sont présents (Dashboard, Comptes, Transactions, Couple, IA)", () => {
     render(<BottomNav />);
-    expect(screen.getByText("Dashboard")).toBeDefined();
-    expect(screen.getByText("Comptes")).toBeDefined();
-    expect(screen.getByText("Transactions")).toBeDefined();
-    expect(screen.getByText("Couple")).toBeDefined();
-    expect(screen.getByText("IA")).toBeDefined();
+    expect(screen.getAllByText("Dashboard").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Comptes").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Transactions").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Couple").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("IA").length).toBeGreaterThanOrEqual(1);
   });
 
   it("QA-102-2c : sans coupleIncomplete=false, aucun badge couple visible", () => {
     render(<BottomNav coupleIncomplete={false} />);
-    const badge = screen.queryByLabelText(/incomplet|couple/i);
-    expect(badge).toBeNull();
+    const badges = screen.queryAllByLabelText(/incomplet|couple/i);
+    expect(badges).toHaveLength(0);
   });
 
   it("QA-102-2d : le badge couple est un span (pas un bouton, pas un lien)", () => {
     render(<BottomNav coupleIncomplete={true} />);
-    const badge = screen.getByLabelText("couple incomplet");
-    expect(badge.tagName.toLowerCase()).toBe("span");
+    const badges = screen.getAllByLabelText("couple incomplet");
+    expect(badges[0].tagName.toLowerCase()).toBe("span");
   });
 });
 
