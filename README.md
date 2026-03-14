@@ -71,7 +71,8 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Authentification email/mot de passe avec reset password par email
 - OAuth Google
 - Authentification a deux facteurs (2FA TOTP)
-- Navbar session-aware (Mon espace / Deconnexion quand connecte)
+- Navbar marketing session-aware (Mon espace / Deconnexion quand connecte)
+- Navigation app responsive : sidebar fixe desktop (240px) + bottom nav mobile
 - Codes de recuperation (generation crypto securisee)
 - JWT mobile separe (`JWT_SECRET_MOBILE`) avec garde production
 - Anti-enumeration sur forgot-password (reponse constante)
@@ -104,7 +105,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Page Securite (6 engagements, philosophie)
 - Pages auth (connexion, inscription, mot de passe oublie, reset password) avec OAuth Google
 - Logo SVG Koupli (horizontal light/dark, icone seule) + favicons multi-resolution
-- Design system : DM Serif Display (headings) + DM Sans (body), palette Indigo/Stone
+- Design system : DM Serif Display (headings) + DM Sans (body), palette Indigo/Stone, theme light unifie (marketing + app)
 - Animations scroll reveal (fade-up, hover-lift) et composants interactifs
 - Theme light force sur les pages marketing (override CSS `.marketing-light` pour compatibilite dark mode iOS)
 
@@ -261,4 +262,5 @@ tests/
 | v22.2 | Fix BetterAuth adapter (LibsqlDialect), retrait OAuth Apple, migration 2FA | — | 1861 |
 | v22.3 | Auth production-ready : OAuth Google, reset password, navbar session-aware, logos SVG Koupli, favicons, page erreur refaite, fix double locale | — | 1861 |
 | v22.4 | Fix DB per-user (schema complet, token groupe Turso, conflit 409), onboarding 1 modal, layout desktop responsive | — | 1863 |
+| v22.5 | Theme light force, rebrand Koupli complet, sidebar desktop + bottom nav mobile, layout pleine largeur (max 1440px) | — | 1863 |
 | v23 | IA SaaS : cle serveur unique, modeles low-cost (DeepSeek/Mistral/Gemini/Qwen), quotas separes (50 chats + 30 insights + categorisation illimitee), objectifs intelligents IA (Premium), prix 5,90€/8,90€ | — | 1862 |
