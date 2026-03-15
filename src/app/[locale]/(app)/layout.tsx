@@ -7,7 +7,7 @@ import { CoupleInviteBanner } from "@/components/couple-invite-banner";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getDb, getUserDb } from "@/lib/db";
+import { getDb, getUserDb, ensureSchema } from "@/lib/db";
 import { getDaysRemaining } from "@/lib/trial-utils";
 import { getUnreadCount } from "@/lib/notification-queries";
 import { getOnboardingChoice, getCoupleByUserId, getCoupleMembers } from "@/lib/couple-queries";
@@ -31,6 +31,7 @@ export default async function AppLayout({ children, params }: Props) {
     redirect(`/${locale}/connexion`);
   }
 
+  await ensureSchema();
   const mainDb = getDb();
   const userId = session.user.id;
 

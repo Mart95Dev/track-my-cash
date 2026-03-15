@@ -264,3 +264,4 @@ tests/
 | v22.4 | Fix DB per-user (schema complet, token groupe Turso, conflit 409), onboarding 1 modal, layout desktop responsive | — | 1863 |
 | v22.5 | Theme light force, rebrand Koupli complet, sidebar desktop + bottom nav mobile, layout pleine largeur (max 1440px) | — | 1863 |
 | v23 | IA SaaS : cle serveur unique, modeles low-cost (DeepSeek/Mistral/Gemini/Qwen), quotas separes (50 chats + 30 insights + categorisation illimitee), objectifs intelligents IA (Premium), prix 5,90€/8,90€ | — | 1862 |
+| v23.1 | Fix page couple : migration colonne `status` manquante sur `couple_members`, ensureSchema dans layout app | — | 1862 |

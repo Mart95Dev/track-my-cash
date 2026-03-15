@@ -239,6 +239,8 @@ export async function initSchema() {
     "ALTER TABLE user ADD COLUMN reminder_couple_1d_sent INTEGER DEFAULT 0",
     "ALTER TABLE user ADD COLUMN reminder_couple_3d_sent INTEGER DEFAULT 0",
     "ALTER TABLE user ADD COLUMN reminder_couple_7d_sent INTEGER DEFAULT 0",
+    // Migration : colonne status manquante sur couple_members (créée avant l'ajout)
+    "ALTER TABLE couple_members ADD COLUMN status TEXT DEFAULT 'active'",
     // STORY-138 : Push subscriptions
     `CREATE TABLE IF NOT EXISTS push_subscriptions (
       user_id TEXT PRIMARY KEY,
