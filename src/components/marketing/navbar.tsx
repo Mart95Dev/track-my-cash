@@ -23,8 +23,13 @@ const NAV_LINKS = [
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [navigating, setNavigating] = useState(false);
   const pathname = usePathname();
   const { data: session } = authClient.useSession();
+
+  useEffect(() => {
+    setNavigating(false);
+  }, [pathname]);
 
   useEffect(() => {
     function handleScroll() {
@@ -79,9 +84,18 @@ export function Navbar() {
             <>
               <Button
                 asChild
-                className="rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90"
+                className="rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90 min-w-[120px]"
               >
-                <Link href="/dashboard">Mon espace</Link>
+                <Link href="/dashboard" onClick={() => setNavigating(true)}>
+                  {navigating ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Chargement
+                    </span>
+                  ) : (
+                    "Mon espace"
+                  )}
+                </Link>
               </Button>
               <button
                 type="button"
@@ -149,8 +163,15 @@ export function Navbar() {
               {session?.user ? (
                 <>
                   <Button asChild className="rounded-xl bg-primary text-white font-semibold">
-                    <Link href="/dashboard" onClick={() => setOpen(false)}>
-                      Mon espace
+                    <Link href="/dashboard" onClick={() => { setOpen(false); setNavigating(true); }}>
+                      {navigating ? (
+                        <span className="flex items-center gap-2">
+                          <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          Chargement
+                        </span>
+                      ) : (
+                        "Mon espace"
+                      )}
                     </Link>
                   </Button>
                   <button
