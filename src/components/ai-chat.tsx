@@ -71,7 +71,6 @@ export function AiChat({
     ConsensusChatItem[]
   >([]);
   const [isConsensusLoading, setIsConsensusLoading] = useState(false);
-  const [showAccountSelector, setShowAccountSelector] = useState(false);
   const { upgradeReason, showUpgradeModal, closeUpgradeModal } = useUpgradeModal();
 
   const transport = useMemo(
@@ -214,53 +213,40 @@ export function AiChat({
     <>
       <UpgradeModal reason={upgradeReason} onClose={closeUpgradeModal} />
       <div className="flex flex-col">
-      {/* Toolbar : sélecteur modèle / comptes / consensus */}
-      <div className="px-4 py-2 flex items-center gap-2 border-b border-gray-100 bg-background-light">
-        {hasCoupleActive && isPremium && coupleId && (
-          <span className="text-xs px-3 py-1 rounded-full bg-primary/10 text-primary font-medium shrink-0">
-            Mode couple
-          </span>
-        )}
-        {isPremium && (
-          <button
-            type="button"
-            onClick={() => setConsensusMode((prev) => !prev)}
-            className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
-              consensusMode
-                ? "bg-primary text-white border-primary"
-                : "bg-white text-text-muted border-gray-200 hover:border-primary"
-            }`}
-          >
-            {consensusMode ? "✦ Multi-modèles" : "Multi-modèles"}
-          </button>
-        )}
-        {consensusMode ? (
-          <span className="text-xs text-text-muted flex-1">
-            Claude Sonnet · Gemini Flash · GPT-4o mini
-          </span>
-        ) : (
-          <span className="flex-1" />
-        )}
-        <button
-          type="button"
-          onClick={() => setShowAccountSelector((prev) => !prev)}
-          className="w-8 h-8 rounded-full bg-indigo-50 text-primary flex items-center justify-center shrink-0"
-          title="Sélectionner les comptes"
-        >
-          <span className="material-symbols-outlined text-[18px]">account_balance</span>
-        </button>
-      </div>
-
-      {/* Sélecteur de comptes — accordéon */}
-      {showAccountSelector && (
-        <div className="px-4 py-3 border-b border-gray-100 bg-white">
-          <AiAccountSelector
-            accounts={accounts}
-            selectedIds={selectedIds}
-            onToggle={toggleAccount}
-          />
+      {/* Sélecteur de comptes + options */}
+      <div className="px-4 py-3 border-b border-[#EEEEEE] bg-white">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <p className="text-xs font-semibold text-[#757575] uppercase tracking-wide">Comptes a analyser</p>
+            <p className="text-[11px] text-[#BDBDBD]">{selectedIds.length} / {accounts.length} selectionne{selectedIds.length > 1 ? "s" : ""}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            {hasCoupleActive && isPremium && coupleId && (
+              <span className="text-xs px-3 py-1 rounded-full bg-[#F0EEFF] text-[#6C5CE7] font-medium">
+                Mode couple
+              </span>
+            )}
+            {isPremium && (
+              <button
+                type="button"
+                onClick={() => setConsensusMode((prev) => !prev)}
+                className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
+                  consensusMode
+                    ? "bg-[#6C5CE7] text-white border-[#6C5CE7]"
+                    : "bg-white text-[#757575] border-[#EEEEEE] hover:border-[#6C5CE7]"
+                }`}
+              >
+                {consensusMode ? "Multi-modeles actif" : "Multi-modeles"}
+              </button>
+            )}
+          </div>
         </div>
-      )}
+        <AiAccountSelector
+          accounts={accounts}
+          selectedIds={selectedIds}
+          onToggle={toggleAccount}
+        />
+      </div>
 
       {/* Zone de messages */}
       <div ref={scrollRef} className="overflow-y-auto pb-40">
@@ -269,10 +255,7 @@ export function AiChat({
           <>
             {consensusMessages.length === 0 && (
               <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
-                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6">
-                  <span className="material-symbols-outlined" style={{ fontSize: "40px" }}>smart_toy</span>
-                </div>
-                <h2 className="text-xl font-bold text-text-main mb-2">Conseiller IA</h2>
+                <h2 className="text-xl font-bold text-[#212121] mb-2">Conseiller IA</h2>
                 <p className="text-text-muted text-sm mb-6">
                   3 modèles répondent en parallèle et synthétisent leurs réponses.
                 </p>
@@ -364,10 +347,7 @@ export function AiChat({
           <>
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
-                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6">
-                  <span className="material-symbols-outlined" style={{ fontSize: "40px" }}>smart_toy</span>
-                </div>
-                <h2 className="text-xl font-bold text-text-main mb-2">Conseiller IA</h2>
+                <h2 className="text-xl font-bold text-[#212121] mb-2">Conseiller IA</h2>
                 <p className="text-text-muted text-sm mb-6">
                   {t("description")}
                 </p>
@@ -462,35 +442,37 @@ export function AiChat({
         </div>
       )}
 
-      {/* Input fixe en bas — AC-6/AC-7 */}
-      <div className="fixed bottom-16 left-0 right-0 z-40 bg-background-light border-t border-gray-100 dark:border-slate-800 p-3">
+      {/* Input fixe en bas — style Claude */}
+      <div className="fixed bottom-16 md:bottom-0 left-0 md:left-60 right-0 z-40 px-4 pb-4 pt-2 bg-gradient-to-t from-[#F8F7FC] via-[#F8F7FC] to-transparent">
         <form
           onSubmit={handleSubmit}
-          className="max-w-md mx-auto flex items-center gap-2"
+          className="max-w-2xl mx-auto"
         >
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={t("placeholder")}
-            disabled={isLoading}
-            className="flex-1 rounded-full bg-white border border-gray-200 py-3 px-5 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none disabled:opacity-50"
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                if (!isLoading && input.trim()) {
-                  handleSubmit(e as unknown as React.FormEvent);
+          <div className="relative bg-white rounded-2xl border border-[#EEEEEE] shadow-[0_2px_12px_rgba(108,92,231,0.08)] focus-within:border-[#6C5CE7] focus-within:shadow-[0_2px_16px_rgba(108,92,231,0.15)] transition-all">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={t("placeholder")}
+              disabled={isLoading}
+              className="w-full bg-transparent py-4 pl-5 pr-14 text-sm text-[#212121] placeholder:text-[#BDBDBD] outline-none disabled:opacity-50"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  if (!isLoading && input.trim()) {
+                    handleSubmit(e as unknown as React.FormEvent);
+                  }
                 }
-              }
-            }}
-          />
-          <button
-            type="submit"
-            disabled={isLoading || !input.trim()}
-            className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center shadow-soft disabled:opacity-50 transition-all shrink-0"
-          >
-            <span className="material-symbols-outlined text-[20px]">send</span>
-          </button>
+              }}
+            />
+            <button
+              type="submit"
+              disabled={isLoading || !input.trim()}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#6C5CE7] text-white flex items-center justify-center disabled:opacity-30 transition-all hover:bg-[#5A4BD1]"
+            >
+              <span className="material-symbols-outlined text-[18px]">arrow_upward</span>
+            </button>
+          </div>
         </form>
       </div>
     </div>

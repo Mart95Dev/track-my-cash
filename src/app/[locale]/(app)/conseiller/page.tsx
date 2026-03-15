@@ -103,15 +103,6 @@ export default async function ConseillerPage() {
         </span>
       </header>
 
-      {/* AI info banner */}
-      <div className="mx-4 mt-4 rounded-xl bg-[#F0EEFF] px-4 py-3 flex items-start gap-3">
-        <span className="material-symbols-outlined text-[#6C5CE7] text-[24px] mt-0.5">auto_awesome</span>
-        <div className="flex flex-col gap-0.5">
-          <p className="text-sm font-semibold text-[#212121]">Propulse par l&apos;intelligence artificielle</p>
-          <p className="text-xs text-[#757575]">Analyse vos comptes selectionnes</p>
-        </div>
-      </div>
-
       <AiChat
         accounts={accounts}
         hasApiKey={!!process.env.API_KEY_OPENROUTER}
