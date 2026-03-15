@@ -71,46 +71,44 @@ export default async function ComptesPage() {
                 className="bg-white rounded-2xl border border-[#EEEEEE] shadow-soft overflow-hidden transition-all hover:shadow-card"
               >
                 {/* Card body */}
-                <div className="p-6">
-                  {/* Top row: icon + name + badge */}
-                  <div className="flex items-start gap-3 mb-4">
-                    {/* Account icon */}
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-surface flex items-center justify-center shrink-0">
-                      <span className="text-white text-sm font-bold leading-none">
-                        {getInitials(account.name)}
-                      </span>
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-bold text-lg text-text-main leading-tight truncate">
-                        {account.name}
-                      </h3>
-                      <p className="text-xs text-text-muted font-medium mt-0.5">{dateLabel}</p>
-                    </div>
-
-                    <div className="flex items-center gap-2 shrink-0 ml-2">
-                      {isAlert && (
-                        <span className="text-[11px] font-bold bg-warning-surface text-warning rounded-full px-2 py-0.5">
-                          Solde bas
+                <div className="p-5">
+                  <div className="flex items-center justify-between">
+                    {/* Left: name + balance */}
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="w-11 h-11 rounded-xl bg-[#F0EEFF] flex items-center justify-center shrink-0">
+                        <span className="text-[#6C5CE7] text-sm font-bold leading-none">
+                          {getInitials(account.name)}
                         </span>
-                      )}
-                      {/* Currency badge */}
-                      <span className="px-3 py-1 rounded-full bg-[#F5F5F5] text-xs font-bold text-[#757575]">
-                        {account.currency}
-                      </span>
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-bold text-[#212121] leading-tight truncate">
+                          {account.name}
+                        </h3>
+                        <p className="text-xs text-[#BDBDBD] mt-0.5">{dateLabel}</p>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Balance */}
-                  <div className="mt-2 mb-2">
-                    <p
-                      className={`text-4xl font-extrabold tracking-tight ${
-                        isPositive ? "text-success" : "text-danger"
-                      }`}
-                    >
-                      {isPositive ? "+" : "-"}
-                      {formatCurrency(Math.abs(balance), account.currency, locale)}
-                    </p>
+                    {/* Right: balance + currency */}
+                    <div className="flex flex-col items-end shrink-0 ml-4">
+                      <div className="flex items-center gap-2">
+                        {isAlert && (
+                          <span className="text-[10px] font-bold bg-warning-surface text-warning rounded-full px-2 py-0.5">
+                            Solde bas
+                          </span>
+                        )}
+                        <span className="text-xs font-medium text-[#BDBDBD] bg-[#F5F5F5] rounded-full px-2 py-0.5">
+                          {account.currency}
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#757575] font-medium mt-1.5">Solde</p>
+                      <p
+                        className={`text-xl font-bold tracking-tight ${
+                          isPositive ? "text-[#00B894]" : "text-[#E17055]"
+                        }`}
+                      >
+                        {formatCurrency(balance, account.currency, locale)}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
