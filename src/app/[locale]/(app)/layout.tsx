@@ -25,32 +25,43 @@ type Props = {
 };
 
 export default async function AppLayout({ children, params }: Props) {
-  const { locale } = await params;
-  const session = await auth.api.getSession({ headers: await headers() });
+  const [{ locale }, session] = await Promise.all([
+    params,
+    auth.api.getSession({ headers: await headers() }),
+  ]);
 
   if (!session) {
     redirect(`/${locale}/connexion`);
   }
 
-  await ensureSchema();
-  const mainDb = getDb();
   const userId = session.user.id;
 
-  const userDb = await getUserDb(userId);
-  const [subResult, unreadCount, onboardingChoice, couple] = await Promise.all([
+  // ensureSchema + getUserDb + getDb en parallèle
+  const [, userDb] = await Promise.all([
+    ensureSchema(),
+    getUserDb(userId),
+  ]);
+  const mainDb = getDb();
+
+  // Toutes les requêtes layout en parallèle (incluant coupleMembers via sous-requête)
+  const [subResult, unreadCount, onboardingChoice, coupleWithMembers] = await Promise.all([
     mainDb.execute({
       sql: "SELECT plan_id, status, trial_ends_at FROM subscriptions WHERE user_id = ?",
       args: [userId],
     }),
     getUnreadCount(userDb).catch(() => 0),
     getOnboardingChoice(userDb).catch(() => null),
-    getCoupleByUserId(mainDb, userId).catch(() => null),
+    getCoupleByUserId(mainDb, userId)
+      .then(async (c) => {
+        if (!c) return { couple: null, members: [] as Awaited<ReturnType<typeof getCoupleMembers>> };
+        const members = await getCoupleMembers(mainDb, c.id).catch(() => [] as Awaited<ReturnType<typeof getCoupleMembers>>);
+        return { couple: c, members };
+      })
+      .catch(() => ({ couple: null, members: [] as Awaited<ReturnType<typeof getCoupleMembers>> })),
   ]);
 
-  // Compte les membres actifs du couple (si couple existe)
-  const coupleMembers = couple
-    ? await getCoupleMembers(mainDb, couple.id).catch(() => [])
-    : [];
+  const couple = coupleWithMembers.couple;
+  const coupleMembers = coupleWithMembers.members;
 
   const activeMemberCount = coupleMembers.length;
 
