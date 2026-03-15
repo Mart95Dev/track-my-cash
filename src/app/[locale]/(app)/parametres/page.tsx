@@ -3,7 +3,7 @@ import { ExportImportButtons } from "@/components/export-import-buttons";
 import { ResetButton } from "@/components/reset-button";
 import { CategorizationRules } from "@/components/categorization-rules";
 import { TagManager } from "@/components/tag-manager";
-import { CurrencySettings } from "@/components/currency-settings";
+
 import { BillingPortalButton } from "@/components/billing-portal-button";
 import { DeleteUserAccountDialog } from "@/components/delete-user-account-dialog";
 import { TwoFactorSetup } from "@/components/two-factor-setup";
@@ -20,9 +20,9 @@ import { getCategorizationRules, getSetting, getAllAccounts } from "@/lib/querie
 import { getUserDb, getDb } from "@/lib/db";
 import { getRequiredUserId, getRequiredSession } from "@/lib/auth-utils";
 import { getAiUsageCount } from "@/lib/ai-usage";
-import { getExchangeRate } from "@/lib/currency";
+
 import { getTagsAction } from "@/app/actions/tag-actions";
-import { saveExchangeRateAction, toggleAutoCategorizationAction, toggleWeeklyEmailAction } from "@/app/actions/settings-actions";
+import { toggleAutoCategorizationAction, toggleWeeklyEmailAction } from "@/app/actions/settings-actions";
 import { getUserSubscription } from "@/app/actions/billing-actions";
 import { getPlan } from "@/lib/stripe-plans";
 import type { ReactNode } from "react";
@@ -63,11 +63,9 @@ export default async function ParametresPage() {
 
   const aiAccess = await (await import("@/lib/subscription-utils")).canUseAI(userId);
 
-  const [rules, tags, liveRate, fallbackRateStr, subscription, accounts, autoCategorizeSetting, aiUsageCount, weeklyEmailSetting] = await Promise.all([
+  const [rules, tags, subscription, accounts, autoCategorizeSetting, aiUsageCount, weeklyEmailSetting] = await Promise.all([
     getCategorizationRules(db),
     getTagsAction(),
-    getExchangeRate(db),
-    getSetting(db, "exchange_rate_eur_mga"),
     getUserSubscription(),
     getAllAccounts(db),
     getSetting(db, "auto_categorize_on_import"),
@@ -79,8 +77,6 @@ export default async function ParametresPage() {
   const renewalDate = subscription.currentPeriodEnd
     ? new Date(subscription.currentPeriodEnd * 1000).toLocaleDateString("fr-FR")
     : null;
-
-  const fallbackRate = fallbackRateStr ? parseFloat(fallbackRateStr) : 5000;
 
   const isPro = subscription.planId === "pro";
   const isPremium = subscription.planId === "premium";
@@ -197,15 +193,6 @@ export default async function ParametresPage() {
           <ExportImportButtons />
           <ExportDataButton />
         </div>
-      </SettingsCard>
-
-      {/* 4. Devises */}
-      <SettingsCard icon="currency_exchange" title="Devises">
-        <CurrencySettings
-          liveRate={liveRate}
-          fallbackRate={fallbackRate}
-          onSaveFallback={saveExchangeRateAction}
-        />
       </SettingsCard>
 
       {/* 5. Rapports */}
