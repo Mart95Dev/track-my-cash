@@ -8,6 +8,24 @@ interface CoupleLockedPreviewProps {
   hasCoupleActive: boolean;
 }
 
+const LOCKED_FEATURES = [
+  {
+    icon: "balance",
+    title: "Qui doit combien ?",
+    description: "Suivez les depenses de chacun et equilibrez automatiquement.",
+  },
+  {
+    icon: "monitoring",
+    title: "Dashboard partage",
+    description: "Visualisez vos finances communes en un coup d'oeil.",
+  },
+  {
+    icon: "savings",
+    title: "Objectifs a deux",
+    description: "Epargnez ensemble pour vos projets communs.",
+  },
+];
+
 export function CoupleLockedPreview({
   locale,
   hasCoupleActive,
@@ -15,50 +33,46 @@ export function CoupleLockedPreview({
   if (hasCoupleActive) return null;
 
   return (
-    <section className="px-4 mb-4">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-bold text-text-main">Espace couple</h3>
-        <span className="material-symbols-outlined text-text-muted text-[18px]">lock</span>
+    <section className="mx-4 mb-4 bg-white rounded-2xl border border-[#EEEEEE] overflow-hidden" style={{ boxShadow: "0 1px 3px rgba(108,92,231,0.06)" }}>
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 pt-5 pb-3">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-[#6C5CE7] text-[20px]">favorite</span>
+          <h3 className="text-sm font-bold text-[#212121]">Espace couple</h3>
+        </div>
+        <span className="text-xs font-semibold text-[#6C5CE7] bg-[#F0EEFF] px-2.5 py-1 rounded-full">
+          Pro / Premium
+        </span>
       </div>
 
-      <div className="flex flex-col gap-3">
-        <div className="relative overflow-hidden rounded-2xl bg-white border border-gray-100 p-4">
-          <div className="blur-sm select-none">
-            <p className="text-sm font-bold text-text-main">Balance couple</p>
-            <div className="h-8 bg-gray-100 rounded-lg w-3/4 mt-1" />
+      {/* Features list */}
+      <div className="px-5 pb-2">
+        {LOCKED_FEATURES.map((feature) => (
+          <div
+            key={feature.icon}
+            className="flex items-start gap-3 py-3 border-t border-[#EEEEEE]/60"
+          >
+            <div className="w-9 h-9 rounded-xl bg-[#F0EEFF] flex items-center justify-center shrink-0 mt-0.5">
+              <span className="material-symbols-outlined text-[#6C5CE7] text-[18px]">{feature.icon}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-[#212121]">{feature.title}</p>
+              <p className="text-xs text-[#757575] mt-0.5">{feature.description}</p>
+            </div>
+            <span className="material-symbols-outlined text-[#BDBDBD] text-[18px] mt-1 shrink-0">lock</span>
           </div>
-          <div className="absolute inset-0 flex items-center justify-center bg-white/60">
-            <span className="material-symbols-outlined text-text-muted text-[32px]">lock</span>
-          </div>
-        </div>
-
-        <div className="relative overflow-hidden rounded-2xl bg-white border border-gray-100 p-4">
-          <div className="blur-sm select-none">
-            <p className="text-sm font-bold text-text-main">Tableau de bord couple</p>
-            <div className="h-8 bg-gray-100 rounded-lg w-full mt-1" />
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center bg-white/60">
-            <span className="material-symbols-outlined text-text-muted text-[32px]">lock</span>
-          </div>
-        </div>
-
-        <div className="relative overflow-hidden rounded-2xl bg-white border border-gray-100 p-4">
-          <div className="blur-sm select-none">
-            <p className="text-sm font-bold text-text-main">Objectifs communs</p>
-            <div className="h-8 bg-gray-100 rounded-lg w-5/6 mt-1" />
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center bg-white/60">
-            <span className="material-symbols-outlined text-text-muted text-[32px]">lock</span>
-          </div>
-        </div>
+        ))}
       </div>
 
-      <div className="mt-4 flex justify-center">
+      {/* CTA */}
+      <div className="px-5 pb-5 pt-1">
         <Link
           href={`/${locale}/couple`}
-          className="inline-flex items-center justify-center h-11 px-6 bg-primary text-white font-bold rounded-xl text-sm"
+          className="flex items-center justify-center gap-2 w-full h-11 bg-[#6C5CE7] text-white font-bold rounded-xl text-sm transition-colors hover:bg-[#5A4BD1]"
+          style={{ boxShadow: "0 4px 12px rgba(108,92,231,0.25)" }}
         >
-          Activer l’espace couple
+          <span className="material-symbols-outlined text-[18px]">favorite</span>
+          Activer l'espace couple
         </Link>
       </div>
     </section>
