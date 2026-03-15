@@ -71,7 +71,7 @@ export function SmartGoalsWidget({ isPremium }: { isPremium: boolean }) {
   }
 
   return (
-    <div className="bg-white dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-slate-800 shadow-soft p-5">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-soft p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-primary text-[20px]">

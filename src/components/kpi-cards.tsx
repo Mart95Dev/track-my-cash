@@ -24,7 +24,7 @@ function KpiCard({
   valueColor: string;
 }) {
   return (
-    <div className="flex flex-col gap-1.5 rounded-2xl p-3.5 bg-white dark:bg-card-dark shadow-soft border border-gray-100 dark:border-gray-800">
+    <div className="flex flex-col gap-1.5 rounded-2xl p-3.5 bg-white shadow-soft border border-gray-100">
       <div
         className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center ${iconColor} shrink-0`}
       >

@@ -13,7 +13,7 @@ export function BalanceCard({ totalBalance, currency, locale, momVariation }: Ba
   const monthLabel = now.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
 
   return (
-    <div className="mx-4 mb-4 p-5 rounded-2xl bg-white dark:bg-card-dark shadow-soft border border-gray-100 dark:border-gray-800">
+    <div className="mx-4 mb-4 p-5 rounded-2xl bg-white shadow-soft border border-gray-100">
       <div className="flex items-center justify-between mb-1">
         <p className="text-text-muted text-xs font-medium uppercase tracking-wider">Solde total</p>
         <span className="text-text-muted text-xs capitalize">{monthLabel}</span>
