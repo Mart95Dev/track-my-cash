@@ -38,9 +38,6 @@ export default async function CouplePage() {
         <div className="w-full max-w-xl mx-auto flex flex-col gap-5">
           {/* Header centered */}
           <div className="flex flex-col items-center text-center gap-2 mb-2">
-            <div className="w-14 h-14 rounded-[16px] bg-[#F0EEFF] flex items-center justify-center mb-1">
-              <span className="material-symbols-outlined text-[#6C5CE7] text-[28px]">favorite</span>
-            </div>
             <h1 className="text-2xl font-bold text-[#212121]">Espace couple</h1>
             <p className="text-sm text-[#757575] max-w-sm">
               Partagez vos finances avec votre partenaire. Créez un espace ou rejoignez-en un avec un code.
@@ -97,9 +94,6 @@ export default async function CouplePage() {
         <div className="w-full max-w-xl mx-auto flex flex-col gap-5">
           {/* Header centered */}
           <div className="flex flex-col items-center text-center gap-2 mb-2">
-            <div className="w-14 h-14 rounded-[16px] bg-[#F0EEFF] flex items-center justify-center mb-1">
-              <span className="material-symbols-outlined text-[#6C5CE7] text-[28px]">favorite</span>
-            </div>
             <h1 className="text-2xl font-bold text-[#212121]">Espace couple</h1>
           </div>
 
