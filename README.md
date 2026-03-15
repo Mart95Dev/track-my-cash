@@ -13,7 +13,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - **Emails** : Nodemailer
 - **Sanitize** : sanitize-html (XSS protection blog)
 - **Paiements** : Stripe (checkout, webhooks, portail client)
-- **IA** : OpenRouter (DeepSeek V3.2, Mistral Medium 3.1, Gemini Flash, Qwen 3.5 Flash)
+- **IA** : OpenRouter (Kimi K2.5, Mistral Medium 3.1, Gemini Flash, Qwen 3.5 Flash)
 - **Tests** : Vitest + Testing Library (1863+ tests)
 
 ## Fonctionnalites
@@ -27,7 +27,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Categorisation automatique IA des transactions (illimitee des le plan Pro)
 
 ### Intelligence artificielle
-- Conseiller IA financier (chat multi-modeles : DeepSeek V3, Mistral Medium, Gemini Flash, Qwen 3.5)
+- Conseiller IA financier (chat Kimi K2.5, modele predetermine sans choix utilisateur)
 - Categorisation automatique des transactions par IA
 - Insights previsionnels : 3 conseils personnalises bases sur les tendances de depenses
 - Objectifs intelligents : analyse des finances et proposition d'objectifs d'epargne avec plan (Premium)
@@ -105,7 +105,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Page Securite (6 engagements, philosophie)
 - Pages auth (connexion, inscription, mot de passe oublie, reset password) avec OAuth Google
 - Logo SVG Koupli (horizontal light/dark, icone seule) + favicons multi-resolution
-- Design system : DM Serif Display (headings) + DM Sans (body), palette Indigo/Stone, theme light unifie (marketing + app)
+- Design system v2 : DM Sans, palette Violet Koupli (#6C5CE7), surfaces colorees, shadows violet, 100% light mode, 0 emoji (Material Symbols only)
 - Animations scroll reveal (fade-up, hover-lift) et composants interactifs
 - Theme light force sur les pages marketing (override CSS `.marketing-light` pour compatibilite dark mode iOS)
 
@@ -263,5 +263,6 @@ tests/
 | v22.3 | Auth production-ready : OAuth Google, reset password, navbar session-aware, logos SVG Koupli, favicons, page erreur refaite, fix double locale | — | 1861 |
 | v22.4 | Fix DB per-user (schema complet, token groupe Turso, conflit 409), onboarding 1 modal, layout desktop responsive | — | 1863 |
 | v22.5 | Theme light force, rebrand Koupli complet, sidebar desktop + bottom nav mobile, layout pleine largeur (max 1440px) | — | 1863 |
-| v23 | IA SaaS : cle serveur unique, modeles low-cost (DeepSeek/Mistral/Gemini/Qwen), quotas separes (50 chats + 30 insights + categorisation illimitee), objectifs intelligents IA (Premium), prix 5,90€/8,90€ | — | 1862 |
+| v23 | IA SaaS : cle serveur unique, modeles low-cost (Kimi K2.5/Mistral/Gemini/Qwen), quotas separes (50 chats + 30 insights + categorisation illimitee), objectifs intelligents IA (Premium), prix 5,90€/8,90€ | — | 1862 |
 | v23.1 | Fix page couple : migration colonne `status` manquante sur `couple_members`, ensureSchema dans layout app | — | 1862 |
+| v24 | Redesign app complet : design system v2 (primary #6C5CE7, surfaces colorees, shadows violet), 7 pages refaites, 0 emoji (Material Symbols), suppression dark mode app | — | 1862 |

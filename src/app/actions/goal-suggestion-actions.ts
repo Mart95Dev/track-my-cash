@@ -97,7 +97,7 @@ Objectifs existants : ${existingGoalNames.length > 0 ? existingGoalNames.join(",
     });
 
     const { text } = await generateText({
-      model: openrouter("deepseek/deepseek-v3.2"),
+      model: openrouter("moonshotai/kimi-k2.5"),
       system: `Tu es un conseiller financier personnel. Analyse les finances de l'utilisateur et propose exactement 3 objectifs d'épargne réalistes et personnalisés.
 
 Règles :

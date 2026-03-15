@@ -39,10 +39,12 @@ function SettingsCard({
   children: ReactNode;
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-soft p-5">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="material-symbols-outlined text-primary text-[20px]">{icon}</span>
-        <h2 className="font-bold text-text-main">{title}</h2>
+    <div className="bg-white rounded-2xl border border-[#EEEEEE] shadow-soft p-6 mb-4">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-9 h-9 rounded-[10px] bg-primary-surface flex items-center justify-center">
+          <span className="material-symbols-outlined text-primary text-[20px]">{icon}</span>
+        </div>
+        <h2 className="font-bold text-[#212121]">{title}</h2>
       </div>
       {children}
     </div>
@@ -102,12 +104,14 @@ export default async function ParametresPage() {
       : "Inactif";
 
   return (
-    <div className="flex flex-col bg-[#f2f2f7] min-h-screen pb-24">
-      {/* Header sticky — AC-1 */}
-      <header className="sticky top-0 z-10 bg-[#f2f2f7]/95 backdrop-blur-md px-4 pt-12 pb-4 border-b border-separator-light">
+    <div className="flex flex-col bg-background-light min-h-screen pb-24">
+      {/* Header sticky */}
+      <header className="sticky top-0 z-10 bg-background-light/95 backdrop-blur-md px-4 pt-12 pb-4 border-b border-separator-light">
         <div className="flex items-center gap-3">
-          <span className="material-symbols-outlined text-primary text-[28px]">settings</span>
-          <h1 className="text-3xl font-extrabold tracking-tight text-text-main">Paramètres</h1>
+          <div className="w-9 h-9 rounded-[10px] bg-primary-surface flex items-center justify-center">
+            <span className="material-symbols-outlined text-primary text-[22px]">settings</span>
+          </div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-[#212121]">Parametres</h1>
         </div>
       </header>
 
@@ -136,7 +140,7 @@ export default async function ParametresPage() {
       </SettingsCard>
 
       {/* 2. Sécurité — 2FA */}
-      <SettingsCard icon="security" title="Sécurité">
+      <SettingsCard icon="lock" title="Sécurité">
         <TwoFactorSetup enabled={twoFactorEnabled} />
       </SettingsCard>
 
@@ -188,7 +192,7 @@ export default async function ParametresPage() {
       </SettingsCard>
 
       {/* 3. Données */}
-      <SettingsCard icon="database" title="Mes données">
+      <SettingsCard icon="inventory_2" title="Mes données">
         <div className="flex flex-col gap-3">
           <ExportImportButtons />
           <ExportDataButton />
@@ -220,12 +224,12 @@ export default async function ParametresPage() {
       </SettingsCard>
 
       {/* 6. Tags */}
-      <SettingsCard icon="label" title="Tags">
+      <SettingsCard icon="sell" title="Tags">
         <TagManager tags={tags} />
       </SettingsCard>
 
       {/* 7. Catégorisation */}
-      <SettingsCard icon="category" title="Règles de catégorisation">
+      <SettingsCard icon="sync_alt" title="Règles de catégorisation">
         <CategorizationRules rules={rules} />
       </SettingsCard>
 
@@ -239,9 +243,11 @@ export default async function ParametresPage() {
       </SettingsCard>
 
       {/* 9. Zone danger */}
-      <div className="bg-danger/5 border border-danger/20 rounded-2xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="material-symbols-outlined text-danger text-[20px]">warning</span>
+      <div className="bg-danger-surface border border-danger/40 rounded-2xl p-6 mb-4">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-9 h-9 rounded-[10px] bg-danger/10 flex items-center justify-center">
+            <span className="material-symbols-outlined text-danger text-[20px]">warning</span>
+          </div>
           <h2 className="font-bold text-danger">Zone de danger</h2>
         </div>
         <div className="flex flex-col gap-3">

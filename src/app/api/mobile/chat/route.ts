@@ -20,7 +20,7 @@ import { getAllAccounts } from "@/lib/queries";
 const RATE_LIMIT = 30;
 const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 heure
 
-const DEFAULT_MODEL = "deepseek/deepseek-v3.2";
+const DEFAULT_MODEL = "moonshotai/kimi-k2.5";
 
 interface MobileChatBody {
   messages: { role: "user" | "assistant" | "system"; content: string }[];

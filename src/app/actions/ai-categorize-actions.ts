@@ -87,7 +87,7 @@ export async function autoCategorizeAction(
     });
 
     const { text } = await generateText({
-      model: openrouter("deepseek/deepseek-v3.2"),
+      model: openrouter("moonshotai/kimi-k2.5"),
       system: `Tu es un assistant financier. Pour chaque transaction bancaire, attribue une catégorie parmi : ${CATEGORIES.join(", ")}.
 Réponds UNIQUEMENT avec du JSON valide, sans markdown, sans code block :
 [{"id": 1, "category": "Alimentation", "subcategory": "Supermarché"}]

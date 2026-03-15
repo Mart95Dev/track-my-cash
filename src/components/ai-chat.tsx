@@ -22,30 +22,7 @@ interface Account {
   initial_balance: number;
 }
 
-const MODELS = [
-  {
-    id: "deepseek/deepseek-v3.2",
-    label: "DeepSeek V3",
-    description: "Rapide et économique",
-  },
-  {
-    id: "mistralai/mistral-medium-3.1",
-    label: "Mistral Medium",
-    description: "Précis, basé en Europe",
-  },
-  {
-    id: "google/gemini-2.0-flash",
-    label: "Gemini Flash",
-    description: "Multimodal Google",
-  },
-  {
-    id: "qwen/qwen3.5-flash-02-23",
-    label: "Qwen 3.5 Flash",
-    description: "Excellent en raisonnement",
-  },
-] as const;
-
-type ModelId = (typeof MODELS)[number]["id"];
+const DEFAULT_CHAT_MODEL = "moonshotai/kimi-k2.5";
 
 type ConsensusChatItem =
   | { role: "user"; text: string }
@@ -56,7 +33,7 @@ type ConsensusChatItem =
     };
 
 const MODEL_LABELS: Record<string, string> = {
-  "deepseek/deepseek-v3.2": "DeepSeek V3",
+  "moonshotai/kimi-k2.5": "Kimi K2.5",
   "google/gemini-2.0-flash": "Gemini Flash",
   "qwen/qwen3.5-flash-02-23": "Qwen 3.5 Flash",
 };
@@ -88,9 +65,6 @@ export function AiChat({
   const [selectedIds, setSelectedIds] = useState<number[]>(
     accounts.map((a) => a.id)
   );
-  const [selectedModel, setSelectedModel] = useState<ModelId>(
-    "deepseek/deepseek-v3.2"
-  );
   const [input, setInput] = useState("");
   const [consensusMode, setConsensusMode] = useState(false);
   const [consensusMessages, setConsensusMessages] = useState<
@@ -106,11 +80,10 @@ export function AiChat({
         api: "/api/chat",
         body: {
           accountIds: selectedIds,
-          modelId: selectedModel,
           coupleMode: hasCoupleActive && isPremium,
         },
       }),
-    [selectedIds, selectedModel, hasCoupleActive, isPremium]
+    [selectedIds, hasCoupleActive, isPremium]
   );
 
   const { messages, sendMessage, status } = useChat({ transport });
@@ -261,25 +234,12 @@ export function AiChat({
             {consensusMode ? "✦ Multi-modèles" : "Multi-modèles"}
           </button>
         )}
-        {!consensusMode && (
-          <select
-            id="model-select"
-            value={selectedModel}
-            onChange={(e) => setSelectedModel(e.target.value as ModelId)}
-            disabled={isLoading}
-            className="flex-1 text-xs rounded-full border border-gray-200 bg-white px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 text-text-main"
-          >
-            {MODELS.map((model) => (
-              <option key={model.id} value={model.id}>
-                {model.label} — {model.description}
-              </option>
-            ))}
-          </select>
-        )}
-        {consensusMode && (
+        {consensusMode ? (
           <span className="text-xs text-text-muted flex-1">
             Claude Sonnet · Gemini Flash · GPT-4o mini
           </span>
+        ) : (
+          <span className="flex-1" />
         )}
         <button
           type="button"

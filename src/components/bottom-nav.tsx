@@ -31,7 +31,7 @@ export function BottomNav({
   return (
     <>
       {/* ── Sidebar desktop (md+) ── */}
-      <aside className="hidden md:flex fixed top-0 left-0 bottom-0 z-50 w-60 flex-col bg-white border-r border-border-light shadow-[4px_0_20px_-2px_rgba(0,0,0,0.03)]">
+      <aside className="hidden md:flex fixed top-0 left-0 bottom-0 z-50 w-60 flex-col bg-white border-r border-[#EEEEEE] shadow-[0_1px_3px_rgba(108,92,231,0.06)]">
         {/* Logo */}
         <div className="px-5 pt-6 pb-8">
           <Link href={`/${locale}/dashboard`}>
@@ -40,7 +40,7 @@ export function BottomNav({
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 space-y-1">
+        <nav className="flex-1 px-3 space-y-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
           {NAV_ITEMS.map((item) => {
             const fullHref = `/${locale}${item.href}`;
             const isActive = pathname.startsWith(fullHref);
@@ -50,15 +50,15 @@ export function BottomNav({
               <Link
                 key={item.href}
                 href={fullHref}
-                className={`relative flex items-center gap-3 px-3 h-11 rounded-xl text-sm font-medium transition-all ${
+                className={`relative flex items-center gap-3 px-3 h-11 rounded-xl text-[14px] transition-all ${
                   isActive
-                    ? "bg-primary/10 text-primary"
-                    : "text-text-muted hover:bg-slate-50 hover:text-text-main"
+                    ? "bg-[#F0EEFF] text-[#6C5CE7] font-semibold"
+                    : "text-text-muted font-medium hover:bg-[#FAFAFA] hover:text-text-main"
                 }`}
               >
                 {/* Barre laterale active */}
                 {isActive && (
-                  <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full bg-primary" />
+                  <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full bg-[#6C5CE7]" />
                 )}
                 {isCouple && coupleIncomplete && (
                   <span
@@ -81,11 +81,11 @@ export function BottomNav({
         </nav>
 
         {/* Notifications + bottom */}
-        <div className="px-3 pb-6 space-y-2">
+        <div className="px-3 pb-6 space-y-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
           {unreadCount > 0 && (
             <Link
               href={`/${locale}/notifications`}
-              className="flex items-center gap-3 px-3 h-11 rounded-xl text-sm font-medium text-text-muted hover:bg-slate-50 hover:text-text-main transition-all"
+              className="flex items-center gap-3 px-3 h-11 rounded-xl text-[14px] font-medium text-text-muted hover:bg-[#FAFAFA] hover:text-text-main transition-all"
             >
               <span className="material-symbols-outlined text-[20px]">notifications</span>
               Notifications
@@ -96,19 +96,19 @@ export function BottomNav({
           )}
           <Link
             href={`/${locale}/parametres`}
-            className={`flex items-center gap-3 px-3 h-11 rounded-xl text-sm font-medium transition-all ${
+            className={`flex items-center gap-3 px-3 h-11 rounded-xl text-[14px] transition-all ${
               pathname.startsWith(`/${locale}/parametres`)
-                ? "bg-primary/10 text-primary"
-                : "text-text-muted hover:bg-slate-50 hover:text-text-main"
+                ? "bg-[#F0EEFF] text-[#6C5CE7] font-semibold"
+                : "text-text-muted font-medium hover:bg-[#FAFAFA] hover:text-text-main"
             }`}
           >
             <span className="material-symbols-outlined text-[20px]">settings</span>
             Parametres
           </Link>
-          <div className="border-t border-border-light my-2" />
+          <div className="border-t border-[#EEEEEE] my-2" />
           <Link
             href="/"
-            className="flex items-center gap-3 px-3 h-11 rounded-xl text-sm font-medium text-text-muted hover:bg-slate-50 hover:text-text-main transition-all"
+            className="flex items-center gap-3 px-3 h-11 rounded-xl text-[14px] font-medium text-text-muted hover:bg-[#FAFAFA] hover:text-text-main transition-all"
           >
             <span className="material-symbols-outlined text-[20px]">home</span>
             Retour au site
@@ -117,7 +117,10 @@ export function BottomNav({
       </aside>
 
       {/* ── BottomNav mobile (< md) ── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border-light h-16 pb-safe shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[#EEEEEE] h-16 pb-safe shadow-[0_1px_3px_rgba(108,92,231,0.06)]"
+        style={{ fontFamily: "'DM Sans', sans-serif" }}
+      >
         {unreadCount > 0 && (
           <a
             href={`/${locale}/notifications`}
@@ -139,8 +142,8 @@ export function BottomNav({
                 href={fullHref}
                 className={`relative flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-colors ${
                   isActive
-                    ? "text-primary"
-                    : "text-text-muted hover:text-primary/70"
+                    ? "text-[#6C5CE7]"
+                    : "text-text-muted hover:text-[#6C5CE7]/70"
                 }`}
               >
                 {isCouple && coupleIncomplete && (
@@ -151,7 +154,7 @@ export function BottomNav({
                 )}
                 {/* Pill indicateur actif */}
                 {isActive && (
-                  <span className="absolute -top-1 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-primary" />
+                  <span className="absolute -top-1 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-[#6C5CE7]" />
                 )}
                 <span
                   className="material-symbols-outlined text-[22px]"
@@ -161,7 +164,9 @@ export function BottomNav({
                 >
                   {item.icon}
                 </span>
-                <span className="text-[10px] font-semibold leading-none">{item.label}</span>
+                <span className={`text-[10px] leading-none ${isActive ? "font-semibold" : "font-medium"}`}>
+                  {item.label}
+                </span>
               </Link>
             );
           })}

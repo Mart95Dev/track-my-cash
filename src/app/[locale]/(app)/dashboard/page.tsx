@@ -190,13 +190,16 @@ export default async function DashboardPage({
 
   if (accounts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
-        <span className="material-symbols-outlined text-primary text-[64px] mb-4">account_balance_wallet</span>
-        <h2 className="text-xl font-bold text-text-main mb-2">Bienvenue sur Koupli</h2>
-        <p className="text-text-muted text-sm mb-6">Ajoutez un compte pour commencer à suivre vos finances.</p>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#F8F7FC] px-4 text-center">
+        <div className="w-16 h-16 rounded-[20px] bg-[#F0EEFF] flex items-center justify-center mb-4">
+          <span className="material-symbols-outlined text-[#6C5CE7] text-[32px]">account_balance_wallet</span>
+        </div>
+        <h2 className="text-xl font-bold text-[#212121] mb-2">Bienvenue sur Koupli</h2>
+        <p className="text-[#757575] text-sm mb-6">Ajoutez un compte pour commencer a suivre vos finances.</p>
         <Link
           href={`/${locale}/comptes`}
-          className="bg-primary text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-primary/20"
+          className="bg-[#6C5CE7] text-white font-bold px-6 py-3 rounded-xl"
+          style={{ boxShadow: "0 4px 12px rgba(108,92,231,0.25)" }}
         >
           Ajouter un compte
         </Link>
@@ -207,25 +210,26 @@ export default async function DashboardPage({
   }
 
   return (
-    <div className="flex flex-col pb-2 bg-background-light w-full">
+    <div className="flex flex-col pb-2 bg-[#F8F7FC] w-full">
       {/* Header */}
       <header className="flex items-center justify-between px-4 pt-6 pb-4">
         <div className="flex items-center gap-3">
           <div className="relative shrink-0">
-            <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-base">
+            <div className="h-12 w-12 rounded-full bg-[#6C5CE7] flex items-center justify-center text-white font-bold text-base">
               {initials}
             </div>
-            <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-success border-2 border-white" />
+            <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#00B894] border-2 border-white" />
           </div>
           <div>
-            <p className="text-text-muted text-xs font-medium">Bonjour,</p>
-            <h2 className="text-text-main text-lg font-bold leading-tight">{firstName}</h2>
+            <p className="text-[#757575] text-xs font-medium">Bonjour,</p>
+            <h2 className="text-[#212121] text-lg font-bold leading-tight">{firstName}</h2>
           </div>
         </div>
         <Link
-          href={`/${locale}/parametres`}
-          className="w-10 h-10 rounded-full bg-white border border-gray-100 shadow-soft flex items-center justify-center text-text-muted hover:text-primary transition-colors"
-          aria-label="Paramètres"
+          href={`/${locale}/notifications`}
+          className="w-10 h-10 rounded-full bg-white border border-[#EEEEEE] flex items-center justify-center text-[#757575] hover:text-[#6C5CE7] transition-colors"
+          style={{ boxShadow: "0 1px 3px rgba(108,92,231,0.06)" }}
+          aria-label="Notifications"
         >
           <span className="material-symbols-outlined text-[20px]">notifications</span>
         </Link>
@@ -235,13 +239,13 @@ export default async function DashboardPage({
       <div className="flex gap-2 overflow-x-auto px-4 pb-1 mb-2 scrollbar-none">
         <Link
           href={`/${locale}/dashboard?view=personal`}
-          className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${view !== "couple" ? "bg-primary text-white" : "bg-white border border-gray-200 text-text-muted"}`}
+          className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${view !== "couple" ? "bg-[#6C5CE7] text-white" : "bg-white border border-[#EEEEEE] text-[#757575]"}`}
         >
           Personnel
         </Link>
         <Link
           href={`/${locale}/dashboard?view=couple`}
-          className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${view === "couple" ? "bg-primary text-white" : "bg-white border border-gray-200 text-text-muted"}`}
+          className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${view === "couple" ? "bg-[#6C5CE7] text-white" : "bg-white border border-[#EEEEEE] text-[#757575]"}`}
         >
           Couple
         </Link>
@@ -257,12 +261,14 @@ export default async function DashboardPage({
             locale={locale}
           />
         ) : (
-          <div className="mx-4 my-4 bg-primary/10 rounded-2xl p-5 text-center">
-            <span className="material-symbols-outlined text-primary text-[40px] mb-2">favorite</span>
-            <p className="text-text-main font-bold mb-1">Invitez votre partenaire</p>
-            <p className="text-text-muted text-sm mb-4">Créez un espace couple pour partager vos finances.</p>
-            <Link href={`/${locale}/couple`} className="inline-flex items-center justify-center h-10 px-6 bg-primary text-white font-bold rounded-xl text-sm">
-              Créer un espace couple
+          <div className="mx-4 my-4 bg-[#F0EEFF] rounded-2xl p-5 text-center">
+            <div className="w-14 h-14 rounded-[16px] bg-white/60 flex items-center justify-center mx-auto mb-3">
+              <span className="material-symbols-outlined text-[#6C5CE7] text-[28px]">favorite</span>
+            </div>
+            <p className="text-[#212121] font-bold mb-1">Invitez votre partenaire</p>
+            <p className="text-[#757575] text-sm mb-4">Creez un espace couple pour partager vos finances.</p>
+            <Link href={`/${locale}/couple`} className="inline-flex items-center justify-center h-10 px-6 bg-[#6C5CE7] text-white font-bold rounded-xl text-sm">
+              Creer un espace couple
             </Link>
           </div>
         )
@@ -303,10 +309,10 @@ export default async function DashboardPage({
 
       {/* Balance Evolution */}
       {balanceHistory.length > 0 && (
-        <div className="mx-4 mb-4 bg-white rounded-2xl shadow-soft border border-gray-100 p-4">
+        <div className="mx-4 mb-4 bg-white rounded-2xl border border-[#EEEEEE] p-4" style={{ boxShadow: "0 1px 3px rgba(108,92,231,0.06)" }}>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-text-main">Historique du solde</h3>
-            <span className="text-xs text-text-muted">12 mois</span>
+            <h3 className="text-sm font-bold text-[#212121]">Historique du solde</h3>
+            <span className="text-xs font-medium text-[#757575] bg-[#F5F5F5] rounded-full px-2 py-0.5">12 mois</span>
           </div>
           <BalanceEvolutionChart data={balanceHistory} />
         </div>
@@ -314,10 +320,10 @@ export default async function DashboardPage({
 
       {/* Income vs Expenses Bar Chart — STORY-137 AC-1 */}
       {monthlySummary.length > 0 && (
-        <div className="mx-4 mb-4 bg-white rounded-2xl shadow-soft border border-gray-100 p-4">
+        <div className="mx-4 mb-4 bg-white rounded-2xl border border-[#EEEEEE] p-4" style={{ boxShadow: "0 1px 3px rgba(108,92,231,0.06)" }}>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-text-main">Revenus vs Dépenses</h3>
-            <span className="text-xs text-text-muted">6 mois</span>
+            <h3 className="text-sm font-bold text-[#212121]">Revenus vs Depenses</h3>
+            <span className="text-xs font-medium text-[#757575] bg-[#F5F5F5] rounded-full px-2 py-0.5">6 mois</span>
           </div>
           <IncomeExpenseBarChart
             data={monthlySummary.slice(0, 6).reverse().map((m) => ({
@@ -332,8 +338,8 @@ export default async function DashboardPage({
 
       {/* Category Pie Chart — STORY-137 AC-2 */}
       {expensesByBroad.length > 0 && (
-        <div className="mx-4 mb-4 bg-white rounded-2xl shadow-soft border border-gray-100 p-4">
-          <h3 className="text-sm font-bold text-text-main mb-3">Répartition des dépenses</h3>
+        <div className="mx-4 mb-4 bg-white rounded-2xl border border-[#EEEEEE] p-4" style={{ boxShadow: "0 1px 3px rgba(108,92,231,0.06)" }}>
+          <h3 className="text-sm font-bold text-[#212121] mb-3">Repartition des depenses</h3>
           <CategoryPieChart data={expensesByBroad} currency={refCurrency} />
         </div>
       )}
@@ -345,8 +351,8 @@ export default async function DashboardPage({
       {budgetStatuses.length > 0 && (
         <section className="px-4 mb-4">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="text-sm font-bold text-text-main">Budgets</h3>
-            <Link href={`/${locale}/budgets`} className="text-primary text-xs font-bold">
+            <h3 className="text-sm font-bold text-[#212121]">Budgets</h3>
+            <Link href={`/${locale}/budgets`} className="text-[#6C5CE7] text-xs font-bold">
               Voir tout
             </Link>
           </div>
@@ -362,8 +368,8 @@ export default async function DashboardPage({
       {goals.length > 0 && (
         <section className="px-4 mb-4">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="text-sm font-bold text-text-main">Objectifs d&apos;épargne</h3>
-            <Link href={`/${locale}/objectifs`} className="text-primary text-xs font-bold">
+            <h3 className="text-sm font-bold text-[#212121]">Objectifs d&apos;epargne</h3>
+            <Link href={`/${locale}/objectifs`} className="text-[#6C5CE7] text-xs font-bold">
               Voir tout
             </Link>
           </div>
@@ -393,19 +399,19 @@ export default async function DashboardPage({
       {recentTransactions.length > 0 && (
         <section className="px-4 mb-4">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="text-sm font-bold text-text-main">Dernières transactions</h3>
-            <Link href={`/${locale}/transactions`} className="text-primary text-xs font-bold">
+            <h3 className="text-sm font-bold text-[#212121]">Dernieres transactions</h3>
+            <Link href={`/${locale}/transactions`} className="text-[#6C5CE7] text-xs font-bold">
               Voir tout
             </Link>
           </div>
-          <div className="bg-white dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-gray-800 shadow-soft divide-y divide-gray-50">
+          <div className="bg-white rounded-2xl border border-[#EEEEEE] divide-y divide-[#EEEEEE]/50" style={{ boxShadow: "0 1px 3px rgba(108,92,231,0.06)" }}>
             {recentTransactions.map((tx) => (
               <div key={tx.id} className="flex items-center justify-between px-4 py-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-text-main truncate">{tx.description}</p>
-                  <p className="text-xs text-text-muted">{tx.category}</p>
+                  <p className="text-sm font-medium text-[#212121] truncate">{tx.description}</p>
+                  <p className="text-xs text-[#757575]">{tx.category}</p>
                 </div>
-                <span className={`text-sm font-bold ml-3 shrink-0 ${tx.type === "income" ? "text-success" : "text-danger"}`}>
+                <span className={`text-sm font-bold ml-3 shrink-0 ${tx.type === "income" ? "text-[#00B894]" : "text-[#E17055]"}`}>
                   {tx.type === "income" ? "+" : "-"}{formatCurrency(tx.amount, refCurrency, locale)}
                 </span>
               </div>

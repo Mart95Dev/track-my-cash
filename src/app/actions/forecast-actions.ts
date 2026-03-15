@@ -41,7 +41,7 @@ export async function getAIForecastInsightsAction(
     });
 
     const { text } = await generateText({
-      model: openrouter("deepseek/deepseek-v3.2"),
+      model: openrouter("moonshotai/kimi-k2.5"),
       system: `Tu es un conseiller financier personnel. Analyse les tendances de dépenses et génère exactement 3 insights actionnables pour améliorer les finances.
 Réponds UNIQUEMENT avec du JSON valide, sans markdown, sans code block :
 ["insight 1", "insight 2", "insight 3"]

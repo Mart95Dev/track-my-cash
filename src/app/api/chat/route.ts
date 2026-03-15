@@ -17,45 +17,28 @@ const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 heure
 
 export const maxDuration = 30;
 
-const ALLOWED_MODELS = [
-  "deepseek/deepseek-v3.2",
-  "mistralai/mistral-medium-3.1",
-  "google/gemini-2.0-flash",
-  "qwen/qwen3.5-flash-02-23",
-] as const;
-
-const DEFAULT_MODEL: AllowedModel = "deepseek/deepseek-v3.2";
+const CHAT_MODEL = "moonshotai/kimi-k2.5";
 
 const CONSENSUS_MODELS = [
-  "deepseek/deepseek-v3.2",
+  "moonshotai/kimi-k2.5",
   "google/gemini-2.0-flash",
   "qwen/qwen3.5-flash-02-23",
 ] as const;
 
 const SYNTHESIS_MODEL = "mistralai/mistral-medium-3.1";
 
-type AllowedModel = (typeof ALLOWED_MODELS)[number];
-
 export async function POST(req: Request) {
   const {
     messages,
     accountIds,
-    modelId,
     consensusMode,
     coupleMode,
   }: {
     messages: UIMessage[];
     accountIds: number[];
-    modelId?: string;
     consensusMode?: boolean;
     coupleMode?: boolean;
   } = await req.json();
-
-  const selectedModel: AllowedModel = ALLOWED_MODELS.includes(
-    modelId as AllowedModel
-  )
-    ? (modelId as AllowedModel)
-    : DEFAULT_MODEL;
 
   const userId = await getRequiredUserId();
 
@@ -208,7 +191,7 @@ ${
     : createAiTools(db, accountId);
 
   const result = streamText({
-    model: openrouter(selectedModel),
+    model: openrouter(CHAT_MODEL),
     system: systemMessage + coupleSystemSuffix,
     messages: await convertToModelMessages(messages),
     tools: allTools,

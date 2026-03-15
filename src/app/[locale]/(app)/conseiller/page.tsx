@@ -89,17 +89,29 @@ export default async function ConseillerPage() {
       : personalSuggestions;
 
   return (
-    <div className="flex flex-col bg-background-light min-h-screen">
-      {/* Header — AC-1 */}
-      <header className="sticky top-0 z-10 bg-background-light/95 backdrop-blur-md px-4 pt-12 pb-4 flex items-center justify-between border-b border-slate-100/50 dark:border-slate-800/50">
+    <div className="flex flex-col bg-[#F8F7FC] min-h-screen">
+      {/* Header */}
+      <header className="sticky top-0 z-10 bg-[#F8F7FC]/95 backdrop-blur-md px-4 pt-12 pb-4 flex items-center justify-between border-b border-[#EEEEEE]">
         <div className="flex items-center gap-3">
-          <span className="material-symbols-outlined text-primary text-[24px]">arrow_back_ios_new</span>
-          <h1 className="text-xl font-bold text-text-main">Conseiller IA</h1>
+          <button className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-[#F0EEFF] transition-colors">
+            <span className="material-symbols-outlined text-[#212121] text-[20px]">arrow_back_ios_new</span>
+          </button>
+          <h1 className="text-xl font-bold text-[#212121]">Conseiller IA</h1>
         </div>
-        <span className="text-xs font-bold rounded-full px-3 py-1 bg-primary/10 text-primary">
+        <span className="text-xs font-semibold rounded-full px-3 py-1 bg-[#F0EEFF] text-[#6C5CE7]">
           Premium
         </span>
       </header>
+
+      {/* AI info banner */}
+      <div className="mx-4 mt-4 rounded-xl bg-[#F0EEFF] px-4 py-3 flex items-start gap-3">
+        <span className="material-symbols-outlined text-[#6C5CE7] text-[24px] mt-0.5">auto_awesome</span>
+        <div className="flex flex-col gap-0.5">
+          <p className="text-sm font-semibold text-[#212121]">Propulse par l&apos;intelligence artificielle</p>
+          <p className="text-xs text-[#757575]">Analyse vos comptes selectionnes</p>
+        </div>
+      </div>
+
       <AiChat
         accounts={accounts}
         hasApiKey={!!process.env.API_KEY_OPENROUTER}
