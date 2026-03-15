@@ -1,45 +1,35 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export default function TransactionsLoading() {
   return (
-    <div className="space-y-6">
-      {/* Header titre + bouton import */}
+    <div className="flex flex-col pb-2 bg-[#F8F7FC] w-full px-4 pt-6 space-y-4">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <Skeleton className="h-8 w-36" />
-        <Skeleton className="h-9 w-40" />
+        <Skeleton className="h-7 w-36" />
+        <Skeleton className="h-9 w-28 rounded-xl" />
       </div>
-
-      {/* Formulaire */}
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-5 w-44" />
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-20 w-full" />
-        </CardContent>
-      </Card>
 
       {/* Filtres */}
-      <div className="flex gap-3">
-        <Skeleton className="h-9 w-48" />
-        <Skeleton className="h-9 w-32" />
+      <div className="flex gap-2">
+        <Skeleton className="h-9 w-32 rounded-xl" />
+        <Skeleton className="h-9 w-28 rounded-xl" />
       </div>
 
-      {/* Tableau — 10 lignes skeleton */}
-      <Card>
-        <CardContent className="p-0">
-          <div className="divide-y">
-            {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="flex items-center justify-between px-4 py-3 gap-4">
-                <Skeleton className="h-4 w-20 shrink-0" />
-                <Skeleton className="h-4 flex-1" />
-                <Skeleton className="h-4 w-24 shrink-0" />
+      {/* Liste transactions */}
+      <div className="bg-white rounded-2xl border border-[#EEEEEE] divide-y divide-[#EEEEEE]/50" style={{ boxShadow: "0 1px 3px rgba(108,92,231,0.06)" }}>
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="flex items-center justify-between px-4 py-3 gap-4">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <Skeleton className="h-9 w-9 rounded-xl shrink-0" />
+              <div className="space-y-1.5 flex-1">
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-3 w-1/3" />
               </div>
-            ))}
+            </div>
+            <Skeleton className="h-4 w-20 shrink-0" />
           </div>
-        </CardContent>
-      </Card>
+        ))}
+      </div>
     </div>
   );
 }
