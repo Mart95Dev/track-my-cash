@@ -43,10 +43,6 @@ export function AiAccountSelector({
 
   return (
     <div className="space-y-2">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        {t("title")}
-      </p>
-
       <div className="space-y-1.5">
         {accounts.map((account) => {
           const balance = account.calculated_balance ?? account.initial_balance;

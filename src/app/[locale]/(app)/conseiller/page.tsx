@@ -91,13 +91,8 @@ export default async function ConseillerPage() {
   return (
     <div className="flex flex-col bg-[#F8F7FC] min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-[#F8F7FC]/95 backdrop-blur-md px-4 pt-12 pb-4 flex items-center justify-between border-b border-[#EEEEEE]">
-        <div className="flex items-center gap-3">
-          <button className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-[#F0EEFF] transition-colors">
-            <span className="material-symbols-outlined text-[#212121] text-[20px]">arrow_back_ios_new</span>
-          </button>
-          <h1 className="text-xl font-bold text-[#212121]">Conseiller IA</h1>
-        </div>
+      <header className="sticky top-0 z-10 bg-[#F8F7FC]/95 backdrop-blur-md px-4 pt-4 pb-4 flex items-center justify-between border-b border-[#EEEEEE]">
+        <h1 className="text-xl font-bold text-[#212121]">Conseiller IA</h1>
         <span className="text-xs font-semibold rounded-full px-3 py-1 bg-[#F0EEFF] text-[#6C5CE7]">
           Premium
         </span>
