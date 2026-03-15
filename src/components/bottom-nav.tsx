@@ -15,6 +15,10 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/transactions", icon: "receipt_long",           label: "Transactions" },
   { href: "/couple",       icon: "favorite",               label: "Couple" },
   { href: "/conseiller",   icon: "smart_toy",              label: "IA" },
+];
+
+const MOBILE_NAV_ITEMS: NavItem[] = [
+  ...NAV_ITEMS,
   { href: "/notifications", icon: "notifications",         label: "Notifs" },
 ];
 
@@ -137,7 +141,7 @@ export function BottomNav({
         style={{ fontFamily: "'DM Sans', sans-serif" }}
       >
         <div className="flex h-full items-center justify-around px-2">
-          {NAV_ITEMS.map((item) => {
+          {MOBILE_NAV_ITEMS.map((item) => {
             const fullHref = `/${locale}${item.href}`;
             const isActive = pathname.startsWith(fullHref);
             const isCouple = item.href === "/couple";
