@@ -266,3 +266,4 @@ tests/
 | v23 | IA SaaS : cle serveur unique, modeles low-cost (Kimi K2.5/Mistral/Gemini/Qwen), quotas separes (50 chats + 30 insights + categorisation illimitee), objectifs intelligents IA (Premium), prix 5,90€/8,90€ | — | 1862 |
 | v23.1 | Fix page couple : migration colonne `status` manquante sur `couple_members`, ensureSchema dans layout app | — | 1862 |
 | v24 | Redesign app complet : design system v2 (primary #6C5CE7, surfaces colorees, shadows violet), 7 pages refaites, 0 emoji (Material Symbols), suppression dark mode app | — | 1862 |
+| v25 | UX polish : migration IA vers Kimi K2.5, suppression selecteur modele, barre de progression navigation, loading skeletons toutes pages, notifications sidebar+bottom nav, redesign header dashboard/comptes/transactions/IA/couple, input chat style Claude, espace couple verrouille incitatif, suppression section devises parametres, parallelisation requetes layout | — | 1862 |
