@@ -7,7 +7,6 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-  SheetClose,
 } from "@/components/ui/sheet";
 import { AccountForm } from "@/components/account-form";
 
@@ -26,17 +25,7 @@ export function AddAccountSheet() {
       </SheetTrigger>
       <SheetContent side="bottom" className="rounded-t-2xl px-0 pb-safe max-h-[90vh] overflow-y-auto">
         <SheetHeader className="px-5 pb-2">
-          <div className="flex items-center justify-between">
-            <SheetTitle className="text-text-main text-lg font-bold">Ajouter un compte</SheetTitle>
-            <SheetClose asChild>
-              <button
-                className="w-8 h-8 rounded-full bg-background-light flex items-center justify-center text-text-muted hover:text-text-main transition-colors"
-                aria-label="Fermer"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            </SheetClose>
-          </div>
+          <SheetTitle className="text-text-main text-lg font-bold">Ajouter un compte</SheetTitle>
         </SheetHeader>
         <div className="px-5 pb-6">
           <AccountForm />
