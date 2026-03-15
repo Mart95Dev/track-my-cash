@@ -79,35 +79,10 @@ export default async function TransactionsPage({
   return (
     <div className="flex flex-col pb-2 bg-[#F8F7FC]">
 
-      {/* Header sticky — AC-1 */}
+      {/* Header sticky */}
       <header className="sticky top-0 z-40 bg-[#F8F7FC]/95 backdrop-blur-md border-b border-[#EEEEEE]">
-        <div className="px-4 py-4 flex items-center justify-between">
+        <div className="px-4 py-4">
           <h1 className="text-[28px] font-bold tracking-tight text-[#212121]">Transactions</h1>
-          <button type="button" className="text-[#6C5CE7] font-semibold text-sm border border-[#6C5CE7] rounded-xl px-4 py-1.5 hover:bg-[#F0EEFF] transition-colors">
-            Modifier
-          </button>
-        </div>
-
-        {/* Chips filtres — AC-2 : Tous les comptes | Recherche | Tags */}
-        <div className="flex gap-3 px-4 pb-3 overflow-x-auto no-scrollbar">
-          <div className="flex h-10 shrink-0 items-center gap-2 rounded-full bg-white border border-[#EEEEEE] px-4 shadow-[0_1px_3px_rgba(108,92,231,0.06)]">
-            <span className="text-[13px] font-semibold whitespace-nowrap text-[#212121]">
-              Tous les comptes
-            </span>
-            <span className="material-symbols-outlined text-[#757575] text-[18px]">expand_more</span>
-          </div>
-          <div className="flex h-10 shrink-0 items-center gap-2 rounded-full bg-white border border-[#EEEEEE] px-4 shadow-[0_1px_3px_rgba(108,92,231,0.06)]">
-            <span className="material-symbols-outlined text-[#757575] text-[18px]">search</span>
-            <span className="text-[13px] font-semibold whitespace-nowrap text-[#212121]">
-              Recherche
-            </span>
-          </div>
-          <div className="flex h-10 shrink-0 items-center gap-2 rounded-full bg-white border border-[#EEEEEE] px-4 shadow-[0_1px_3px_rgba(108,92,231,0.06)]">
-            <span className="text-[13px] font-semibold whitespace-nowrap text-[#212121]">
-              Tags
-            </span>
-            <span className="material-symbols-outlined text-[#757575] text-[18px]">expand_more</span>
-          </div>
         </div>
       </header>
 
