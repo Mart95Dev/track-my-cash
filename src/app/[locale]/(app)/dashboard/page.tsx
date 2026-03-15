@@ -80,12 +80,6 @@ export default async function DashboardPage({
   );
 
   const userName = session.user.name ?? "";
-  const initials = userName
-    .split(" ")
-    .map((n: string) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2) || "?";
   const firstName = userName.split(" ")[0] ?? "vous";
 
   const now = new Date();
@@ -212,44 +206,30 @@ export default async function DashboardPage({
   return (
     <div className="flex flex-col pb-2 bg-[#F8F7FC] w-full">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 pt-6 pb-4">
-        <div className="flex items-center gap-3">
-          <div className="relative shrink-0">
-            <div className="h-12 w-12 rounded-full bg-[#6C5CE7] flex items-center justify-center text-white font-bold text-base">
-              {initials}
-            </div>
-            <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#00B894] border-2 border-white" />
-          </div>
+      <header className="px-4 pt-6 pb-4">
+        <div className="flex items-center justify-between">
           <div>
-            <p className="text-[#757575] text-xs font-medium">Bonjour,</p>
-            <h2 className="text-[#212121] text-lg font-bold leading-tight">{firstName}</h2>
+            <h2 className="text-[#212121] text-xl font-bold leading-tight">Bonjour, {firstName}</h2>
+            <p className="text-[#757575] text-sm mt-0.5">
+              Voici le resume de vos finances — {now.toLocaleDateString("fr-FR", { month: "long", year: "numeric" }).replace(/^\w/, (c) => c.toUpperCase())}
+            </p>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <Link
+              href={`/${locale}/dashboard?view=personal`}
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${view !== "couple" ? "bg-[#6C5CE7] text-white" : "bg-white border border-[#EEEEEE] text-[#757575]"}`}
+            >
+              Personnel
+            </Link>
+            <Link
+              href={`/${locale}/dashboard?view=couple`}
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${view === "couple" ? "bg-[#6C5CE7] text-white" : "bg-white border border-[#EEEEEE] text-[#757575]"}`}
+            >
+              Couple
+            </Link>
           </div>
         </div>
-        <Link
-          href={`/${locale}/notifications`}
-          className="w-10 h-10 rounded-full bg-white border border-[#EEEEEE] flex items-center justify-center text-[#757575] hover:text-[#6C5CE7] transition-colors"
-          style={{ boxShadow: "0 1px 3px rgba(108,92,231,0.06)" }}
-          aria-label="Notifications"
-        >
-          <span className="material-symbols-outlined text-[20px]">notifications</span>
-        </Link>
       </header>
-
-      {/* Chips filtres AC-2 */}
-      <div className="flex gap-2 overflow-x-auto px-4 pb-1 mb-2 scrollbar-none">
-        <Link
-          href={`/${locale}/dashboard?view=personal`}
-          className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${view !== "couple" ? "bg-[#6C5CE7] text-white" : "bg-white border border-[#EEEEEE] text-[#757575]"}`}
-        >
-          Personnel
-        </Link>
-        <Link
-          href={`/${locale}/dashboard?view=couple`}
-          className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${view === "couple" ? "bg-[#6C5CE7] text-white" : "bg-white border border-[#EEEEEE] text-[#757575]"}`}
-        >
-          Couple
-        </Link>
-      </div>
 
       {/* Vue couple */}
       {view === "couple" && (

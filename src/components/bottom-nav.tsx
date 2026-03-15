@@ -15,6 +15,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/transactions", icon: "receipt_long",           label: "Transactions" },
   { href: "/couple",       icon: "favorite",               label: "Couple" },
   { href: "/conseiller",   icon: "smart_toy",              label: "IA" },
+  { href: "/notifications", icon: "notifications",         label: "Notifs" },
 ];
 
 export function BottomNav({
@@ -82,18 +83,32 @@ export function BottomNav({
 
         {/* Notifications + bottom */}
         <div className="px-3 pb-6 space-y-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          {unreadCount > 0 && (
-            <Link
-              href={`/${locale}/notifications`}
-              className="flex items-center gap-3 px-3 h-11 rounded-xl text-[14px] font-medium text-text-muted hover:bg-[#FAFAFA] hover:text-text-main transition-all"
+          <Link
+            href={`/${locale}/notifications`}
+            className={`relative flex items-center gap-3 px-3 h-11 rounded-xl text-[14px] transition-all ${
+              pathname.startsWith(`/${locale}/notifications`)
+                ? "bg-[#F0EEFF] text-[#6C5CE7] font-semibold"
+                : "text-text-muted font-medium hover:bg-[#FAFAFA] hover:text-text-main"
+            }`}
+          >
+            {pathname.startsWith(`/${locale}/notifications`) && (
+              <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full bg-[#6C5CE7]" />
+            )}
+            <span
+              className="material-symbols-outlined text-[20px]"
+              style={{
+                fontVariationSettings: pathname.startsWith(`/${locale}/notifications`) ? "'FILL' 1" : "'FILL' 0",
+              }}
             >
-              <span className="material-symbols-outlined text-[20px]">notifications</span>
-              Notifications
+              notifications
+            </span>
+            Notifications
+            {unreadCount > 0 && (
               <span className="ml-auto flex items-center justify-center min-w-5 h-5 px-1 bg-danger text-white text-[10px] font-bold rounded-full">
                 {unreadCount}
               </span>
-            </Link>
-          )}
+            )}
+          </Link>
           <Link
             href={`/${locale}/parametres`}
             className={`flex items-center gap-3 px-3 h-11 rounded-xl text-[14px] transition-all ${
@@ -121,26 +136,18 @@ export function BottomNav({
         className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[#EEEEEE] h-16 pb-safe shadow-[0_1px_3px_rgba(108,92,231,0.06)]"
         style={{ fontFamily: "'DM Sans', sans-serif" }}
       >
-        {unreadCount > 0 && (
-          <a
-            href={`/${locale}/notifications`}
-            aria-label={`${unreadCount} notifications non lues`}
-            className="absolute top-0 right-4 -translate-y-1/2 flex items-center justify-center min-w-5 h-5 px-1 bg-danger text-white text-[10px] font-bold rounded-full z-10"
-          >
-            {unreadCount}
-          </a>
-        )}
         <div className="flex h-full items-center justify-around px-2">
           {NAV_ITEMS.map((item) => {
             const fullHref = `/${locale}${item.href}`;
             const isActive = pathname.startsWith(fullHref);
             const isCouple = item.href === "/couple";
+            const isNotif = item.href === "/notifications";
 
             return (
               <Link
                 key={item.href}
                 href={fullHref}
-                className={`relative flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-xl transition-colors ${
+                className={`relative flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition-colors ${
                   isActive
                     ? "text-[#6C5CE7]"
                     : "text-text-muted hover:text-[#6C5CE7]/70"
@@ -149,8 +156,16 @@ export function BottomNav({
                 {isCouple && coupleIncomplete && (
                   <span
                     aria-label="couple incomplet"
-                    className="absolute top-0 right-2 w-2 h-2 rounded-full bg-danger"
+                    className="absolute top-0 right-1 w-2 h-2 rounded-full bg-danger"
                   />
+                )}
+                {isNotif && unreadCount > 0 && (
+                  <span
+                    aria-label={`${unreadCount} notifications non lues`}
+                    className="absolute -top-0.5 right-0 flex items-center justify-center min-w-4 h-4 px-0.5 bg-danger text-white text-[9px] font-bold rounded-full"
+                  >
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
                 )}
                 {/* Pill indicateur actif */}
                 {isActive && (
