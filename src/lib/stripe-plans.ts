@@ -62,7 +62,7 @@ export const PLANS: Record<PlanId, Plan> = {
     features: [
       "Comptes illimités",
       "Conseiller IA illimité & prioritaire",
-      "Objectifs intelligents IA",
+      "Objectifs d'épargne guidés par l'IA",
       "IA conseiller couple illimitée",
       "Export PDF rapport mensuel",
       "Rapport annuel IA",

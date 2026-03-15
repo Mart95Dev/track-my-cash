@@ -41,7 +41,7 @@ export const COMPARISON_FEATURES: FeatureRow[] = [
   { label: "Conseiller IA",          free: false,     pro: "50/mois",    premium: "Illimité" },
   { label: "IA multi-modèles",       free: false,     pro: false,        premium: true },
   { label: "Partage couple",         free: false,     pro: true,         premium: true },
-  { label: "Objectifs intelligents IA", free: false,   pro: false,        premium: true },
+  { label: "Objectifs d'épargne guidés par l'IA", free: false, pro: false, premium: true },
   { label: "IA conseiller couple",   free: false,     pro: false,        premium: true },
   { label: "Export PDF mensuel",     free: false,     pro: true,         premium: true },
   { label: "Objectifs d'épargne",    free: false,     pro: true,         premium: true },

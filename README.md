@@ -30,7 +30,7 @@ Application de gestion de finances personnelles et en couple. Suivez vos comptes
 - Conseiller IA financier (chat Kimi K2.5, modele predetermine sans choix utilisateur)
 - Categorisation automatique des transactions par IA
 - Insights previsionnels : 3 conseils personnalises bases sur les tendances de depenses
-- Objectifs intelligents : analyse des finances et proposition d'objectifs d'epargne avec plan (Premium)
+- Objectifs d'epargne guides par l'IA : analyse des finances et proposition d'objectifs personnalises avec plan (Premium)
 - Mode consensus Premium : 3 modeles en parallele + synthese Mistral Medium
 - Conseiller couple IA avec analyse des finances communes (Premium)
 - Detection d'anomalies de depenses (alertes proactives)
