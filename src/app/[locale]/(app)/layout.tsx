@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { BottomNav } from "@/components/bottom-nav";
 import { PwaInstallBanner } from "@/components/pwa-install-banner";
-import { NavProgress } from "@/components/nav-progress";
+
 import { PlanBanner } from "@/components/plan-banner";
 import { TrialUrgencyModal } from "@/components/trial-urgency-modal";
 import { CoupleInviteBanner } from "@/components/couple-invite-banner";
@@ -87,7 +87,6 @@ export default async function AppLayout({ children, params }: Props) {
 
   return (
     <div className="min-h-screen bg-background-light marketing-light">
-      <NavProgress />
       <BottomNav unreadCount={unreadCount} coupleIncomplete={coupleIncomplete} />
       <div className="md:ml-60">
         <PlanBanner plan={bannerPlan} status={bannerStatus} daysRemaining={bannerDaysRemaining} />
